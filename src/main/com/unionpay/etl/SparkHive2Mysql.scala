@@ -24,10 +24,10 @@ object SparkHive2Mysql {
 
 //--------TAN ZHENG QIANG---------------------------------------------------------
     JOB_DM_5(sqlContext,today_dt)
-//    JOB_DM_6(sqlContext,today_dt)
+    JOB_DM_6(sqlContext,today_dt)
     JOB_DM_55(sqlContext,start_dt,end_dt)
 
-//    JOB_DM_62   //未添加
+    JOB_DM_62(sqlContext,today_dt)
 //    JOB_DM_66   //未添加
 //    JOB_DM_69   //未添加
 //    JOB_DM_70   //未添加
@@ -282,7 +282,70 @@ object SparkHive2Mysql {
   }
 
 
+  /**
+    * JOB_DM_62  2016-9-6
+    * dm_usr_auther_nature_tie_card --> hive_card_bind_inf
+    * @param sqlContext
+    */
+  def JOB_DM_62(implicit sqlContext: HiveContext,today_dt:String) = {
+    println("###JOB_DM_62-----JOB_DM_62(dm_usr_auther_nature_tie_card->hive_card_bind_inf)")
+
+    UPSQL_JDBC.delete("dm_usr_auther_nature_tie_card","report_dt",today_dt,today_dt)
+
+    sqlContext.sql("use upw_hive")
+
+    val results=sqlContext.sql(
+      s"""
+         |select
+         |(case when card_auth_st='0' then   '默认'
+         |  when card_auth_st='1' then   '支付认证'
+         |  when card_auth_st='2' then   '可信认证'
+         |  when card_auth_st='3' then   '可信+支付认证'
+         | else '未认证' end) as card_auth_nm,
+         |card_attr as card_attr ,
+         |'$today_dt' as report_dt ,
+         |count(distinct(case when rec_crt_ts = '$today_dt'  then cdhd_usr_id end))  as tpre,
+         |count(distinct(case when rec_crt_ts <= '$today_dt'  then cdhd_usr_id end))  as total
+         |
+         |from  (
+         |select distinct cdhd_usr_id,card_auth_st,rec_crt_ts,substr(bind_card_no,1,8) as card_bin
+         |from hive_card_bind_inf where card_bind_st='0') a
+         |left join
+         |(select card_attr,card_bin from hive_card_bin ) b
+         |on a.card_bin=b.card_bin
+         |group by (case when card_auth_st='0' then   '默认'
+         |  when card_auth_st='1' then   '支付认证'
+         |  when card_auth_st='2' then   '可信认证'
+         |  when card_auth_st='3' then   '可信+支付认证'
+         | else '未认证' end),card_attr
+         |
+      """.stripMargin)
+
+    println("###JOB_DM_62------results:"+results.count())
+
+    if(!Option(results).isEmpty){
+      results.save2Mysql("dm_usr_auther_nature_tie_card")
+    }else{
+      println("指定的时间范围无数据插入！")
+    }
+
+
+  }
+
+
+
+
   //=========Created by xuetaiping====================================================================
+
+
+
+
+
+
+
+
+
+
 
 
 
