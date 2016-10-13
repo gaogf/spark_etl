@@ -710,9 +710,7 @@ object SparkHive2Mysql {
 
     val results=sqlContext.sql(
       s"""
-         |
-        |
-        |select
+         |select
          |cup_branch_ins_id_nm as branch_nm,
          |max(case when cloud_pay_in='0' then 'apple pay'
          |     when cloud_pay_in='1' then 'hce'
