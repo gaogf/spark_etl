@@ -10,6 +10,13 @@ import org.apache.spark.{SparkConf, SparkContext}
   * Created by tzq on 2016/10/13.
   */
 object SparkDB22Hive {
+
+
+  // Xue update formatted date -_-
+  private  lazy  val dateFormatter=DateTimeFormat.forPattern("yyyy-MM-dd")
+  private  lazy val start_dt ="2016-09-08"
+  private  lazy val end_dt ="2016-09-09"
+
   def main(args: Array[String]) {
 
     val conf = new SparkConf().setAppName("SparkDB22Hive")
@@ -17,52 +24,73 @@ object SparkDB22Hive {
     sc.setLogLevel("ERROR")
     implicit val sqlContext = new HiveContext(sc)
 
-//--------TAN ZHENG QIANG---------------------------------------------------------
-//        JOB_HV_9
-//        JOB_HV_10
-//        JOB_HV_11
-//        JOB_HV_12
-//        JOB_HV_13
+    // Xue create function about partition by date ^_^
 
-//        JOB_HV_14
-//        JOB_HV_15      //未添加
-//        JOB_HV_16
-//        JOB_HV_23      //未添加
-//        JOB_HV_26      //未添加
-//        JOB_HV_37      //未添加
-//        JOB_HV_38      //未添加
-//        JOB_HV_40      //未添加
-//        JOB_HV_44      //未添加
-//        JOB_HV_48      //未添加
-//        JOB_HV_54      //未添加
-//        JOB_HV_67      //未添加
-//        JOB_HV_68      //未添加
-//        JOB_HV_42      //未添加
+    def PartitionFun(start_dt: String, end_dt: String)  {
+      var sdf: SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd")
+      val start = LocalDate.parse(start_dt, dateFormatter)
+      val end = LocalDate.parse(end_dt, dateFormatter)
+      val days = Days.daysBetween(start, end).getDays
+      val dateStrs = for (day <- 0 to days) {
+        val currentDay = (start.plusDays(day).toString(dateFormatter))
+        println(s"=========插入'$currentDay'分区的数据=========")
+        sqlContext.sql("use upw_hive")
+        sqlContext.sql(s"alter table hive_acc_trans drop partition (part_trans_dt='$currentDay')")
+        println(s"alter table hive_acc_trans drop partition (part_trans_dt='$currentDay') successfully!")
+        sqlContext.sql(s"alter table hive_acc_trans add partition (part_trans_dt='$currentDay')")
+        println(s"alter table hive_acc_trans add partition (part_trans_dt='$currentDay') successfully!")
+        sqlContext.sql(s"insert into hive_acc_trans partition (part_trans_dt='$currentDay') select * from spark_acc_trans htempa where htempa.trans_dt = '$currentDay'")
+        println(s"insert into hive_acc_trans partition (part_trans_dt='$currentDay') successfully!")
+      }
+    }
 
-//--------XUE TAI PING----------------------------------------------------------
-//        JOB_HV_4       //未添加
-//        JOB_HV_8       //未添加
-//        JOB_HV_25      //未添加
-//        JOB_HV_28      //未添加
-//        JOB_HV_29      //未添加
-//        JOB_HV_31      //未添加
-//        JOB_HV_32      //未添加
-//        JOB_HV_46      //未添加
-//        JOB_HV_47      //未添加
-//        JOB_HV_69      //未添加
-//        JOB_HV_69      //未添加
+    //--------TAN ZHENG QIANG---------------------------------------------------------
+    //        JOB_HV_9
+    //        JOB_HV_10
+    //        JOB_HV_11
+    //        JOB_HV_12
+    //        JOB_HV_13
 
-//--------YANG XUE--------------------------------------------------------------
-//         JOB_HV_1      //未添加
-//         JOB_HV_3      //未添加
-//         JOB_HV_18     //未添加
-//         JOB_HV_19     //未添加
-//         JOB_HV_24     //未添加
-//         JOB_HV_30     //未添加
-//         JOB_HV_36     //未添加
-//         JOB_HV_43     //未添加
-//         JOB_HV_70     //未添加
+    //        JOB_HV_14
+    //        JOB_HV_15      //未添加
+    //        JOB_HV_16
+    //        JOB_HV_23      //未添加
+    //        JOB_HV_26      //未添加
+    //        JOB_HV_37      //未添加
+    //        JOB_HV_38      //未添加
+    //        JOB_HV_40      //未添加
+    //        JOB_HV_44      //未添加
+    //        JOB_HV_48      //未添加
+    //        JOB_HV_54      //未添加
+    //        JOB_HV_67      //未添加
+    //        JOB_HV_68      //未添加
+    //        JOB_HV_42      //未添加
 
+    //--------XUE TAI PING----------------------------------------------------------
+    JOB_HV_4       //已添加
+    PartitionFun (start_dt,end_dt)
+    JOB_HV_8       //已添加
+    JOB_HV_25      //已添加
+    JOB_HV_28      //已添加
+    JOB_HV_29      //已添加
+    JOB_HV_31      //已添加
+    JOB_HV_32      //已添加
+    JOB_HV_46      //已添加
+    JOB_HV_47      //已添加
+    JOB_HV_69      //已添加
+    JOB_HV_69      //已添加
+
+    //--------YANG XUE--------------------------------------------------------------
+    //         JOB_HV_1      //未添加
+    //         JOB_HV_3      //未添加
+    //         JOB_HV_18     //未添加
+    //         JOB_HV_19     //未添加
+    //         JOB_HV_24     //未添加
+    //         JOB_HV_30     //未添加
+    //         JOB_HV_36     //未添加
+    //         JOB_HV_43     //未添加
+    //         JOB_HV_70     //未添加
+    sc.stop()
   }
 
   /**
@@ -193,7 +221,7 @@ object SparkDB22Hive {
     val df = sqlContext.jdbc_mgmdb_DF("CH_MGMDB.TBL_CHMGM_ACCESS_BAS_INF")
     df.registerTempTable("db2_tbl_chmgm_access_bas_inf")
     val results = sqlContext.sql(
-    """
+      """
         |select
         |seq_id,
         |trim(ch_ins_tp) as ch_ins_tp,
@@ -786,7 +814,1085 @@ object SparkDB22Hive {
 
 
   //=========Created by xuetaiping====================================================================
+  def JOB_HV_4 (implicit sqlContext: HiveContext) = {
+    val df2_1 = sqlContext.jdbc_db2_accdb_DF("ch_accdb.viw_chacc_acc_trans_dtl")
+    println("分区数为:" + {
+      df2_1.rdd.getNumPartitions
+    })
+    df2_1.printSchema()
+    df2_1.registerTempTable("viw_chacc_acc_trans_dtl")
 
+    val df2_2 = sqlContext.jdbc_db2_accdb_DF("ch_accdb.viw_chacc_acc_trans_log")
+    println("分区数为:" + {
+      df2_2.rdd.getNumPartitions
+    })
+    df2_2.printSchema()
+    df2_2.registerTempTable("viw_chacc_acc_trans_log")
+
+    val df2_3 = sqlContext.jdbc_db2_mgmdb_DF("ch_mgmdb.tbl_chmgm_swt_log00") //缺少表：ch_mgmdb.viw_chmgm_swt_log  （字段丢失，大数据平台73，现在还是68）
+    println("分区数为:" + {
+      df2_3.rdd.getNumPartitions
+    })
+    df2_3.printSchema()
+    df2_3.registerTempTable("viw_chmgm_swt_log")
+
+
+    val results = sqlContext.sql(
+      s"""
+         |select
+         |ta.seq_id as seq_id,
+         |trim(ta.cdhd_usr_id) as cdhd_usr_id,
+         |trim(ta.card_no) as card_no,
+         |trim(ta.trans_tfr_tm) as trans_tfr_tm,
+         |trim(ta.sys_tra_no) as sys_tra_no,
+         |trim(ta.acpt_ins_id_cd) as acpt_ins_id_cd,
+         |trim(ta.fwd_ins_id_cd) as fwd_ins_id_cd,
+         |trim(ta.rcv_ins_id_cd) as rcv_ins_id_cd,
+         |trim(ta.oper_module) as oper_module,
+         |case
+         |	when
+         |		substr(ta.trans_dt,1,4) between '0001' and '9999' and substr(ta.trans_dt,5,2) between '01' and '12' and
+         |		substr(ta.trans_dt,7,2) between '01' and substr(last_day(concat_ws('-',substr(ta.trans_dt,1,4),substr(ta.trans_dt,5,2),substr(ta.trans_dt,7,2))),9,2)
+         |	then concat_ws('-',substr(ta.trans_dt,1,4),substr(ta.trans_dt,5,2),substr(ta.trans_dt,7,2))
+         |	else null
+         |end as trans_dt,
+         |case
+         |	when
+         |		substr(ta.trans_dt,1,4) between '0001' and '9999' and substr(ta.trans_dt,5,2) between '01' and '12' and
+         |		substr(ta.trans_dt,7,2) between '01' and substr(last_day(concat_ws('-',substr(ta.trans_dt,1,4),substr(ta.trans_dt,5,2),substr(ta.trans_dt,7,2))),9,2) and
+         |		substr(ta.trans_tm,1,2) between '00' and '24' and
+         |		substr(ta.trans_tm,3,2) between '00' and '59' and
+         |		substr(ta.trans_tm,5,2) between '00' and '59'
+         |	then concat(concat_ws('-',substr(ta.trans_dt,1,4),substr(ta.trans_dt,5,2),substr(ta.trans_dt,7,2)), ' ', concat_ws(':',substr(ta.trans_tm,1,2),substr(ta.trans_tm,3,2),substr(ta.trans_tm,5,2)))
+         |	else null
+         |end as trans_tm,
+         |trim(ta.buss_tp) as buss_tp,
+         |trim(ta.um_trans_id) as um_trans_id,
+         |trim(ta.swt_right_tp) as swt_right_tp,
+         |trim(ta.bill_id) as bill_id,
+         |ta.bill_nm as bill_nm,
+         |trim(ta.chara_acct_tp) as chara_acct_tp,
+         |case
+         |	when length(trim(translate(trim(ta.trans_at),'-0123456789',' ')))=0 then ta.trans_at
+         |	else null
+         |end as trans_at,
+         |ta.point_at as point_at,
+         |trim(ta.mchnt_tp) as mchnt_tp,
+         |trim(ta.resp_cd) as resp_cd,
+         |trim(ta.card_accptr_term_id) as card_accptr_term_id,
+         |trim(ta.card_accptr_cd) as card_accptr_cd,
+         |ta.trans_proc_start_ts  as frist_trans_proc_start_ts,
+         |td.second_trans_proc_start_ts as second_trans_proc_start_ts,
+         |td.third_trans_proc_start_ts as third_trans_proc_start_ts,
+         |ta.trans_proc_end_ts as trans_proc_end_ts,
+         |trim(ta.sys_det_cd) as sys_det_cd,
+         |trim(ta.sys_err_cd) as sys_err_cd,
+         |ta.rec_upd_ts as rec_upd_ts,
+         |trim(ta.chara_acct_nm) as chara_acct_nm,
+         |trim(ta.void_trans_tfr_tm) as void_trans_tfr_tm,
+         |trim(ta.void_sys_tra_no) as void_sys_tra_no,
+         |trim(ta.void_acpt_ins_id_cd) as void_acpt_ins_id_cd,
+         |trim(ta.void_fwd_ins_id_cd) as void_fwd_ins_id_cd,
+         |ta.orig_data_elemnt as orig_data_elemnt,
+         |ta.rec_crt_ts as rec_crt_ts,
+         |case
+         |	when length(trim(translate(trim(ta.discount_at),'-0123456789',' ')))=0 then ta.discount_at
+         |	else null
+         |end as discount_at,
+         |trim(ta.bill_item_id) as bill_item_id,
+         |ta.chnl_inf_index as chnl_inf_index,
+         |ta.bill_num as bill_num,
+         |case
+         |	when length(trim(translate(trim(ta.addn_discount_at),'-0123456789',' ')))=0 then ta.addn_discount_at
+         |	else null
+         |end as addn_discount_at,
+         |trim(ta.pos_entry_md_cd) as pos_entry_md_cd,
+         |ta.udf_fld as udf_fld,
+         |trim(ta.card_accptr_nm_addr) as card_accptr_nm_addr,
+         |trim(tb.msg_tp) as msg_tp,
+         |trim(tb.cdhd_fk) as cdhd_fk,
+         |trim(tb.bill_tp) as bill_tp,
+         |trim(tb.bill_bat_no) as bill_bat_no,
+         |tb.bill_inf as bill_inf,
+         |trim(tb.proc_cd) as proc_cd,
+         |trim(tb.trans_curr_cd) as trans_curr_cd,
+         |case
+         |	when length(trim(translate(trim(tb.settle_at),'-0123456789',' ')))=0 then tb.settle_at
+         |	else null
+         |end as settle_at,
+         |trim(tb.settle_curr_cd) as settle_curr_cd,
+         |trim(tb.card_accptr_local_tm) as card_accptr_local_tm,
+         |trim(tb.card_accptr_local_dt) as card_accptr_local_dt,
+         |trim(tb.expire_dt) as expire_dt,
+         |case
+         |	when
+         |		substr(tb.msg_settle_dt,1,4) between '0001' and '9999' and substr(tb.msg_settle_dt,5,2) between '01' and '12' and
+         |		substr(tb.msg_settle_dt,7,2) between '01' and substr(last_day(concat_ws('-',substr(tb.msg_settle_dt,1,4),substr(tb.msg_settle_dt,5,2),substr(tb.msg_settle_dt,7,2))),9,2)
+         |	then concat_ws('-',substr(tb.msg_settle_dt,1,4),substr(tb.msg_settle_dt,5,2),substr(tb.msg_settle_dt,7,2))
+         |	else null
+         |end as msg_settle_dt,
+         |trim(tb.pos_cond_cd) as pos_cond_cd,
+         |trim(tb.pos_pin_capture_cd) as pos_pin_capture_cd,
+         |trim(tb.retri_ref_no) as retri_ref_no,
+         |trim(tb.auth_id_resp_cd) as auth_id_resp_cd,
+         |trim(tb.notify_st) as notify_st,
+         |tb.addn_private_data as addn_private_data,
+         |trim(tb.addn_at) as addn_at,
+         |tb.acct_id_1 as acct_id_1,
+         |tb.acct_id_2 as acct_id_2,
+         |tb.resv_fld as resv_fld,
+         |tb.cdhd_auth_inf as cdhd_auth_inf,
+         |case
+         |	when
+         |		substr(tb.sys_settle_dt,1,4) between '0001' and '9999' and substr(tb.sys_settle_dt,5,2) between '01' and '12' and
+         |		substr(tb.sys_settle_dt,7,2) between '01' and substr(last_day(concat_ws('-',substr(tb.sys_settle_dt,1,4),substr(tb.sys_settle_dt,5,2),substr(tb.sys_settle_dt,7,2))),9,2)
+         |	then concat_ws('-',substr(tb.sys_settle_dt,1,4),substr(tb.sys_settle_dt,5,2),substr(tb.sys_settle_dt,7,2))
+         |	else null
+         |end as sys_settle_dt,
+         |trim(tb.recncl_in) as recncl_in,
+         |trim(tb.match_in) as match_in,
+         |trim(tb.sec_ctrl_inf) as sec_ctrl_inf,
+         |trim(tb.card_seq) as card_seq,
+         |tb.dtl_inq_data as dtl_inq_data,
+         |tc.pri_key1 as pri_key1,
+         |tc.fwd_chnl_head as fwd_chnl_head,
+         |tc.chswt_plat_seq as chswt_plat_seq,
+         |trim(tc.internal_trans_tp) as internal_trans_tp,
+         |trim(tc.settle_trans_id) as settle_trans_id,
+         |trim(tc.trans_tp) as trans_tp,
+         |trim(tc.cups_settle_dt) as cups_settle_dt,
+         |trim(tc.pri_acct_no) as pri_acct_no,
+         |trim(tc.card_bin) as card_bin,
+         |tc.req_trans_at as req_trans_at,
+         |tc.resp_trans_at as resp_trans_at,
+         |tc.trans_tot_at as trans_tot_at,
+         |trim(tc.iss_ins_id_cd) as iss_ins_id_cd,
+         |trim(tc.launch_trans_tm) as launch_trans_tm,
+         |trim(tc.launch_trans_dt) as launch_trans_dt,
+         |trim(tc.mchnt_cd) as mchnt_cd,
+         |trim(tc.fwd_proc_in) as fwd_proc_in,
+         |trim(tc.rcv_proc_in) as rcv_proc_in,
+         |trim(tc.proj_tp) as proj_tp,
+         |tc.usr_id as usr_id,
+         |tc.conv_usr_id as conv_usr_id,
+         |trim(tc.trans_st) as trans_st,
+         |tc.inq_dtl_req as inq_dtl_req,
+         |tc.inq_dtl_resp as inq_dtl_resp,
+         |tc.iss_ins_resv as iss_ins_resv,
+         |tc.ic_flds as ic_flds,
+         |tc.cups_def_fld as cups_def_fld,
+         |trim(tc.id_no) as id_no,
+         |tc.cups_resv as cups_resv,
+         |tc.acpt_ins_resv as acpt_ins_resv,
+         |trim(tc.rout_ins_id_cd) as rout_ins_id_cd,
+         |trim(tc.sub_rout_ins_id_cd) as sub_rout_ins_id_cd,
+         |trim(tc.recv_access_resp_cd) as recv_access_resp_cd,
+         |trim(tc.chswt_resp_cd) as chswt_resp_cd,
+         |trim(tc.chswt_err_cd) as chswt_err_cd,
+         |tc.resv_fld1 as resv_fld1,
+         |tc.resv_fld2 as resv_fld2,
+         |tc.to_ts as to_ts,
+         |tc.external_amt as external_amt,
+         |tc.card_pay_at as card_pay_at,
+         |tc.right_purchase_at as right_purchase_at,
+         |trim(tc.recv_second_resp_cd) as recv_second_resp_cd,
+         |tc.req_acpt_ins_resv as req_acpt_ins_resv,
+         |NULL as log_id,
+         |NULL as conv_acct_no,
+         |NULL as inner_pro_ind,
+         |NULL as acct_proc_in,
+         |NULL as order_id
+         |
+         |from (select * from viw_chacc_acc_trans_dtl where
+         |concat_ws('-',substr(trans_dt,1,4),substr(trans_dt,5,2),substr(trans_dt,7,2))>='$start_dt'
+         |and concat_ws('-',substr(trans_dt,1,4),substr(trans_dt,5,2),substr(trans_dt,7,2))<='$end_dt'
+         |and um_trans_id<>'AC02202000') ta
+         |left join  (select * from viw_chacc_acc_trans_log
+         |where concat_ws('-',substr(msg_settle_dt,1,4),substr(msg_settle_dt,5,2),substr(msg_settle_dt,7,2))>='$start_dt'
+         |and concat_ws('-',substr(msg_settle_dt,1,4),substr(msg_settle_dt,5,2),substr(msg_settle_dt,7,2))<='$end_dt'
+         |and um_trans_id<>'AC02202000') tb
+         |on trim(ta.trans_tfr_tm)=trim(tb.trans_tfr_tm) and trim(ta.sys_tra_no)=trim(tb.sys_tra_no) and trim(ta.acpt_ins_id_cd)=trim(tb.acpt_ins_id_cd) and trim(ta.fwd_ins_id_cd)=trim(tb.fwd_ins_id_cd)
+         |left join  ( select * from viw_chmgm_swt_log where
+         |concat_ws('-',substr(trans_dt,1,4),substr(trans_dt,5,2),substr(trans_dt,7,2))>='$start_dt'
+         |and concat_ws('-',substr(trans_dt,1,4),substr(trans_dt,5,2),substr(trans_dt,7,2))<='$end_dt') tc
+         |on trim(ta.trans_tfr_tm)=trim(tc.tfr_dt_tm)  and  trim(ta.sys_tra_no)=trim(tc.sys_tra_no) and trim(ta.acpt_ins_id_cd)=trim(tc.acpt_ins_id_cd) and trim(ta.fwd_ins_id_cd)=trim(tc.msg_fwd_ins_id_cd)
+         |left join
+         |(
+         |select
+         |trim(tempc.trans_tfr_tm) as trans_tfr_tm,
+         |trim(tempc.sys_tra_no) as sys_tra_no,
+         |trim(tempc.acpt_ins_id_cd) as acpt_ins_id_cd,
+         |trim(tempc.fwd_ins_id_cd) as fwd_ins_id_cd,
+         |max(case when tempc.rank=2 then tempc.trans_proc_start_ts else null end) as second_trans_proc_start_ts,
+         |max(case when tempc.rank=2 then tempc.trans_proc_start_ts else null end) as third_trans_proc_start_ts
+         |from
+         |(select
+         |tempa.trans_tfr_tm as trans_tfr_tm,
+         |tempa.sys_tra_no as sys_tra_no,
+         |tempa.acpt_ins_id_cd as acpt_ins_id_cd,
+         |tempa.fwd_ins_id_cd as fwd_ins_id_cd,
+         |tempa.trans_proc_start_ts as trans_proc_start_ts,
+         |row_number() over (order by tempa.trans_proc_start_ts) rank
+         |from (select * from viw_chacc_acc_trans_dtl
+         |where concat_ws('-',substr(trans_dt,1,4),substr(trans_dt,5,2),substr(trans_dt,7,2))>='$start_dt'
+         |and concat_ws('-',substr(trans_dt,1,4),substr(trans_dt,5,2),substr(trans_dt,7,2))<='$end_dt') tempa,
+         |(select * from viw_chacc_acc_trans_log
+         |where concat_ws('-',substr(msg_settle_dt,1,4),substr(msg_settle_dt,5,2),substr(msg_settle_dt,7,2))>='$start_dt'
+         |and concat_ws('-',substr(msg_settle_dt,1,4),substr(msg_settle_dt,5,2),substr(msg_settle_dt,7,2))<='$end_dt') tempb
+         |where tempa.um_trans_id='AC02202000' and tempb.um_trans_id='AC02202000'
+         |group by tempa.trans_tfr_tm,tempa.sys_tra_no,tempa.acpt_ins_id_cd,tempa.fwd_ins_id_cd,tempa.trans_proc_start_ts) tempc
+         |group by tempc.trans_tfr_tm,tempc.sys_tra_no,tempc.acpt_ins_id_cd,tempc.fwd_ins_id_cd
+         |)td
+         |on trim(ta.trans_tfr_tm)=trim(td.trans_tfr_tm) and trim(ta.sys_tra_no)=trim(td.sys_tra_no) and trim(ta.acpt_ins_id_cd)=trim(td.acpt_ins_id_cd) and trim(ta.fwd_ins_id_cd)=trim(td.fwd_ins_id_cd)
+         |
+         | """.stripMargin)
+
+    results.registerTempTable("spark_acc_trans")
+    println("JOB_HV_4------>results:"+results.count())
+
+    if(!Option(results).isEmpty){
+      println("加载的表spark_acc_trans中有数据！")
+    }else{
+      println("加载的表spark_acc_trans中无数据！")
+    }
+
+  }
+
+  def JOB_HV_8 (implicit sqlContext: HiveContext) =  {
+    val df2_1 = sqlContext.jdbc_db2_mgmdb_DF("ch_mgmdb.TBL_CHMGM_STORE_TERM_RELATION")
+    println("分区数为:" + {
+      df2_1.rdd.getNumPartitions
+    })
+    df2_1.printSchema()
+    df2_1.registerTempTable("TBL_CHMGM_STORE_TERM_RELATION")
+
+    sqlContext.sql("use upw_hive")
+    val HIVE_ACC_TRANS = sqlContext.sql(s"select * from HIVE_ACC_TRANS where part_trans_dt>='$start_dt' and part_trans_dt<='$end_dt'")
+    HIVE_ACC_TRANS.registerTempTable("HIVE_ACC_TRANS")
+
+
+    val results = sqlContext.sql(
+      """
+        |select
+        |tempa.REC_ID AS REC_ID,
+        |tempa.MCHNT_CD AS MCHNT_CD,
+        |tempa.TERM_ID AS TERM_ID,
+        |tempa.THIRD_PARTY_INS_FK AS THIRD_PARTY_INS_FK,
+        |tempa.REC_UPD_USR_ID AS REC_UPD_USR_ID,
+        |tempa.REC_UPD_TS AS REC_UPD_TS,
+        |tempa.REC_CRT_USR_ID AS REC_CRT_USR_ID,
+        |tempa.REC_CRT_TS AS REC_CRT_TS,
+        |tempa.THIRD_PARTY_INS_ID AS THIRD_PARTY_INS_ID,
+        |'0' AS IS_TRANS_TP
+        |from
+        |(
+        |select
+        |A.REC_ID AS REC_ID,
+        |A.MCHNT_CD AS MCHNT_CD,
+        |A.TERM_ID AS TERM_ID,
+        |A.THIRD_PARTY_INS_FK AS THIRD_PARTY_INS_FK,
+        |A.REC_UPD_USR_ID AS REC_UPD_USR_ID,
+        |A.REC_UPD_TS AS REC_UPD_TS,
+        |A.REC_CRT_USR_ID AS REC_CRT_USR_ID,
+        |A.REC_CRT_TS AS REC_CRT_TS,
+        |A.THIRD_PARTY_INS_ID AS THIRD_PARTY_INS_ID,
+        |B.CARD_ACCPTR_CD AS CARD_ACCPTR_CD,
+        |B.CARD_ACCPTR_TERM_ID AS CARD_ACCPTR_TERM_ID
+        |from
+        |TBL_CHMGM_STORE_TERM_RELATION A
+        |LEFT JOIN
+        |(
+        |SELECT DISTINCT
+        |CARD_ACCPTR_TERM_ID,
+        |CARD_ACCPTR_CD
+        |FROM
+        |HIVE_ACC_TRANS
+        |) B
+        |ON A.MCHNT_CD = B.CARD_ACCPTR_CD AND A.TERM_ID = B.CARD_ACCPTR_TERM_ID
+        |) tempa
+        |where LENGTH(TRIM(tempa.CARD_ACCPTR_CD))=0 AND LENGTH(TRIM(tempa.CARD_ACCPTR_TERM_ID))=0
+        |
+        |UNION ALL
+        |
+        |
+        |select
+        |tempb.REC_ID AS REC_ID,
+        |tempb.MCHNT_CD AS MCHNT_CD,
+        |tempb.TERM_ID AS TERM_ID,
+        |tempb.THIRD_PARTY_INS_FK AS THIRD_PARTY_INS_FK,
+        |tempb.REC_UPD_USR_ID AS REC_UPD_USR_ID,
+        |tempb.REC_UPD_TS AS REC_UPD_TS,
+        |tempb.REC_CRT_USR_ID AS REC_CRT_USR_ID,
+        |tempb.REC_CRT_TS AS REC_CRT_TS,
+        |tempb.THIRD_PARTY_INS_ID AS THIRD_PARTY_INS_ID,
+        |'1' AS IS_TRANS_TP
+        |from
+        |(
+        |select
+        |A.REC_ID AS REC_ID,
+        |A.MCHNT_CD AS MCHNT_CD,
+        |A.TERM_ID AS TERM_ID,
+        |A.THIRD_PARTY_INS_FK AS THIRD_PARTY_INS_FK,
+        |A.REC_UPD_USR_ID AS REC_UPD_USR_ID,
+        |A.REC_UPD_TS AS REC_UPD_TS,
+        |A.REC_CRT_USR_ID AS REC_CRT_USR_ID,
+        |A.REC_CRT_TS AS REC_CRT_TS,
+        |A.THIRD_PARTY_INS_ID AS THIRD_PARTY_INS_ID,
+        |B.CARD_ACCPTR_CD AS CARD_ACCPTR_CD,
+        |B.CARD_ACCPTR_TERM_ID AS CARD_ACCPTR_TERM_ID
+        |from
+        |TBL_CHMGM_STORE_TERM_RELATION A
+        |LEFT JOIN
+        |(
+        |SELECT DISTINCT
+        |CARD_ACCPTR_TERM_ID,
+        |CARD_ACCPTR_CD
+        |FROM
+        |HIVE_ACC_TRANS
+        |) B
+        |ON A.MCHNT_CD = B.CARD_ACCPTR_CD AND A.TERM_ID = B.CARD_ACCPTR_TERM_ID
+        |) tempb
+        |where LENGTH(TRIM(tempb.CARD_ACCPTR_CD))<>0 AND LENGTH(TRIM(tempb.CARD_ACCPTR_TERM_ID))<>0
+        | """.stripMargin)
+    results.registerTempTable("spark_tbl_chmgm_store_term_relation")
+
+    println("JOB_HV_8------>results:"+results.count())
+
+    if(!Option(results).isEmpty){
+      results.registerTempTable("spark_tbl_chmgm_store_term_relation")
+      sqlContext.sql("use upw_hive")
+      sqlContext.sql("truncate table  HIVE_STORE_TERM_RELATION")
+      sqlContext.sql("insert into table HIVE_STORE_TERM_RELATION select * from spark_tbl_chmgm_preferential_mchnt_inf")
+    }else{
+      println("加载的表spark_tbl_chmgm_store_term_relation中无数据！")
+    }
+
+  }
+
+  def JOB_HV_25 (implicit sqlContext: HiveContext) = {
+    val df2_1 = sqlContext.jdbc_db2_mgmdb_DF("ch_mgmdb.tbl_mcmgm_mchnt_tp")
+    println("分区数为:" + {
+      df2_1.rdd.getNumPartitions
+    })
+    df2_1.printSchema()
+    df2_1.registerTempTable("tbl_mcmgm_mchnt_tp")
+
+
+    val results = sqlContext.sql(
+      """
+        |select
+        |trim(ta.MCHNT_TP) as MCHNT_TP,
+        |trim(ta.MCHNT_TP_GRP) as MCHNT_TP_GRP,
+        |ta.MCHNT_TP_DESC_CN as MCHNT_TP_DESC_CN,
+        |ta.MCHNT_TP_DESC_EN as MCHNT_TP_DESC_EN,
+        |ta.REC_ID as REC_ID,
+        |ta.REC_ST as REC_ST,
+        |ta.MCC_TYPE as MCC_TYPE,
+        |ta.LAST_OPER_IN as LAST_OPER_IN,
+        |trim(ta.REC_UPD_USR_ID) as REC_UPD_USR_ID,
+        |ta.REC_UPD_TS as REC_UPD_TS,
+        |ta.REC_CRT_TS as REC_CRT_TS,
+        |ta.SYNC_ST as SYNC_ST,
+        |ta.SYNC_BAT_NO as SYNC_BAT_NO,
+        |ta.SYNC_TS as SYNC_TS
+        |
+        |from TBL_MCMGM_MCHNT_TP ta
+        |
+        | """.stripMargin)
+
+    results.registerTempTable("spark_hive_mchnt_tp")
+    println("JOB_HV_25------>results:"+results.count())
+
+    if(!Option(results).isEmpty){
+      results.registerTempTable("spark_hive_mchnt_tp")
+      sqlContext.sql("use upw_hive")
+      sqlContext.sql("truncate table  HIVE_MCHNT_TP")
+      sqlContext.sql("insert into table HIVE_MCHNT_TP select * from spark_hive_mchnt_tp")
+    }else{
+      println("加载的表spark_hive_mchnt_tp中无数据！")
+    }
+  }
+
+  def JOB_HV_28 (implicit sqlContext: HiveContext) = {
+    val df2_1 = sqlContext.jdbc_db2_accdb_DF("ch_accdb.viw_chacc_online_point_trans_inf")
+    println("分区数为:" + {
+      df2_1.rdd.getNumPartitions
+    })
+    df2_1.printSchema()
+    df2_1.registerTempTable("viw_chacc_online_point_trans_inf")
+
+    val results = sqlContext.sql(
+      s"""
+        select
+         |ta.trans_id as trans_id,
+         |trim(ta.cdhd_usr_id) as cdhd_usr_id,
+         |trim(ta.trans_tp) as trans_tp,
+         |trim(ta.buss_tp) as buss_tp,
+         |ta.trans_point_at as trans_point_at,
+         |trim(ta.chara_acct_tp) as chara_acct_tp,
+         |trim(ta.bill_id) as bill_id,
+         |ta.bill_num as bill_num,
+         |case
+         |	when
+         |		substr(ta.trans_dt,1,4) between '0001' and '9999' and substr(ta.trans_dt,5,2) between '01' and '12' and
+         |		substr(ta.trans_dt,7,2) between '01' and substr(last_day(concat_ws('-',substr(ta.trans_dt,1,4),substr(ta.trans_dt,5,2),substr(ta.trans_dt,7,2))),9,2)
+         |	then concat_ws('-',substr(ta.trans_dt,1,4),substr(ta.trans_dt,5,2),substr(ta.trans_dt,7,2))
+         |	else null
+         |end as trans_dt,
+         |trim(ta.trans_tm) as trans_tm,
+         |ta.vendor_id as vendor_id,
+         |ta.remark as remark,
+         |trim(ta.card_no) as card_no,
+         |trim(ta.status) as status,
+         |ta.term_trans_seq as term_trans_seq,
+         |ta.orig_term_trans_seq as orig_term_trans_seq,
+         |trim(ta.mchnt_cd) as mchnt_cd,
+         |trim(ta.term_id) as term_id,
+         |ta.refund_ts as refund_ts,
+         |trim(ta.order_tp) order_tp,
+         |ta.trans_at as trans_at,
+         |trim(ta.svc_order_id) as svc_order_id,
+         |ta.trans_dtl as trans_dtl,
+         |ta.exch_rate as exch_rate,
+         |ta.disc_at_point as disc_at_point,
+         |trim(ta.cdhd_fk) as cdhd_fk,
+         |ta.bill_nm as bill_nm,
+         |trim(ta.chara_acct_nm) as chara_acct_nm,
+         |ta.rec_crt_ts as rec_crt_ts,
+         |trim(ta.trans_seq) as trans_seq,
+         |trim(ta.sys_err_cd) as sys_err_cd,
+         |trim(ta.bill_acq_md) as bill_acq_md,
+         |ta.cup_branch_ins_id_cd as cup_branch_ins_id_cd,
+         |case
+         |	when trim(ta.cup_branch_ins_id_cd)='00011000' then '北京'
+         |	when trim(ta.cup_branch_ins_id_cd)='00011100' then '天津'
+         |	when trim(ta.cup_branch_ins_id_cd)='00011200' then '河北'
+         |	when trim(ta.cup_branch_ins_id_cd)='00011600' then '山西'
+         |    when trim(ta.cup_branch_ins_id_cd)='00011900' then '内蒙古'
+         |    when trim(ta.cup_branch_ins_id_cd)='00012210' then '辽宁'
+         |    when trim(ta.cup_branch_ins_id_cd)='00012220' then '大连'
+         |    when trim(ta.cup_branch_ins_id_cd)='00012400' then '吉林'
+         |    when trim(ta.cup_branch_ins_id_cd)='00012600' then '黑龙江'
+         |    when trim(ta.cup_branch_ins_id_cd)='00012900' then '上海'
+         |    when trim(ta.cup_branch_ins_id_cd)='00013000' then '江苏'
+         |    when trim(ta.cup_branch_ins_id_cd)='00013310' then '浙江'
+         |    when trim(ta.cup_branch_ins_id_cd)='00013320' then '宁波'
+         |    when trim(ta.cup_branch_ins_id_cd)='00013600' then '安徽'
+         |    when trim(ta.cup_branch_ins_id_cd)='00013900' then '福建'
+         |    when trim(ta.cup_branch_ins_id_cd)='00013930' then '厦门'
+         |    when trim(ta.cup_branch_ins_id_cd)='00014200' then '江西'
+         |    when trim(ta.cup_branch_ins_id_cd)='00014500' then '山东'
+         |    when trim(ta.cup_branch_ins_id_cd)='00014520' then '青岛'
+         |    when trim(ta.cup_branch_ins_id_cd)='00014900' then '河南'
+         |    when trim(ta.cup_branch_ins_id_cd)='00015210' then '湖北'
+         |    when trim(ta.cup_branch_ins_id_cd)='00015500' then '湖南'
+         |    when trim(ta.cup_branch_ins_id_cd)='00015800' then '广东'
+         |    when trim(ta.cup_branch_ins_id_cd)='00015840' then '深圳'
+         |    when trim(ta.cup_branch_ins_id_cd)='00016100' then '广西'
+         |    when trim(ta.cup_branch_ins_id_cd)='00016400' then '海南'
+         |    when trim(ta.cup_branch_ins_id_cd)='00016500' then '四川'
+         |    when trim(ta.cup_branch_ins_id_cd)='00016530' then '重庆'
+         |    when trim(ta.cup_branch_ins_id_cd)='00017000' then '贵州'
+         |    when trim(ta.cup_branch_ins_id_cd)='00017310' then '云南'
+         |    when trim(ta.cup_branch_ins_id_cd)='00017700' then '西藏'
+         |    when trim(ta.cup_branch_ins_id_cd)='00017900' then '陕西'
+         |    when trim(ta.cup_branch_ins_id_cd)='00018200' then '甘肃'
+         |    when trim(ta.cup_branch_ins_id_cd)='00018500' then '青海'
+         |    when trim(ta.cup_branch_ins_id_cd)='00018700' then '宁夏'
+         |    when trim(ta.cup_branch_ins_id_cd)='00018800' then '新疆'
+         |else '总公司' end as cup_branch_ins_id_nm
+         |
+        |from viw_chacc_online_point_trans_inf ta
+         |where  ta.trans_tp in ('03','09','11','18','28')
+         |and concat_ws('-',substr(ta.trans_dt,1,4),substr(ta.trans_dt,5,2),substr(ta.trans_dt,7,2))>='$start_dt'
+         |and concat_ws('-',substr(ta.trans_dt,1,4),substr(ta.trans_dt,5,2),substr(ta.trans_dt,7,2))<='$end_dt'
+         | """.stripMargin)
+
+    results.registerTempTable("spark_hive_online_point_trans")
+    println("JOB_HV_28------>results:"+results.count())
+    if(!Option(results).isEmpty){
+      results.registerTempTable("spark_hive_online_point_trans")
+      sqlContext.sql("use upw_hive")
+      sqlContext.sql("truncate table  hive_online_point_trans")
+      sqlContext.sql("insert into table hive_online_point_trans select * from spark_hive_online_point_trans")
+    }else{
+      println("加载的表spark_hive_online_point_trans中无数据！")
+    }
+  }
+
+  def JOB_HV_29 (implicit sqlContext: HiveContext) = {
+    val df2_1 = sqlContext.jdbc_db2_accdb_DF("ch_accdb.tbl_chacc_cdhd_point_addup_dtl")
+    println("分区数为:" + {
+      df2_1.rdd.getNumPartitions
+    })
+    df2_1.printSchema()
+    df2_1.registerTempTable("tbl_chacc_cdhd_point_addup_dtl")
+
+    val results = sqlContext.sql(
+      s"""
+         |select
+         |ta.dtl_seq as dtl_seq,
+         |trim(ta.cdhd_usr_id) as cdhd_usr_id,
+         |trim(ta.pri_acct_no) as pri_acct_no,
+         |trim(ta.acpt_ins_id_cd) as acpt_ins_id_cd,
+         |trim(ta.fwd_ins_id_cd) as fwd_ins_id_cd,
+         |trim(ta.sys_tra_no) as sys_tra_no,
+         |trim(ta.tfr_dt_tm) as tfr_dt_tm,
+         |trim(ta.card_class) as card_class,
+         |trim(ta.card_attr) as card_attr,
+         |trim(ta.card_std) as card_std,
+         |trim(ta.card_media) as card_media,
+         |trim(ta.cups_card_in) as cups_card_in,
+         |trim(ta.cups_sig_card_in) as cups_sig_card_in,
+         |trim(ta.trans_id) as trans_id,
+         |trim(ta.region_cd) as region_cd,
+         |trim(ta.card_bin) as card_bin,
+         |trim(ta.mchnt_tp) as mchnt_tp,
+         |trim(ta.mchnt_cd) as mchnt_cd,
+         |trim(ta.term_id) as term_id,
+         |trim(ta.trans_dt) as trans_dt,
+         |trim(ta.trans_tm) as trans_tm,
+         |case
+         |	when
+         |		substr(ta.settle_dt,1,4) between '0001' and '9999' and substr(ta.settle_dt,5,2) between '01' and '12' and
+         |		substr(ta.settle_dt,7,2) between '01' and substr(last_day(concat_ws('-',substr(ta.settle_dt,1,4),substr(ta.settle_dt,5,2),substr(ta.settle_dt,7,2))),9,2)
+         |	then concat_ws('-',substr(ta.settle_dt,1,4),substr(ta.settle_dt,5,2),substr(ta.settle_dt,7,2))
+         |	else null
+         |end as settle_dt,
+         |ta.settle_at as settle_at,
+         |trim(ta.trans_chnl) as trans_chnl,
+         |trim(ta.acpt_term_tp) as acpt_term_tp,
+         |ta.point_plan_id as point_plan_id,
+         |ta.plan_id as plan_id,
+         |trim(ta.ins_acct_id) as ins_acct_id,
+         |ta.point_at as point_at,
+         |trim(ta.oper_st) as oper_st,
+         |ta.rule_id as rule_id,
+         |trim(ta.pri_key) as pri_key,
+         |ta.ver_no as ver_no,
+         |case
+         |	when
+         |		substr(ta.acct_addup_bat_dt,1,4) between '0001' and '9999' and substr(ta.acct_addup_bat_dt,5,2) between '01' and '12' and
+         |		substr(ta.acct_addup_bat_dt,7,2) between '01' and substr(last_day(concat_ws('-',substr(ta.acct_addup_bat_dt,1,4),substr(ta.acct_addup_bat_dt,5,2),substr(ta.acct_addup_bat_dt,7,2))),9,2)
+         |	then concat_ws('-',substr(ta.acct_addup_bat_dt,1,4),substr(ta.acct_addup_bat_dt,5,2),substr(ta.acct_addup_bat_dt,7,2))
+         |	else null
+         |end as acct_addup_bat_dt,
+         |trim(ta.iss_ins_id_cd) as iss_ins_id_cd,
+         |trim(ta.extra_sp_ins_acct_id) as extra_sp_ins_acct_id,
+         |ta.extra_point_at as extra_point_at,
+         |trim(ta.extend_ins_id_cd) as extend_ins_id_cd,
+         |ta.cup_branch_ins_id_cd as cup_branch_ins_id_cd,
+         |case
+         |	when trim(ta.cup_branch_ins_id_cd)='00011000' then '北京'
+         |	when trim(ta.cup_branch_ins_id_cd)='00011100' then '天津'
+         |	when trim(ta.cup_branch_ins_id_cd)='00011200' then '河北'
+         |	when trim(ta.cup_branch_ins_id_cd)='00011600' then '山西'
+         |	when trim(ta.cup_branch_ins_id_cd)='00011900' then '内蒙古'
+         |	when trim(ta.cup_branch_ins_id_cd)='00012210' then '辽宁'
+         |	when trim(ta.cup_branch_ins_id_cd)='00012220' then '大连'
+         |	when trim(ta.cup_branch_ins_id_cd)='00012400' then '吉林'
+         |	when trim(ta.cup_branch_ins_id_cd)='00012600' then '黑龙江'
+         |	when trim(ta.cup_branch_ins_id_cd)='00012900' then '上海'
+         |	when trim(ta.cup_branch_ins_id_cd)='00013000' then '江苏'
+         |	when trim(ta.cup_branch_ins_id_cd)='00013310' then '浙江'
+         |	when trim(ta.cup_branch_ins_id_cd)='00013320' then '宁波'
+         |	when trim(ta.cup_branch_ins_id_cd)='00013600' then '安徽'
+         |	when trim(ta.cup_branch_ins_id_cd)='00013900' then '福建'
+         |	when trim(ta.cup_branch_ins_id_cd)='00013930' then '厦门'
+         |	when trim(ta.cup_branch_ins_id_cd)='00014200' then '江西'
+         |	when trim(ta.cup_branch_ins_id_cd)='00014500' then '山东'
+         |	when trim(ta.cup_branch_ins_id_cd)='00014520' then '青岛'
+         |	when trim(ta.cup_branch_ins_id_cd)='00014900' then '河南'
+         |	when trim(ta.cup_branch_ins_id_cd)='00015210' then '湖北'
+         |	when trim(ta.cup_branch_ins_id_cd)='00015500' then '湖南'
+         |	when trim(ta.cup_branch_ins_id_cd)='00015800' then '广东'
+         |	when trim(ta.cup_branch_ins_id_cd)='00015840' then '深圳'
+         |	when trim(ta.cup_branch_ins_id_cd)='00016100' then '广西'
+         |	when trim(ta.cup_branch_ins_id_cd)='00016400' then '海南'
+         |	when trim(ta.cup_branch_ins_id_cd)='00016500' then '四川'
+         |	when trim(ta.cup_branch_ins_id_cd)='00016530' then '重庆'
+         |	when trim(ta.cup_branch_ins_id_cd)='00017000' then '贵州'
+         |	when trim(ta.cup_branch_ins_id_cd)='00017310' then '云南'
+         |	when trim(ta.cup_branch_ins_id_cd)='00017700' then '西藏'
+         |	when trim(ta.cup_branch_ins_id_cd)='00017900' then '陕西'
+         |	when trim(ta.cup_branch_ins_id_cd)='00018200' then '甘肃'
+         |	when trim(ta.cup_branch_ins_id_cd)='00018500' then '青海'
+         |	when trim(ta.cup_branch_ins_id_cd)='00018700' then '宁夏'
+         |	when trim(ta.cup_branch_ins_id_cd)='00018800' then '新疆'
+         |else '总公司' end as cup_branch_ins_id_nm,
+         |trim(ta.um_trans_id) as um_trans_id,
+         |trim(ta.buss_tp) as buss_tp,
+         |trim(ta.bill_id) as bill_id,
+         |ta.bill_num as bill_num,
+         |case
+         |	when
+         |		substr(ta.oper_dt,1,4) between '0001' and '9999' and substr(ta.oper_dt,5,2) between '01' and '12' and
+         |		substr(ta.oper_dt,7,2) between '01' and substr(last_day(concat_ws('-',substr(ta.oper_dt,1,4),substr(ta.oper_dt,5,2),substr(ta.oper_dt,7,2))),9,2)
+         |	then concat_ws('-',substr(ta.oper_dt,1,4),substr(ta.oper_dt,5,2),substr(ta.oper_dt,7,2))
+         |	else null
+         |end as oper_dt,
+         |trim(ta.tmp_flag) as tmp_flag,
+         |ta.bill_nm as bill_nm,
+         |trim(ta.chara_acct_tp) as chara_acct_tp,
+         |trim(ta.chara_acct_nm) as chara_acct_nm,
+         |trim(ta.acct_addup_tp) as acct_addup_tp,
+         |ta.rec_crt_ts as rec_crt_ts,
+         |ta.rec_upd_ts as rec_upd_ts,
+         |trim(ta.orig_trans_seq) as orig_trans_seq,
+         |trim(ta.notice_on_account) as notice_on_account,
+         |trim(ta.orig_tfr_dt_tm) as orig_tfr_dt_tm,
+         |trim(ta.orig_sys_tra_no) as orig_sys_tra_no,
+         |trim(ta.orig_acpt_ins_id_cd) as orig_acpt_ins_id_cd,
+         |trim(ta.orig_fwd_ins_id_cd) as orig_fwd_ins_id_cd,
+         |trim(ta.indirect_trans_in) as indirect_trans_in,
+         |ta.booking_rec_id as booking_rec_id,
+         |trim(ta.booking_in) as booking_in,
+         |ta.plan_nm as plan_nm,
+         |ta.plan_give_total_num as plan_give_total_num,
+         |trim(ta.plan_give_limit_tp) as plan_give_limit_tp,
+         |ta.plan_give_limit as plan_give_limit,
+         |ta.day_give_limit as day_give_limit,
+         |trim(ta.give_limit_in) as give_limit_in,
+         |trim(ta.retri_ref_no) as retri_ref_no
+         |
+          |from tbl_chacc_cdhd_point_addup_dtl ta
+         |where ta.um_trans_id in('AD00000002','AD00000003','AD00000004','AD00000005','AD00000006','AD00000007')
+         |and concat_ws('-',substr(ta.trans_dt,1,4),substr(ta.trans_dt,5,2),substr(ta.trans_dt,7,2))>='$start_dt'
+         |and concat_ws('-',substr(ta.trans_dt,1,4),substr(ta.trans_dt,5,2),substr(ta.trans_dt,7,2))<='$end_dt'
+         | """.stripMargin)
+
+    results.registerTempTable("spark_hive_offline_point_trans")
+    println("JOB_HV_29------>results:"+results.count())
+    if(!Option(results).isEmpty){
+      results.registerTempTable("spark_hive_offline_point_trans")
+      sqlContext.sql("use upw_hive")
+      sqlContext.sql("truncate table  hive_offline_point_trans")
+      sqlContext.sql("insert into table hive_offline_point_trans select * from spark_hive_offline_point_trans")
+    }else{
+      println("加载的表spark_hive_offline_point_trans中无数据！")
+    }
+  }
+
+  def JOB_HV_31 (implicit sqlContext: HiveContext) = {
+    val df2_1 = sqlContext.jdbc_db2_mgmdb_DF("ch_mgmdb.VIW_CHMGM_BILL_ORDER_AUX_INF")
+    println("分区数为:" + {
+      df2_1.rdd.getNumPartitions
+    })
+    df2_1.printSchema()
+    df2_1.registerTempTable("VIW_CHMGM_BILL_ORDER_AUX_INF")
+
+    val results = sqlContext.sql(
+      s"""
+        select
+         |trim(ta.BILL_ORDER_ID) as BILL_ORDER_ID,
+         |trim(ta.MCHNT_CD) as MCHNT_CD,
+         |ta.MCHNT_NM as MCHNT_NM,
+         |trim(ta.SUB_MCHNT_CD) as SUB_MCHNT_CD,
+         |trim(ta.CDHD_USR_ID) as CDHD_USR_ID,
+         |ta.SUB_MCHNT_NM as SUB_MCHNT_NM,
+         |ta.RELATED_USR_ID as RELATED_USR_ID,
+         |trim(ta.CUPS_TRACE_NUMBER) as CUPS_TRACE_NUMBER,
+         |trim(ta.TRANS_TM) as TRANS_TM,
+         |case
+         |	when
+         |		substr(ta.trans_dt,1,4) between '0001' and '9999' and substr(ta.trans_dt,5,2) between '01' and '12' and
+         |		substr(ta.trans_dt,7,2) between '01' and substr(last_day(concat_ws('-',substr(ta.trans_dt,1,4),substr(ta.trans_dt,5,2),substr(ta.trans_dt,7,2))),9,2)
+         |	then concat_ws('-',substr(ta.trans_dt,1,4),substr(ta.trans_dt,5,2),substr(ta.trans_dt,7,2))
+         |	else null
+         |end as trans_dt,
+         |trim(ta.ORIG_TRANS_SEQ) as ORIG_TRANS_SEQ,
+         |trim(ta.TRANS_SEQ) as TRANS_SEQ,
+         |trim(ta.MOBILE_ORDER_ID) as MOBILE_ORDER_ID,
+         |trim(ta.ACP_ORDER_ID) as ACP_ORDER_ID,
+         |trim(ta.DELIVERY_PROV_CD) as DELIVERY_PROV_CD,
+         |trim(ta.DELIVERY_CITY_CD) as DELIVERY_CITY_CD,
+         |(case
+         |when ta.delivery_city_cd='210200' then '大连'
+         |when ta.delivery_city_cd='330200' then '宁波'
+         |when ta.delivery_city_cd='350200' then '厦门'
+         |when ta.delivery_city_cd='370200' then '青岛'
+         |when ta.delivery_city_cd='440300' then '深圳'
+         |when ta.delivery_prov_cd like '11%' then '北京'
+         |when ta.delivery_prov_cd like '12%' then '天津'
+         |when ta.delivery_prov_cd like '13%' then '河北'
+         |when ta.delivery_prov_cd like '14%' then '山西'
+         |when ta.delivery_prov_cd like '15%' then '内蒙古'
+         |when ta.delivery_prov_cd like '21%' then '辽宁'
+         |when ta.delivery_prov_cd like '22%' then '吉林'
+         |when ta.delivery_prov_cd like '23%' then '黑龙江'
+         |when ta.delivery_prov_cd like '31%' then '上海'
+         |when ta.delivery_prov_cd like '32%' then '江苏'
+         |when ta.delivery_prov_cd like '33%' then '浙江'
+         |when ta.delivery_prov_cd like '34%' then '安徽'
+         |when ta.delivery_prov_cd like '35%' then '福建'
+         |when ta.delivery_prov_cd like '36%' then '江西'
+         |when ta.delivery_prov_cd like '37%' then '山东'
+         |when ta.delivery_prov_cd like '41%' then '河南'
+         |when ta.delivery_prov_cd like '42%' then '湖北'
+         |when ta.delivery_prov_cd like '43%' then '湖南'
+         |when ta.delivery_prov_cd like '44%' then '广东'
+         |when ta.delivery_prov_cd like '45%' then '广西'
+         |when ta.delivery_prov_cd like '46%' then '海南'
+         |when ta.delivery_prov_cd like '50%' then '重庆'
+         |when ta.delivery_prov_cd like '51%' then '四川'
+         |when ta.delivery_prov_cd like '52%' then '贵州'
+         |when ta.delivery_prov_cd like '53%' then '云南'
+         |when ta.delivery_prov_cd like '54%' then '西藏'
+         |when ta.delivery_prov_cd like '61%' then '陕西'
+         |when ta.delivery_prov_cd like '62%' then '甘肃'
+         |when ta.delivery_prov_cd like '63%' then '青海'
+         |when ta.delivery_prov_cd like '64%' then '宁夏'
+         |when ta.delivery_prov_cd like '65%' then '新疆'
+         |else '总公司' end) as prov_division_cd,
+         |trim(ta.DELIVERY_DISTRICT_CD) as DELIVERY_DISTRICT_CD,
+         |trim(ta.DELIVERY_ZIP_CD) as DELIVERY_ZIP_CD,
+         |ta.DELIVERY_ADDRESS as DELIVERY_ADDRESS,
+         |trim(ta.RECEIVER_NM) as RECEIVER_NM,
+         |trim(ta.RECEIVER_MOBILE) as RECEIVER_MOBILE,
+         |ta.DELIVERY_TIME_DESC as DELIVERY_TIME_DESC,
+         |ta.INVOICE_DESC as INVOICE_DESC,
+         |ta.TRANS_AT as TRANS_AT,
+         |ta.REFUND_AT as REFUND_AT,
+         |trim(ta.ORDER_ST) as ORDER_ST,
+         |ta.ORDER_CRT_TS as ORDER_CRT_TS,
+         |ta.ORDER_TIMEOUT_TS as ORDER_TIMEOUT_TS,
+         |trim(ta.CARD_NO) as CARD_NO,
+         |trim(ta.ORDER_CHNL) as ORDER_CHNL,
+         |trim(ta.ORDER_IP) as ORDER_IP,
+         |ta.DEVICE_INF as DEVICE_INF,
+         |ta.REMARK as REMARK,
+         |ta.REC_CRT_TS as REC_CRT_TS,
+         |trim(ta.CRT_CDHD_USR_ID) as CRT_CDHD_USR_ID,
+         |ta.REC_UPD_TS as REC_UPD_TS,
+         |trim(ta.UPD_CDHD_USR_ID) as UPD_CDHD_USR_ID
+         |
+        |from VIW_CHMGM_BILL_ORDER_AUX_INF ta
+         |where concat_ws('-',substr(ta.trans_dt,1,4),substr(ta.trans_dt,5,2),substr(ta.trans_dt,7,2))>='$start_dt'
+         |and concat_ws('-',substr(ta.trans_dt,1,4),substr(ta.trans_dt,5,2),substr(ta.trans_dt,7,2))<='$end_dt'
+         | """.stripMargin)
+
+    results.registerTempTable("spark_hive_bill_order_trans")
+    println("JOB_HV_31------>results:"+results.count())
+    if(!Option(results).isEmpty){
+      results.registerTempTable("spark_hive_bill_order_trans")
+      sqlContext.sql("use upw_hive")
+      sqlContext.sql("truncate table  HIVE_BILL_ORDER_TRANS")
+      sqlContext.sql("insert into table HIVE_BILL_ORDER_TRANS select * from spark_hive_bill_order_trans")
+    }else{
+      println("加载的表spark_hive_bill_order_trans中无数据！")
+    }
+  }
+
+  def JOB_HV_32 (implicit sqlContext: HiveContext) = {
+    val df2_1 = sqlContext.jdbc_db2_mgmdb_DF("ch_mgmdb.tbl_umsvc_prize_discount_result")
+    println("分区数为:" + {
+      df2_1.rdd.getNumPartitions
+    })
+    df2_1.printSchema()
+    df2_1.registerTempTable("tbl_umsvc_prize_discount_result")
+
+    val results = sqlContext.sql(
+      s"""
+         |select
+         |ta.PRIZE_RESULT_SEQ as PRIZE_RESULT_SEQ,
+         |trim(ta.TRANS_ID) as TRANS_ID,
+         |trim(ta.SYS_TRA_NO) as SYS_TRA_NO,
+         |trim(ta.SYS_TRA_NO_CONV) as SYS_TRA_NO_CONV,
+         |trim(ta.PRI_ACCT_NO) as PRI_ACCT_NO,
+         |ta.TRANS_AT as TRANS_AT,
+         |ta.TRANS_AT_CONV as TRANS_AT_CONV,
+         |ta.TRANS_POS_AT as TRANS_POS_AT,
+         |trim(ta.TRANS_DT_TM) as TRANS_DT_TM,
+         |trim(ta.LOC_TRANS_DT) as LOC_TRANS_DT,
+         |trim(ta.LOC_TRANS_TM) as LOC_TRANS_TM,
+         |case
+         |	when
+         |		substr(ta.SETTLE_DT,1,4) between '0001' and '9999' and substr(ta.SETTLE_DT,5,2) between '01' and '12' and
+         |		substr(ta.SETTLE_DT,7,2) between '01' and substr(last_day(concat_ws('-',substr(ta.SETTLE_DT,1,4),substr(ta.SETTLE_DT,5,2),substr(ta.SETTLE_DT,7,2))),9,2)
+         |	then concat_ws('-',substr(ta.SETTLE_DT,1,4),substr(ta.SETTLE_DT,5,2),substr(ta.SETTLE_DT,7,2))
+         |	else null
+         |end as SETTLE_DT,
+         |trim(MCHNT_TP) as MCHNT_TP,
+         |trim(ACPT_INS_ID_CD) as ACPT_INS_ID_CD,
+         |trim(ISS_INS_ID_CD) as ISS_INS_ID_CD,
+         |trim(ACQ_INS_ID_CD) as ACQ_INS_ID_CD,
+         |CUP_BRANCH_INS_ID_CD as CUP_BRANCH_INS_ID_CD,
+         |case
+         |	when trim(ta.cup_branch_ins_id_cd)='00011000' then '北京'
+         |	when trim(ta.cup_branch_ins_id_cd)='00011100' then '天津'
+         |	when trim(ta.cup_branch_ins_id_cd)='00011200' then '河北'
+         |	when trim(ta.cup_branch_ins_id_cd)='00011600' then '山西'
+         |    when trim(ta.cup_branch_ins_id_cd)='00011900' then '内蒙古'
+         |    when trim(ta.cup_branch_ins_id_cd)='00012210' then '辽宁'
+         |    when trim(ta.cup_branch_ins_id_cd)='00012220' then '大连'
+         |    when trim(ta.cup_branch_ins_id_cd)='00012400' then '吉林'
+         |    when trim(ta.cup_branch_ins_id_cd)='00012600' then '黑龙江'
+         |    when trim(ta.cup_branch_ins_id_cd)='00012900' then '上海'
+         |    when trim(ta.cup_branch_ins_id_cd)='00013000' then '江苏'
+         |    when trim(ta.cup_branch_ins_id_cd)='00013310' then '浙江'
+         |    when trim(ta.cup_branch_ins_id_cd)='00013320' then '宁波'
+         |    when trim(ta.cup_branch_ins_id_cd)='00013600' then '安徽'
+         |    when trim(ta.cup_branch_ins_id_cd)='00013900' then '福建'
+         |    when trim(ta.cup_branch_ins_id_cd)='00013930' then '厦门'
+         |    when trim(ta.cup_branch_ins_id_cd)='00014200' then '江西'
+         |    when trim(ta.cup_branch_ins_id_cd)='00014500' then '山东'
+         |    when trim(ta.cup_branch_ins_id_cd)='00014520' then '青岛'
+         |    when trim(ta.cup_branch_ins_id_cd)='00014900' then '河南'
+         |    when trim(ta.cup_branch_ins_id_cd)='00015210' then '湖北'
+         |    when trim(ta.cup_branch_ins_id_cd)='00015500' then '湖南'
+         |    when trim(ta.cup_branch_ins_id_cd)='00015800' then '广东'
+         |    when trim(ta.cup_branch_ins_id_cd)='00015840' then '深圳'
+         |    when trim(ta.cup_branch_ins_id_cd)='00016100' then '广西'
+         |    when trim(ta.cup_branch_ins_id_cd)='00016400' then '海南'
+         |    when trim(ta.cup_branch_ins_id_cd)='00016500' then '四川'
+         |    when trim(ta.cup_branch_ins_id_cd)='00016530' then '重庆'
+         |    when trim(ta.cup_branch_ins_id_cd)='00017000' then '贵州'
+         |    when trim(ta.cup_branch_ins_id_cd)='00017310' then '云南'
+         |    when trim(ta.cup_branch_ins_id_cd)='00017700' then '西藏'
+         |    when trim(ta.cup_branch_ins_id_cd)='00017900' then '陕西'
+         |    when trim(ta.cup_branch_ins_id_cd)='00018200' then '甘肃'
+         |    when trim(ta.cup_branch_ins_id_cd)='00018500' then '青海'
+         |    when trim(ta.cup_branch_ins_id_cd)='00018700' then '宁夏'
+         |    when trim(ta.cup_branch_ins_id_cd)='00018800' then '新疆'
+         |else '总公司' end as cup_branch_ins_id_nm,
+         |trim(ta.MCHNT_CD) as MCHNT_CD,
+         |trim(ta.TERM_ID) as TERM_ID,
+         |trim(ta.TRANS_CURR_CD) as TRANS_CURR_CD,
+         |trim(ta.TRANS_CHNL) as TRANS_CHNL,
+         |trim(ta.PROD_IN) as PROD_IN,
+         |ta.AGIO_APP_ID as AGIO_APP_ID,
+         |trim(ta.AGIO_INF) as AGIO_INF,
+         |ta.PRIZE_APP_ID as PRIZE_APP_ID,
+         |ta.PRIZE_ID as PRIZE_ID,
+         |ta.PRIZE_LVL as PRIZE_LVL,
+         |case
+         |	when
+         |		substr(ta.REC_CRT_DT,1,4) between '0001' and '9999' and substr(ta.REC_CRT_DT,5,2) between '01' and '12' and
+         |		substr(ta.REC_CRT_DT,7,2) between '01' and substr(last_day(concat_ws('-',substr(ta.REC_CRT_DT,1,4),substr(ta.REC_CRT_DT,5,2),substr(ta.REC_CRT_DT,7,2))),9,2)
+         |	then concat_ws('-',substr(ta.REC_CRT_DT,1,4),substr(ta.REC_CRT_DT,5,2),substr(ta.REC_CRT_DT,7,2))
+         |	else null
+         |end as REC_CRT_DT,
+         |trim(ta.IS_MATCH_IN) as IS_MATCH_IN,
+         |trim(ta.FWD_INS_ID_CD) as FWD_INS_ID_CD,
+         |trim(ta.ORIG_TRANS_TFR_TM) as ORIG_TRANS_TFR_TM,
+         |trim(ta.ORIG_SYS_TRA_NO) as ORIG_SYS_TRA_NO,
+         |trim(ta.ORIG_ACPT_INS_ID_CD) as ORIG_ACPT_INS_ID_CD,
+         |trim(ta.ORIG_FWD_INS_ID_CD) as ORIG_FWD_INS_ID_CD,
+         |trim(ta.SUB_CARD_NO) as SUB_CARD_NO,
+         |trim(ta.IS_PROCED) as IS_PROCED,
+         |ta.ENTITY_CARD_NO as ENTITY_CARD_NO,
+         |ta.CLOUD_PAY_IN as CLOUD_PAY_IN,
+         |trim(ta.CARD_MEDIA) as CARD_MEDIA
+         |
+        |from TBL_UMSVC_PRIZE_DISCOUNT_RESULT ta
+         |where
+         |concat_ws('-',substr(ta.SETTLE_DT,1,4),substr(ta.SETTLE_DT,5,2),substr(ta.SETTLE_DT,7,2))>='$start_dt'
+         |and concat_ws('-',substr(ta.SETTLE_DT,1,4),substr(ta.SETTLE_DT,5,2),substr(ta.SETTLE_DT,7,2))<='$end_dt'
+         | """.stripMargin)
+
+    results.registerTempTable("spark_hive_prize_discount_result")
+
+    println("JOB_HV_32------>results:"+results.count())
+    if(!Option(results).isEmpty){
+      results.registerTempTable("spark_hive_prize_discount_result")
+      sqlContext.sql("use upw_hive")
+      sqlContext.sql("truncate table  hive_prize_discount_result")
+      sqlContext.sql("insert into table hive_prize_discount_result select * from spark_hive_prize_discount_result")
+    }else{
+      println("加载的表spark_hive_prize_discount_result中无数据！")
+    }
+  }
+
+  def JOB_HV_46 (implicit sqlContext: HiveContext) = {
+    val df2_1 = sqlContext.jdbc_db2_mgmdb_DF("ch_mgmdb.tbl_umsvc_prize_activity_bas_inf")
+    println("分区数为:" + {
+      df2_1.rdd.getNumPartitions
+    })
+    df2_1.printSchema()
+    df2_1.registerTempTable("tbl_umsvc_prize_activity_bas_inf")
+
+    val results = sqlContext.sql(
+      """
+        |select
+        |ta.loc_activity_id as loc_activity_id,
+        |trim(ta.activity_plat) as activity_plat,
+        |ta.loc_activity_nm as loc_activity_nm,
+        |ta.loc_activity_desc as loc_activity_desc,
+        |concat_ws('-',substr(trim(ta.activity_begin_dt),1,4),substr(trim(ta.activity_begin_dt),5,2),substr(trim(ta.activity_begin_dt),7,2)) as activity_begin_dt,
+        |concat_ws('-',substr(trim(ta.activity_end_dt),1,4),substr(trim(ta.activity_end_dt),5,2),substr(trim(ta.activity_end_dt),7,2)) as activity_end_dt,
+        |trim(ta.week_tm_bmp) as week_tm_bmp,
+        |trim(ta.check_st) as check_st,
+        |trim(ta.sync_st) as sync_st,
+        |ta.sync_bat_no as sync_bat_no,
+        |trim(ta.run_st) as run_st,
+        |trim(ta.oper_in) as oper_in,
+        |ta.event_id as event_id,
+        |ta.rec_id as rec_id,
+        |trim(ta.rec_upd_usr_id) as rec_upd_usr_id,
+        |ta.rec_upd_ts as rec_upd_ts,
+        |ta.rec_crt_ts as rec_crt_ts,
+        |trim(ta.rec_crt_usr_id) as rec_crt_usr_id,
+        |trim(ta.del_in) as del_in,
+        |trim(ta.aud_usr_id) as aud_usr_id,
+        |ta.aud_ts as aud_ts,
+        |ta.aud_idea as aud_idea,
+        |trim(ta.activity_st) as activity_st,
+        |trim(ta.loc_activity_crt_ins) as loc_activity_crt_ins,
+        |case
+        |	when trim(ta.loc_activity_crt_ins)='00011000' then '北京'
+        |	when trim(ta.loc_activity_crt_ins)='00011100' then '天津'
+        |	when trim(ta.loc_activity_crt_ins)='00011200' then '河北'
+        |	when trim(ta.loc_activity_crt_ins)='00011600' then '山西'
+        |	when trim(ta.loc_activity_crt_ins)='00011900' then '内蒙古'
+        |	when trim(ta.loc_activity_crt_ins)='00012210' then '辽宁'
+        |	when trim(ta.loc_activity_crt_ins)='00012220' then '大连'
+        |	when trim(ta.loc_activity_crt_ins)='00012400' then '吉林'
+        |	when trim(ta.loc_activity_crt_ins)='00012600' then '黑龙江'
+        |	when trim(ta.loc_activity_crt_ins)='00012900' then '上海'
+        |	when trim(ta.loc_activity_crt_ins)='00013000' then '江苏'
+        |	when trim(ta.loc_activity_crt_ins)='00013310' then '浙江'
+        |	when trim(ta.loc_activity_crt_ins)='00013320' then '宁波'
+        |	when trim(ta.loc_activity_crt_ins)='00013600' then '安徽'
+        |	when trim(ta.loc_activity_crt_ins)='00013900' then '福建'
+        |	when trim(ta.loc_activity_crt_ins)='00013930' then '厦门'
+        |	when trim(ta.loc_activity_crt_ins)='00014200' then '江西'
+        |	when trim(ta.loc_activity_crt_ins)='00014500' then '山东'
+        |	when trim(ta.loc_activity_crt_ins)='00014520' then '青岛'
+        |	when trim(ta.loc_activity_crt_ins)='00014900' then '河南'
+        |	when trim(ta.loc_activity_crt_ins)='00015210' then '湖北'
+        |	when trim(ta.loc_activity_crt_ins)='00015500' then '湖南'
+        |	when trim(ta.loc_activity_crt_ins)='00015800' then '广东'
+        |	when trim(ta.loc_activity_crt_ins)='00015840' then '深圳'
+        |	when trim(ta.loc_activity_crt_ins)='00016100' then '广西'
+        |	when trim(ta.loc_activity_crt_ins)='00016400' then '海南'
+        |	when trim(ta.loc_activity_crt_ins)='00016500' then '四川'
+        |	when trim(ta.loc_activity_crt_ins)='00016530' then '重庆'
+        |	when trim(ta.loc_activity_crt_ins)='00017000' then '贵州'
+        |	when trim(ta.loc_activity_crt_ins)='00017310' then '云南'
+        |	when trim(ta.loc_activity_crt_ins)='00017700' then '西藏'
+        |	when trim(ta.loc_activity_crt_ins)='00017900' then '陕西'
+        |	when trim(ta.loc_activity_crt_ins)='00018200' then '甘肃'
+        |	when trim(ta.loc_activity_crt_ins)='00018500' then '青海'
+        |	when trim(ta.loc_activity_crt_ins)='00018700' then '宁夏'
+        |	when trim(ta.loc_activity_crt_ins)='00018800' then '新疆'
+        |else '总公司' end as cup_branch_ins_id_nm,
+        |ta.ver_no as ver_no,
+        |trim(ta.activity_tp) as activity_tp,
+        |trim(ta.reprize_limit) as reprize_limit,
+        |ta.sms_flag as sms_flag,
+        |trim(ta.cashier_reward_in) as cashier_reward_in,
+        |trim(ta.mchnt_cd) as mchnt_cd
+        |
+        |from tbl_umsvc_prize_activity_bas_inf ta
+        | """.stripMargin)
+    results.registerTempTable("spark_hive_prize_activity_bas_inf")
+
+    println("JOB_HV_46------>results:"+results.count())
+    if(!Option(results).isEmpty){
+      results.registerTempTable("spark_hive_prize_activity_bas_inf")
+      sqlContext.sql("use upw_hive")
+      sqlContext.sql("truncate table  hive_prize_activity_bas_inf")
+      sqlContext.sql("insert into table hive_prize_activity_bas_inf select * from spark_hive_prize_activity_bas_inf")
+    }else{
+      println("加载的表spark_hive_prize_activity_bas_inf中无数据！")
+    }
+  }
+
+  def JOB_HV_47 (implicit sqlContext: HiveContext) = {
+    val df2_1 = sqlContext.jdbc_db2_mgmdb_DF("ch_mgmdb.tbl_umsvc_prize_lvl_add_rule")
+    println("分区数为:" + {
+      df2_1.rdd.getNumPartitions
+    })
+    df2_1.printSchema()
+    df2_1.registerTempTable("tbl_umsvc_prize_lvl_add_rule")
+
+
+    val results = sqlContext.sql(
+      """
+        |select
+        |ta.PRIZE_ID_LVL as BILL_ID,
+        |ta.PRIZE_LVL as PRIZE_LVL,
+        |ta.REWARD_POINT_RATE as REWARD_POINT_RATE,
+        |ta.REWARD_POINT_MAX as REWARD_POINT_MAX,
+        |trim(ta.BILL_ID) as BILL_ID,
+        |ta.REWARD_BILL_NUM as REWARD_BILL_NUM,
+        |trim(ta.CHD_REWARD_MD) as CHD_REWARD_MD,
+        |trim(ta.CSH_REWARD_MD) as CSH_REWARD_MD,
+        |ta.CSH_REWARD_POINT_RATE as CSH_REWARD_POINT_RATE,
+        |ta.CSH_REWARD_POINT_MAX as CSH_REWARD_POINT_MAX,
+        |ta.CSH_REWARD_DAY_MAX as CSH_REWARD_DAY_MAX,
+        |trim(ta.BUSS_TP) as BUSS_TP
+        |
+        |from TBL_UMSVC_PRIZE_LVL_ADD_RULE ta
+        |
+        | """.stripMargin)
+
+    results.registerTempTable("spark_hive_prize_lvl_add_rule")
+    println("JOB_HV_47------>results:"+results.count())
+    if(!Option(results).isEmpty){
+      results.registerTempTable("spark_hive_prize_lvl_add_rule")
+      sqlContext.sql("use upw_hive")
+      sqlContext.sql("truncate table  hive_prize_lvl_add_rule")
+      sqlContext.sql("insert into table hive_prize_lvl_add_rule select * from spark_hive_prize_lvl_add_rule")
+    }else{
+      println("加载的表spark_hive_prize_lvl_add_rule中无数据！")
+    }
+  }
+
+  def JOB_HV_69 (implicit sqlContext: HiveContext) = {
+    val df2_1 = sqlContext.jdbc_db2_mgmdb_DF("ch_mgmdb.tbl_umsvc_prize_lvl")
+    println("分区数为:" + {
+      df2_1.rdd.getNumPartitions
+    })
+    df2_1.printSchema()
+    df2_1.registerTempTable("tbl_umsvc_prize_lvl")
+
+
+    val results = sqlContext.sql(
+      """
+        |select
+        |ta.LOC_ACTIVITY_ID as LOC_ACTIVITY_ID,
+        |trim(ta.PRIZE_TP) as PRIZE_TP,
+        |ta.PRIZE_LVL as  PRIZE_LVL,
+        |ta.PRIZE_ID_LVL as PRIZE_ID_LVL,
+        |trim(ta.ACTIVITY_PLAT) as ACTIVITY_PLAT,
+        |ta.PRIZE_ID as PRIZE_ID,
+        |trim(ta.RUN_ST) as RUN_ST,
+        |trim(ta.SYNC_ST) as SYNC_ST,
+        |ta.SYNC_BAT_NO as SYNC_BAT_NO,
+        |ta.LVL_PRIZE_NUM as LVL_PRIZE_NUM,
+        |trim(ta.PRIZE_LVL_DESC) as PRIZE_LVL_DESC,
+        |trim(ta.REPRIZE_LIMIT) as REPRIZE_LIMIT,
+        |ta.PRIZE_PAY_TP as PRIZE_PAY_TP,
+        |ta.CYCLE_PRIZE_NUM as CYCLE_PRIZE_NUM,
+        |ta.CYCLE_SPAN as CYCLE_SPAN,
+        |trim(ta.CYCLE_UNIT) as CYCLE_UNIT,
+        |trim(ta.PROGRS_IN) as PROGRS_IN,
+        |ta.SEG_PRIZE_NUM as SEG_PRIZE_NUM,
+        |ta.MIN_PRIZE_TRANS_AT  as MIN_PRIZE_TRANS_AT,
+        |ta.MAX_PRIZE_TRANS_AT as MAX_PRIZE_TRANS_AT,
+        |ta.PRIZE_AT as PRIZE_AT,
+        |trim(ta.OPER_IN) as OPER_IN,
+        |ta.EVENT_ID as EVENT_ID,
+        |ta.REC_ID as REC_ID,
+        |trim(ta.REC_UPD_USR_ID) as REC_UPD_USR_ID,
+        |ta.REC_UPD_TS as REC_UPD_TS,
+        |ta.REC_CRT_TS as REC_CRT_TS,
+        |ta.VER_NO as VER_NO
+        |from TBL_UMSVC_PRIZE_LVL ta
+        | """.stripMargin)
+
+    results.registerTempTable("spark_hive_prize_lvl")
+    println("JOB_HV_69------>results:"+results.count())
+    if(!Option(results).isEmpty){
+      results.registerTempTable("spark_hive_prize_lvl")
+      sqlContext.sql("use upw_hive")
+      sqlContext.sql("truncate table  HIVE_PRIZE_LVL")
+      sqlContext.sql("insert into table HIVE_PRIZE_LVL select * from spark_hive_prize_lvl")
+    }else{
+      println("加载的表spark_hive_prize_lvl中无数据！")
+    }
+  }
 
 
   //=========Created by yangxue=======================================================================
