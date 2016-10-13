@@ -39,12 +39,4 @@ object DB2_JDBC {
       sqlContext.read.format("jdbc").options(map).load()
     }
   }
-  //TEST
-  def getACCDBConnection(): Unit ={
-    Class.forName(driver)
-    val conn = DriverManager.getConnection(url_accdb,user,password)
-    println("Accdb test connect: "+conn)
-  }
-
-
 }

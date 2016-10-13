@@ -59,15 +59,4 @@ object UPSQL_JDBC {
     }
   }
 
-
-  /**
-    * JUST FOR TEST
-    */
-  def getConnection(): Unit ={
-    Class.forName(driver)
-    val conn = DriverManager.getConnection(url,user,password)
-    println("test connect: "+conn)
-  }
-
-
 }
