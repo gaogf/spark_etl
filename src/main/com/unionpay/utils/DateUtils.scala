@@ -76,6 +76,5 @@ object DateUtils {
     println(getYesterdayByJob(start_dt))
     println(getIntervalDays(start_dt,end_dt))
     println(addOneDay(end_dt))
-
   }
 }
