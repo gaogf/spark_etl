@@ -33,20 +33,19 @@ object SparkHive2Mysql {
 
 //--------TAN ZHENG QIANG---------------------------------------------------------
     JOB_DM_5(sqlContext,start_dt,end_dt)
-//    JOB_DM_6(sqlContext,start_dt,end_dt)
-//    JOB_DM_55(sqlContext,start_dt,end_dt)
-//
-//    JOB_DM_62(sqlContext,start_dt,end_dt)
-//    JOB_DM_66(sqlContext,start_dt,end_dt)
-//    JOB_DM_69(sqlContext,start_dt,end_dt)
-//    JOB_DM_70(sqlContext,start_dt,end_dt)
-//    JOB_DM_71(sqlContext,start_dt,end_dt)
-//    JOB_DM_76(sqlContext,start_dt,end_dt)
-//    JOB_DM_87(sqlContext,start_dt,end_dt)
+    JOB_DM_6(sqlContext,start_dt,end_dt)
+    JOB_DM_55(sqlContext,start_dt,end_dt)
+    JOB_DM_62(sqlContext,start_dt,end_dt)
+    JOB_DM_66(sqlContext,start_dt,end_dt)
+    JOB_DM_69(sqlContext,start_dt,end_dt)
+    JOB_DM_70(sqlContext,start_dt,end_dt)
+    JOB_DM_71(sqlContext,start_dt,end_dt)
+    JOB_DM_76(sqlContext,start_dt,end_dt)
+    JOB_DM_87(sqlContext,start_dt,end_dt)
 
 //--------XUE TAI PING---------------------------------------------------------
-//    JOB_DM_2   //未添加
-//    JOB_DM_4   //未添加
+    JOB_DM_2(sqlContext,start_dt,end_dt)
+    JOB_DM_4(sqlContext,start_dt,end_dt)
 //    JOB_DM_9   //未添加
 //    JOB_DM_54  //未添加
 //    JOB_DM_63  //未添加
@@ -254,12 +253,12 @@ object SparkHive2Mysql {
     *
     * JOB_DM_55  2016-9-6
     *
-    * DM_DISC_ACT_BRANCH_DLY
+    * DM_DISC_ACT_BRANCH_DLY->hive_prize_discount_result
     * @param sqlContext
     */
   def JOB_DM_55(implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
 
-    println("###JOB_DM_55-----JOB_DM_55(dm_disc_act_branch_dly)")
+    println("###JOB_DM_55-----JOB_DM_55(dm_disc_act_branch_dly->hive_prize_discount_result)")
 
     UPSQL_JDBC.delete("dm_disc_act_branch_dly","report_dt",start_dt,end_dt);
 
@@ -307,49 +306,55 @@ object SparkHive2Mysql {
     * dm_usr_auther_nature_tie_card --> hive_card_bind_inf
     * @param sqlContext
     */
-  def JOB_DM_62(implicit sqlContext: HiveContext,today_dt:String) = {
+  def JOB_DM_62(implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
     println("###JOB_DM_62-----JOB_DM_62(dm_usr_auther_nature_tie_card->hive_card_bind_inf)")
 
-    UPSQL_JDBC.delete("dm_usr_auther_nature_tie_card","report_dt",today_dt,today_dt)
+    UPSQL_JDBC.delete("dm_usr_auther_nature_tie_card","report_dt",start_dt,end_dt)
 
-    sqlContext.sql("use upw_hive")
+    var today_dt=start_dt
+    if(interval>0 ){
+      sqlContext.sql("use upw_hive")
+      for(i <- 0 to interval.toInt){
 
-    val results=sqlContext.sql(
-      s"""
-         |select
-         |(case when card_auth_st='0' then   '默认'
-         |  when card_auth_st='1' then   '支付认证'
-         |  when card_auth_st='2' then   '可信认证'
-         |  when card_auth_st='3' then   '可信+支付认证'
-         | else '未认证' end) as card_auth_nm,
-         |card_attr as card_attr ,
-         |'$today_dt' as report_dt ,
-         |count(distinct(case when rec_crt_ts = '$today_dt'  then cdhd_usr_id end))  as tpre,
-         |count(distinct(case when rec_crt_ts <= '$today_dt'  then cdhd_usr_id end))  as total
-         |
-         |from  (
-         |select distinct cdhd_usr_id,card_auth_st,rec_crt_ts,substr(bind_card_no,1,8) as card_bin
-         |from hive_card_bind_inf where card_bind_st='0') a
-         |left join
-         |(select card_attr,card_bin from hive_card_bin ) b
-         |on a.card_bin=b.card_bin
-         |group by (case when card_auth_st='0' then   '默认'
-         |  when card_auth_st='1' then   '支付认证'
-         |  when card_auth_st='2' then   '可信认证'
-         |  when card_auth_st='3' then   '可信+支付认证'
-         | else '未认证' end),card_attr
-         |
-      """.stripMargin)
+        val results=sqlContext.sql(
+          s"""
+             |select
+             |(case when card_auth_st='0' then   '默认'
+             |  when card_auth_st='1' then   '支付认证'
+             |  when card_auth_st='2' then   '可信认证'
+             |  when card_auth_st='3' then   '可信+支付认证'
+             | else '未认证' end) as card_auth_nm,
+             |card_attr as card_attr ,
+             |'$today_dt' as report_dt ,
+             |count(distinct(case when rec_crt_ts = '$today_dt'  then cdhd_usr_id end))  as tpre,
+             |count(distinct(case when rec_crt_ts <= '$today_dt'  then cdhd_usr_id end))  as total
+             |
+             |from  (
+             |select distinct cdhd_usr_id,card_auth_st,rec_crt_ts,substr(bind_card_no,1,8) as card_bin
+             |from hive_card_bind_inf where card_bind_st='0') a
+             |left join
+             |(select card_attr,card_bin from hive_card_bin ) b
+             |on a.card_bin=b.card_bin
+             |group by (case when card_auth_st='0' then   '默认'
+             |  when card_auth_st='1' then   '支付认证'
+             |  when card_auth_st='2' then   '可信认证'
+             |  when card_auth_st='3' then   '可信+支付认证'
+             | else '未认证' end),card_attr
+             |
+            """.stripMargin)
 
-    println("###JOB_DM_62------results:"+results.count())
+        println(s"###JOB_DM_62------$today_dt results:"+results.count())
 
-    if(!Option(results).isEmpty){
-      results.save2Mysql("dm_usr_auther_nature_tie_card")
-    }else{
-      println("指定的时间范围无数据插入！")
+        if(!Option(results).isEmpty){
+          results.save2Mysql("dm_usr_auther_nature_tie_card")
+        }else{
+          println("指定的时间范围无数据插入！")
+        }
+
+        //日期加1天
+        today_dt=DateUtils.addOneDay(today_dt)
+      }
     }
-
-
   }
 
 
@@ -358,65 +363,71 @@ object SparkHive2Mysql {
   /**
     * JOB_DM_66 2016-09-07
     *
-    * dm_coupon_cfp_tran
+    * dm_coupon_cfp_tran->hive_acc_trans+hive_ticket_bill_bas_inf
     * @param sqlContext
     */
-  def JOB_DM_66(implicit sqlContext: HiveContext,today_dt:String) = {
-    println("###JOB_DM_66-----JOB_DM_66(dm_coupon_cfp_tran)")
+  def JOB_DM_66(implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
+    println("###JOB_DM_66(dm_coupon_cfp_tran->hive_acc_trans+hive_ticket_bill_bas_inf)")
 
-    // 删除一天的数据
-    UPSQL_JDBC.delete("dm_coupon_cfp_tran","report_dt",today_dt,today_dt);
+    UPSQL_JDBC.delete("dm_coupon_cfp_tran","report_dt",start_dt,end_dt)
 
-    sqlContext.sql("use upw_hive")
+    var today_dt=start_dt
+    if(interval>0 ){
+      sqlContext.sql("use upw_hive")
+      for(i <- 0 to interval.toInt){
 
-    val results=sqlContext.sql(
-      s"""
-         |select
-         |cup_branch_ins_id_nm as branch_nm,
-         |'$today_dt' as report_dt,
-         |cfp_sign as  cfp_sign ,
-         |count(case when to_date(trans_dt) >=trunc('$today_dt','YYYY') and to_date(trans_dt) <='$today_dt' then a.bill_id end) as year_tran_num,
-         |count(case when to_date(trans_dt) ='$today_dt' then a.bill_id end) as today_tran_num
-         |from
-         |(select
-         | bill_id, trans_dt,
-         | case when substr(udf_fld,31,2)='01'  then 'HCE'
-         |      when substr(udf_fld,31,2)='02'  then 'Apple Pay'
-         |      when substr(udf_fld,31,2)in ('03','04')  then '三星pay'
-         |      when substr(udf_fld,31,2)='05'  then 'IC卡挥卡'
-         | else '其它' end  as cfp_sign
-         |from hive_acc_trans
-         | where substr(udf_fld,31,2) not in ('',' ', '00') and
-         |       um_trans_id in ('AC02000065','AC02000063') and
-         |       buss_tp in ('04','05','06')
-         |       and sys_det_cd='S' and
-         |        bill_nm not like '%机场%'         and
-         |        bill_nm not like '%住两晚送一晚%' and
-         |        bill_nm not like '%测试%'         and
-         |        bill_nm not like '%验证%'         and
-         |        bill_nm not like '%满2元减1%'     and
-         |        bill_nm not like '%满2分减1分%'   and
-         |        bill_nm not like '%满2减1%'       and
-         |        bill_nm not like '%满2抵1%'       and
-         |        bill_nm not like '测%'            and
-         |        bill_nm not like '%test%'
-         |       ) a
-         | left join
-         |(
-         |   select bill_id, bill_nm,cup_branch_ins_id_nm from hive_ticket_bill_bas_inf
-         | ) b
-         | on a.bill_id = b.bill_id
-         | group by  cup_branch_ins_id_nm,cfp_sign
-         |
+        val results=sqlContext.sql(
+          s"""
+             |select
+             |cup_branch_ins_id_nm as branch_nm,
+             |'$today_dt' as report_dt,
+             |cfp_sign as  cfp_sign ,
+             |count(case when to_date(trans_dt) >=trunc('$today_dt','YYYY') and to_date(trans_dt) <='$today_dt' then a.bill_id end) as year_tran_num,
+             |count(case when to_date(trans_dt) ='$today_dt' then a.bill_id end) as today_tran_num
+             |from
+             |(select
+             | bill_id, trans_dt,
+             | case when substr(udf_fld,31,2)='01'  then 'HCE'
+             |      when substr(udf_fld,31,2)='02'  then 'Apple Pay'
+             |      when substr(udf_fld,31,2)in ('03','04')  then '三星pay'
+             |      when substr(udf_fld,31,2)='05'  then 'IC卡挥卡'
+             | else '其它' end  as cfp_sign
+             |from hive_acc_trans
+             | where substr(udf_fld,31,2) not in ('',' ', '00') and
+             |       um_trans_id in ('AC02000065','AC02000063') and
+             |       buss_tp in ('04','05','06')
+             |       and sys_det_cd='S' and
+             |        bill_nm not like '%机场%'         and
+             |        bill_nm not like '%住两晚送一晚%' and
+             |        bill_nm not like '%测试%'         and
+             |        bill_nm not like '%验证%'         and
+             |        bill_nm not like '%满2元减1%'     and
+             |        bill_nm not like '%满2分减1分%'   and
+             |        bill_nm not like '%满2减1%'       and
+             |        bill_nm not like '%满2抵1%'       and
+             |        bill_nm not like '测%'            and
+             |        bill_nm not like '%test%'
+             |       ) a
+             | left join
+             |(
+             |   select bill_id, bill_nm,cup_branch_ins_id_nm from hive_ticket_bill_bas_inf
+             | ) b
+             | on a.bill_id = b.bill_id
+             | group by  cup_branch_ins_id_nm,cfp_sign
+             |
       """.stripMargin)
 
-    println("###JOB_DM_66------results:"+results.count())
+        println(s"###JOB_DM_66------$today_dt results:"+results.count())
 
-    if(!Option(results).isEmpty){
-      results.save2Mysql("dm_coupon_cfp_tran")
-    }else{
-      println("指定的日期无数据插入！")
+        if(!Option(results).isEmpty){
+          results.save2Mysql("dm_coupon_cfp_tran")
+        }else{
+          println("指定的日期无数据插入！")
+        }
+        today_dt=DateUtils.addOneDay(today_dt)
+      }
     }
+
   }
 
   /**
@@ -720,46 +731,51 @@ object SparkHive2Mysql {
     * dm_auto_disc_cfp_tran->hive_prize_discount_result
     * @param sqlContext
     */
-  def JOB_DM_76(implicit sqlContext: HiveContext,today_dt:String) = {
+  def JOB_DM_76(implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
 
     println("###JOB_DM_76(dm_auto_disc_cfp_tran->hive_prize_discount_result)")
 
-    UPSQL_JDBC.delete("dm_auto_disc_cfp_tran","report_dt",today_dt,today_dt);
+    UPSQL_JDBC.delete("dm_auto_disc_cfp_tran","report_dt",start_dt,end_dt)
 
-    sqlContext.sql("use upw_hive")
-
-    val results=sqlContext.sql(
-      s"""
-         |select
-         |cup_branch_ins_id_nm as branch_nm,
-         |max(case when cloud_pay_in='0' then 'apple pay'
-         |     when cloud_pay_in='1' then 'hce'
-         |     when cloud_pay_in in ('2','3') then '三星pay'
-         |     when cloud_pay_in='4' then 'ic卡挥卡'
-         |   else '--' end ) as cfp_sign,
-         |settle_dt as  report_dt,
-         |count(case when to_date(settle_dt) >= trunc('$today_dt','YYYY') and
-         |       to_date(settle_dt) <='$today_dt' then pri_acct_no end) as year_tran_num,
-         |count(case when to_date(settle_dt) = '$today_dt' then pri_acct_no end) as today_tran_num
-         |
+    var today_dt=start_dt
+    if(interval>0 ){
+      sqlContext.sql("use upw_hive")
+      for(i <- 0 to interval.toInt){
+        val results=sqlContext.sql(
+          s"""
+             |select
+             |cup_branch_ins_id_nm as branch_nm,
+             |max(case when cloud_pay_in='0' then 'apple pay'
+             |     when cloud_pay_in='1' then 'hce'
+             |     when cloud_pay_in in ('2','3') then '三星pay'
+             |     when cloud_pay_in='4' then 'ic卡挥卡'
+             |   else '--' end ) as cfp_sign,
+             |settle_dt as  report_dt,
+             |count(case when to_date(settle_dt) >= trunc('$today_dt','YYYY') and
+             |       to_date(settle_dt) <='$today_dt' then pri_acct_no end) as year_tran_num,
+             |count(case when to_date(settle_dt) = '$today_dt' then pri_acct_no end) as today_tran_num
+             |
          |from hive_prize_discount_result
-         |where  prod_in='0'
-         |group by cup_branch_ins_id_nm,
-         |case when cloud_pay_in='0' then 'Apple Pay'
-         |     when cloud_pay_in='1' then 'HCE'
-         |     when cloud_pay_in in ('2','3') then '三星pay'
-         |     when cloud_pay_in='4' then 'IC卡挥卡'
-         |   else '--' end , settle_dt
+             |where  prod_in='0'
+             |group by cup_branch_ins_id_nm,
+             |case when cloud_pay_in='0' then 'Apple Pay'
+             |     when cloud_pay_in='1' then 'HCE'
+             |     when cloud_pay_in in ('2','3') then '三星pay'
+             |     when cloud_pay_in='4' then 'IC卡挥卡'
+             |   else '--' end , settle_dt
       """.stripMargin)
 
-    println("###JOB_DM_76------results:"+results.count())
+        println(s"###JOB_DM_76------$today_dt results:"+results.count())
 
-    if(!Option(results).isEmpty){
-      results.save2Mysql("dm_auto_disc_cfp_tran")
-    }else{
-      println("指定的时间范围无数据插入！")
+        if(!Option(results).isEmpty){
+          results.save2Mysql("dm_auto_disc_cfp_tran")
+        }else{
+          println("指定的时间范围无数据插入！")
+        }
+
+        today_dt=DateUtils.addOneDay(today_dt)
+      }
     }
-
   }
 
 
@@ -1128,84 +1144,89 @@ object SparkHive2Mysql {
 
 
 
-  //=========Created by xuetaiping====================================================================
 
   /**
     * JOB_DM_2/10-14
-    * DM_USER_IDCARD_HOME->HIVE_PRI_ACCT_INF,HIVE_ACC_TRANS
+    * dm_user_idcard_home->hive_pri_acct_inf,hive_acc_trans
     * Code by Xue
     * @param sqlContext
     * @return
     */
+  def JOB_DM_2 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
+    println("###JOB_DM_2(dm_user_idcard_home->hive_pri_acct_inf,hive_acc_trans)")
+    UPSQL_JDBC.delete("dm_user_idcard_home","report_dt",start_dt,end_dt)
 
-  def JOB_DM_2 (implicit sqlContext: HiveContext) = {
-    sqlContext.sql("use upw_hive")
-    val results = sqlContext.sql(
-      s"""
-         |select
-         |NVL(a.ID_AREA_NM,'其它') as IDCARD_HOME,
-         |'$today_dt' as report_dt,
-         |a.tpre   as   REG_TPRE_ADD_NUM    ,
-         |a.years  as   REG_YEAR_ADD_NUM    ,
-         |a.total  as   REG_TOTLE_ADD_NUM   ,
-         |b.tpre   as   EFFECT_TPRE_ADD_NUM ,
-         |b.years  as   EFFECT_YEAR_ADD_NUM ,
-         |b.total  as   EFFECT_TOTLE_ADD_NUM,
-         |c.tpre   as   DEAL_TPRE_ADD_NUM   ,
-         |c.years  as   DEAL_YEAR_ADD_NUM   ,
-         |c.total  as   DEAL_TOTLE_ADD_NUM
-         |from
-         |(
-         |select
-         |case when tempe.CITY_CARD in ('大连','宁波','厦门','青岛','深圳') then tempe.CITY_CARD else tempe.PROVINCE_CARD end as ID_AREA_NM,
-         |count(distinct(case when substr(tempe.rec_crt_ts,1,10)='$today_dt'  then tempe.cdhd_usr_id end)) as tpre,
-         |count(distinct(case when substr(tempe.rec_crt_ts,1,10)>=trunc('$today_dt','YYYY') and substr(tempe.rec_crt_ts,1,10)<='$today_dt'  then tempe.cdhd_usr_id end)) as years,
-         |count(distinct(case when substr(tempe.rec_crt_ts,1,10)<='$today_dt' then  tempe.cdhd_usr_id end)) as total
-         |from
-         |(select cdhd_usr_id,rec_crt_ts, CITY_CARD,PROVINCE_CARD from HIVE_PRI_ACCT_INF where usr_st='1' ) tempe
-         |group by (case when CITY_CARD in ('大连','宁波','厦门','青岛','深圳') then CITY_CARD else PROVINCE_CARD end)
-         |) a
-         |left join
-         |(
-         |select
-         |case when tempa.CITY_CARD in ('大连','宁波','厦门','青岛','深圳') then tempa.CITY_CARD else tempa.PROVINCE_CARD end as ID_AREA_NM,
-         |count(distinct(case when substr(tempa.rec_crt_ts,1,10)='$today_dt'  and substr(tempb.bind_dt,1,10)='$today_dt'  then  tempa.cdhd_usr_id end)) as tpre,
-         |count(distinct(case when substr(tempa.rec_crt_ts,1,10)>=trunc('$today_dt','YYYY') and substr(tempa.rec_crt_ts,1,10)<='$today_dt'
-         |and substr(tempb.bind_dt,1,10)>=trunc('$today_dt','YYYY') and  substr(tempb.bind_dt,1,10)<='$today_dt' then  tempa.cdhd_usr_id end)) as years,
-         |count(distinct(case when substr(tempa.rec_crt_ts,1,10)<='$today_dt' and  substr(tempb.bind_dt,1,10)<='$today_dt'  then  tempa.cdhd_usr_id end)) as total
-         |from
-         |(
-         |select rec_crt_ts,CITY_CARD,PROVINCE_CARD,cdhd_usr_id from HIVE_PRI_ACCT_INF
-         |where usr_st='1' ) tempa
-         |inner join (select distinct cdhd_usr_id , rec_crt_ts as  bind_dt  from HIVE_CARD_BIND_INF where card_auth_st in ('1','2','3') ) tempb
-         |on tempa.cdhd_usr_id=tempb.cdhd_usr_id
-         |group by (case when tempa.CITY_CARD in ('大连','宁波','厦门','青岛','深圳') then tempa.CITY_CARD else tempa.PROVINCE_CARD end) ) b
-         |on a.ID_AREA_NM =b.ID_AREA_NM
-         |left join
-         |(
-         |select
-         |case when tempc.CITY_CARD in ('大连','宁波','厦门','青岛','深圳') then tempc.CITY_CARD else tempc.PROVINCE_CARD end as ID_AREA_NM,
-         |count(distinct(case when substr(tempc.rec_crt_ts,1,10)='$today_dt'  and substr(tempd.trans_dt,1,10)='$today_dt'  then tempc.cdhd_usr_id end)) as tpre,
-         |count(distinct(case when substr(tempc.rec_crt_ts,1,10)>=trunc('$today_dt','YYYY') and substr(tempc.rec_crt_ts,1,10)<='$today_dt'
-         |and substr(tempd.trans_dt,1,10)>=trunc('$today_dt','YYYY') and  substr(tempd.trans_dt,1,10)<='$today_dt' then  tempc.cdhd_usr_id end)) as years,
-         |count(distinct(case when substr(tempc.rec_crt_ts,1,10)<='$today_dt' and  substr(tempd.trans_dt,1,10)<='$today_dt'  then  tempc.cdhd_usr_id end)) as total
-         |from
-         |(select CITY_CARD,CITY_CARD,PROVINCE_CARD,cdhd_usr_id,rec_crt_ts from HIVE_PRI_ACCT_INF
-         |where usr_st='1') tempc
-         |inner join (select distinct cdhd_usr_id,trans_dt from HIVE_ACC_TRANS ) tempd
-         |on tempc.cdhd_usr_id=tempd.cdhd_usr_id
-         |group by (case when tempc.CITY_CARD in ('大连','宁波','厦门','青岛','深圳') then tempc.CITY_CARD else tempc.PROVINCE_CARD end) ) c
-         |on a.ID_AREA_NM=c.ID_AREA_NM
-         | """.stripMargin)
-    delete(s"DM_USER_IDCARD_HOME","REPORT_DT",s"$today_dt",s"$today_dt")
-    println("###JOB_DM_2------results:"+results.count())
-    if(!Option(results).isEmpty){
-      results.save2Mysql("DM_USER_IDCARD_HOME")
-    }else{
-      println("指定的时间范围无数据插入！")
+    var today_dt=start_dt
+    if(interval>0 ){
+      sqlContext.sql("use upw_hive")
+      for(i <- 0 to interval.toInt){
+        val results = sqlContext.sql(
+          s"""
+             |select
+             |NVL(a.ID_AREA_NM,'其它') as IDCARD_HOME,
+             |'$today_dt' as report_dt,
+             |a.tpre   as   REG_TPRE_ADD_NUM    ,
+             |a.years  as   REG_YEAR_ADD_NUM    ,
+             |a.total  as   REG_TOTLE_ADD_NUM   ,
+             |b.tpre   as   EFFECT_TPRE_ADD_NUM ,
+             |b.years  as   EFFECT_YEAR_ADD_NUM ,
+             |b.total  as   EFFECT_TOTLE_ADD_NUM,
+             |c.tpre   as   DEAL_TPRE_ADD_NUM   ,
+             |c.years  as   DEAL_YEAR_ADD_NUM   ,
+             |c.total  as   DEAL_TOTLE_ADD_NUM
+             |from
+             |(
+             |select
+             |case when tempe.CITY_CARD in ('大连','宁波','厦门','青岛','深圳') then tempe.CITY_CARD else tempe.PROVINCE_CARD end as ID_AREA_NM,
+             |count(distinct(case when substr(tempe.rec_crt_ts,1,10)='$today_dt'  then tempe.cdhd_usr_id end)) as tpre,
+             |count(distinct(case when substr(tempe.rec_crt_ts,1,10)>=trunc('$today_dt','YYYY') and substr(tempe.rec_crt_ts,1,10)<='$today_dt'  then tempe.cdhd_usr_id end)) as years,
+             |count(distinct(case when substr(tempe.rec_crt_ts,1,10)<='$today_dt' then  tempe.cdhd_usr_id end)) as total
+             |from
+             |(select cdhd_usr_id,rec_crt_ts, CITY_CARD,PROVINCE_CARD from HIVE_PRI_ACCT_INF where usr_st='1' ) tempe
+             |group by (case when CITY_CARD in ('大连','宁波','厦门','青岛','深圳') then CITY_CARD else PROVINCE_CARD end)
+             |) a
+             |left join
+             |(
+             |select
+             |case when tempa.CITY_CARD in ('大连','宁波','厦门','青岛','深圳') then tempa.CITY_CARD else tempa.PROVINCE_CARD end as ID_AREA_NM,
+             |count(distinct(case when substr(tempa.rec_crt_ts,1,10)='$today_dt'  and substr(tempb.bind_dt,1,10)='$today_dt'  then  tempa.cdhd_usr_id end)) as tpre,
+             |count(distinct(case when substr(tempa.rec_crt_ts,1,10)>=trunc('$today_dt','YYYY') and substr(tempa.rec_crt_ts,1,10)<='$today_dt'
+             |and substr(tempb.bind_dt,1,10)>=trunc('$today_dt','YYYY') and  substr(tempb.bind_dt,1,10)<='$today_dt' then  tempa.cdhd_usr_id end)) as years,
+             |count(distinct(case when substr(tempa.rec_crt_ts,1,10)<='$today_dt' and  substr(tempb.bind_dt,1,10)<='$today_dt'  then  tempa.cdhd_usr_id end)) as total
+             |from
+             |(
+             |select rec_crt_ts,CITY_CARD,PROVINCE_CARD,cdhd_usr_id from HIVE_PRI_ACCT_INF
+             |where usr_st='1' ) tempa
+             |inner join (select distinct cdhd_usr_id , rec_crt_ts as  bind_dt  from HIVE_CARD_BIND_INF where card_auth_st in ('1','2','3') ) tempb
+             |on tempa.cdhd_usr_id=tempb.cdhd_usr_id
+             |group by (case when tempa.CITY_CARD in ('大连','宁波','厦门','青岛','深圳') then tempa.CITY_CARD else tempa.PROVINCE_CARD end) ) b
+             |on a.ID_AREA_NM =b.ID_AREA_NM
+             |left join
+             |(
+             |select
+             |case when tempc.CITY_CARD in ('大连','宁波','厦门','青岛','深圳') then tempc.CITY_CARD else tempc.PROVINCE_CARD end as ID_AREA_NM,
+             |count(distinct(case when substr(tempc.rec_crt_ts,1,10)='$today_dt'  and substr(tempd.trans_dt,1,10)='$today_dt'  then tempc.cdhd_usr_id end)) as tpre,
+             |count(distinct(case when substr(tempc.rec_crt_ts,1,10)>=trunc('$today_dt','YYYY') and substr(tempc.rec_crt_ts,1,10)<='$today_dt'
+             |and substr(tempd.trans_dt,1,10)>=trunc('$today_dt','YYYY') and  substr(tempd.trans_dt,1,10)<='$today_dt' then  tempc.cdhd_usr_id end)) as years,
+             |count(distinct(case when substr(tempc.rec_crt_ts,1,10)<='$today_dt' and  substr(tempd.trans_dt,1,10)<='$today_dt'  then  tempc.cdhd_usr_id end)) as total
+             |from
+             |(select CITY_CARD,CITY_CARD,PROVINCE_CARD,cdhd_usr_id,rec_crt_ts from HIVE_PRI_ACCT_INF
+             |where usr_st='1') tempc
+             |inner join (select distinct cdhd_usr_id,trans_dt from HIVE_ACC_TRANS ) tempd
+             |on tempc.cdhd_usr_id=tempd.cdhd_usr_id
+             |group by (case when tempc.CITY_CARD in ('大连','宁波','厦门','青岛','深圳') then tempc.CITY_CARD else tempc.PROVINCE_CARD end) ) c
+             |on a.ID_AREA_NM=c.ID_AREA_NM
+             | """.stripMargin)
+        println(s"###JOB_DM_2------$today_dt results:"+results.count())
+        if(!Option(results).isEmpty){
+          results.save2Mysql("DM_USER_IDCARD_HOME")
+        }else{
+          println("指定的时间范围无数据插入！")
+        }
+
+        today_dt=DateUtils.addOneDay(today_dt)
+      }
     }
-
-
   }
 
 
@@ -1216,84 +1237,92 @@ object SparkHive2Mysql {
     * @param sqlContext
     * @return
     */
+  def JOB_DM_4 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
+    println("###JOB_DM_4(dm_user_card_auth->hive_pri_acct_inf,hive_card_bind_inf,hive_acc_trans)")
+    UPSQL_JDBC.delete("DM_USER_CARD_AUTH","REPORT_DT",start_dt,end_dt)
+    var today_dt=start_dt
+    if(interval>0){
+      sqlContext.sql("use upw_hive")
+      for(i <- 0 to interval.toInt){
+        val results = sqlContext.sql(
+          s"""
+             |select
+             |a.card_auth_nm as CARD_AUTH,
+             |a.realnm_in as DIFF_NAME,
+             |'$today_dt' as REPORT_DT,
+             |a.tpre   as   EFFECT_TPRE_ADD_NUM ,
+             |a.years  as   EFFECT_YEAR_ADD_NUM ,
+             |a.total  as   EFFECT_TOTLE_ADD_NUM,
+             |b.tpre   as   DEAL_TPRE_ADD_NUM   ,
+             |b.years  as   DEAL_YEAR_ADD_NUM   ,
+             |b.total  as   DEAL_TOTLE_ADD_NUM
+             |
+             |from (
+             |select
+             |(case when tempb.card_auth_st='0' then   '默认'
+             | when tempb.card_auth_st='1' then   '支付认证'
+             | when tempb.card_auth_st='2' then   '可信认证'
+             | when tempb.card_auth_st='3' then   '可信+支付认证'
+             |else '--' end) as card_auth_nm,
+             |tempa.realnm_in as realnm_in,
+             |count(distinct(case when substr(tempa.rec_crt_ts,1,10)='$today_dt'  and substr(tempb.CARD_DT,1,10)='$today_dt'  then tempa.cdhd_usr_id end)) as tpre,
+             |count(distinct(case when substr(tempa.rec_crt_ts,1,10)>=trunc('$today_dt','YYYY') and substr(tempa.rec_crt_ts,1,10)<='$today_dt'
+             |and substr(tempb.CARD_DT,1,10)>=trunc('$today_dt','YYYY')  and  substr(tempb.CARD_DT,1,10)<='$today_dt' then  tempa.cdhd_usr_id end)) as years,
+             |count(distinct(case when substr(tempa.rec_crt_ts,1,10)<='$today_dt' and  substr(tempb.CARD_DT,1,10)<='$today_dt'  then tempa.cdhd_usr_id end)) as total
+             |from
+             |(select cdhd_usr_id,rec_crt_ts,realnm_in from HIVE_PRI_ACCT_INF
+             |where usr_st='1' ) tempa
+             |inner join
+             |(select distinct tempe.cdhd_usr_id as cdhd_usr_id,
+             |tempe.card_auth_st as card_auth_st,
+             |tempe.rec_crt_ts as CARD_DT
+             |from HIVE_CARD_BIND_INF tempe) tempb
+             |on tempa.cdhd_usr_id=tempb.cdhd_usr_id
+             |group by
+             |case when tempb.card_auth_st='0' then   '默认'
+             | when tempb.card_auth_st='1' then   '支付认证'
+             | when tempb.card_auth_st='2' then   '可信认证'
+             | when tempb.card_auth_st='3' then   '可信+支付认证'
+             |else '--' end,tempa.realnm_in
+             |) a
+             |
+             |left join
+             |
+             |(
+             |select
+             |(case when tempc.card_auth_st='0' then   '默认'
+             | when tempc.card_auth_st='1' then   '支付认证'
+             | when tempc.card_auth_st='2' then   '可信认证'
+             | when tempc.card_auth_st='3' then   '可信+支付认证'
+             |else '--' end) as card_auth_nm,
+             |count(distinct(case when substr(tempc.rec_crt_ts,1,10)='$today_dt'  and substr(tempd.trans_dt,1,10)='$today_dt' then  tempc.cdhd_usr_id end)) as tpre,
+             |count(distinct(case when substr(tempc.rec_crt_ts,1,10)>=trunc('$today_dt','YYYY') and substr(tempc.rec_crt_ts,1,10)<='$today_dt'
+             |and substr(tempd.trans_dt,1,10)>=trunc('$today_dt','YYYY') and  substr(tempd.trans_dt,1,10)<='$today_dt' then  tempc.cdhd_usr_id end)) as years,
+             |count(distinct(case when substr(tempc.rec_crt_ts,1,10)<='$today_dt' and  substr(tempd.trans_dt,1,10)<='$today_dt'  then  tempc.cdhd_usr_id end)) as total
+             |from
+             |(select distinct cdhd_usr_id,card_auth_st,rec_crt_ts from HIVE_CARD_BIND_INF) tempc
+             |inner join (select distinct cdhd_usr_id,trans_dt from HIVE_ACC_TRANS ) tempd
+             |on tempc.cdhd_usr_id=tempd.cdhd_usr_id
+             |group by
+             |case when tempc.card_auth_st='0' then   '默认'
+             | when tempc.card_auth_st='1' then   '支付认证'
+             | when tempc.card_auth_st='2' then   '可信认证'
+             | when tempc.card_auth_st='3' then   '可信+支付认证'
+             |else '--' end
+             |) b
+             |on a.card_auth_nm=b.card_auth_nm
+             | """.stripMargin)
+        println(s"###JOB_DM_4------$today_dt results:"+results.count())
+        if(!Option(results).isEmpty){
+          results.save2Mysql("DM_USER_CARD_AUTH")
+        }else{
+          println("指定的时间范围无数据插入！")
+        }
 
-  def JOB_DM_4 (implicit sqlContext: HiveContext) = {
-    sqlContext.sql("use upw_hive")
-    val results = sqlContext.sql(
-      s"""
-         |select
-         |a.card_auth_nm as CARD_AUTH,
-         |a.realnm_in as DIFF_NAME,
-         |'$today_dt' as REPORT_DT,
-         |a.tpre   as   EFFECT_TPRE_ADD_NUM ,
-         |a.years  as   EFFECT_YEAR_ADD_NUM ,
-         |a.total  as   EFFECT_TOTLE_ADD_NUM,
-         |b.tpre   as   DEAL_TPRE_ADD_NUM   ,
-         |b.years  as   DEAL_YEAR_ADD_NUM   ,
-         |b.total  as   DEAL_TOTLE_ADD_NUM
-         |
-         |from (
-         |select
-         |(case when tempb.card_auth_st='0' then   '默认'
-         | when tempb.card_auth_st='1' then   '支付认证'
-         | when tempb.card_auth_st='2' then   '可信认证'
-         | when tempb.card_auth_st='3' then   '可信+支付认证'
-         |else '--' end) as card_auth_nm,
-         |tempa.realnm_in as realnm_in,
-         |count(distinct(case when substr(tempa.rec_crt_ts,1,10)='$today_dt'  and substr(tempb.CARD_DT,1,10)='$today_dt'  then tempa.cdhd_usr_id end)) as tpre,
-         |count(distinct(case when substr(tempa.rec_crt_ts,1,10)>=trunc('$today_dt','YYYY') and substr(tempa.rec_crt_ts,1,10)<='$today_dt'
-         |and substr(tempb.CARD_DT,1,10)>=trunc('$today_dt','YYYY')  and  substr(tempb.CARD_DT,1,10)<='$today_dt' then  tempa.cdhd_usr_id end)) as years,
-         |count(distinct(case when substr(tempa.rec_crt_ts,1,10)<='$today_dt' and  substr(tempb.CARD_DT,1,10)<='$today_dt'  then tempa.cdhd_usr_id end)) as total
-         |from
-         |(select cdhd_usr_id,rec_crt_ts,realnm_in from HIVE_PRI_ACCT_INF
-         |where usr_st='1' ) tempa
-         |inner join
-         |(select distinct tempe.cdhd_usr_id as cdhd_usr_id,
-         |tempe.card_auth_st as card_auth_st,
-         |tempe.rec_crt_ts as CARD_DT
-         |from HIVE_CARD_BIND_INF tempe) tempb
-         |on tempa.cdhd_usr_id=tempb.cdhd_usr_id
-         |group by
-         |case when tempb.card_auth_st='0' then   '默认'
-         | when tempb.card_auth_st='1' then   '支付认证'
-         | when tempb.card_auth_st='2' then   '可信认证'
-         | when tempb.card_auth_st='3' then   '可信+支付认证'
-         |else '--' end,tempa.realnm_in
-         |) a
-         |
-         |left join
-         |
-         |(
-         |select
-         |(case when tempc.card_auth_st='0' then   '默认'
-         | when tempc.card_auth_st='1' then   '支付认证'
-         | when tempc.card_auth_st='2' then   '可信认证'
-         | when tempc.card_auth_st='3' then   '可信+支付认证'
-         |else '--' end) as card_auth_nm,
-         |count(distinct(case when substr(tempc.rec_crt_ts,1,10)='$today_dt'  and substr(tempd.trans_dt,1,10)='$today_dt' then  tempc.cdhd_usr_id end)) as tpre,
-         |count(distinct(case when substr(tempc.rec_crt_ts,1,10)>=trunc('$today_dt','YYYY') and substr(tempc.rec_crt_ts,1,10)<='$today_dt'
-         |and substr(tempd.trans_dt,1,10)>=trunc('$today_dt','YYYY') and  substr(tempd.trans_dt,1,10)<='$today_dt' then  tempc.cdhd_usr_id end)) as years,
-         |count(distinct(case when substr(tempc.rec_crt_ts,1,10)<='$today_dt' and  substr(tempd.trans_dt,1,10)<='$today_dt'  then  tempc.cdhd_usr_id end)) as total
-         |from
-         |(select distinct cdhd_usr_id,card_auth_st,rec_crt_ts from HIVE_CARD_BIND_INF) tempc
-         |inner join (select distinct cdhd_usr_id,trans_dt from HIVE_ACC_TRANS ) tempd
-         |on tempc.cdhd_usr_id=tempd.cdhd_usr_id
-         |group by
-         |case when tempc.card_auth_st='0' then   '默认'
-         | when tempc.card_auth_st='1' then   '支付认证'
-         | when tempc.card_auth_st='2' then   '可信认证'
-         | when tempc.card_auth_st='3' then   '可信+支付认证'
-         |else '--' end
-         |) b
-         |on a.card_auth_nm=b.card_auth_nm
-         | """.stripMargin)
-    delete(s"DM_USER_CARD_AUTH","REPORT_DT",s"$today_dt",s"$today_dt")
-    println("###JOB_DM_4------results:"+results.count())
-    if(!Option(results).isEmpty){
-      results.save2Mysql("DM_USER_CARD_AUTH")
-    }else{
-      println("指定的时间范围无数据插入！")
+        today_dt=DateUtils.addOneDay(today_dt)
+      }
     }
+
   }
 
   /**
