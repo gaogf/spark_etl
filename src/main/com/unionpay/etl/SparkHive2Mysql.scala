@@ -154,96 +154,99 @@ object SparkHive2Mysql {
 
   }
 
-
-
   /**
     * JOB_DM_6  2016年9月27日 星期二
     * dm_user_card_nature
     * @param sqlContext
     */
-  def JOB_DM_6(implicit sqlContext: HiveContext,today_dt:String) = {
+  def JOB_DM_6(implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
 
-    println("JOB_DM_6------->JOB_DM_6(dm_user_card_nature)")
+    println("JOB_DM_6------->JOB_DM_6(dm_user_card_nature->hive_pri_acct_inf+hive_card_bind_inf+hive_acc_trans)")
 
-    UPSQL_JDBC.delete("dm_user_card_nature","report_dt",today_dt,today_dt)
+    UPSQL_JDBC.delete("dm_user_card_nature","report_dt",start_dt,end_dt)
 
-    sqlContext.sql("use upw_hive")
-    val results=sqlContext.sql(
-      s"""
-         |select
-         |a.card_auth_nm as card_nature,
-         |'$today_dt'   as report_dt,
-         |nvl(a.tpre,0)   as   effect_tpre_add_num ,
-         |nvl(a.years,0)  as   effect_year_add_num ,
-         |nvl(a.total,0) as   effect_totle_add_num,
-         |0 as batch_tpre_add_num,
-         |0 as batch_year_add_num,
-         |0 as batch_totle_add_num,
-         |0 as client_tpre_add_num,
-         |0 as client_year_add_num,
-         |0 as client_totle_add_num,
-         |nvl(b.tpre,0)   as   deal_tpre_add_num ,
-         |nvl(b.years,0)  as   deal_year_add_num ,
-         |nvl(b.total,0) as   deal_totle_add_num
-         |
-         |from (
-         |select
-         |(case when card_auth_st='0' then   '默认'
-         |  when card_auth_st='1' then   '支付认证'
-         |  when card_auth_st='2' then   '可信认证'
-         |  when card_auth_st='3' then   '可信+支付认证'
-         | else '--' end) as card_auth_nm,
-         |count(distinct(case when substr(rec_crt_ts,1,10)='$today_dt'  and substr(CARD_DT,1,10)='$today_dt'  then a.cdhd_usr_id end)) as tpre,
-         |count(distinct(case when substr(rec_crt_ts,1,10)>=trunc('$today_dt',"YY") and substr(rec_crt_ts,1,10)<='$today_dt'
-         |     and substr(CARD_DT,1,10)>=trunc('$today_dt',"YY") and  substr(CARD_DT,1,10)<='$today_dt' then  a.cdhd_usr_id end)) as years,
-         |count(distinct(case when substr(rec_crt_ts,1,10)<='$today_dt' and  substr(CARD_DT,1,10)<='$today_dt'  then  a.cdhd_usr_id end)) as total
-         |from
-         |(select cdhd_usr_id,rec_crt_ts from HIVE_PRI_ACCT_INF
-         |where usr_st='1' ) a
-         |inner join (select distinct cdhd_usr_id,card_auth_st,rec_crt_ts as CARD_DT from hive_card_bind_inf ) b
-         |on a.cdhd_usr_id=b.cdhd_usr_id
-         |group by
-         |case when card_auth_st='0' then   '默认'
-         |  when card_auth_st='1' then   '支付认证'
-         |  when card_auth_st='2' then   '可信认证'
-         |  when card_auth_st='3' then   '可信+支付认证'
-         | else '--' end) a
-         |
-         | left join
-         |(
-         |select
-         |(case when card_auth_st='0' then   '默认'
-         |  when card_auth_st='1' then   '支付认证'
-         |  when card_auth_st='2' then   '可信认证'
-         |  when card_auth_st='3' then   '可信+支付认证'
-         | else '--' end) as card_auth_nm,
-         |count(distinct(case when substr(rec_crt_ts,1,10)='$today_dt'  and substr(trans_dt,1,10)='$today_dt'  then a.cdhd_usr_id end)) as tpre,
-         |count(distinct(case when substr(rec_crt_ts,1,10)>=trunc('$today_dt',"YY") and substr(rec_crt_ts,1,10)<='$today_dt'
-         |and substr(trans_dt,1,10)>=trunc('$today_dt',"YY") and  substr(trans_dt,1,10)<='$today_dt' then  a.cdhd_usr_id end)) as years,
-         |count(distinct(case when substr(rec_crt_ts,1,10)<='$today_dt' and  substr(trans_dt,1,10)<='$today_dt'  then a.cdhd_usr_id end)) as total
-         |from (select distinct cdhd_usr_id,card_auth_st,rec_crt_ts from hive_card_bind_inf) a
-         |inner join (select distinct cdhd_usr_id,trans_dt from hive_acc_trans ) b
-         |on a.cdhd_usr_id=b.cdhd_usr_id
-         |group by
-         |case when card_auth_st='0' then   '默认'
-         |  when card_auth_st='1' then   '支付认证'
-         |  when card_auth_st='2' then   '可信认证'
-         |  when card_auth_st='3' then   '可信+支付认证'
-         | else '--' end) b
-         | on a.card_auth_nm=b.card_auth_nm
-         |
-      """.stripMargin)
+    var today_dt=start_dt
+    if(interval>0 ){
+      sqlContext.sql("use upw_hive")
+      for(i <- 0 to interval.toInt){
+        val results=sqlContext.sql(
+          s"""
+             |select
+             |a.card_auth_nm as card_nature,
+             |'$today_dt'   as report_dt,
+             |nvl(a.tpre,0)   as   effect_tpre_add_num ,
+             |nvl(a.years,0)  as   effect_year_add_num ,
+             |nvl(a.total,0) as   effect_totle_add_num,
+             |0 as batch_tpre_add_num,
+             |0 as batch_year_add_num,
+             |0 as batch_totle_add_num,
+             |0 as client_tpre_add_num,
+             |0 as client_year_add_num,
+             |0 as client_totle_add_num,
+             |nvl(b.tpre,0)   as   deal_tpre_add_num ,
+             |nvl(b.years,0)  as   deal_year_add_num ,
+             |nvl(b.total,0) as   deal_totle_add_num
+             |
+             |from (
+             |select
+             |(case when card_auth_st='0' then   '默认'
+             |  when card_auth_st='1' then   '支付认证'
+             |  when card_auth_st='2' then   '可信认证'
+             |  when card_auth_st='3' then   '可信+支付认证'
+             | else '--' end) as card_auth_nm,
+             |count(distinct(case when substr(rec_crt_ts,1,10)='$today_dt'  and substr(CARD_DT,1,10)='$today_dt'  then a.cdhd_usr_id end)) as tpre,
+             |count(distinct(case when substr(rec_crt_ts,1,10)>=trunc('$today_dt',"YY") and substr(rec_crt_ts,1,10)<='$today_dt'
+             |     and substr(CARD_DT,1,10)>=trunc('$today_dt',"YY") and  substr(CARD_DT,1,10)<='$today_dt' then  a.cdhd_usr_id end)) as years,
+             |count(distinct(case when substr(rec_crt_ts,1,10)<='$today_dt' and  substr(CARD_DT,1,10)<='$today_dt'  then  a.cdhd_usr_id end)) as total
+             |from
+             |(select cdhd_usr_id,rec_crt_ts from hive_pri_acct_inf
+             |where usr_st='1' ) a
+             |inner join (select distinct cdhd_usr_id,card_auth_st,rec_crt_ts as CARD_DT from hive_card_bind_inf ) b
+             |on a.cdhd_usr_id=b.cdhd_usr_id
+             |group by
+             |case when card_auth_st='0' then   '默认'
+             |  when card_auth_st='1' then   '支付认证'
+             |  when card_auth_st='2' then   '可信认证'
+             |  when card_auth_st='3' then   '可信+支付认证'
+             | else '--' end) a
+             |
+             | left join
+             |(
+             |select
+             |(case when card_auth_st='0' then   '默认'
+             |  when card_auth_st='1' then   '支付认证'
+             |  when card_auth_st='2' then   '可信认证'
+             |  when card_auth_st='3' then   '可信+支付认证'
+             | else '--' end) as card_auth_nm,
+             |count(distinct(case when substr(rec_crt_ts,1,10)='$today_dt'  and substr(trans_dt,1,10)='$today_dt'  then a.cdhd_usr_id end)) as tpre,
+             |count(distinct(case when substr(rec_crt_ts,1,10)>=trunc('$today_dt',"YY") and substr(rec_crt_ts,1,10)<='$today_dt'
+             |and substr(trans_dt,1,10)>=trunc('$today_dt',"YY") and  substr(trans_dt,1,10)<='$today_dt' then  a.cdhd_usr_id end)) as years,
+             |count(distinct(case when substr(rec_crt_ts,1,10)<='$today_dt' and  substr(trans_dt,1,10)<='$today_dt'  then a.cdhd_usr_id end)) as total
+             |from (select distinct cdhd_usr_id,card_auth_st,rec_crt_ts from hive_card_bind_inf) a
+             |inner join (select distinct cdhd_usr_id,trans_dt from hive_acc_trans ) b
+             |on a.cdhd_usr_id=b.cdhd_usr_id
+             |group by
+             |case when card_auth_st='0' then   '默认'
+             |  when card_auth_st='1' then   '支付认证'
+             |  when card_auth_st='2' then   '可信认证'
+             |  when card_auth_st='3' then   '可信+支付认证'
+             | else '--' end) b
+             | on a.card_auth_nm=b.card_auth_nm
+             |
+            """.stripMargin)
 
+        println(s"###JOB_DM_6------$today_dt results:"+results.count())
 
-    println("###JOB_DM_6------results:"+results.count())
+        if(!Option(results).isEmpty){
+          results.save2Mysql("dm_user_card_nature")
 
-    if(!Option(results).isEmpty){
-      results.save2Mysql("dm_user_card_nature")
-
-    }else{
-      println("指定的时间范围无数据插入！")
+        }else{
+          println("指定的时间范围无数据插入！")
+        }
+        //日期加1天
+        today_dt=DateUtils.addOneDay(today_dt)
+      }
     }
-
   }
 
 
