@@ -4,13 +4,25 @@ import com.unionpay.conf.ConfigurationManager
 import com.unionpay.constant.Constants
 import com.unionpay.jdbc.UPSQL_JDBC
 import com.unionpay.jdbc.UPSQL_JDBC.DataFrame2Mysql
+import com.unionpay.utils.DateUtils
+
 import org.apache.spark.sql.hive.HiveContext
 import org.apache.spark.{SparkConf, SparkContext}
+import java.text.SimpleDateFormat
+import java.util.Calendar
 /**
   * 作业：抽取hive数据仓库中的数据到UPSQL数据库
   * Created by tzq on 2016/10/13.
   */
 object SparkHive2Mysql {
+
+  //计算开始日期：start_dt-1
+  private lazy val start_dt=DateUtils.getYesterdayByJob(ConfigurationManager.getProperty(Constants.START_DT))
+  //结束日期
+  private lazy val end_dt=ConfigurationManager.getProperty(Constants.END_DT)
+  //计算间隔天数
+  private lazy val interval=DateUtils.getIntervalDays(start_dt,end_dt)
+
   def main(args: Array[String]) {
 
     val conf = new SparkConf().setAppName("SparkHive2Mysql")
@@ -18,22 +30,19 @@ object SparkHive2Mysql {
     sc.setLogLevel("ERROR")
     implicit val sqlContext = new HiveContext(sc)
 
-    lazy val today_dt=ConfigurationManager.getProperty(Constants.TODAY_DT)
-    lazy val start_dt=ConfigurationManager.getProperty(Constants.START_DT)
-    lazy val end_dt=ConfigurationManager.getProperty(Constants.END_DT)
 
 //--------TAN ZHENG QIANG---------------------------------------------------------
-    JOB_DM_5(sqlContext,today_dt)
-    JOB_DM_6(sqlContext,today_dt)
-    JOB_DM_55(sqlContext,start_dt,end_dt)
-
-    JOB_DM_62(sqlContext,today_dt)
-    JOB_DM_66(sqlContext,today_dt)
-    JOB_DM_69(sqlContext,start_dt,end_dt)
-    JOB_DM_70(sqlContext,start_dt,end_dt)
-    JOB_DM_71(sqlContext,start_dt,end_dt)
-    JOB_DM_76(sqlContext,today_dt)
-    JOB_DM_87(sqlContext,start_dt,end_dt)
+    JOB_DM_5(sqlContext,start_dt,end_dt)
+//    JOB_DM_6(sqlContext,start_dt,end_dt)
+//    JOB_DM_55(sqlContext,start_dt,end_dt)
+//
+//    JOB_DM_62(sqlContext,start_dt,end_dt)
+//    JOB_DM_66(sqlContext,start_dt,end_dt)
+//    JOB_DM_69(sqlContext,start_dt,end_dt)
+//    JOB_DM_70(sqlContext,start_dt,end_dt)
+//    JOB_DM_71(sqlContext,start_dt,end_dt)
+//    JOB_DM_76(sqlContext,start_dt,end_dt)
+//    JOB_DM_87(sqlContext,start_dt,end_dt)
 
 //--------XUE TAI PING---------------------------------------------------------
 //    JOB_DM_2   //未添加
@@ -59,82 +68,90 @@ object SparkHive2Mysql {
 
   }
 
-  //=========Created by tanzhengqiang====================================================================
+
   /**
     * JOB_DM_5  2016年9月27日 星期二
-    * DM_USER_CARD_ISS
+    * dm_user_card_iss->hive_pri_acct_inf+hive_acc_trans+hive_card_bind_inf+hive_card_bin
     * @param sqlContext
     */
-  def JOB_DM_5(implicit sqlContext: HiveContext,today_dt:String) = {
+  def JOB_DM_5(implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
 
-    println("JOB_DM_5------->JOB_DM_5(dm_user_card_iss)")
+    println("###JOB_DM_5(dm_user_card_iss->hive_pri_acct_inf+hive_acc_trans+hive_card_bind_inf+hive_card_bin)")
 
-    UPSQL_JDBC.delete("DM_USER_CARD_ISS","report_dt",today_dt,today_dt);
-
-    sqlContext.sql("use upw_hive")
-
-    val results=sqlContext.sql(
-      s"""
-         |
-         |select
-         |trim(a.iss_ins_cn_nm) as card_iss,
-         |'$today_dt' as report_dt,
-         |nvl(sum(a.tpre),0) as effect_tpre_add_num ,
-         |nvl(sum(a.years),0) as effect_year_add_num ,
-         |nvl(sum(a.total),0) as effect_totle_add_num,
-         |0 as batch_tpre_add_num,
-         |0 as batch_year_add_num,
-         |0 as batch_totle_add_num,
-         |0 as client_tpre_add_num,
-         |0 as client_year_add_num,
-         |0 as client_totle_add_num,
-         |nvl(sum(b.tpre),0) as deal_tpre_add_num ,
-         |nvl(sum(b.years),0) as deal_year_add_num ,
-         |nvl(sum(b.total),0) as  deal_totle_add_num
-         |from
-         |(
-         |select iss_ins_cn_nm,
-         |count(distinct(case when substr(rec_crt_ts,1,10)='$today_dt' and substr(card_dt,1,10)='$today_dt' then a.cdhd_usr_id end)) as tpre,
-         |count(distinct(case when substr(rec_crt_ts,1,10)>=trunc('$today_dt',"YY") and substr(rec_crt_ts,1,10)<='$today_dt'
-         |and substr(card_dt,1,10)>=trunc('$today_dt',"YY") and substr(card_dt,1,10)<='$today_dt' then a.cdhd_usr_id end)) as years,
-         |count(distinct(case when substr(rec_crt_ts,1,10)<='$today_dt' and substr(card_dt,1,10)<='$today_dt' then a.cdhd_usr_id end)) as total
-         |
-         |from (
-         |select cdhd_usr_id, rec_crt_ts
-         |from hive_pri_acct_inf
-         |where usr_st='1'
-         |) a
-         |inner join (
-         |select distinct cdhd_usr_id,iss_ins_cn_nm,rec_crt_ts as card_dt
-         |from hive_card_bind_inf where card_auth_st in ('1','2','3')
-         |) b
-         |on a.cdhd_usr_id=b.cdhd_usr_id
-         |group by iss_ins_cn_nm) a
-         |
-         |left join
-         |(
-         |select iss_ins_cn_nm,
-         |count(distinct(case when substr(rec_crt_ts,1,10)='$today_dt' then cdhd_usr_id end)) as tpre,
-         |count(distinct(case when substr(rec_crt_ts,1,10)>=trunc('$today_dt',"YY")
-         |and substr(rec_crt_ts,1,10)<='$today_dt' then cdhd_usr_id end)) as years,
-         |count(distinct(case when substr(rec_crt_ts,1,10)<='$today_dt' then cdhd_usr_id end)) as total
-         |from (select iss_ins_cn_nm,card_bin from hive_card_bin
-         |) a
-         |inner join
-         |(select distinct cdhd_usr_id,substr(card_no,1,8) as card_bin,rec_crt_ts from hive_acc_trans ) b
-         |on a.card_bin=b.card_bin
-         |group by iss_ins_cn_nm ) b
-         |on a.iss_ins_cn_nm=b.iss_ins_cn_nm
-         |group by trim(a.iss_ins_cn_nm),'$today_dt'
-         |
+    //1.先删除作业指定开始日期和结束日期间的数据
+    UPSQL_JDBC.delete("dm_user_card_iss","report_dt",start_dt,end_dt);
+    var today_dt=start_dt
+    //2.循环从指定的日期范围内抽取数据（单位：天）
+    if(interval>0 ){
+      sqlContext.sql("use upw_hive")
+      for(i <- 0 to interval.toInt){
+        val results=sqlContext.sql(
+          s"""
+             |
+             |select
+             |trim(a.iss_ins_cn_nm) as card_iss,
+             |'$today_dt' as report_dt,
+             |nvl(sum(a.tpre),0) as effect_tpre_add_num ,
+             |nvl(sum(a.years),0) as effect_year_add_num ,
+             |nvl(sum(a.total),0) as effect_totle_add_num,
+             |0 as batch_tpre_add_num,
+             |0 as batch_year_add_num,
+             |0 as batch_totle_add_num,
+             |0 as client_tpre_add_num,
+             |0 as client_year_add_num,
+             |0 as client_totle_add_num,
+             |nvl(sum(b.tpre),0) as deal_tpre_add_num ,
+             |nvl(sum(b.years),0) as deal_year_add_num ,
+             |nvl(sum(b.total),0) as  deal_totle_add_num
+             |from
+             |(
+             |select iss_ins_cn_nm,
+             |count(distinct(case when substr(rec_crt_ts,1,10)='$today_dt' and substr(card_dt,1,10)='$today_dt' then a.cdhd_usr_id end)) as tpre,
+             |count(distinct(case when substr(rec_crt_ts,1,10)>=trunc('$today_dt',"YY") and substr(rec_crt_ts,1,10)<='$today_dt'
+             |and substr(card_dt,1,10)>=trunc('$today_dt',"YY") and substr(card_dt,1,10)<='$today_dt' then a.cdhd_usr_id end)) as years,
+             |count(distinct(case when substr(rec_crt_ts,1,10)<='$today_dt' and substr(card_dt,1,10)<='$today_dt' then a.cdhd_usr_id end)) as total
+             |
+             |from (
+             |select cdhd_usr_id, rec_crt_ts
+             |from hive_pri_acct_inf
+             |where usr_st='1'
+             |) a
+             |inner join (
+             |select distinct cdhd_usr_id,iss_ins_cn_nm,rec_crt_ts as card_dt
+             |from hive_card_bind_inf where card_auth_st in ('1','2','3')
+             |) b
+             |on a.cdhd_usr_id=b.cdhd_usr_id
+             |group by iss_ins_cn_nm) a
+             |
+             |left join
+             |(
+             |select iss_ins_cn_nm,
+             |count(distinct(case when substr(rec_crt_ts,1,10)='$today_dt' then cdhd_usr_id end)) as tpre,
+             |count(distinct(case when substr(rec_crt_ts,1,10)>=trunc('$today_dt',"YY")
+             |and substr(rec_crt_ts,1,10)<='$today_dt' then cdhd_usr_id end)) as years,
+             |count(distinct(case when substr(rec_crt_ts,1,10)<='$today_dt' then cdhd_usr_id end)) as total
+             |from (select iss_ins_cn_nm,card_bin from hive_card_bin
+             |) a
+             |inner join
+             |(select distinct cdhd_usr_id,substr(card_no,1,8) as card_bin,rec_crt_ts from hive_acc_trans ) b
+             |on a.card_bin=b.card_bin
+             |group by iss_ins_cn_nm ) b
+             |on a.iss_ins_cn_nm=b.iss_ins_cn_nm
+             |group by trim(a.iss_ins_cn_nm),'$today_dt'
+             |
       """.stripMargin)
 
-    println("###JOB_DM_5------results:"+results.count())
-    if(!Option(results).isEmpty){
-      results.save2Mysql("dm_user_card_iss")
-    }else{
-      println("指定的时间范围无数据插入！")
+        println(s"###JOB_DM_5------$today_dt results:"+results.count())
+        if(!Option(results).isEmpty){
+          results.save2Mysql("dm_user_card_iss")
+        }else{
+          println("指定的时间范围无数据插入！")
+        }
+        //日期加1天
+        today_dt=DateUtils.addOneDay(today_dt)
+      }
     }
+
   }
 
 
@@ -2205,7 +2222,7 @@ object SparkHive2Mysql {
 
 
 
-  //=========Created by yangxue=======================================================================
+
 
 
 
