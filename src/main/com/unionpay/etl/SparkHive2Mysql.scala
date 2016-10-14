@@ -1109,9 +1109,18 @@ object SparkHive2Mysql {
 
 
   //=========Created by xuetaiping====================================================================
+
+  /**
+    * JOB_DM_2/10-14
+    * DM_USER_IDCARD_HOME->HIVE_PRI_ACCT_INF,HIVE_ACC_TRANS
+    * Code by Xue
+    * @param sqlContext
+    * @return
+    */
+
   def JOB_DM_2 (implicit sqlContext: HiveContext) = {
     sqlContext.sql("use upw_hive")
-    val DM_USER_IDCARD_HOME = sqlContext.sql(
+    val results = sqlContext.sql(
       s"""
          |select
          |NVL(a.ID_AREA_NM,'其它') as IDCARD_HOME,
@@ -1169,14 +1178,28 @@ object SparkHive2Mysql {
          |on a.ID_AREA_NM=c.ID_AREA_NM
          | """.stripMargin)
     delete(s"DM_USER_IDCARD_HOME","REPORT_DT",s"$today_dt",s"$today_dt")
-    DM_USER_IDCARD_HOME.save2UpsqlTset("DM_USER_IDCARD_HOME")
+    println("###JOB_DM_2------results:"+results.count())
+    if(!Option(results).isEmpty){
+      results.save2Mysql("DM_USER_IDCARD_HOME")
+    }else{
+      println("指定的时间范围无数据插入！")
+    }
 
 
   }
 
+
+  /**
+    * JOB_DM_4/10-14
+    * DM_USER_CARD_AUTH->HIVE_PRI_ACCT_INF,HIVE_CARD_BIND_INF,HIVE_ACC_TRANS
+    * Code by Xue
+    * @param sqlContext
+    * @return
+    */
+
   def JOB_DM_4 (implicit sqlContext: HiveContext) = {
     sqlContext.sql("use upw_hive")
-    val DM_USER_CARD_AUTH = sqlContext.sql(
+    val results = sqlContext.sql(
       s"""
          |select
          |a.card_auth_nm as CARD_AUTH,
@@ -1189,7 +1212,7 @@ object SparkHive2Mysql {
          |b.years  as   DEAL_YEAR_ADD_NUM   ,
          |b.total  as   DEAL_TOTLE_ADD_NUM
          |
-        |from (
+         |from (
          |select
          |(case when tempb.card_auth_st='0' then   '默认'
          | when tempb.card_auth_st='1' then   '支付认证'
@@ -1218,9 +1241,9 @@ object SparkHive2Mysql {
          |else '--' end,tempa.realnm_in
          |) a
          |
-        |left join
+         |left join
          |
-        |(
+         |(
          |select
          |(case when tempc.card_auth_st='0' then   '默认'
          | when tempc.card_auth_st='1' then   '支付认证'
@@ -1245,12 +1268,25 @@ object SparkHive2Mysql {
          |on a.card_auth_nm=b.card_auth_nm
          | """.stripMargin)
     delete(s"DM_USER_CARD_AUTH","REPORT_DT",s"$today_dt",s"$today_dt")
-    DM_USER_CARD_AUTH.save2UpsqlTset("DM_USER_CARD_AUTH")
+    println("###JOB_DM_4------results:"+results.count())
+    if(!Option(results).isEmpty){
+      results.save2Mysql("DM_USER_CARD_AUTH")
+    }else{
+      println("指定的时间范围无数据插入！")
+    }
   }
+
+  /**
+    * JOB_DM_9/10-14
+    * DM_STORE_DOMAIN_BRANCH_COMPANY->HIVE_MCHNT_INF_WALLET,HIVE_PREFERENTIAL_MCHNT_INF,HIVE_MCHNT_TP,HIVE_MCHNT_TP_GRP
+    * Code by Xue
+    * @param sqlContext
+    * @return
+    */
 
   def JOB_DM_9 (implicit sqlContext: HiveContext) = {
     sqlContext.sql("use upw_hive")
-    val DM_STORE_DOMAIN_BRANCH_COMPANY = sqlContext.sql(
+    val results = sqlContext.sql(
       s"""
          |SELECT
          |a.gb_region_nm as BRANCH_AREA,
@@ -1275,7 +1311,7 @@ object SparkHive2Mysql {
          |GROUP BY gb_region_nm) a
          |left join
          |
-        |(
+         |(
          |select
          |tempb.cup_branch_ins_id_nm as cup_branch_ins_id_nm,
          |count(distinct(case when to_date(tempb.rec_crt_ts)='$today_dt'  and tempb.valid_begin_dt='$today_dt' AND tempb.valid_end_dt='$today_dt'  then tempb.MCHNT_CD end)) as tpre,
@@ -1319,12 +1355,25 @@ object SparkHive2Mysql {
          |on a.gb_region_nm=c.gb_region_nm
          | """.stripMargin)
     delete(s"DM_STORE_DOMAIN_BRANCH_COMPANY","REPORT_DT",s"$today_dt",s"$today_dt")
-    DM_STORE_DOMAIN_BRANCH_COMPANY.save2UpsqlTset("DM_STORE_DOMAIN_BRANCH_COMPANY")
+    println("###JOB_DM_9------results:"+results.count())
+    if(!Option(results).isEmpty){
+      results.save2Mysql("DM_STORE_DOMAIN_BRANCH_COMPANY")
+    }else{
+      println("指定的时间范围无数据插入！")
+    }
   }
+
+  /**
+    * JOB_DM_54/10-14
+    * DM_VAL_TKT_ACT_MCHNT_TP_DLY->HIVE_BILL_ORDER_TRANS,HIVE_BILL_SUB_ORDER_TRANS
+    * Code by Xue
+    * @param sqlContext
+    * @return
+    */
 
   def JOB_DM_54 (implicit sqlContext: HiveContext) = {
     sqlContext.sql("use upw_hive")
-    val DM_VAL_TKT_ACT_MCHNT_TP_DLY = sqlContext.sql(
+    val results = sqlContext.sql(
       s"""
          |SELECT
          |    A.GRP_NM AS MCHNT_TP_GRP,
@@ -1468,12 +1517,25 @@ object SparkHive2Mysql {
          | """.stripMargin)
 
     delete(s"DM_VAL_TKT_ACT_MCHNT_TP_DLY","REPORT_DT",s"$start_dt",s"$end_dt")
-    DM_VAL_TKT_ACT_MCHNT_TP_DLY.save2UpsqlTset("DM_VAL_TKT_ACT_MCHNT_TP_DLY")
+    println("###JOB_DM_9------results:"+results.count())
+    if(!Option(results).isEmpty){
+      results.save2Mysql("DM_VAL_TKT_ACT_MCHNT_TP_DLY")
+    }else{
+      println("指定的时间范围无数据插入！")
+    }
   }
+
+  /**
+    * JOB_DM_63/10-14
+    * DM_LIFE_SERVE_BUSINESS_TRANS->HIVE_LIFE_TRANS
+    * Code by Xue
+    * @param sqlContext
+    * @return
+    */
 
   def JOB_DM_63 (implicit sqlContext: HiveContext) = {
     sqlContext.sql("use upw_hive")
-    val DM_LIFE_SERVE_BUSINESS_TRANS = sqlContext.sql(
+    val results = sqlContext.sql(
       s"""
          |SELECT
          |A.BUSS_TP_NM as BUSS_TP_NM,
@@ -1508,14 +1570,27 @@ object SparkHive2Mysql {
          |ON A.BUSS_TP_NM=B.BUSS_TP_NM AND A.BUSS_TP_NM=B.BUSS_TP_NM
          | """.stripMargin)
     delete(s"DM_LIFE_SERVE_BUSINESS_TRANS","REPORT_DT",s"$today_dt",s"$today_dt")
-    DM_LIFE_SERVE_BUSINESS_TRANS.save2UpsqlTset("DM_LIFE_SERVE_BUSINESS_TRANS")
+    println("###JOB_DM_63------results:"+results.count())
+    if(!Option(results).isEmpty){
+      results.save2Mysql("DM_LIFE_SERVE_BUSINESS_TRANS")
+    }else{
+      println("指定的时间范围无数据插入！")
+    }
   }
+
+  /**
+    * JOB_DM_65/10-14
+    * DM_HCE_COUPON_TRAN->HIVE_TICKET_BILL_BAS_INF
+    * Code by Xue
+    * @param sqlContext
+    * @return
+    */
 
   def JOB_DM_65 (implicit sqlContext: HiveContext) = {
     sqlContext.sql("use upw_hive")
-    val DM_HCE_COUPON_TRAN = sqlContext.sql(
+    val results = sqlContext.sql(
       s"""
-        select
+         |select
          |tempe.CUP_BRANCH_INS_ID_NM as BRANCH_NM,
          |'$today_dt' as REPORT_DT,
          |tempe.dwn_total_num as YEAR_RELEASE_NUM,
@@ -1558,7 +1633,7 @@ object SparkHive2Mysql {
          |	  ) tempe
          |left join
          |
-        |(
+         |(
          |select
          |tempb.CUP_BRANCH_INS_ID_NM as CUP_BRANCH_INS_ID_NM,
          |count(case when tempd.trans_dt >=trunc('$today_dt','YYYY') and tempd.trans_dt <='$today_dt' then tempd.bill_id end) as accept_year_num,
@@ -1603,12 +1678,25 @@ object SparkHive2Mysql {
          | """.stripMargin)
 
     delete(s"DM_HCE_COUPON_TRAN","REPORT_DT",s"$today_dt",s"$today_dt")
-    DM_HCE_COUPON_TRAN.save2UpsqlTset("DM_HCE_COUPON_TRAN")
+    println("###JOB_DM_65------results:"+results.count())
+    if(!Option(results).isEmpty){
+      results.save2Mysql("DM_HCE_COUPON_TRAN")
+    }else{
+      println("指定的时间范围无数据插入！")
+    }
   }
+
+  /**
+    * JOB_DM_73/10-14
+    * DM_PRIZE_ACT_BRANCH_DLY->HIVE_PRIZE_ACTIVITY_BAS_INF,HIVE_PRIZE_LVL,HIVE_PRIZE_DISCOUNT_RESULT
+    * Code by Xue
+    * @param sqlContext
+    * @return
+    */
 
   def JOB_DM_73 (implicit sqlContext: HiveContext) = {
     sqlContext.sql("use upw_hive")
-    val DM_PRIZE_ACT_BRANCH_DLY = sqlContext.sql(
+    val results = sqlContext.sql(
       s"""
          |SELECT
          |    ta.CUP_BRANCH_INS_ID_NM as CUP_BRANCH_INS_ID_NM,
@@ -1700,9 +1788,9 @@ object SparkHive2Mysql {
          |        AND A.SETTLE_DT = B.SETTLE_DT
          |        AND B.SETTLE_DT = C.SETTLE_DT
          |
-        |UNION ALL
+         |UNION ALL
          |
-        |SELECT
+         |SELECT
          |DISTINCT D.INS_CN_NM AS CUP_BRANCH_INS_ID_NM,RSLT.SETTLE_DT as SETTLE_DT,0 AS ACTIVITY_NUM,0 AS PLAN_NUM,0 AS ACTUAL_NUM
          |FROM
          |HIVE_INS_INF D,
@@ -1720,12 +1808,25 @@ object SparkHive2Mysql {
          | """.stripMargin)
 
     delete(s"DM_PRIZE_ACT_BRANCH_DLY","REPORT_DT",s"$start_dt",s"$end_dt")
-    DM_PRIZE_ACT_BRANCH_DLY.save2UpsqlTset("DM_PRIZE_ACT_BRANCH_DLY")
+    println("###JOB_DM_73------results:"+results.count())
+    if(!Option(results).isEmpty){
+      results.save2Mysql("DM_PRIZE_ACT_BRANCH_DLY")
+    }else{
+      println("指定的时间范围无数据插入！")
+    }
   }
+
+  /**
+    * JOB_DM_74/10-14
+    * DM_PRIZE_ACT_DLY->HIVE_PRIZE_ACTIVITY_BAS_INF,HIVE_PRIZE_LVL,HIVE_PRIZE_BAS,HIVE_PRIZE_DISCOUNT_RESULT
+    * Code by Xue
+    * @param sqlContext
+    * @return
+    */
 
   def JOB_DM_74 (implicit sqlContext: HiveContext) = {
     sqlContext.sql("use upw_hive")
-    val DM_PRIZE_ACT_DLY = sqlContext.sql(
+    val results = sqlContext.sql(
       s"""
          | SELECT
          |    C.ACTIVITY_ID AS ACTIVITY_ID,
@@ -1803,12 +1904,25 @@ object SparkHive2Mysql {
          | """.stripMargin)
 
     delete(s"DM_PRIZE_ACT_DLY","REPORT_DT",s"$start_dt",s"$end_dt")
-    DM_PRIZE_ACT_DLY.save2UpsqlTset("DM_PRIZE_ACT_DLY")
+    println("###JOB_DM_74------results:"+results.count())
+    if(!Option(results).isEmpty){
+      results.save2Mysql("DM_PRIZE_ACT_DLY")
+    }else{
+      println("指定的时间范围无数据插入！")
+    }
   }
+
+  /**
+    * JOB_DM_75/10-14
+    * DM_DISC_ACT_DLY->HIVE_PRIZE_DISCOUNT_RESULT,HIVE_DISCOUNT_BAS_INF
+    * Code by Xue
+    * @param sqlContext
+    * @return
+    */
 
   def JOB_DM_75 (implicit sqlContext: HiveContext) = {
     sqlContext.sql("use upw_hive")
-    val DM_DISC_ACT_DLY = sqlContext.sql(
+    val results = sqlContext.sql(
       s"""
          |SELECT
          |		B.ACTIVITY_ID as ACTIVITY_ID,
@@ -1870,12 +1984,25 @@ object SparkHive2Mysql {
          | """.stripMargin)
 
     delete(s"DM_DISC_ACT_DLY","REPORT_DT",s"$start_dt",s"$end_dt")
-    DM_DISC_ACT_DLY.save2UpsqlTset("DM_DISC_ACT_DLY")
+    println("###JOB_DM_75------results:"+results.count())
+    if(!Option(results).isEmpty){
+      results.save2Mysql("DM_DISC_ACT_DLY")
+    }else{
+      println("指定的时间范围无数据插入！")
+    }
   }
+
+  /**
+    * JOB_DM_78/10-14
+    * DM_ISS_DISC_CFP_TRAN->HIVE_CARD_BIN,HIVE_CARD_BIND_INF,HIVE_ACTIVE_CARD_ACQ_BRANCH_MON
+    * Code by Xue
+    * @param sqlContext
+    * @return
+    */
 
   def JOB_DM_78 (implicit sqlContext: HiveContext) = {
     sqlContext.sql("use upw_hive")
-    val DM_ISS_DISC_CFP_TRAN = sqlContext.sql(
+    val results = sqlContext.sql(
       s"""
          |SELECT
          |A.bank_nm AS ISS_NM,
@@ -1941,14 +2068,14 @@ object SparkHive2Mysql {
          |   '03100000','04031000','64031000','04010000','04012902',
          |   '04012900','04100000','05105840','06105840','03070000')
          |
-        |)tempc
+         |)tempc
          | on tempb.card_bin=tempc.card_bin
          |  ) tempa
          |where tempa.card_attr is not null
          |group by tempa.bank_nm, tempa.card_attr
          |) A
          |
-        |LEFT JOIN
+         |LEFT JOIN
          |(
          |select
          |iss_root_ins_id_cd,
@@ -1979,7 +2106,7 @@ object SparkHive2Mysql {
          |     when month('$today_dt') in (10,11,12) and  trans_month>= concat(year('$today_dt'),'07')  and trans_month<=concat(year('$today_dt'),'09')  then active_card_num
          |	 end) as LAST_QUARTER_ACTIVE_CNT
          |
-        |from HIVE_ACTIVE_CARD_ACQ_BRANCH_MON
+         |from HIVE_ACTIVE_CARD_ACQ_BRANCH_MON
          |where trans_class ='4' and
          |iss_root_ins_id_cd in ('0801020000','0801030000','0801040000','0801040003','0803070010',
          |   '0801050000','0801050001','0861000000','0801009999','0801000000',
@@ -1994,8 +2121,22 @@ object SparkHive2Mysql {
          | """.stripMargin)
 
     delete(s"DM_ISS_DISC_CFP_TRAN","REPORT_DT",s"$today_dt",s"$today_dt")
-    DM_ISS_DISC_CFP_TRAN.save2UpsqlTset("DM_ISS_DISC_CFP_TRAN")
+
+    println("###JOB_DM_78------results:"+results.count())
+    if(!Option(results).isEmpty){
+      results.save2Mysql("DM_ISS_DISC_CFP_TRAN")
+    }else{
+      println("指定的时间范围无数据插入！")
+    }
   }
+
+  /**
+    * JOB_DM_86/10-14
+    * DM_USER_REAL_NAME->HIVE_PRI_ACCT_INF
+    * Code by Xue
+    * @param sqlContext
+    * @return
+    */
 
   def JOB_DM_86 (implicit sqlContext: HiveContext) = {
     sqlContext.sql("use upw_hive")
@@ -2052,16 +2193,14 @@ object SparkHive2Mysql {
          | """.stripMargin)
 
     delete(s"DM_USER_REAL_NAME","REPORT_DT",s"$today_dt",s"$today_dt")
-    DM_USER_REAL_NAME.save2UpsqlTset("DM_USER_REAL_NAME")
+
+    println("###JOB_DM_86------results:"+results.count())
+    if(!Option(results).isEmpty){
+      results.save2Mysql("DM_USER_REAL_NAME")
+    }else{
+      println("指定的时间范围无数据插入！")
+    }
   }
-
-
-
-
-
-
-
-
 
 
 
