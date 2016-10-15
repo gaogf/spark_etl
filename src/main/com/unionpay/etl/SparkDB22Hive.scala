@@ -1,9 +1,15 @@
 package com.unionpay.etl
-
-import  com.unionpay.jdbc.DB2_JDBC
-import  com.unionpay.jdbc.DB2_JDBC.ReadDB2._
+import com.unionpay.conf.ConfigurationManager
+import com.unionpay.constant.Constants
+import  com.unionpay.jdbc.DB2_JDBC.ReadDB2
 import org.apache.spark.sql.hive.HiveContext
 import org.apache.spark.{SparkConf, SparkContext}
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import org.joda.time.DateTime
+import org.joda.time.Days
+import org.joda.time.LocalDate
+import org.joda.time.format.DateTimeFormat
 
 /**
   * 作业：抽取DB2中的数据到Hive数据仓库
@@ -48,51 +54,51 @@ object SparkDB22Hive {
     }
 
     //--------TAN ZHENG QIANG---------------------------------------------------------
-    JOB_HV_9       //已添加
-    JOB_HV_10      //已添加
-    JOB_HV_11      //已添加
-    JOB_HV_12      //已添加
-    JOB_HV_13      //已添加
-    JOB_HV_14      //已添加
-    JOB_HV_15      //测试出错，原因如下
-    JOB_HV_16      //已添加
-    JOB_HV_23      //已添加
-    JOB_HV_26      //已添加
-    JOB_HV_37      //已添加
-    JOB_HV_38      //已添加
-    JOB_HV_40      //已添加
-    JOB_HV_42      //已添加
-    JOB_HV_44      //已添加
-    JOB_HV_48      //已添加
-    JOB_HV_54      //已添加
-    JOB_HV_67      //已添加
-    JOB_HV_68      //已添加
+    //    JOB_HV_9       //已添加
+    //    JOB_HV_10      //已添加
+    //    JOB_HV_11      //已添加
+    //    JOB_HV_12      //已添加
+    //    JOB_HV_13      //已添加
+    //    JOB_HV_14      //已添加
+    //    JOB_HV_15      //测试出错，原因如下
+    //    JOB_HV_16      //已添加
+    //    JOB_HV_23      //已添加
+    //    JOB_HV_26      //已添加
+    //    JOB_HV_37      //已添加
+    //    JOB_HV_38      //已添加
+    //    JOB_HV_40(sqlContext,start_dt,end_dt)
+    //    JOB_HV_42      //已添加
+    //    JOB_HV_44      //已添加
+    //    JOB_HV_48      //已添加
+    //    JOB_HV_54      //已添加
+    //    JOB_HV_67      //已添加
+    //    JOB_HV_68      //已添加
 
 
     //--------XUE TAI PING----------------------------------------------------------
-    JOB_HV_4       //已添加
-    PartitionFun (start_dt,end_dt)
-    JOB_HV_8       //已添加
-    JOB_HV_25      //已添加
-    JOB_HV_28(sqlContext,start_dt,end_dt)      //已添加
-    JOB_HV_29      //已添加
-    JOB_HV_31      //已添加
-    JOB_HV_32      //已添加
-    JOB_HV_46      //已添加
-    JOB_HV_47      //已添加
-    JOB_HV_69      //已添加
-    JOB_HV_69      //已添加
+    //    JOB_HV_4       //已添加
+    //    PartitionFun (start_dt,end_dt)
+    //    JOB_HV_8       //已添加
+    //    JOB_HV_25      //已添加
+    //    JOB_HV_28(sqlContext,start_dt,end_dt)
+    //    JOB_HV_29      //已添加
+    //    JOB_HV_31      //已添加
+    //    JOB_HV_32      //已添加
+    //    JOB_HV_46      //已添加
+    //    JOB_HV_47      //已添加
+    //    JOB_HV_69      //已添加
+    //    JOB_HV_69      //已添加
 
     //--------YANG XUE--------------------------------------------------------------
-    //         JOB_HV_1      //未添加
-    //         JOB_HV_3      //未添加
-    //         JOB_HV_18     //未添加
-    //         JOB_HV_19     //未添加
-    //         JOB_HV_24     //未添加
-    //         JOB_HV_30     //未添加
-    //         JOB_HV_36     //未添加
-    //         JOB_HV_43     //未添加
-    //         JOB_HV_70     //未添加
+    //    JOB_HV_1      //未添加
+    //    JOB_HV_3      //未添加
+    //    JOB_HV_18     //未添加
+    //    JOB_HV_19     //未添加
+    //    JOB_HV_24     //未添加
+    //    JOB_HV_30     //未添加
+    //    JOB_HV_36     //未添加
+    //    JOB_HV_43     //未添加
+    //    JOB_HV_70     //未添加
     sc.stop()
   }
 
