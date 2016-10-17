@@ -2673,7 +2673,7 @@ object SparkHive2Mysql {
     if(interval>0 ){
       sqlContext.sql("use upw_hive")
       for(i <- 0 to interval){
-        val DM_USER_REAL_NAME = sqlContext.sql(
+        val results = sqlContext.sql(
           s"""
              |SELECT
              |tempb.PHONE_LOCATION AS BRANCH_NM,

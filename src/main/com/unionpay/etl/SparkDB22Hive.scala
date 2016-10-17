@@ -1864,7 +1864,7 @@ object SparkDB22Hive {
     * @param sqlContext
     * @return
     */
-  def JOB_HV_28 (implicit sqlContext: HiveContext,start_dt: String,end_dt: String) = {
+  def JOB_HV_28 (implicit sqlContext: HiveContext) = {
     val df2_1 = sqlContext.jdbc_accdb_DF("ch_accdb.viw_chacc_online_point_trans_inf")
     println("分区数为:" + {
       df2_1.rdd.getNumPartitions
@@ -1978,7 +1978,7 @@ object SparkDB22Hive {
     * @param sqlContext
     * @return
     */
-  def JOB_HV_29 (implicit sqlContext: HiveContext,start_dt: String,end_dt: String) = {
+  def JOB_HV_29 (implicit sqlContext: HiveContext) = {
     val df2_1 = sqlContext.jdbc_accdb_DF("ch_accdb.tbl_chacc_cdhd_point_addup_dtl")
     println("分区数为:" + {
       df2_1.rdd.getNumPartitions
@@ -2240,7 +2240,7 @@ object SparkDB22Hive {
     * @return
     */
 
-  def JOB_HV_31 (implicit sqlContext: HiveContext,start_dt: String,end_dt: String) = {
+  def JOB_HV_31 (implicit sqlContext: HiveContext) = {
     val df2_1 = sqlContext.jdbc_mgmdb_DF("ch_mgmdb.VIW_CHMGM_BILL_ORDER_AUX_INF")
     println("分区数为:" + {
       df2_1.rdd.getNumPartitions
@@ -2357,7 +2357,7 @@ object SparkDB22Hive {
     * @param sqlContext
     * @return
     */
-  def JOB_HV_32 (implicit sqlContext: HiveContext,start_dt: String,end_dt: String) = {
+  def JOB_HV_32 (implicit sqlContext: HiveContext) = {
     val df2_1 = sqlContext.jdbc_mgmdb_DF("ch_mgmdb.tbl_umsvc_prize_discount_result")
     println("分区数为:" + {
       df2_1.rdd.getNumPartitions
@@ -2933,7 +2933,7 @@ object SparkDB22Hive {
     * @param sqlContext
     * @return
     */
-  def JOB_HV_42(implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
+  def JOB_HV_42(implicit sqlContext: HiveContext) = {
     println("job42---------->JOB_HV_42( hive_active_code_pay_trans-> hive_achis_trans)")
 
     //1.1格式化日期
