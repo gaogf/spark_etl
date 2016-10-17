@@ -35,8 +35,48 @@ object SparkDB22Hive {
     sc.setLogLevel("ERROR")
     implicit val sqlContext = new HiveContext(sc)
 
-    // Xue create function about partition by date ^_^
+    PartitionFun (start_dt,end_dt)
+    JOB_HV_1   //CODE BY YX
+    JOB_HV_3   //CODE BY YX
+    JOB_HV_4   //CODE BY XTP
+    JOB_HV_8   //CODE BY XTP
+    JOB_HV_9   //CODE BY TZQ
+    JOB_HV_10  //CODE BY TZQ
+    JOB_HV_11  //CODE BY TZQ
+    JOB_HV_12  //CODE BY TZQ
+    JOB_HV_13  //CODE BY TZQ
+    JOB_HV_14  //CODE BY TZQ
+    JOB_HV_15  //CODE BY TZQ  //测试出错，未解决
+    JOB_HV_16  //CODE BY TZQ
+    JOB_HV_18  //CODE BY YX
+    JOB_HV_19  //CODE BY YX
+    JOB_HV_23  //CODE BY TZQ
+    JOB_HV_24  //CODE BY YX
+    JOB_HV_25  //CODE BY XTP
+    JOB_HV_26  //CODE BY TZQ
+    JOB_HV_28  //CODE BY XTP
+    JOB_HV_29  //CODE BY XTP
+    JOB_HV_30  //CODE BY YX
+    JOB_HV_31  //CODE BY XTP
+    JOB_HV_32  //CODE BY XTP
+    JOB_HV_36  //CODE BY YX
+    JOB_HV_37  //CODE BY TZQ
+    JOB_HV_38  //CODE BY TZQ
+    JOB_HV_40  //CODE BY TZQ
+    JOB_HV_42  //CODE BY TZQ
+    JOB_HV_43  //CODE BY YX
+    JOB_HV_44  //CODE BY TZQ
+    JOB_HV_46  //CODE BY XTP
+    JOB_HV_47  //CODE BY XTP
+    JOB_HV_48  //CODE BY TZQ
+    JOB_HV_54  //CODE BY TZQ
+    JOB_HV_67  //CODE BY TZQ
+    JOB_HV_68  //CODE BY TZQ
+    JOB_HV_69  //CODE BY XTP
+    JOB_HV_69  //CODE BY XTP
+    JOB_HV_70  //CODE BY YX
 
+    // Xue create function about partition by date ^_^
     def PartitionFun(start_dt: String, end_dt: String)  {
       var sdf: SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd")
       val start = LocalDate.parse(start_dt, dateFormatter)
@@ -54,55 +94,6 @@ object SparkDB22Hive {
         println(s"insert into hive_acc_trans partition (part_trans_dt='$currentDay') successfully!")
       }
     }
-
-    //--------TAN ZHENG QIANG---------------------------------------------------------
-//        JOB_HV_9
-//        JOB_HV_10
-//        JOB_HV_11
-//        JOB_HV_12
-//        JOB_HV_13
-//        JOB_HV_14
-//        JOB_HV_15      //测试出错，原因如下
-//        JOB_HV_16
-//        JOB_HV_23
-//        JOB_HV_26
-//        JOB_HV_37
-//        JOB_HV_38
-//        JOB_HV_40
-//        JOB_HV_42
-//        JOB_HV_44
-//        JOB_HV_48
-//        JOB_HV_54
-//        JOB_HV_67
-//        JOB_HV_68
-//
-//
-//    //--------XUE TAI PING----------------------------------------------------------
-//        JOB_HV_4
-//        PartitionFun (start_dt,end_dt)
-//        JOB_HV_8
-//        JOB_HV_25
-//        JOB_HV_28
-//        JOB_HV_29
-//        JOB_HV_31
-//        JOB_HV_32
-//        JOB_HV_46
-//        JOB_HV_47
-//        JOB_HV_69
-//        JOB_HV_69
-//
-//    //--------YANG XUE--------------------------------------------------------------
-//      JOB_HV_1
-//      JOB_HV_3
-//      JOB_HV_18
-//      JOB_HV_19
-//      JOB_HV_24
-//      JOB_HV_30
-//      JOB_HV_36
-//      JOB_HV_43
-//      JOB_HV_70
-
-
     sc.stop()
   }
 
