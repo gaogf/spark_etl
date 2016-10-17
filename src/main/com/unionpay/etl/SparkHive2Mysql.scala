@@ -34,38 +34,38 @@ object SparkHive2Mysql {
     implicit val sqlContext = new HiveContext(sc)
 
 
-//--------Code By TAN ZHENG QIANG---------------------------------------------------------
-//    JOB_DM_5
-//    JOB_DM_6
-//    JOB_DM_55
-//    JOB_DM_62
-//    JOB_DM_66
-//    JOB_DM_69
-//    JOB_DM_70
-//    JOB_DM_71
-//    JOB_DM_76
-//    JOB_DM_87
+    //--------Code By TAN ZHENG QIANG---------------------------------------------------------
+    //    JOB_DM_5
+    //    JOB_DM_6
+    //    JOB_DM_55
+    //    JOB_DM_62
+    //    JOB_DM_66
+    //    JOB_DM_69
+    //    JOB_DM_70
+    //    JOB_DM_71
+    //    JOB_DM_76
+    //    JOB_DM_87
 
-//--------Code By XUE TAI PING---------------------------------------------------------
-//    JOB_DM_2
-//    JOB_DM_4
-//    JOB_DM_9
-//    JOB_DM_54
-//    JOB_DM_63
-//    JOB_DM_65
-//    JOB_DM_73
-//    JOB_DM_74
-//    JOB_DM_75
-//    JOB_DM_78
-//    JOB_DM_86
+    //--------Code By XUE TAI PING---------------------------------------------------------
+    //    JOB_DM_2
+    //    JOB_DM_4
+    //    JOB_DM_9
+    //    JOB_DM_54
+    //    JOB_DM_63
+    //    JOB_DM_65
+    //    JOB_DM_73
+    //    JOB_DM_74
+    //    JOB_DM_75
+    //    JOB_DM_78
+    //    JOB_DM_86
 
-//--------Code By YANG XUE---------------------------------------------------------
-//    JOB_DM_1
-//    JOB_DM_3
-//    JOB_DM_61
-//    JOB_DM_67
-//    JOB_DM_68
-//    JOB_DM_72
+    //--------Code By YANG XUE---------------------------------------------------------
+    //    JOB_DM_1
+    //    JOB_DM_3
+    //    JOB_DM_61
+    //    JOB_DM_67
+    //    JOB_DM_68
+    //    JOB_DM_72
 
   }
 
@@ -2282,7 +2282,7 @@ object SparkHive2Mysql {
         today_dt=DateUtils.addOneDay(today_dt)
       }
     }
-    
+
   }
 
 
