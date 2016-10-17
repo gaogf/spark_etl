@@ -267,171 +267,172 @@ object SparkHive2Mysql {
         val results = sqlContext.sql(
           s"""
              |select
-             |    d.class      as regist_channel ,
-             |    d.access_nm  as reg_son_chn ,
-             |    '$today_dt' as report_dt ,
-             |    sum(a.tpre)  as reg_tpre_add_num ,
-             |    sum(a.years) as reg_year_add_num ,
-             |    sum(a.total) as reg_totle_add_num ,
-             |    sum(b.tpre)  as effect_tpre_add_num ,
-             |    sum(b.years) as effect_year_add_num ,
-             |    sum(b.total) as effect_totle_add_num ,
-             |    0            as batch_tpre_add_num ,
-             |    0            as batch_year_add_num ,
-             |    0            as batch_totle_add_num ,
-             |    0            as client_tpre_add_num ,
-             |    0            as client_year_add_num ,
-             |    0            as client_totle_add_num ,
-             |    sum(c.tpre)  as deal_tpre_add_num ,
-             |    sum(c.years) as deal_year_add_num ,
-             |    sum(c.total) as deal_totle_add_num
+             | d.class as regist_channel ,
+             | d.access_nm as reg_son_chn ,
+             | '$today_dt' as report_dt ,
+             | sum(a.tpre) as reg_tpre_add_num ,
+             | sum(a.years) as reg_year_add_num ,
+             | sum(a.total) as reg_totle_add_num ,
+             | sum(b.tpre) as effect_tpre_add_num ,
+             | sum(b.years) as effect_year_add_num ,
+             | sum(b.total) as effect_totle_add_num ,
+             | 0 as batch_tpre_add_num ,
+             | 0 as batch_year_add_num ,
+             | 0 as batch_totle_add_num ,
+             | 0 as client_tpre_add_num ,
+             | 0 as client_year_add_num ,
+             | 0 as client_totle_add_num ,
+             | sum(c.tpre) as deal_tpre_add_num ,
+             | sum(c.years) as deal_year_add_num ,
+             | sum(c.total) as deal_totle_add_num
              |from
-             |    (
-             |        select
-             |            a.inf_source,
-             |            count(distinct(
-             |                case
-             |                    when to_date(a.rec_crt_ts)='$today_dt'
-             |                    then a.cdhd_usr_id
-             |                end)) as tpre,
-             |            count(distinct(
-             |                case
-             |                    when to_date(a.rec_crt_ts)>=trunc('$today_dt','yyyy')
-             |                    and to_date(a.rec_crt_ts)<='$today_dt'
-             |                    then a.cdhd_usr_id
-             |                end)) as years,
-             |            count(distinct(
-             |                case
-             |                    when to_date(a.rec_crt_ts)<='$today_dt'
-             |                    then a.cdhd_usr_id
-             |                end)) as total
-             |        from
-             |            (
-             |                select
-             |                    inf_source,
-             |                    cdhd_usr_id,
-             |                    rec_crt_ts
-             |                from
-             |                    hive_pri_acct_inf
-             |                where
-             |                    usr_st='1') a
-             |        group by
-             |            a.inf_source ) a
+             | (
+             | select
+             | a.inf_source,
+             | count(distinct(
+             | case
+             | when to_date(a.rec_crt_ts)='$today_dt'
+             | then a.cdhd_usr_id
+             | end)) as tpre,
+             | count(distinct(
+             | case
+             | when to_date(a.rec_crt_ts)>=trunc('$today_dt','yyyy')
+             | and to_date(a.rec_crt_ts)<='$today_dt'
+             | then a.cdhd_usr_id
+             | end)) as years,
+             | count(distinct(
+             | case
+             | when to_date(a.rec_crt_ts)<='$today_dt'
+             | then a.cdhd_usr_id
+             | end)) as total
+             | from
+             | (
+             | select
+             | inf_source,
+             | cdhd_usr_id,
+             | rec_crt_ts
+             | from
+             | hive_pri_acct_inf
+             | where
+             | usr_st='1') a
+             | group by
+             | a.inf_source ) a
              |left join
-             |    (
-             |        select
-             |            a.inf_source,
-             |            count(distinct(
-             |                case
-             |                    when to_date(a.rec_crt_ts)='$today_dt'
-             |                    and to_date(b.card_dt)='$today_dt'
-             |                    then a.cdhd_usr_id
-             |                end)) as tpre,
-             |            count(distinct(
-             |                case
-             |                    when to_date(a.rec_crt_ts)>=trunc('$today_dt','yyyy')
-             |                    and to_date(a.rec_crt_ts)<='$today_dt'
-             |                    and to_date(b.card_dt)>=trunc('$today_dt','yyyy')
-             |                    and to_date(b.card_dt)<='$today_dt'
-             |                    then a.cdhd_usr_id
-             |                end)) as years,
-             |            count(distinct(
-             |                case
-             |                    when to_date(a.rec_crt_ts)<='$today_dt'
-             |                    and to_date(b.card_dt)<='$today_dt'
-             |                    then a.cdhd_usr_id
-             |                end)) as total
-             |        from
-             |            (
-             |                select
-             |                    inf_source,
-             |                    cdhd_usr_id,
-             |                    rec_crt_ts
-             |                from
-             |                    hive_pri_acct_inf
-             |                where
-             |                    usr_st='1' ) a
-             |        inner join
-             |            (
-             |                select distinct
-             |                    (cdhd_usr_id),
-             |                    rec_crt_ts as card_dt
-             |                from
-             |                    hive_card_bind_inf
-             |                where
-             |                    card_auth_st in ('1',
-             |                                     '2',
-             |                                     '3') ) b
-             |        on
-             |            a.cdhd_usr_id=b.cdhd_usr_id
-             |        group by
-             |            a.inf_source) b
+             | (
+             | select
+             | a.inf_source,
+             | count(distinct(
+             | case
+             | when to_date(a.rec_crt_ts)='$today_dt'
+             | and to_date(b.card_dt)='$today_dt'
+             | then a.cdhd_usr_id
+             | end)) as tpre,
+             | count(distinct(
+             | case
+             | when to_date(a.rec_crt_ts)>=trunc('$today_dt','yyyy')
+             | and to_date(a.rec_crt_ts)<='$today_dt'
+             | and to_date(b.card_dt)>=trunc('$today_dt','yyyy')
+             | and to_date(b.card_dt)<='$today_dt'
+             | then a.cdhd_usr_id
+             | end)) as years,
+             | count(distinct(
+             | case
+             | when to_date(a.rec_crt_ts)<='$today_dt'
+             | and to_date(b.card_dt)<='$today_dt'
+             | then a.cdhd_usr_id
+             | end)) as total
+             | from
+             | (
+             | select
+             | inf_source,
+             | cdhd_usr_id,
+             | rec_crt_ts
+             | from
+             | hive_pri_acct_inf
+             | where
+             | usr_st='1' ) a
+             | inner join
+             | (
+             | select distinct
+             | (cdhd_usr_id),
+             | rec_crt_ts as card_dt
+             | from
+             | hive_card_bind_inf
+             | where
+             | card_auth_st in ('1',
+             | '2',
+             | '3') ) b
+             | on
+             | a.cdhd_usr_id=b.cdhd_usr_id
+             | group by
+             | a.inf_source) b
              |on
-             |    a.inf_source=b.inf_source
+             | trim(a.inf_source)=trim(b.inf_source)
              |left join
-             |    (
-             |        select
-             |            a.inf_source,
-             |            count(distinct (a.cdhd_usr_id)),
-             |            count(distinct(
-             |                case
-             |                    when to_date(a.rec_crt_ts)='$today_dt'
-             |                    and to_date(b.trans_dt)='$today_dt'
-             |                    then a.cdhd_usr_id
-             |                end)) as tpre,
-             |            count(distinct(
-             |                case
-             |                    when to_date(a.rec_crt_ts)>=trunc('$today_dt','yyyy')
-             |                    and to_date(a.rec_crt_ts)<='$today_dt'
-             |                    and to_date(b.trans_dt)>=trunc('$today_dt','yyyy')
-             |                    and to_date(b.trans_dt)<='$today_dt'
-             |                    then a.cdhd_usr_id
-             |                end)) as years,
-             |            count(distinct(
-             |                case
-             |                    when to_date(a.rec_crt_ts)<='$today_dt'
-             |                    and to_date(b.trans_dt)<='$today_dt'
-             |                    then a.cdhd_usr_id
-             |                end)) as total
-             |        from
-             |            (
-             |                select
-             |                    inf_source,
-             |                    cdhd_usr_id,
-             |                    rec_crt_ts
-             |                from
-             |                    hive_pri_acct_inf
-             |                where
-             |                    usr_st='1' ) a
-             |        inner join
-             |            (
-             |                select distinct
-             |                    (cdhd_usr_id),
-             |                    trans_dt
-             |                from
-             |                    hive_acc_trans) b
-             |        on
-             |            a.cdhd_usr_id=b.cdhd_usr_id
-             |        group by
-             |            a.inf_source ) c
+             | (
+             | select
+             | a.inf_source,
+             | count(distinct (a.cdhd_usr_id)),
+             | count(distinct(
+             | case
+             | when to_date(a.rec_crt_ts)='$today_dt'
+             | and to_date(b.trans_dt)='$today_dt'
+             | then a.cdhd_usr_id
+             | end)) as tpre,
+             | count(distinct(
+             | case
+             | when to_date(a.rec_crt_ts)>=trunc('$today_dt','yyyy')
+             | and to_date(a.rec_crt_ts)<='$today_dt'
+             | and to_date(b.trans_dt)>=trunc('$today_dt','yyyy')
+             | and to_date(b.trans_dt)<='$today_dt'
+             | then a.cdhd_usr_id
+             | end)) as years,
+             | count(distinct(
+             | case
+             | when to_date(a.rec_crt_ts)<='$today_dt'
+             | and to_date(b.trans_dt)<='$today_dt'
+             | then a.cdhd_usr_id
+             | end)) as total
+             | from
+             | (
+             | select
+             | inf_source,
+             | cdhd_usr_id,
+             | rec_crt_ts
+             | from
+             | hive_pri_acct_inf
+             | where
+             | usr_st='1' ) a
+             | inner join
+             | (
+             | select distinct
+             | (cdhd_usr_id),
+             | trans_dt
+             | from
+             | hive_acc_trans) b
+             | on
+             | a.cdhd_usr_id=b.cdhd_usr_id
+             | group by
+             | a.inf_source ) c
              |on
-             |    a.inf_source=c.inf_source
+             | trim(a.inf_source)=trim(c.inf_source)
              |left join
-             |    (
-             |        select
-             |            dtl.access_id,
-             |            dtl.access_nm,
-             |            cla.class
-             |        from
-             |            hive_inf_source_dtl dtl
-             |        left join
-             |            hive_inf_source_class cla
-             |        on
-             |            trim(cla.access_nm)=trim(dtl.access_nm) ) d
+             | (
+             | select
+             | dtl.access_id,
+             | dtl.access_nm,
+             | cla.class
+             | from
+             | hive_inf_source_dtl dtl
+             | left join
+             | hive_inf_source_class cla
+             | on
+             | trim(cla.access_nm)=trim(dtl.access_nm) ) d
              |on
-             |    trim(a.inf_source)=trim(d.access_id)
+             | trim(a.inf_source)=trim(d.access_id)
              |group by
-             |		 d.class, d.access_nm
+             |	 d.class, d.access_nm
+             |
       """.stripMargin)
 
         println(s"###JOB_DM_3------$today_dt results:"+results.count())
