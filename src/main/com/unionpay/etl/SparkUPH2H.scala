@@ -9,7 +9,7 @@ import org.apache.spark.sql.hive.HiveContext
 /**
   * UP HIVE -> UPW HIVE
   */
-object H2H {
+object SparkUPH2H {
 
   //计算开始日期：start_dt-1
   private lazy val start_dt=DateUtils.getYesterdayByJob(ConfigurationManager.getProperty(Constants.START_DT))
@@ -18,7 +18,7 @@ object H2H {
 
 
   def main(args: Array[String]): Unit = {
-    val conf = new SparkConf().setAppName("H2H")
+    val conf = new SparkConf().setAppName("SparkUPH2H")
     val sc = new SparkContext(conf)
     sc.setLogLevel("ERROR")
     implicit val sqlContext = new HiveContext(sc)
