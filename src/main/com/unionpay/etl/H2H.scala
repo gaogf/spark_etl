@@ -15,8 +15,7 @@ object H2H {
   private lazy val start_dt=DateUtils.getYesterdayByJob(ConfigurationManager.getProperty(Constants.START_DT))
   //结束日期
   private lazy val end_dt=ConfigurationManager.getProperty(Constants.END_DT)
-  //计算间隔天数
-  private lazy val interval=DateUtils.getIntervalDays(start_dt,end_dt).toInt
+
 
   def main(args: Array[String]): Unit = {
     val conf = new SparkConf().setAppName("H2H")
