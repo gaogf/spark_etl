@@ -25,7 +25,7 @@ object SparkDB22Hive {
   private lazy val end_dt=ConfigurationManager.getProperty(Constants.END_DT)
   //计算间隔天数
   private lazy val interval=DateUtils.getIntervalDays(start_dt,end_dt).toInt
-  //
+  //指定HIVE数据库名
   private lazy val hive_dbname =ConfigurationManager.getProperty(Constants.HIVE_DBNAME)
 
   def main(args: Array[String]) {
@@ -52,7 +52,7 @@ object SparkDB22Hive {
     //    JOB_HV_51  //未添加
     //    JOB_HV_66  //未添加
 
-//    JOB_HV_8   //CODE BY XTP
+//   JOB_HV_8   //CODE BY XTP
     JOB_HV_9   //CODE BY TZQ
     JOB_HV_10  //CODE BY TZQ
     JOB_HV_11  //CODE BY TZQ
@@ -1969,7 +1969,6 @@ object SparkDB22Hive {
          |and concat_ws('-',substr(ta.trans_dt,1,4),substr(ta.trans_dt,5,2),substr(ta.trans_dt,7,2))<='$end_dt'
          | """.stripMargin)
 
-    results.registerTempTable("spark_hive_online_point_trans")
     println("JOB_HV_28------>results:"+results.count())
     if(!Option(results).isEmpty){
       results.registerTempTable("spark_hive_online_point_trans")
@@ -2129,7 +2128,6 @@ object SparkDB22Hive {
          |and concat_ws('-',substr(ta.trans_dt,1,4),substr(ta.trans_dt,5,2),substr(ta.trans_dt,7,2))<='$end_dt'
          | """.stripMargin)
 
-    results.registerTempTable("spark_hive_offline_point_trans")
     println("JOB_HV_29------>results:"+results.count())
     if(!Option(results).isEmpty){
       results.registerTempTable("spark_hive_offline_point_trans")
@@ -2473,8 +2471,6 @@ object SparkDB22Hive {
          |concat_ws('-',substr(ta.SETTLE_DT,1,4),substr(ta.SETTLE_DT,5,2),substr(ta.SETTLE_DT,7,2))>='$start_dt'
          |and concat_ws('-',substr(ta.SETTLE_DT,1,4),substr(ta.SETTLE_DT,5,2),substr(ta.SETTLE_DT,7,2))<='$end_dt'
          | """.stripMargin)
-
-    results.registerTempTable("spark_hive_prize_discount_result")
 
     println("JOB_HV_32------>results:"+results.count())
     if(!Option(results).isEmpty){
@@ -3539,7 +3535,6 @@ object SparkDB22Hive {
         |
         |from tbl_umsvc_prize_activity_bas_inf ta
         | """.stripMargin)
-    results.registerTempTable("spark_hive_prize_activity_bas_inf")
 
     println("JOB_HV_46------>results:"+results.count())
     if(!Option(results).isEmpty){
@@ -3589,7 +3584,6 @@ object SparkDB22Hive {
         |
         | """.stripMargin)
 
-    results.registerTempTable("spark_hive_prize_lvl_add_rule")
     println("JOB_HV_47------>results:"+results.count())
     if(!Option(results).isEmpty){
       results.registerTempTable("spark_hive_prize_lvl_add_rule")
