@@ -5,11 +5,8 @@ import com.unionpay.constant.Constants
 import com.unionpay.jdbc.UPSQL_JDBC
 import com.unionpay.jdbc.UPSQL_JDBC.DataFrame2Mysql
 import com.unionpay.utils.DateUtils
-import com.unionpay.utils.ETLUtils
 import org.apache.spark.sql.hive.HiveContext
 import org.apache.spark.{SparkConf, SparkContext}
-import java.text.SimpleDateFormat
-import java.util.{Calendar, Date}
 /**
   * 作业：抽取hive数据仓库中的数据到UPSQL数据库
   * Created by tzq on 2016/10/13.
@@ -22,6 +19,8 @@ object SparkHive2Mysql {
   private lazy val end_dt=ConfigurationManager.getProperty(Constants.END_DT)
   //计算间隔天数
   private lazy val interval=DateUtils.getIntervalDays(start_dt,end_dt).toInt
+  //指定HIVE数据库名
+  private lazy val hive_dbname =ConfigurationManager.getProperty(Constants.HIVE_DBNAME)
 
   def main(args: Array[String]) {
 
@@ -75,7 +74,7 @@ object SparkHive2Mysql {
     var today_dt=start_dt
 
     if(interval>0 ){
-      sqlContext.sql("use upw_hive")
+      sqlContext.sql(s"use $hive_dbname")
       for(i <- 0 to interval){
 
         val results = sqlContext.sql(
@@ -177,7 +176,7 @@ object SparkHive2Mysql {
 
     var today_dt=start_dt
     if(interval>0 ){
-      sqlContext.sql("use upw_hive")
+      sqlContext.sql(s"use $hive_dbname")
       for(i <- 0 to interval){
         val results = sqlContext.sql(
           s"""
@@ -261,7 +260,7 @@ object SparkHive2Mysql {
 
     var today_dt=start_dt
     if(interval>0 ){
-      sqlContext.sql("use upw_hive")
+      sqlContext.sql(s"use $hive_dbname")
       for(i <- 0 to interval){
         val results = sqlContext.sql(
           s"""
@@ -458,7 +457,7 @@ object SparkHive2Mysql {
     UPSQL_JDBC.delete("DM_USER_CARD_AUTH","REPORT_DT",start_dt,end_dt)
     var today_dt=start_dt
     if(interval>0){
-      sqlContext.sql("use upw_hive")
+      sqlContext.sql(s"use $hive_dbname")
       for(i <- 0 to interval){
         val results = sqlContext.sql(
           s"""
@@ -555,7 +554,7 @@ object SparkHive2Mysql {
     var today_dt=start_dt
     //2.循环从指定的日期范围内抽取数据（单位：天）
     if(interval>0 ){
-      sqlContext.sql("use upw_hive")
+      sqlContext.sql(s"use $hive_dbname")
       for(i <- 0 to interval){
         val results=sqlContext.sql(
           s"""
@@ -639,7 +638,7 @@ object SparkHive2Mysql {
 
     var today_dt=start_dt
     if(interval>0 ){
-      sqlContext.sql("use upw_hive")
+      sqlContext.sql(s"use $hive_dbname")
       for(i <- 0 to interval){
         val results=sqlContext.sql(
           s"""
@@ -734,7 +733,7 @@ object SparkHive2Mysql {
     UPSQL_JDBC.delete(s"DM_STORE_DOMAIN_BRANCH_COMPANY","REPORT_DT",start_dt,end_dt)
     var today_dt=start_dt
     if(interval>0 ){
-      sqlContext.sql("use upw_hive")
+      sqlContext.sql(s"use $hive_dbname")
       for(i <- 0 to interval){
         val results = sqlContext.sql(
           s"""
@@ -823,7 +822,7 @@ object SparkHive2Mysql {
   def JOB_DM_54 (implicit sqlContext: HiveContext) = {
     println("###JOB_DM_54(dm_val_tkt_act_mchnt_tp_dly->hive_bill_order_trans,hive_bill_sub_order_trans)")
     UPSQL_JDBC.delete(s"DM_VAL_TKT_ACT_MCHNT_TP_DLY","REPORT_DT",s"$start_dt",s"$end_dt")
-    sqlContext.sql("use upw_hive")
+    sqlContext.sql(s"use $hive_dbname")
     val results = sqlContext.sql(
       s"""
          |SELECT
@@ -989,7 +988,7 @@ object SparkHive2Mysql {
 
     UPSQL_JDBC.delete("dm_disc_act_branch_dly","report_dt",start_dt,end_dt);
 
-    sqlContext.sql("use upw_hive")
+    sqlContext.sql(s"use $hive_dbname")
 
     val results=sqlContext.sql(
       s"""
@@ -1041,7 +1040,7 @@ object SparkHive2Mysql {
     UPSQL_JDBC.delete("dm_cashier_cup_red_branch","report_dt",start_dt,end_dt)
     var today_dt=start_dt
     if(interval>0 ){
-      sqlContext.sql("use upw_hive")
+      sqlContext.sql(s"use $hive_dbname")
       for(i <- 0 to interval){
         val results = sqlContext.sql(
           s"""
@@ -1080,7 +1079,7 @@ object SparkHive2Mysql {
 
     var today_dt=start_dt
     if(interval>0 ){
-      sqlContext.sql("use upw_hive")
+      sqlContext.sql(s"use $hive_dbname")
       for(i <- 0 to interval){
 
         val results=sqlContext.sql(
@@ -1135,7 +1134,7 @@ object SparkHive2Mysql {
     UPSQL_JDBC.delete(s"DM_LIFE_SERVE_BUSINESS_TRANS","REPORT_DT",start_dt,end_dt)
     var today_dt=start_dt
     if(interval>0 ){
-      sqlContext.sql("use upw_hive")
+      sqlContext.sql(s"use $hive_dbname")
       for(i <- 0 to interval){
         val results = sqlContext.sql(
           s"""
@@ -1194,7 +1193,7 @@ object SparkHive2Mysql {
     UPSQL_JDBC.delete(s"DM_HCE_COUPON_TRAN","REPORT_DT",start_dt,end_dt)
     var today_dt=start_dt
     if(interval>0 ){
-      sqlContext.sql("use upw_hive")
+      sqlContext.sql(s"use $hive_dbname")
       for(i <- 0 to interval){
         val results = sqlContext.sql(
           s"""
@@ -1308,7 +1307,7 @@ object SparkHive2Mysql {
 
     var today_dt=start_dt
     if(interval>0 ){
-      sqlContext.sql("use upw_hive")
+      sqlContext.sql(s"use $hive_dbname")
       for(i <- 0 to interval){
 
         val results=sqlContext.sql(
@@ -1385,7 +1384,7 @@ object SparkHive2Mysql {
 
     UPSQL_JDBC.delete("dm_o2o_trans_dly","report_dt",start_dt,end_dt)
 
-    sqlContext.sql("use upw_hive")
+    sqlContext.sql(s"use $hive_dbname")
     val results = sqlContext.sql(
       s"""
          |select
@@ -1747,7 +1746,7 @@ object SparkHive2Mysql {
 
     UPSQL_JDBC.delete("dm_offline_point_trans_dly","report_dt",start_dt,end_dt)
 
-    sqlContext.sql("use upw_hive")
+    sqlContext.sql(s"use $hive_dbname")
     val results = sqlContext.sql(
       s"""
          |select
@@ -1799,7 +1798,7 @@ object SparkHive2Mysql {
 
     UPSQL_JDBC.delete("dm_disc_tkt_act_dly","report_dt",start_dt,end_dt);
 
-    sqlContext.sql("use upw_hive")
+    sqlContext.sql(s"use $hive_dbname")
 
     val results=sqlContext.sql(
       s"""
@@ -1897,7 +1896,7 @@ object SparkHive2Mysql {
 
     UPSQL_JDBC.delete("dm_elec_tkt_act_dly","report_dt",start_dt,end_dt);
 
-    sqlContext.sql("use upw_hive")
+    sqlContext.sql(s"use $hive_dbname")
 
     val results=sqlContext.sql(
       s"""
@@ -1998,7 +1997,7 @@ object SparkHive2Mysql {
 
     UPSQL_JDBC.delete("dm_vchr_tkt_act_dly","report_dt",start_dt,end_dt);
 
-    sqlContext.sql("use upw_hive")
+    sqlContext.sql(s"use $hive_dbname")
     val results=sqlContext.sql(
       s"""
          |select
@@ -2094,7 +2093,7 @@ object SparkHive2Mysql {
 
     UPSQL_JDBC.delete("dm_offline_point_act_dly","report_dt",start_dt,end_dt)
 
-    sqlContext.sql("use upw_hive")
+    sqlContext.sql(s"use $hive_dbname")
     val results = sqlContext.sql(
       s"""
          |select
@@ -2171,7 +2170,7 @@ object SparkHive2Mysql {
     */
   def JOB_DM_73 (implicit sqlContext: HiveContext) = {
     UPSQL_JDBC.delete(s"DM_PRIZE_ACT_BRANCH_DLY","REPORT_DT",s"$start_dt",s"$end_dt")
-    sqlContext.sql("use upw_hive")
+    sqlContext.sql(s"use $hive_dbname")
     val results = sqlContext.sql(
       s"""
          |SELECT
@@ -2300,7 +2299,7 @@ object SparkHive2Mysql {
     */
   def JOB_DM_74 (implicit sqlContext: HiveContext) = {
     UPSQL_JDBC.delete(s"DM_PRIZE_ACT_DLY","REPORT_DT",s"$start_dt",s"$end_dt")
-    sqlContext.sql("use upw_hive")
+    sqlContext.sql(s"use $hive_dbname")
     val results = sqlContext.sql(
       s"""
          | SELECT
@@ -2395,7 +2394,7 @@ object SparkHive2Mysql {
     */
   def JOB_DM_75 (implicit sqlContext: HiveContext) = {
     UPSQL_JDBC.delete(s"DM_DISC_ACT_DLY","REPORT_DT",s"$start_dt",s"$end_dt")
-    sqlContext.sql("use upw_hive")
+    sqlContext.sql(s"use $hive_dbname")
     val results = sqlContext.sql(
       s"""
          |SELECT
@@ -2479,7 +2478,7 @@ object SparkHive2Mysql {
 
     var today_dt=start_dt
     if(interval>0 ){
-      sqlContext.sql("use upw_hive")
+      sqlContext.sql(s"use $hive_dbname")
       for(i <- 0 to interval){
         val results=sqlContext.sql(
           s"""
@@ -2531,7 +2530,7 @@ object SparkHive2Mysql {
     UPSQL_JDBC.delete(s"DM_ISS_DISC_CFP_TRAN","REPORT_DT",start_dt,end_dt)
     var today_dt=start_dt
     if(interval>0 ){
-      sqlContext.sql("use upw_hive")
+      sqlContext.sql(s"use $hive_dbname")
       for(i <- 0 to interval){
         val results = sqlContext.sql(
           s"""
@@ -2673,7 +2672,7 @@ object SparkHive2Mysql {
     UPSQL_JDBC.delete(s"DM_USER_REAL_NAME","REPORT_DT",start_dt,end_dt)
     var today_dt=start_dt
     if(interval>0 ){
-      sqlContext.sql("use upw_hive")
+      sqlContext.sql(s"use $hive_dbname")
       for(i <- 0 to interval){
         val results = sqlContext.sql(
           s"""
@@ -2759,7 +2758,7 @@ object SparkHive2Mysql {
 
     var today_dt=start_dt
     if(interval>0 ){
-      sqlContext.sql("use upw_hive")
+      sqlContext.sql(s"use $hive_dbname")
       for(i <- 0 to interval){
         val results=sqlContext.sql(
           s"""
