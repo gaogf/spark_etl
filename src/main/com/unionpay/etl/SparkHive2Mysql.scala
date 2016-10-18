@@ -12,7 +12,7 @@ import org.apache.spark.{SparkConf, SparkContext}
   * Created by tzq on 2016/10/13.
   */
 object SparkHive2Mysql {
-  //####测试使用####
+
   //计算开始日期：start_dt-1
   private lazy val start_dt=DateUtils.getYesterdayByJob(ConfigurationManager.getProperty(Constants.START_DT))
   //结束日期
@@ -25,7 +25,7 @@ object SparkHive2Mysql {
   def main(args: Array[String]) {
 
     val conf = new SparkConf().setAppName("SparkHive2Mysql")
-//    conf.set("spark.kryoserializer.buffer.max","128M")
+
     val sc = new SparkContext(conf)
     sc.setLogLevel("ERROR")
 
