@@ -25,36 +25,38 @@ object SparkHive2Mysql {
   def main(args: Array[String]) {
 
     val conf = new SparkConf().setAppName("SparkHive2Mysql")
+//    conf.set("spark.kryoserializer.buffer.max","128M")
     val sc = new SparkContext(conf)
     sc.setLogLevel("ERROR")
+
     implicit val sqlContext = new HiveContext(sc)
 
-    JOB_DM_1    //CODE BY YX
-    JOB_DM_2    //CODE BY XTP
-    JOB_DM_3    //CODE BY YX
-    JOB_DM_4    //CODE BY XTP
-    JOB_DM_5    //CODE BY TZQ
-    JOB_DM_6    //CODE BY TZQ
-    JOB_DM_9    //CODE BY XTP
-    JOB_DM_54   //CODE BY XTP
-    JOB_DM_55   //CODE BY TZQ
-    JOB_DM_61   //CODE BY YX
-    JOB_DM_62   //CODE BY TZQ
-    JOB_DM_63   //CODE BY XTP
-    JOB_DM_65   //CODE BY XTP
-    JOB_DM_66   //CODE BY TZQ
-    JOB_DM_67   //CODE BY YX
-    JOB_DM_68   //CODE BY YX
-    JOB_DM_69   //CODE BY TZQ
-    JOB_DM_70   //CODE BY TZQ
-    JOB_DM_71   //CODE BY TZQ
+//    JOB_DM_1    //CODE BY YX
+//    JOB_DM_2    //CODE BY XTP
+//    JOB_DM_3    //CODE BY YX
+//    JOB_DM_4    //CODE BY XTP
+//    JOB_DM_5    //CODE BY TZQ
+//    JOB_DM_6    //CODE BY TZQ
+//    JOB_DM_9    //CODE BY XTP
+//    JOB_DM_54   //CODE BY XTP  Error
+//    JOB_DM_55   //CODE BY TZQ
+//    JOB_DM_61   //CODE BY YX
+//    JOB_DM_62   //CODE BY TZQ
+//    JOB_DM_63   //CODE BY XTP
+//    JOB_DM_65   //CODE BY XTP
+//    JOB_DM_66   //CODE BY TZQ
+//    JOB_DM_67   //CODE BY YX
+//    JOB_DM_68   //CODE BY YX
+//    JOB_DM_69   //CODE BY TZQ
+//    JOB_DM_70   //CODE BY TZQ
+//    JOB_DM_71   //CODE BY TZQ
     JOB_DM_72   //CODE BY YX
-    JOB_DM_73   //CODE BY XTP
-    JOB_DM_74   //CODE BY XTP
-    JOB_DM_75   //CODE BY XTP
-    JOB_DM_76   //CODE BY TZQ
-    JOB_DM_78   //CODE BY XTP
-    JOB_DM_86   //CODE BY XTP
+//    JOB_DM_73   //CODE BY XTP
+//    JOB_DM_74   //CODE BY XTP
+//    JOB_DM_75   //CODE BY XTP
+//    JOB_DM_76   //CODE BY TZQ
+//    JOB_DM_78   //CODE BY XTP //内存溢出
+//    JOB_DM_86   //CODE BY XTP
     JOB_DM_87   //CODE BY TZQ
 
     sc.stop()
@@ -850,7 +852,7 @@ object SparkHive2Mysql {
          |            HIVE_BILL_SUB_ORDER_TRANS SUB_TRANS
          |        ON TRANS.BILL_ORDER_ID = SUB_TRANS.BILL_ORDER_ID
          |        INNER JOIN
-         |            HIVE_MCHNT_INF MCHNT
+         |             HIVE_MCHNT_INF_WALLET MCHNT
          |        ON
          |            TRANS.MCHNT_CD=MCHNT.MCHNT_CD
          |        LEFT JOIN
@@ -886,7 +888,7 @@ object SparkHive2Mysql {
          |            (
          |                TRANS.BILL_ORDER_ID = SUB_TRANS.BILL_ORDER_ID)
          |        INNER JOIN
-         |            HIVE_MCHNT_INF MCHNT
+         |             HIVE_MCHNT_INF_WALLET MCHNT
          |        ON
          |            TRANS.MCHNT_CD=MCHNT.MCHNT_CD
          |        LEFT JOIN
@@ -937,7 +939,7 @@ object SparkHive2Mysql {
          |        ON
          |            (TRANS.BILL_ORDER_ID = SUB_TRANS.BILL_ORDER_ID)
          |        INNER JOIN
-         |            HIVE_MCHNT_INF MCHNT
+         |             HIVE_MCHNT_INF_WALLET MCHNT
          |        ON
          |            TRANS.MCHNT_CD=MCHNT.MCHNT_CD
          |        LEFT JOIN
@@ -2149,7 +2151,7 @@ object SparkHive2Mysql {
          |            b.rn <= 10
       """.stripMargin)
 
-    println(s"###JOB_DM_68------ ( $start_dt-$end_dt ) results:"+results.count())
+    println(s"###JOB_DM_72------ ( $start_dt-$end_dt ) results:"+results.count())
     if(!Option(results).isEmpty){
       results.save2Mysql("dm_offline_point_act_dly")
     }else{

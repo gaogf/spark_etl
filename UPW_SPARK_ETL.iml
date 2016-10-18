@@ -23,6 +23,7 @@
       <sourceFolder url="file://$MODULE_DIR$/src/main/com/unionpay/model" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/main/com/unionpay/test" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/main/com/unionpay/utils" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/main/com/unionpay/hql" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>
     <orderEntry type="inheritedJdk" />

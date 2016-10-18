@@ -19,4 +19,8 @@ object ConfigurationManager {
   def getProperty(key:String)={
     prop.getProperty(key)
   }
+
+  def setProperty(key:String,value:String)={
+    prop.setProperty(key,value)
+  }
 }
