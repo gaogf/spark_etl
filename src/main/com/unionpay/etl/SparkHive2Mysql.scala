@@ -6,19 +6,16 @@ import com.unionpay.jdbc.UPSQL_JDBC
 import com.unionpay.jdbc.UPSQL_JDBC.DataFrame2Mysql
 import com.unionpay.utils.DateUtils
 import com.unionpay.utils.ETLUtils
-import com.unionpay.hql
 import org.apache.spark.sql.hive.HiveContext
 import org.apache.spark.{SparkConf, SparkContext}
 import java.text.SimpleDateFormat
-import java.util.Calendar
-
-import com.unionpay.hql.UpsqlHql
+import java.util.{Calendar, Date}
 /**
   * 作业：抽取hive数据仓库中的数据到UPSQL数据库
   * Created by tzq on 2016/10/13.
   */
 object SparkHive2Mysql {
-
+  //####测试使用####
   //计算开始日期：start_dt-1
   private lazy val start_dt=DateUtils.getYesterdayByJob(ConfigurationManager.getProperty(Constants.START_DT))
   //结束日期
@@ -1086,7 +1083,7 @@ object SparkHive2Mysql {
         val results=sqlContext.sql(
           s"""
              |select
-             |(case when card_auth_st='0' then   '默认'
+             |(case when card_auth_st='0' then   '未认证'
              |  when card_auth_st='1' then   '支付认证'
              |  when card_auth_st='2' then   '可信认证'
              |  when card_auth_st='3' then   '可信+支付认证'
@@ -1102,7 +1099,7 @@ object SparkHive2Mysql {
              |left join
              |(select card_attr,card_bin from hive_card_bin ) b
              |on a.card_bin=b.card_bin
-             |group by (case when card_auth_st='0' then   '默认'
+             |group by (case when card_auth_st='0' then   '未认证'
              |  when card_auth_st='1' then   '支付认证'
              |  when card_auth_st='2' then   '可信认证'
              |  when card_auth_st='3' then   '可信+支付认证'
