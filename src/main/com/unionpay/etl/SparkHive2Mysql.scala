@@ -31,32 +31,32 @@ object SparkHive2Mysql {
 
     implicit val sqlContext = new HiveContext(sc)
 
-//    JOB_DM_1    //CODE BY YX
-//    JOB_DM_2    //CODE BY XTP
-//    JOB_DM_3    //CODE BY YX
-//    JOB_DM_4    //CODE BY XTP
-//    JOB_DM_5    //CODE BY TZQ
-//    JOB_DM_6    //CODE BY TZQ
-//    JOB_DM_9    //CODE BY XTP
-//    JOB_DM_54   //CODE BY XTP  Error
-//    JOB_DM_55   //CODE BY TZQ
-//    JOB_DM_61   //CODE BY YX
-//    JOB_DM_62   //CODE BY TZQ
-//    JOB_DM_63   //CODE BY XTP
-//    JOB_DM_65   //CODE BY XTP
-//    JOB_DM_66   //CODE BY TZQ
-//    JOB_DM_67   //CODE BY YX
-//    JOB_DM_68   //CODE BY YX
-//    JOB_DM_69   //CODE BY TZQ
-//    JOB_DM_70   //CODE BY TZQ
-//    JOB_DM_71   //CODE BY TZQ
+    JOB_DM_1    //CODE BY YX
+    JOB_DM_2    //CODE BY XTP
+    JOB_DM_3    //CODE BY YX
+    JOB_DM_4    //CODE BY XTP
+    JOB_DM_5    //CODE BY TZQ
+    JOB_DM_6    //CODE BY TZQ
+    JOB_DM_9    //CODE BY XTP
+    JOB_DM_54   //CODE BY XTP  //Error:Kryo serialization failed: Buffer overflow
+    JOB_DM_55   //CODE BY TZQ
+    JOB_DM_61   //CODE BY YX
+    JOB_DM_62   //CODE BY TZQ
+    JOB_DM_63   //CODE BY XTP
+    JOB_DM_65   //CODE BY XTP
+    JOB_DM_66   //CODE BY TZQ
+    JOB_DM_67   //CODE BY YX
+    JOB_DM_68   //CODE BY YX
+    JOB_DM_69   //CODE BY TZQ
+    JOB_DM_70   //CODE BY TZQ
+    JOB_DM_71   //CODE BY TZQ
     JOB_DM_72   //CODE BY YX
-//    JOB_DM_73   //CODE BY XTP
-//    JOB_DM_74   //CODE BY XTP
-//    JOB_DM_75   //CODE BY XTP
-//    JOB_DM_76   //CODE BY TZQ
-//    JOB_DM_78   //CODE BY XTP //内存溢出
-//    JOB_DM_86   //CODE BY XTP
+    JOB_DM_73   //CODE BY XTP
+    JOB_DM_74   //CODE BY XTP
+    JOB_DM_75   //CODE BY XTP
+    JOB_DM_76   //CODE BY TZQ
+    JOB_DM_78   //CODE BY XTP
+    JOB_DM_86   //CODE BY XTP
     JOB_DM_87   //CODE BY TZQ
 
     sc.stop()
@@ -545,6 +545,7 @@ object SparkHive2Mysql {
   /**
     * JOB_DM_5  2016年9月27日 星期二
     * dm_user_card_iss->hive_pri_acct_inf+hive_acc_trans+hive_card_bind_inf+hive_card_bin
+    * @author tzq
     * @param sqlContext
     */
   def JOB_DM_5(implicit sqlContext: HiveContext) = {
@@ -630,6 +631,7 @@ object SparkHive2Mysql {
   /**
     * JOB_DM_6  2016年9月27日 星期二
     * dm_user_card_nature
+    * @author tzq
     * @param sqlContext
     */
   def JOB_DM_6(implicit sqlContext: HiveContext) = {
@@ -982,6 +984,7 @@ object SparkHive2Mysql {
     * JOB_DM_55  2016-9-6
     *
     * DM_DISC_ACT_BRANCH_DLY->hive_prize_discount_result
+    * @author tzq
     * @param sqlContext
     */
   def JOB_DM_55(implicit sqlContext: HiveContext) = {
@@ -1072,6 +1075,7 @@ object SparkHive2Mysql {
   /**
     * JOB_DM_62  2016-9-6
     * dm_usr_auther_nature_tie_card --> hive_card_bind_inf
+    * @author tzq
     * @param sqlContext
     */
   def JOB_DM_62(implicit sqlContext: HiveContext) = {
@@ -1300,6 +1304,7 @@ object SparkHive2Mysql {
     * JOB_DM_66 2016-09-07
     *
     * dm_coupon_cfp_tran->hive_acc_trans+hive_ticket_bill_bas_inf
+    * @author tzq
     * @param sqlContext
     */
   def JOB_DM_66(implicit sqlContext: HiveContext) = {
@@ -1793,6 +1798,7 @@ object SparkHive2Mysql {
     * JOB_DM_69  2016-9-1
     * dm_disc_tkt_act_dly->hive_ticket_bill_bas_inf+hive_acc_trans
     * (使用分区part_trans_dt 中的数据)
+    * @author tzq
     * @param sqlContext
     */
   def JOB_DM_69(implicit sqlContext: HiveContext) = {
@@ -1891,6 +1897,7 @@ object SparkHive2Mysql {
   /**
     * JOB_DM_70  2016-8-30
     * dm_elec_tkt_act_dly->hive_ticket_bill_bas_inf+hive_acc_trans
+    * @author tzq
     * @param sqlContext
     */
   def JOB_DM_70(implicit sqlContext: HiveContext) = {
@@ -1991,6 +1998,7 @@ object SparkHive2Mysql {
   /**
     * JOB_DM_71  2016-8-31
     * dm_vchr_tkt_act_dly->hive_ticket_bill_bas_inf+hive_acc_trans
+    * @author tzq
     * @param sqlContext
     */
   def JOB_DM_71(implicit sqlContext: HiveContext) = {
@@ -2749,7 +2757,7 @@ object SparkHive2Mysql {
       hive_cashier_bas_inf
       hive_cdhd_cashier_maktg_reward_dtl
       hive_signer_log
-    *
+    * @author tzq
     * @param sqlContext
     */
   def JOB_DM_87(implicit sqlContext: HiveContext) = {
