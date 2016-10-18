@@ -704,6 +704,7 @@ object SparkDB22Hive {
   /**
     * JOB_HV_9/08-23
     * hive_preferential_mchnt_inf->tbl_chmgm_preferential_mchnt_inf
+    * @author tzq
     * @param sqlContext
     * @return
     */
@@ -821,6 +822,7 @@ object SparkDB22Hive {
   /**
     * JOB_HV_10/08-23
     * hive_access_bas_inf->tbl_chmgm_access_bas_inf
+    * @author tzq
     * @param sqlContext
     * @return
     */
@@ -943,6 +945,7 @@ object SparkDB22Hive {
   /**
     * JOB_HV_11/08-23
     * hive_ticket_bill_bas_inf->tbl_chacc_ticket_bill_bas_inf
+    * @author tzq
     * @param sqlContext
     * @return
     */
@@ -1100,6 +1103,7 @@ object SparkDB22Hive {
   /**
     * JOB_HV_12/08-23
     * hive_chara_grp_def_bat->tbl_chmgm_chara_grp_def_bat
+    * @author tzq
     * @param sqlContext
     * @return
     */
@@ -1157,6 +1161,7 @@ object SparkDB22Hive {
   /**
     * hive-job-13/08-22
     * hive_card_bin->tbl_chmgm_card_bin
+    * @author tzq
     * @param sqlContext
     * @return
     */
@@ -1226,6 +1231,7 @@ object SparkDB22Hive {
   /**
     * hive-job-14/08-22
     * hive_inf_source_dtl->tbl_inf_source_dtl
+    * @author tzq
     * @param sqlContext
     * @return
     */
@@ -1257,6 +1263,7 @@ object SparkDB22Hive {
   /**
     * hive-job-15
     * hive_undefine_store_inf-->  hive_acc_trans + hive_store_term_relation
+    * @author tzq
     * @param sqlContext
     * @return
     *
@@ -1320,6 +1327,7 @@ object SparkDB22Hive {
   /**
     * JOB_HV_16/08-23
     * hive_mchnt_inf_wallet->tbl_chmgm_mchnt_inf/TBL_CHMGM_STORE_TERM_RELATION/TBL_CHMGM_ACCESS_BAS_INF
+    * @author tzq
     * @param sqlContext
     * @return
     */
@@ -1487,6 +1495,7 @@ object SparkDB22Hive {
   /**
     * hive-job-18 2016-08-26
     * viw_chmgm_trans_his -> hive_download_trans
+    * @author tzq
     * @author winslow yang
     * @param sqlContext
     */
@@ -1587,6 +1596,7 @@ object SparkDB22Hive {
   /**
     * hive-job-19
     * TBL_CHMGM_INS_INF -> HIVE_INS_INF
+    * @author tzq
     * @author winslow yang
     * @param sqlContext
     */
@@ -1684,6 +1694,7 @@ object SparkDB22Hive {
   /**
     * hive-job-23  2016年10月9日
     * hive_brand_inf-->TBL_CHMGM_BRAND_INF
+    * @author tzq
     * @param sqlContext
     * @return
     */
@@ -1829,6 +1840,7 @@ object SparkDB22Hive {
   /**
     * hive-job-26
     * hive_mchnt_tp_grp-->tbl_mcmgm_mchnt_tp_grp
+    * @author tzq
     * @param sqlContext
     * @return
     */
@@ -2583,6 +2595,7 @@ object SparkDB22Hive {
   /**
     * hive-job-37  2016年9月21日 星期三
     * hive_filter_app_det-->tbl_umsvc_filter_app_det
+    * @author tzq
     * @param sqlContext
     * @return
     */
@@ -2631,6 +2644,7 @@ object SparkDB22Hive {
   /**
     * hive-job-38  2016年9月21日 星期三
     * hive_filter_rule_det-->tbl_umsvc_filter_rule_det
+    * @author tzq
     * @param sqlContext
     * @return
     */
@@ -3322,6 +3336,7 @@ object SparkDB22Hive {
   /**
     * hive-job-44/08-22
     * hive_cdhd_cashier_maktg_reward_dtl->viw_chacc_cdhd_cashier_maktg_reward_dtl
+    * @author tzq
     * @param sqlContext
     * @return
     */
@@ -3606,6 +3621,7 @@ object SparkDB22Hive {
   /**
     * hive-job-48/08-29
     * hive_prize_bas->tbl_umsvc_prize_bas
+    * @author tzq
     * @param sqlContext
     * @return
     */
@@ -3659,6 +3675,7 @@ object SparkDB22Hive {
   /**
     * hive-job-54/08-29
     * hive_cashier_bas_inf->tbl_chacc_cashier_bas_inf
+    * @author tzq
     * @param sqlContext
     * @return
     */
@@ -3773,7 +3790,7 @@ object SparkDB22Hive {
   /**
     * hive-job-67
     * Hive_signer_log -->tbl_umtxn_signer_log
-    *
+    *@author tzq
     * @param sqlContext
     * @return
     */
@@ -3812,6 +3829,7 @@ object SparkDB22Hive {
   /**
     * hive-job-68
     * hive_cashier_point_acct_oper_dtl-->tbl_umtxn_cashier_point_acct_oper_dtl
+    * @author tzq
     * @param sqlContext
     * @return
     */
@@ -3853,7 +3871,6 @@ object SparkDB22Hive {
     * @param sqlContext
     * @return
     */
-
   def JOB_HV_69 (implicit sqlContext: HiveContext) = {
     val df2_1 = sqlContext.jdbc_mgmdb_DF("ch_mgmdb.tbl_umsvc_prize_lvl")
     println("分区数为:" + {
