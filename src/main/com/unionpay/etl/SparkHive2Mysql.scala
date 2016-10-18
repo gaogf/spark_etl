@@ -1571,8 +1571,8 @@ object SparkHive2Mysql {
          |        full outer join
          |            (
          |                select
-         |                    trans.cup_branch_ins_id_nm,
-         |                    trans.acct_addup_bat_dt as trans_dt,
+         |                    trans.cup_branch_ins_id_nm as cup_branch_ins_id_nm,
+         |                    trans.trans_dt as trans_dt,
          |                    count(*)                as trans_cnt
          |                from
          |                    hive_offline_point_trans trans
@@ -1582,11 +1582,9 @@ object SparkHive2Mysql {
          |                and trans.oper_st in('0' ,
          |                                     '3')
          |                and trans.point_at>0
-         |                and to_date(trans.acct_addup_bat_dt) >= '$start_dt'
-         |                and to_date(trans.acct_addup_bat_dt) <= '$end_dt'
          |                group by
          |                    trans.cup_branch_ins_id_nm,
-         |                    trans.acct_addup_bat_dt) c
+         |                    trans.trans_dt) c
          |        on
          |            (
          |                a.cup_branch_ins_id_nm = c.cup_branch_ins_id_nm
@@ -1678,7 +1676,7 @@ object SparkHive2Mysql {
          |                left join
          |                    hive_ins_inf ins
          |                on
-         |                    swt.rout_ins_id_cd=concat('000',ins.ins_id_cd)
+         |                    swt.rout_ins_id_cd=ins.ins_id_cd
          |                where
          |                    swt.part_trans_dt >= '$start_dt'
          |                and swt.part_trans_dt <= '$end_dt'
