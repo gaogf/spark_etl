@@ -68,6 +68,7 @@ object SparkHive2Mysql {
   /**
     * dm-job-01 20160901
     * dm_user_mobile_home->hive_pri_acct_inf
+    * @author winslow yang
     * @param sqlContext
     */
   def JOB_DM_1(implicit sqlContext: HiveContext) = {
@@ -253,6 +254,7 @@ object SparkHive2Mysql {
   /**
     *  dm-job-3 20160912
     *  dm_user_regist_channel->hive_pri_acct_inf+hive_inf_source_dtl+hive_acc_trans+hive_card_bind_inf+hive_inf_source_class
+    * @author winslow yang
     * @param sqlContext
     */
   def JOB_DM_3(implicit sqlContext: HiveContext) = {
@@ -1031,6 +1033,7 @@ object SparkHive2Mysql {
   /**
     * dm-job-61 20160905
     * dm_cashier_cup_red_branch->hive_cdhd_cashier_maktg_reward_dtl
+    * @author winslow yang
     * @param sqlContext
     * @param start_dt
     * @param end_dt
@@ -1375,6 +1378,7 @@ object SparkHive2Mysql {
     *  hive_switch_point_trans
     *  hive_prize_discount_result
     *  hive_discount_bas_inf
+    * @author winslow yang
     * @param sqlContext
     * @param start_dt
     * @param end_dt
@@ -1737,6 +1741,7 @@ object SparkHive2Mysql {
   /**
     *  dm-job-68 20160905
     *  DM_OFFLINE_POINT_TRANS_DLY
+    * @author winslow yang
     * @param sqlContext
     */
   def JOB_DM_68(implicit sqlContext: HiveContext) = {
@@ -2084,6 +2089,7 @@ object SparkHive2Mysql {
   /**
     * dm-job-72 20160901
     * dm_offline_point_act_dly->hive_offline_point_trans
+    * @author winslow yang
     * @param sqlContext
     */
   def JOB_DM_72(implicit sqlContext: HiveContext) = {

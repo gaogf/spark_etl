@@ -33,7 +33,7 @@ object SparkUPH2H {
   /**
     * hive-job-39 2016-08-30
     * rtdtrs_dtl_achis to hive_achis_trans
-    *
+    * @author winslow yang
     * @param sqlContext
     */
   def JOB_HV_39(implicit sqlContext: SQLContext) = {
@@ -57,6 +57,7 @@ object SparkUPH2H {
   /**
     * hive-job-49 2016-09-14
     * rtapam_prv_ucbiz_cdhd_bas_inf to hive_ucbiz_cdhd_bas_inf
+    * @author winslow yang
     * @param sqlContext
     */
   def JOB_HV_49(implicit sqlContext: HiveContext) = {
@@ -78,6 +79,7 @@ object SparkUPH2H {
   /**
     * hive-job-52 2016-08-29
     * stmtrs_bsl_active_card_acq_branch_mon1 to hive_active_card_acq_branch_mon
+    * @author winslow yang
     * @param sqlContext
     */
   def JOB_HV_52(implicit sqlContext: HiveContext) = {

@@ -111,6 +111,7 @@ object SparkDB22Hive {
   /**
     *hive-job-01/08-19
     *TBL_CHACC_CDHD_CARD_BIND_INF -> hive_card_bind_inf
+    * @author winslow yang
     * @param sqlContext
     * @return
     */
@@ -163,6 +164,7 @@ object SparkDB22Hive {
   /**
     *  hive-job-03/08-19
     *  tbl_chacc_cdhd_pri_acct_inf -> hive_pri_acct_inf
+    * @author winslow yang
     * @param sqlContext
     */
   def JOB_HV_3(implicit sqlContext: HiveContext) = {
@@ -1485,6 +1487,7 @@ object SparkDB22Hive {
   /**
     * hive-job-18 2016-08-26
     * viw_chmgm_trans_his -> hive_download_trans
+    * @author winslow yang
     * @param sqlContext
     */
   def JOB_HV_18(implicit sqlContext: HiveContext) = {
@@ -1584,6 +1587,7 @@ object SparkDB22Hive {
   /**
     * hive-job-19
     * TBL_CHMGM_INS_INF -> HIVE_INS_INF
+    * @author winslow yang
     * @param sqlContext
     */
   def JOB_HV_19(implicit sqlContext: HiveContext) = {
@@ -1733,6 +1737,7 @@ object SparkDB22Hive {
   /**
     * hive-job-24 2016-09-18
     * tbl_chmgm_mchnt_para -> hive_mchnt_para
+    * @author winslow yang
     * @param sqlContext
     * @return
     */
@@ -2486,6 +2491,7 @@ object SparkDB22Hive {
   /**
     * hive-job-36 2016-08-26
     * tbl_umsvc_discount_bas_inf -> hive_discount_bas_inf
+    * @author winslow yang
     * @param sqlContext
     */
   def JOB_HV_36(implicit sqlContext: HiveContext) = {
@@ -3171,6 +3177,7 @@ object SparkDB22Hive {
   /**
     *  hive-job-43 2016-09-12
     *  viw_chmgm_swt_log -> hive_switch_point_trans
+    * @author winslow yang
     * @param sqlContext
     */
   def JOB_HV_43(implicit sqlContext: HiveContext) = {
@@ -3904,6 +3911,7 @@ object SparkDB22Hive {
   /**
     *  hive-job-70 2016-09-12
     *  tbl_inf_source_class -> hive_inf_source_class
+    * @author winslow yang
     * @param sqlContext
     */
   def JOB_HV_70(implicit sqlContext: HiveContext) = {
