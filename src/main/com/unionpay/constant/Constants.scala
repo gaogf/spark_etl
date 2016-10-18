@@ -25,6 +25,9 @@ object Constants {
   val DB2_URL_MGMDB="db2.url_mgmdb"
   val DB2_DRIVER="db2.driver"
 
+  //Hive Database_name
+  val HIVE_DBNAME = "hive.dbname"
+
 
 
   //SRC Hive Connectio

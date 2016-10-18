@@ -1,16 +1,14 @@
 package com.unionpay.etl
-import com.unionpay.conf.ConfigurationManager
-import com.unionpay.constant.Constants
-import com.unionpay.jdbc.DB2_JDBC.ReadDB2
-import org.apache.spark.sql.hive.HiveContext
-import org.apache.spark.{SparkConf, SparkContext}
 import java.text.SimpleDateFormat
 import java.util.Calendar
 
+import com.unionpay.conf.ConfigurationManager
+import com.unionpay.constant.Constants
+import com.unionpay.jdbc.DB2_JDBC.ReadDB2
 import com.unionpay.utils.DateUtils
-import org.joda.time.DateTime
-import org.joda.time.Days
-import org.joda.time.LocalDate
+import org.apache.spark.sql.hive.HiveContext
+import org.apache.spark.{SparkConf, SparkContext}
+import org.joda.time.{Days, LocalDate}
 import org.joda.time.format.DateTimeFormat
 
 /**
@@ -27,6 +25,8 @@ object SparkDB22Hive {
   private lazy val end_dt=ConfigurationManager.getProperty(Constants.END_DT)
   //计算间隔天数
   private lazy val interval=DateUtils.getIntervalDays(start_dt,end_dt).toInt
+  //
+  private lazy val hive_dbname =ConfigurationManager.getProperty(Constants.HIVE_DBNAME)
 
   def main(args: Array[String]) {
 
@@ -85,7 +85,7 @@ object SparkDB22Hive {
       val dateStrs = for (day <- 0 to days) {
         val currentDay = (start.plusDays(day).toString(dateFormatter))
         println(s"=========插入'$currentDay'分区的数据=========")
-        sqlContext.sql("use upw_hive")
+        sqlContext.sql(s"use $hive_dbname")
         sqlContext.sql(s"alter table hive_acc_trans drop partition (part_trans_dt='$currentDay')")
         println(s"alter table hive_acc_trans drop partition (part_trans_dt='$currentDay') successfully!")
         sqlContext.sql(s"alter table hive_acc_trans add partition (part_trans_dt='$currentDay')")
@@ -138,7 +138,7 @@ object SparkDB22Hive {
     println("###JOB_HV_1------>results:"+results.count())
     if(!Option(results).isEmpty){
       results.registerTempTable("spark_card_bind_inf")
-      sqlContext.sql("use upw_hive")
+      sqlContext.sql(s"use $hive_dbname")
       sqlContext.sql("truncate table hive_card_bind_inf")
       sqlContext.sql("insert into table hive_card_bind_inf select * from spark_card_bind_inf")
 
@@ -160,7 +160,7 @@ object SparkDB22Hive {
     val df1 = sqlContext.jdbc_accdb_DF("ch_accdb.tbl_chacc_cdhd_pri_acct_inf")
     df1.registerTempTable("db2_pri_acct_inf")
 
-    sqlContext.sql("use upw_hive")
+    sqlContext.sql(s"use $hive_dbname")
     val results = sqlContext.sql(
       s"""
          |select
@@ -310,7 +310,7 @@ object SparkDB22Hive {
 
     if(!Option(results).isEmpty){
       results.registerTempTable("spark_pri_acct_inf")
-      sqlContext.sql("use upw_hive")
+      sqlContext.sql(s"use $hive_dbname")
       sqlContext.sql("truncate table hive_pri_acct_inf")
       sqlContext.sql("insert into table hive_pri_acct_inf select * from spark_pri_acct_inf")
       println("###### insert into table hive_pri_acct_inf successfule ######")
@@ -585,7 +585,7 @@ object SparkDB22Hive {
     df2_1.printSchema()
     df2_1.registerTempTable("TBL_CHMGM_STORE_TERM_RELATION")
 
-    sqlContext.sql("use upw_hive")
+    sqlContext.sql(s"use $hive_dbname")
     val HIVE_ACC_TRANS = sqlContext.sql(s"select * from HIVE_ACC_TRANS where part_trans_dt>='$start_dt' and part_trans_dt<='$end_dt'")
     HIVE_ACC_TRANS.registerTempTable("HIVE_ACC_TRANS")
 
@@ -679,7 +679,7 @@ object SparkDB22Hive {
 
     if(!Option(results).isEmpty){
       results.registerTempTable("spark_tbl_chmgm_store_term_relation")
-      sqlContext.sql("use upw_hive")
+      sqlContext.sql(s"use $hive_dbname")
       sqlContext.sql("truncate table  HIVE_STORE_TERM_RELATION")
       sqlContext.sql("insert into table HIVE_STORE_TERM_RELATION select * from spark_tbl_chmgm_preferential_mchnt_inf")
     }else{
@@ -796,7 +796,7 @@ object SparkDB22Hive {
 
     if(!Option(results).isEmpty){
       results.registerTempTable("spark_tbl_chmgm_preferential_mchnt_inf")
-      sqlContext.sql("use upw_hive")
+      sqlContext.sql(s"use $hive_dbname")
       sqlContext.sql("truncate table  hive_preferential_mchnt_inf")
       sqlContext.sql("insert into table hive_preferential_mchnt_inf select * from spark_tbl_chmgm_preferential_mchnt_inf")
     }else{
@@ -918,7 +918,7 @@ object SparkDB22Hive {
 
     if(!Option(results).isEmpty){
       results.registerTempTable("spark_tbl_chmgm_access_bas_inf")
-      sqlContext.sql("use upw_hive")
+      sqlContext.sql(s"use $hive_dbname")
       sqlContext.sql("truncate table  hive_access_bas_inf")
       sqlContext.sql("insert into table hive_access_bas_inf select * from spark_tbl_chmgm_access_bas_inf")
 
@@ -1076,7 +1076,7 @@ object SparkDB22Hive {
     println("job11-------results:"+results.count())
     if(!Option(results).isEmpty){
       results.registerTempTable("spark_db2_tbl_chacc_ticket_bill_bas_inf")
-      sqlContext.sql("use upw_hive")
+      sqlContext.sql(s"use $hive_dbname")
       sqlContext.sql("truncate table  hive_ticket_bill_bas_inf")
       sqlContext.sql("insert into table hive_ticket_bill_bas_inf select * from spark_db2_tbl_chacc_ticket_bill_bas_inf")
 
@@ -1131,7 +1131,7 @@ object SparkDB22Hive {
 
     if(!Option(results).isEmpty){
       results.registerTempTable("spark_tbl_chmgm_chara_grp_def_bat")
-      sqlContext.sql("use upw_hive")
+      sqlContext.sql(s"use $hive_dbname")
       sqlContext.sql("truncate table  hive_chara_grp_def_bat")
       sqlContext.sql("insert into table hive_chara_grp_def_bat select * from spark_tbl_chmgm_chara_grp_def_bat")
 
@@ -1201,7 +1201,7 @@ object SparkDB22Hive {
 
     if(!Option(results).isEmpty){
       results.registerTempTable("spark_db2_tbl_chmgm_card_bin")
-      sqlContext.sql("use upw_hive")
+      sqlContext.sql(s"use $hive_dbname")
       sqlContext.sql("truncate table  hive_card_bin")
       sqlContext.sql("insert into table hive_card_bin select * from spark_db2_tbl_chmgm_card_bin")
 
@@ -1233,7 +1233,7 @@ object SparkDB22Hive {
 
     if(!Option(results).isEmpty){
       results.registerTempTable("spark_db2_tbl_inf_source_dtl")
-      sqlContext.sql("use upw_hive")
+      sqlContext.sql(s"use $hive_dbname")
       sqlContext.sql("truncate table  hive_inf_source_dtl")
       sqlContext.sql("insert into table hive_inf_source_dtl select * from spark_db2_tbl_inf_source_dtl")
     }else{
@@ -1252,7 +1252,7 @@ object SparkDB22Hive {
   def JOB_HV_15(implicit sqlContext: HiveContext) = {
 
     println("###JOB_HV_15(hive_undefine_store_inf-->  hive_acc_trans + hive_store_term_relation)")
-    sqlContext.sql("use upw_hive")
+    sqlContext.sql(s"use $hive_dbname")
     val results = sqlContext.sql(
       """
         |select
@@ -1460,7 +1460,7 @@ object SparkDB22Hive {
 
     if(!Option(results).isEmpty){
       results.registerTempTable("spark_tbl_chmgm_mchnt_inf")
-      sqlContext.sql("use upw_hive")
+      sqlContext.sql(s"use $hive_dbname")
       sqlContext.sql("truncate table  hive_mchnt_inf_wallet")
       sqlContext.sql("insert into table hive_mchnt_inf_wallet select * from spark_tbl_chmgm_mchnt_inf")
 
@@ -1482,7 +1482,7 @@ object SparkDB22Hive {
     val df = sqlContext.jdbc_mgmdb_DF("CH_MGMDB.VIW_CHMGM_TRANS_HIS")
     df.registerTempTable("db2_trans_his")
 
-    sqlContext.sql("use upw_hive")
+    sqlContext.sql(s"use $hive_dbname")
     val results = sqlContext.sql(
       s"""
          |select
@@ -1540,7 +1540,7 @@ object SparkDB22Hive {
     var part_dt = start_dt
     var trans_date = part_dt
 
-    sqlContext.sql("use upw_hive")
+    sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(s"alter table hive_download_trans drop partition (part_trans_dt='$part_dt')")
     sqlContext.sql(
       s"""
@@ -1558,7 +1558,7 @@ object SparkDB22Hive {
       trans_date = part_dt
       println("#### part_dt = " + part_dt + " ####\n" + "#### trans_date = " + trans_date + " ####")
 
-      sqlContext.sql("use upw_hive")
+      sqlContext.sql(s"use $hive_dbname")
       sqlContext.sql(s"alter table hive_download_trans drop partition (part_trans_dt='$part_dt')")
       sqlContext.sql(
         s"""
@@ -1578,7 +1578,7 @@ object SparkDB22Hive {
     */
   def JOB_HV_19(implicit sqlContext: HiveContext) = {
     println("###JOB_HV_19(tbl_chmgm_ins_inf -> hive_ins_inf)")
-    sqlContext.sql("use upw_hive")
+    sqlContext.sql(s"use $hive_dbname")
     val df = sqlContext.jdbc_mgmdb_DF("CH_MGMDB.TBL_CHMGM_INS_INF")
     df.registerTempTable("db2_ins_inf")
 
@@ -1709,7 +1709,7 @@ object SparkDB22Hive {
 
     if(!Option(results).isEmpty){
       results.registerTempTable("spark_db2_tbl_chmgm_brand_inf")
-      sqlContext.sql("use upw_hive")
+      sqlContext.sql(s"use $hive_dbname")
       sqlContext.sql("truncate table  hive_brand_inf")
       sqlContext.sql("insert into table hive_brand_inf select * from spark_db2_tbl_chmgm_brand_inf")
 
@@ -1729,7 +1729,7 @@ object SparkDB22Hive {
   def JOB_HV_24(implicit sqlContext: HiveContext) = {
     println("###JOB_HV_24(tbl_chmgm_mchnt_para -> hive_mchnt_para)")
 
-    sqlContext.sql("use upw_hive")
+    sqlContext.sql(s"use $hive_dbname")
     val df = sqlContext.jdbc_mgmdb_DF("CH_MGMDB.TBL_CHMGM_MCHNT_PARA")
     df.registerTempTable("db2_mchnt_para")
     val results = sqlContext.sql(
@@ -1803,7 +1803,7 @@ object SparkDB22Hive {
 
     if(!Option(results).isEmpty){
       results.registerTempTable("spark_hive_mchnt_tp")
-      sqlContext.sql("use upw_hive")
+      sqlContext.sql(s"use $hive_dbname")
       sqlContext.sql("truncate table  HIVE_MCHNT_TP")
       sqlContext.sql("insert into table HIVE_MCHNT_TP select * from spark_hive_mchnt_tp")
     }else{
@@ -1845,7 +1845,7 @@ object SparkDB22Hive {
 
     if(!Option(results).isEmpty){
       results.registerTempTable("spark_db2_tbl_mcmgm_mchnt_tp_grp")
-      sqlContext.sql("use upw_hive")
+      sqlContext.sql(s"use $hive_dbname")
       sqlContext.sql("truncate table  hive_mchnt_tp_grp")
       sqlContext.sql("insert into table hive_mchnt_tp_grp select * from spark_db2_tbl_mcmgm_mchnt_tp_grp")
 
@@ -1963,7 +1963,7 @@ object SparkDB22Hive {
     println("JOB_HV_28------>results:"+results.count())
     if(!Option(results).isEmpty){
       results.registerTempTable("spark_hive_online_point_trans")
-      sqlContext.sql("use upw_hive")
+      sqlContext.sql(s"use $hive_dbname")
       sqlContext.sql("truncate table  hive_online_point_trans")
       sqlContext.sql("insert into table hive_online_point_trans select * from spark_hive_online_point_trans")
     }else{
@@ -2123,7 +2123,7 @@ object SparkDB22Hive {
     println("JOB_HV_29------>results:"+results.count())
     if(!Option(results).isEmpty){
       results.registerTempTable("spark_hive_offline_point_trans")
-      sqlContext.sql("use upw_hive")
+      sqlContext.sql(s"use $hive_dbname")
       sqlContext.sql("truncate table  hive_offline_point_trans")
       sqlContext.sql("insert into table hive_offline_point_trans select * from spark_hive_offline_point_trans")
     }else{
@@ -2140,7 +2140,7 @@ object SparkDB22Hive {
     */
   def JOB_HV_30(implicit sqlContext: HiveContext) = {
     println("###JOB_HV_30(viw_chacc_code_pay_tran_dtl -> hive_passive_code_pay_trans)")
-    sqlContext.sql("use upw_hive")
+    sqlContext.sql(s"use $hive_dbname")
     val df = sqlContext.jdbc_accdb_DF("CH_ACCDB.VIW_CHACC_CODE_PAY_TRAN_DTL")
     df.registerTempTable("db2_code_pay_tran_dtl")
     val results = sqlContext.sql(
@@ -2219,7 +2219,7 @@ object SparkDB22Hive {
       trans_date = part_dt
       println("#### part_dt = " + part_dt + " ####\n" + "#### trans_date = " + trans_date + " ####")
 
-      sqlContext.sql("use upw_hive")
+      sqlContext.sql(s"use $hive_dbname")
       sqlContext.sql(s"alter table hive_passive_code_pay_trans drop partition (part_trans_dt='$part_dt')")
       sqlContext.sql(
         s"""
@@ -2342,7 +2342,7 @@ object SparkDB22Hive {
     println("JOB_HV_31------>results:"+results.count())
     if(!Option(results).isEmpty){
       results.registerTempTable("spark_hive_bill_order_trans")
-      sqlContext.sql("use upw_hive")
+      sqlContext.sql(s"use $hive_dbname")
       sqlContext.sql("truncate table  HIVE_BILL_ORDER_TRANS")
       sqlContext.sql("insert into table HIVE_BILL_ORDER_TRANS select * from spark_hive_bill_order_trans")
     }else{
@@ -2469,7 +2469,7 @@ object SparkDB22Hive {
     println("JOB_HV_32------>results:"+results.count())
     if(!Option(results).isEmpty){
       results.registerTempTable("spark_hive_prize_discount_result")
-      sqlContext.sql("use upw_hive")
+      sqlContext.sql(s"use $hive_dbname")
       sqlContext.sql("truncate table  hive_prize_discount_result")
       sqlContext.sql("insert into table hive_prize_discount_result select * from spark_hive_prize_discount_result")
     }else{
@@ -2484,7 +2484,7 @@ object SparkDB22Hive {
     */
   def JOB_HV_36(implicit sqlContext: HiveContext) = {
     println("###JOB_HV_36(tbl_umsvc_discount_bas_inf -> hive_discount_bas_inf)")
-    sqlContext.sql("use upw_hive")
+    sqlContext.sql(s"use $hive_dbname")
     val df = sqlContext.jdbc_mgmdb_DF("CH_MGMDB.TBL_UMSVC_DISCOUNT_BAS_INF")
     df.registerTempTable("db2_dis_bas_inf")
     val results = sqlContext.sql(
@@ -2605,7 +2605,7 @@ object SparkDB22Hive {
     println("###JOB_HV_37---------->results:"+results.count())
     if(!Option(results).isEmpty){
       results.registerTempTable("spark_db2_tbl_umsvc_filter_app_det")
-      sqlContext.sql("use upw_hive")
+      sqlContext.sql(s"use $hive_dbname")
       sqlContext.sql("truncate table  hive_filter_app_det")
       sqlContext.sql("insert into table hive_filter_app_det select * from spark_db2_tbl_umsvc_filter_app_det")
 
@@ -2654,7 +2654,7 @@ object SparkDB22Hive {
 
     if(!Option(results).isEmpty){
       results.registerTempTable("spark_db2_tbl_umsvc_filter_rule_det")
-      sqlContext.sql("use upw_hive")
+      sqlContext.sql(s"use $hive_dbname")
       sqlContext.sql("truncate table  hive_filter_rule_det")
       sqlContext.sql("insert into table hive_filter_rule_det select * from db2_tbl_umsvc_filter_rule_det")
 
@@ -2698,7 +2698,7 @@ object SparkDB22Hive {
     var part_dt = start_dt
 
     //spark sql 操作hive upw_hive 数据库中的表
-    sqlContext.sql("use upw_hive")
+    sqlContext.sql(s"use $hive_dbname")
 
     if(interval_days>0){
       for(i <- 0 to interval_days.toInt){
@@ -2954,7 +2954,7 @@ object SparkDB22Hive {
     var part_dt = start_dt
 
     //spark sql 操作hive upw_hive 数据库中的表
-    sqlContext.sql("use upw_hive")
+    sqlContext.sql(s"use $hive_dbname")
 
     if(interval_days>0){
       for(i <- 0 to interval_days.toInt){
@@ -3169,7 +3169,7 @@ object SparkDB22Hive {
     */
   def JOB_HV_43(implicit sqlContext: HiveContext) = {
     println("###JOB_HV_43(viw_chmgm_swt_log -> hive_switch_point_trans)")
-    sqlContext.sql("use upw_hive")
+    sqlContext.sql(s"use $hive_dbname")
     val df = sqlContext.jdbc_mgmdb_DF("CH_MGMDB.VIW_CHMGM_SWT_LOG")
     df.registerTempTable("db2_swt_log")
     val results = sqlContext.sql(
@@ -3296,7 +3296,7 @@ object SparkDB22Hive {
       trans_date = part_dt
       println("#### part_dt = " + part_dt + " ####\n" + "#### trans_date = " + trans_date + " ####")
 
-      sqlContext.sql("use upw_hive")
+      sqlContext.sql(s"use $hive_dbname")
       sqlContext.sql(s"alter table hive_switch_point_trans drop partition (part_trans_dt='$part_dt')")
       sqlContext.sql(
         s"""
@@ -3428,7 +3428,7 @@ object SparkDB22Hive {
     println("###JOB_HV_44---------results 条目数: "+results.count())
     if(!Option(results).isEmpty){
       results.registerTempTable("spark_cdhd_cashier_maktg_reward_dtl")
-      sqlContext.sql("use upw_hive")
+      sqlContext.sql(s"use $hive_dbname")
       sqlContext.sql("truncate table  hive_cdhd_cashier_maktg_reward_dtl")
       sqlContext.sql("insert into table hive_cdhd_cashier_maktg_reward_dtl select * from spark_cdhd_cashier_maktg_reward_dtl")
 
@@ -3534,7 +3534,7 @@ object SparkDB22Hive {
     println("JOB_HV_46------>results:"+results.count())
     if(!Option(results).isEmpty){
       results.registerTempTable("spark_hive_prize_activity_bas_inf")
-      sqlContext.sql("use upw_hive")
+      sqlContext.sql(s"use $hive_dbname")
       sqlContext.sql("truncate table  hive_prize_activity_bas_inf")
       sqlContext.sql("insert into table hive_prize_activity_bas_inf select * from spark_hive_prize_activity_bas_inf")
     }else{
@@ -3583,7 +3583,7 @@ object SparkDB22Hive {
     println("JOB_HV_47------>results:"+results.count())
     if(!Option(results).isEmpty){
       results.registerTempTable("spark_hive_prize_lvl_add_rule")
-      sqlContext.sql("use upw_hive")
+      sqlContext.sql(s"use $hive_dbname")
       sqlContext.sql("truncate table  hive_prize_lvl_add_rule")
       sqlContext.sql("insert into table hive_prize_lvl_add_rule select * from spark_hive_prize_lvl_add_rule")
     }else{
@@ -3635,7 +3635,7 @@ object SparkDB22Hive {
 
     if(!Option(results).isEmpty){
       results.registerTempTable("spark_tbl_umsvc_prize_bas")
-      sqlContext.sql("use upw_hive")
+      sqlContext.sql(s"use $hive_dbname")
       sqlContext.sql("truncate table  hive_prize_bas")
       sqlContext.sql("insert into table hive_prize_bas select * from spark_tbl_umsvc_prize_bas")
 
@@ -3747,7 +3747,7 @@ object SparkDB22Hive {
     println("###JOB_HV_48--------->results："+results.count())
     if(!Option(results).isEmpty){
       results.registerTempTable("spark_bl_chacc_cashier_bas_inf")
-      sqlContext.sql("use upw_hive")
+      sqlContext.sql(s"use $hive_dbname")
       sqlContext.sql("truncate table  hive_cashier_bas_inf")
       sqlContext.sql("insert into table hive_cashier_bas_inf select * from spark_bl_chacc_cashier_bas_inf")
 
@@ -3787,7 +3787,7 @@ object SparkDB22Hive {
 
     if(!Option(results).isEmpty){
       results.registerTempTable("spark_db2_tbl_umtxn_signer_log")
-      sqlContext.sql("use upw_hive")
+      sqlContext.sql(s"use $hive_dbname")
       sqlContext.sql("truncate table  hive_signer_log")
       sqlContext.sql("insert into table hive_signer_log select * from spark_db2_tbl_umtxn_signer_log")
 
@@ -3826,7 +3826,7 @@ object SparkDB22Hive {
 
     if(!Option(results).isEmpty){
       results.registerTempTable("spark_db2_tbl_umtxn_cashier_point_acct_oper_dtl")
-      sqlContext.sql("use upw_hive")
+      sqlContext.sql(s"use $hive_dbname")
       sqlContext.sql("truncate table  hive_cashier_point_acct_oper_dtl")
       sqlContext.sql("insert into table hive_cashier_point_acct_oper_dtl select * from spark_db2_tbl_umtxn_cashier_point_acct_oper_dtl")
 
@@ -3888,7 +3888,7 @@ object SparkDB22Hive {
     println("JOB_HV_69------>results:"+results.count())
     if(!Option(results).isEmpty){
       results.registerTempTable("spark_hive_prize_lvl")
-      sqlContext.sql("use upw_hive")
+      sqlContext.sql(s"use $hive_dbname")
       sqlContext.sql("truncate table  HIVE_PRIZE_LVL")
       sqlContext.sql("insert into table HIVE_PRIZE_LVL select * from spark_hive_prize_lvl")
     }else{
@@ -3904,7 +3904,7 @@ object SparkDB22Hive {
     */
   def JOB_HV_70(implicit sqlContext: HiveContext) = {
     println("###JOB_HV_70(tbl_inf_source_class -> hive_inf_source_class)")
-    sqlContext.sql("use upw_hive")
+    sqlContext.sql(s"use $hive_dbname")
     val df = sqlContext.jdbc_accdb_DF("CH_ACCDB.TBL_INF_SOURCE_CLASS")
     df.registerTempTable("db2_inf_source_class")
     val results = sqlContext.sql(
