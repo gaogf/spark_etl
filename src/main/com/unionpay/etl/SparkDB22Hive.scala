@@ -40,7 +40,6 @@ object SparkDB22Hive {
         JOB_HV_3   //CODE BY YX
     //    JOB_HV_41  //未添加
     JOB_HV_4   //CODE BY XTP
-    PartitionFun (start_dt,end_dt)
         JOB_HV_1   //CODE BY YX
     //    JOB_HV_5   //未添加
     //    JOB_HV_15  //CODE BY TZQ  //测试出错，未解决
@@ -86,24 +85,7 @@ object SparkDB22Hive {
 //    JOB_HV_69  //CODE BY XTP
 //    JOB_HV_70  //CODE BY YX
 
-    // Xue create function about partition by date ^_^
-    def PartitionFun(start_dt: String, end_dt: String)  {
-      var sdf: SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd")
-      val start = LocalDate.parse(start_dt, dateFormatter)
-      val end = LocalDate.parse(end_dt, dateFormatter)
-      val days = Days.daysBetween(start, end).getDays
-      val dateStrs = for (day <- 0 to days) {
-        val currentDay = (start.plusDays(day).toString(dateFormatter))
-        println(s"=========插入'$currentDay'分区的数据=========")
-        sqlContext.sql(s"use $hive_dbname")
-        sqlContext.sql(s"alter table hive_acc_trans drop partition (part_trans_dt='$currentDay')")
-        println(s"alter table hive_acc_trans drop partition (part_trans_dt='$currentDay') successfully!")
-        sqlContext.sql(s"alter table hive_acc_trans add partition (part_trans_dt='$currentDay')")
-        println(s"alter table hive_acc_trans add partition (part_trans_dt='$currentDay') successfully!")
-        sqlContext.sql(s"insert into hive_acc_trans partition (part_trans_dt='$currentDay') select * from spark_acc_trans htempa where htempa.trans_dt = '$currentDay'")
-        println(s"insert into hive_acc_trans partition (part_trans_dt='$currentDay') successfully!")
-      }
-    }
+
     sc.stop()
   }
 
@@ -579,6 +561,27 @@ object SparkDB22Hive {
     }else{
       println("加载的表spark_acc_trans中无数据！")
     }
+
+    // Xue create function about partition by date ^_^
+    def PartitionFun_JOB_HV_4(start_dt: String, end_dt: String)  {
+      var sdf: SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd")
+      val start = LocalDate.parse(start_dt, dateFormatter)
+      val end = LocalDate.parse(end_dt, dateFormatter)
+      val days = Days.daysBetween(start, end).getDays
+      val dateStrs = for (day <- 0 to days) {
+        val currentDay = (start.plusDays(day).toString(dateFormatter))
+        println(s"=========插入'$currentDay'分区的数据=========")
+        sqlContext.sql(s"use $hive_dbname")
+        sqlContext.sql(s"alter table hive_acc_trans drop partition (part_trans_dt='$currentDay')")
+        println(s"alter table hive_acc_trans drop partition (part_trans_dt='$currentDay') successfully!")
+        sqlContext.sql(s"alter table hive_acc_trans add partition (part_trans_dt='$currentDay')")
+        println(s"alter table hive_acc_trans add partition (part_trans_dt='$currentDay') successfully!")
+        sqlContext.sql(s"insert into hive_acc_trans partition (part_trans_dt='$currentDay') select * from spark_acc_trans htempa where htempa.trans_dt = '$currentDay'")
+        println(s"insert into hive_acc_trans partition (part_trans_dt='$currentDay') successfully!")
+      }
+    }
+
+    PartitionFun_JOB_HV_4 (start_dt,end_dt)
 
   }
 
@@ -2492,12 +2495,31 @@ object SparkDB22Hive {
     println("JOB_HV_32------>results:"+results.count())
     if(!Option(results).isEmpty){
       results.registerTempTable("spark_hive_prize_discount_result")
-      sqlContext.sql(s"use $hive_dbname")
-      sqlContext.sql("truncate table  hive_prize_discount_result")
-      sqlContext.sql("insert into table hive_prize_discount_result select * from spark_hive_prize_discount_result")
     }else{
       println("加载的表spark_hive_prize_discount_result中无数据！")
     }
+
+
+    // Xue create function about partition by date ^_^
+    def PartitionFun_JOB_HV_32(start_dt: String, end_dt: String)  {
+      var sdf: SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd")
+      val start = LocalDate.parse(start_dt, dateFormatter)
+      val end = LocalDate.parse(end_dt, dateFormatter)
+      val days = Days.daysBetween(start, end).getDays
+      val dateStrs = for (day <- 0 to days) {
+        val currentDay = (start.plusDays(day).toString(dateFormatter))
+        println(s"=========插入'$currentDay'分区的数据=========")
+        sqlContext.sql(s"use $hive_dbname")
+        sqlContext.sql(s"alter table hive_prize_discount_result drop partition (part_settle_dt='$currentDay')")
+        println(s"alter table hive_prize_discount_result drop partition (part_settle_dt='$currentDay') successfully!")
+        sqlContext.sql(s"alter table hive_prize_discount_result add partition (part_settle_dt='$currentDay')")
+        println(s"alter table hive_prize_discount_result add partition (part_settle_dt='$currentDay') successfully!")
+        sqlContext.sql(s"insert into hive_prize_discount_result partition (part_settle_dt='$currentDay') select * from spark_hive_prize_discount_result htempa where htempa.settle_dt = '$currentDay'")
+        println(s"insert into hive_prize_discount_result partition (part_settle_dt='$currentDay') successfully!")
+      }
+    }
+
+    PartitionFun_JOB_HV_32 (start_dt,end_dt)
   }
 
   /**
