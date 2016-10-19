@@ -1049,7 +1049,7 @@ object SparkHive2Mysql {
       for(i <- 0 to interval){
         val results = sqlContext.sql(
           s"""
-             |select cup_branch_ins_id_cd as branch_nm,
+             |select cup_branch_ins_id_nm as branch_nm,
              |'$today_dt' as report_dt,
              |count(distinct(case when to_date(settle_dt)>=trunc('$today_dt','YYYY') and to_date(settle_dt)>='$today_dt' then bill_id end)) as years_cnt,
              |sum(case when to_date(settle_dt)>=trunc('$today_dt','YYYY') and  to_date(settle_dt)>='$today_dt' then reward_point_at else 0 end) as years_at,
@@ -1057,7 +1057,7 @@ object SparkHive2Mysql {
              |sum(case when to_date(settle_dt)='$today_dt' then reward_point_at else 0 end) as today_at
              |from hive_cdhd_cashier_maktg_reward_dtl
              |where rec_st='2' and activity_tp='004'
-             |group by cup_branch_ins_id_cd
+             |group by cup_branch_ins_id_nm
       """.stripMargin)
 
         println(s"###JOB_DM_61------$today_dt results:"+results.count())
@@ -2498,7 +2498,7 @@ object SparkHive2Mysql {
              |     when cloud_pay_in='1' then 'hce'
              |     when cloud_pay_in in ('2','3') then '三星pay'
              |     when cloud_pay_in='4' then 'ic卡挥卡'
-             |   else '--' end ) as cfp_sign,
+             |   else '其它' end ) as cfp_sign,
              |settle_dt as  report_dt,
              |count(case when to_date(settle_dt) >= trunc('$today_dt','YYYY') and
              |       to_date(settle_dt) <='$today_dt' then pri_acct_no end) as year_tran_num,
@@ -2511,7 +2511,7 @@ object SparkHive2Mysql {
              |     when cloud_pay_in='1' then 'HCE'
              |     when cloud_pay_in in ('2','3') then '三星pay'
              |     when cloud_pay_in='4' then 'IC卡挥卡'
-             |   else '--' end , settle_dt
+             |   else '其它' end , settle_dt
       """.stripMargin)
 
         println(s"###JOB_DM_76------$today_dt results:"+results.count())

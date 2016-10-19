@@ -73,7 +73,7 @@ object SparkDB22Hive {
     JOB_HV_36  //CODE BY YX
 //    JOB_HV_37  //CODE BY TZQ
 //    JOB_HV_38  //CODE BY TZQ
-//    JOB_HV_43  //CODE BY YX
+    JOB_HV_43  //CODE BY YX
     JOB_HV_44  //CODE BY TZQ
     JOB_HV_46  //CODE BY XTP
     JOB_HV_47  //CODE BY XTP
@@ -3287,7 +3287,7 @@ object SparkDB22Hive {
          |trim(id_no) as id_no,
          |trim(cups_resv) as cups_resv,
          |acpt_ins_resv,
-         |rout_ins_id_cd,
+         |trim(rout_ins_id_cd) as rout_ins_id_cd,
          |trim(sub_rout_ins_id_cd) as sub_rout_ins_id_cd,
          |trim(recv_access_resp_cd) as recv_access_resp_cd,
          |trim(chswt_resp_cd) as chswt_resp_cd,
@@ -3738,43 +3738,43 @@ object SparkDB22Hive {
         |trim(inf_source) as inf_source,
         |
         |case
-        |when trim(inf_source)='00013600' then ' 安徽'
-        |when trim(inf_source)='00011000' then ' 北京'
-        |when trim(inf_source)='00012220' then ' 大连'
-        |when trim(inf_source)='00013900' then ' 福建'
-        |when trim(inf_source)='00018200' then ' 甘肃'
-        |when trim(inf_source)='00015800' then ' 广东'
-        |when trim(inf_source)='00016100' then ' 广西'
-        |when trim(inf_source)='00017000' then ' 贵州'
-        |when trim(inf_source)='00016400' then ' 海南'
-        |when trim(inf_source)='00011200' then ' 河北'
-        |when trim(inf_source)='00014900' then ' 河南'
-        |when trim(inf_source)='00015210' then ' 湖北'
-        |when trim(inf_source)='00015500' then ' 湖南'
-        |when trim(inf_source)='00012400' then ' 吉林'
-        |when trim(inf_source)='00013000' then ' 江苏'
-        |when trim(inf_source)='00014200' then ' 江西'
-        |when trim(inf_source)='00012210' then ' 辽宁'
-        |when trim(inf_source)='00013320' then ' 宁波'
-        |when trim(inf_source)='00018700' then ' 宁夏'
-        |when trim(inf_source)='00014520' then ' 青岛'
-        |when trim(inf_source)='00018500' then ' 青海'
-        |when trim(inf_source)='00013930' then ' 厦门'
-        |when trim(inf_source)='00014500' then ' 山东'
-        |when trim(inf_source)='00011600' then ' 山西'
-        |when trim(inf_source)='00017900' then ' 陕西'
-        |when trim(inf_source)='00012900' then ' 上海'
-        |when trim(inf_source)='00015840' then ' 深圳'
-        |when trim(inf_source)='00016500' then ' 四川'
-        |when trim(inf_source)='00011100' then ' 天津'
-        |when trim(inf_source)='00017700' then ' 西藏'
-        |when trim(inf_source)='00018800' then ' 新疆'
-        |when trim(inf_source)='00017310' then ' 云南'
-        |when trim(inf_source)='00013310' then ' 浙江'
-        |when trim(inf_source)='00016530' then ' 重庆'
-        |when trim(inf_source)='00012600' then ' 黑龙江'
-        |when trim(inf_source)='00011900' then ' 内蒙古'
-        |when trim(inf_source)='00010000' then ' 总公司'
+        |when trim(inf_source)='00013600' then '安徽'
+        |when trim(inf_source)='00011000' then '北京'
+        |when trim(inf_source)='00012220' then '大连'
+        |when trim(inf_source)='00013900' then '福建'
+        |when trim(inf_source)='00018200' then '甘肃'
+        |when trim(inf_source)='00015800' then '广东'
+        |when trim(inf_source)='00016100' then '广西'
+        |when trim(inf_source)='00017000' then '贵州'
+        |when trim(inf_source)='00016400' then '海南'
+        |when trim(inf_source)='00011200' then '河北'
+        |when trim(inf_source)='00014900' then '河南'
+        |when trim(inf_source)='00015210' then '湖北'
+        |when trim(inf_source)='00015500' then '湖南'
+        |when trim(inf_source)='00012400' then '吉林'
+        |when trim(inf_source)='00013000' then '江苏'
+        |when trim(inf_source)='00014200' then '江西'
+        |when trim(inf_source)='00012210' then '辽宁'
+        |when trim(inf_source)='00013320' then '宁波'
+        |when trim(inf_source)='00018700' then '宁夏'
+        |when trim(inf_source)='00014520' then '青岛'
+        |when trim(inf_source)='00018500' then '青海'
+        |when trim(inf_source)='00013930' then '厦门'
+        |when trim(inf_source)='00014500' then '山东'
+        |when trim(inf_source)='00011600' then '山西'
+        |when trim(inf_source)='00017900' then '陕西'
+        |when trim(inf_source)='00012900' then '上海'
+        |when trim(inf_source)='00015840' then '深圳'
+        |when trim(inf_source)='00016500' then '四川'
+        |when trim(inf_source)='00011100' then '天津'
+        |when trim(inf_source)='00017700' then '西藏'
+        |when trim(inf_source)='00018800' then '新疆'
+        |when trim(inf_source)='00017310' then '云南'
+        |when trim(inf_source)='00013310' then '浙江'
+        |when trim(inf_source)='00016530' then '重庆'
+        |when trim(inf_source)='00012600' then '黑龙江'
+        |when trim(inf_source)='00011900' then '内蒙古'
+        |when trim(inf_source)='00010000' then '总公司'
         |else '其他' end
         |as cup_branch_ins_id_nm,
         |
