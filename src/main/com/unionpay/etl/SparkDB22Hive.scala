@@ -70,6 +70,7 @@ object SparkDB22Hive {
     JOB_HV_30  //CODE BY YX
 //    JOB_HV_31  //CODE BY XTP
     JOB_HV_32  //CODE BY XTP
+//  JOB_HV_33  //CODE BY XTP
     JOB_HV_36  //CODE BY YX
 //    JOB_HV_37  //CODE BY TZQ
 //    JOB_HV_38  //CODE BY TZQ
@@ -93,6 +94,7 @@ object SparkDB22Hive {
   /**
     *hive-job-01/08-19
     *TBL_CHACC_CDHD_CARD_BIND_INF -> hive_card_bind_inf
+    *
     * @author winslow yang
     * @param sqlContext
     * @return
@@ -146,6 +148,7 @@ object SparkDB22Hive {
   /**
     *  hive-job-03/08-19
     *  tbl_chacc_cdhd_pri_acct_inf -> hive_pri_acct_inf
+    *
     * @author winslow yang
     * @param sqlContext
     */
@@ -317,6 +320,7 @@ object SparkDB22Hive {
     * JOB_HV_4/10-14
     * hive_acc_trans->viw_chacc_acc_trans_dtl
     * Code by Xue
+    *
     * @param sqlContext
     * @return
     */
@@ -589,6 +593,7 @@ object SparkDB22Hive {
     * JOB_HV_8/10-14
     * HIVE_STORE_TERM_RELATION->TBL_CHMGM_STORE_TERM_RELATION
     * Code by Xue
+    *
     * @param sqlContext
     * @return
     */
@@ -707,6 +712,7 @@ object SparkDB22Hive {
   /**
     * JOB_HV_9/08-23
     * hive_preferential_mchnt_inf->tbl_chmgm_preferential_mchnt_inf
+    *
     * @author tzq
     * @param sqlContext
     * @return
@@ -825,6 +831,7 @@ object SparkDB22Hive {
   /**
     * JOB_HV_10/08-23
     * hive_access_bas_inf->tbl_chmgm_access_bas_inf
+    *
     * @author tzq
     * @param sqlContext
     * @return
@@ -948,6 +955,7 @@ object SparkDB22Hive {
   /**
     * JOB_HV_11/08-23
     * hive_ticket_bill_bas_inf->tbl_chacc_ticket_bill_bas_inf
+    *
     * @author tzq
     * @param sqlContext
     * @return
@@ -1106,6 +1114,7 @@ object SparkDB22Hive {
   /**
     * JOB_HV_12/08-23
     * hive_chara_grp_def_bat->tbl_chmgm_chara_grp_def_bat
+    *
     * @author tzq
     * @param sqlContext
     * @return
@@ -1164,6 +1173,7 @@ object SparkDB22Hive {
   /**
     * hive-job-13/08-22
     * hive_card_bin->tbl_chmgm_card_bin
+    *
     * @author tzq
     * @param sqlContext
     * @return
@@ -1234,6 +1244,7 @@ object SparkDB22Hive {
   /**
     * hive-job-14/08-22
     * hive_inf_source_dtl->tbl_inf_source_dtl
+    *
     * @author tzq
     * @param sqlContext
     * @return
@@ -1266,6 +1277,7 @@ object SparkDB22Hive {
   /**
     * hive-job-15
     * hive_undefine_store_inf-->  hive_acc_trans + hive_store_term_relation
+    *
     * @author tzq
     * @param sqlContext
     * @return
@@ -1330,6 +1342,7 @@ object SparkDB22Hive {
   /**
     * JOB_HV_16/08-23
     * hive_mchnt_inf_wallet->tbl_chmgm_mchnt_inf/TBL_CHMGM_STORE_TERM_RELATION/TBL_CHMGM_ACCESS_BAS_INF
+    *
     * @author tzq
     * @param sqlContext
     * @return
@@ -1498,6 +1511,7 @@ object SparkDB22Hive {
   /**
     * hive-job-18 2016-08-26
     * viw_chmgm_trans_his -> hive_download_trans
+    *
     * @author tzq
     * @author winslow yang
     * @param sqlContext
@@ -1599,6 +1613,7 @@ object SparkDB22Hive {
   /**
     * hive-job-19
     * TBL_CHMGM_INS_INF -> HIVE_INS_INF
+    *
     * @author tzq
     * @author winslow yang
     * @param sqlContext
@@ -1697,6 +1712,7 @@ object SparkDB22Hive {
   /**
     * hive-job-23  2016年10月9日
     * hive_brand_inf-->TBL_CHMGM_BRAND_INF
+    *
     * @author tzq
     * @param sqlContext
     * @return
@@ -1751,6 +1767,7 @@ object SparkDB22Hive {
   /**
     * hive-job-24 2016-09-18
     * tbl_chmgm_mchnt_para -> hive_mchnt_para
+    *
     * @author winslow yang
     * @param sqlContext
     * @return
@@ -1795,6 +1812,7 @@ object SparkDB22Hive {
     * JOB_HV_25/10-14
     * HIVE_MCHNT_TP->tbl_mcmgm_mchnt_tp
     * Code by Xue
+    *
     * @param sqlContext
     * @return
     */
@@ -1843,6 +1861,7 @@ object SparkDB22Hive {
   /**
     * hive-job-26
     * hive_mchnt_tp_grp-->tbl_mcmgm_mchnt_tp_grp
+    *
     * @author tzq
     * @param sqlContext
     * @return
@@ -1891,6 +1910,7 @@ object SparkDB22Hive {
     * JOB_HV_28/10-14
     * hive_online_point_trans->viw_chacc_online_point_trans_inf
     * Code by Xue
+    *
     * @param sqlContext
     * @return
     */
@@ -1983,27 +2003,46 @@ object SparkDB22Hive {
          |    when trim(ta.cup_branch_ins_id_cd)='00018800' then '新疆'
          |else '总公司' end as cup_branch_ins_id_nm
          |
-        |from viw_chacc_online_point_trans_inf ta
+         |from viw_chacc_online_point_trans_inf ta
          |where  ta.trans_tp in ('03','09','11','18','28')
          |and concat_ws('-',substr(ta.trans_dt,1,4),substr(ta.trans_dt,5,2),substr(ta.trans_dt,7,2))>='$start_dt'
          |and concat_ws('-',substr(ta.trans_dt,1,4),substr(ta.trans_dt,5,2),substr(ta.trans_dt,7,2))<='$end_dt'
          | """.stripMargin)
 
+
     println("JOB_HV_28------>results:"+results.count())
     if(!Option(results).isEmpty){
       results.registerTempTable("spark_hive_online_point_trans")
-      sqlContext.sql(s"use $hive_dbname")
-      sqlContext.sql("truncate table  hive_online_point_trans")
-      sqlContext.sql("insert into table hive_online_point_trans select * from spark_hive_online_point_trans")
     }else{
       println("加载的表spark_hive_online_point_trans中无数据！")
     }
+    // Xue create function about partition by date ^_^
+    def PartitionFun_JOB_HV_28(start_dt: String, end_dt: String)  {
+      var sdf: SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd")
+      val start = LocalDate.parse(start_dt, dateFormatter)
+      val end = LocalDate.parse(end_dt, dateFormatter)
+      val days = Days.daysBetween(start, end).getDays
+      val dateStrs = for (day <- 0 to days) {
+        val currentDay = (start.plusDays(day).toString(dateFormatter))
+        println(s"=========插入'$currentDay'分区的数据=========")
+        sqlContext.sql(s"use $hive_dbname")
+        sqlContext.sql(s"alter table hive_online_point_trans drop partition (part_trans_dt='$currentDay')")
+        println(s"alter table hive_online_point_trans drop partition (part_trans_dt='$currentDay') successfully!")
+        sqlContext.sql(s"alter table hive_online_point_trans add partition (part_trans_dt='$currentDay')")
+        println(s"alter table hive_online_point_trans add partition (part_trans_dt='$currentDay') successfully!")
+        sqlContext.sql(s"insert into hive_online_point_trans partition (part_trans_dt='$currentDay') select * from spark_hive_online_point_trans htempa where htempa.trans_dt = '$currentDay'")
+        println(s"insert into hive_online_point_trans partition (part_trans_dt='$currentDay') successfully!")
+      }
+    }
+
+    PartitionFun_JOB_HV_28 (start_dt,end_dt)
   }
 
   /**
     * JOB_HV_29/10-14
     * hive_offline_point_trans->tbl_chacc_cdhd_point_addup_dtl
     * Code by Xue
+    *
     * @param sqlContext
     * @return
     */
@@ -2151,12 +2190,30 @@ object SparkDB22Hive {
     println("JOB_HV_29------>results:"+results.count())
     if(!Option(results).isEmpty){
       results.registerTempTable("spark_hive_offline_point_trans")
-      sqlContext.sql(s"use $hive_dbname")
-      sqlContext.sql("truncate table  hive_offline_point_trans")
-      sqlContext.sql("insert into table hive_offline_point_trans select * from spark_hive_offline_point_trans")
     }else{
       println("加载的表spark_hive_offline_point_trans中无数据！")
     }
+    // Xue create function about partition by date ^_^
+    def PartitionFun_JOB_HV_29(start_dt: String, end_dt: String)  {
+      var sdf: SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd")
+      val start = LocalDate.parse(start_dt, dateFormatter)
+      val end = LocalDate.parse(end_dt, dateFormatter)
+      val days = Days.daysBetween(start, end).getDays
+      val dateStrs = for (day <- 0 to days) {
+        val currentDay = (start.plusDays(day).toString(dateFormatter))
+        println(s"=========插入'$currentDay'分区的数据=========")
+        sqlContext.sql(s"use $hive_dbname")
+        sqlContext.sql(s"alter table hive_offline_point_trans drop partition (part_trans_dt='$currentDay')")
+        println(s"alter table hive_offline_point_trans drop partition (part_trans_dt='$currentDay') successfully!")
+        sqlContext.sql(s"alter table hive_offline_point_trans add partition (part_trans_dt='$currentDay')")
+        println(s"alter table hive_offline_point_trans add partition (part_trans_dt='$currentDay') successfully!")
+        sqlContext.sql(s"insert into hive_offline_point_trans partition (part_trans_dt='$currentDay') select * from spark_hive_offline_point_trans htempa where htempa.trans_dt = '$currentDay'")
+        println(s"insert into hive_offline_point_trans partition (part_trans_dt='$currentDay') successfully!")
+      }
+    }
+
+    PartitionFun_JOB_HV_29 (start_dt,end_dt)
+
   }
 
 
@@ -2164,6 +2221,7 @@ object SparkDB22Hive {
   /**
     * hive-job-30 2016-08-22
     * viw_chacc_code_pay_tran_dtl -> hive_passive_code_pay_trans
+    *
     * @param sqlContext
     */
   def JOB_HV_30(implicit sqlContext: HiveContext) = {
@@ -2264,6 +2322,7 @@ object SparkDB22Hive {
     * JOB_HV_31/10-14
     * HIVE_BILL_ORDER_TRANS->VIW_CHMGM_BILL_ORDER_AUX_INF
     * Code by Xue
+    *
     * @param sqlContext
     * @return
     */
@@ -2366,16 +2425,35 @@ object SparkDB22Hive {
          |and concat_ws('-',substr(ta.trans_dt,1,4),substr(ta.trans_dt,5,2),substr(ta.trans_dt,7,2))<='$end_dt'
          | """.stripMargin)
 
-    results.registerTempTable("spark_hive_bill_order_trans")
     println("JOB_HV_31------>results:"+results.count())
     if(!Option(results).isEmpty){
       results.registerTempTable("spark_hive_bill_order_trans")
-      sqlContext.sql(s"use $hive_dbname")
-      sqlContext.sql("truncate table  HIVE_BILL_ORDER_TRANS")
-      sqlContext.sql("insert into table HIVE_BILL_ORDER_TRANS select * from spark_hive_bill_order_trans")
     }else{
       println("加载的表spark_hive_bill_order_trans中无数据！")
     }
+
+
+    // Xue create function about partition by date ^_^
+    def PartitionFun_JOB_HV_31(start_dt: String, end_dt: String)  {
+      var sdf: SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd")
+      val start = LocalDate.parse(start_dt, dateFormatter)
+      val end = LocalDate.parse(end_dt, dateFormatter)
+      val days = Days.daysBetween(start, end).getDays
+      val dateStrs = for (day <- 0 to days) {
+        val currentDay = (start.plusDays(day).toString(dateFormatter))
+        println(s"=========插入'$currentDay'分区的数据=========")
+        sqlContext.sql(s"use $hive_dbname")
+        sqlContext.sql(s"alter table HIVE_BILL_ORDER_TRANS drop partition (part_trans_dt='$currentDay')")
+        println(s"alter table HIVE_BILL_ORDER_TRANS drop partition (part_trans_dt='$currentDay') successfully!")
+        sqlContext.sql(s"alter table HIVE_BILL_ORDER_TRANS add partition (part_trans_dt='$currentDay')")
+        println(s"alter table HIVE_BILL_ORDER_TRANS add partition (part_trans_dt='$currentDay') successfully!")
+        sqlContext.sql(s"insert into HIVE_BILL_ORDER_TRANS partition (part_trans_dt='$currentDay') select * from spark_hive_bill_order_trans htempa where htempa.trans_dt = '$currentDay'")
+        println(s"insert into HIVE_BILL_ORDER_TRANS partition (part_trans_dt='$currentDay') successfully!")
+      }
+    }
+
+    PartitionFun_JOB_HV_31 (start_dt,end_dt)
+
   }
 
   /**
@@ -2519,12 +2597,95 @@ object SparkDB22Hive {
       }
     }
 
-    PartitionFun_JOB_HV_32 (start_dt,end_dt)
+    PartitionFun_JOB_HV_32 (start_dt, end_dt)
+  }
+
+  /**
+    * JOB_HV_33/10-19
+    * hive_bill_sub_order_trans->VIW_CHMGM_BILL_SUB_ORDER_DETAIL_INF
+    * Code by Xue
+    * @param sqlContext
+    * @return
+    */
+
+  def JOB_HV_33(implicit sqlContext: HiveContext) = {
+    val df2_1 = sqlContext.jdbc_mgmdb_DF("ch_mgmdb.VIW_CHMGM_BILL_SUB_ORDER_DETAIL_INF")
+    println("分区数为:" + {
+      df2_1.rdd.getNumPartitions
+    })
+    df2_1.printSchema()
+    df2_1.registerTempTable("VIW_CHMGM_BILL_SUB_ORDER_DETAIL_INF")
+
+    val start_dt = "2016-09-08"
+    val end_dt = "2016-09-09"
+
+    val results = sqlContext.sql(
+      s"""
+         |SELECT
+         |ta.BILL_SUB_ORDER_ID as BILL_SUB_ORDER_ID,
+         |trim(ta.BILL_ORDER_ID) as BILL_ORDER_ID,
+         |trim(ta.MCHNT_CD) as MCHNT_CD,
+         |ta.MCHNT_NM as MCHNT_NM,
+         |trim(ta.SUB_MCHNT_CD) as SUB_MCHNT_CD,
+         |ta.SUB_MCHNT_NM as SUB_MCHNT_NM,
+         |trim(ta.BILL_ID) as BILL_ID,
+         |ta.BILL_PRICE as BILL_PRICE,
+         |trim(ta.TRANS_SEQ) as TRANS_SEQ,
+         |ta.REFUND_REASON as TRANS_SEQ,
+         |trim(ta.ORDER_ST) as ORDER_ST,
+         |ta.REC_CRT_TS as REC_CRT_TS,
+         |trim(ta.CRT_CDHD_USR_ID) as CRT_CDHD_USR_ID,
+         |ta.REC_UPD_TS as REC_UPD_TS,
+         |trim(ta.UPD_CDHD_USR_ID) as UPD_CDHD_USR_ID,
+         |ta.ORDER_TIMEOUT_TS as ORDER_TIMEOUT_TS,
+         |case when
+         |substr(ta.TRANS_DT,1,4) between '0001' and '9999' and substr(ta.TRANS_DT,5,2) between '01' and '12' and
+         |substr(ta.TRANS_DT,7,2) between '01' and substr(last_day(concat_ws('-',substr(ta.TRANS_DT,1,4),substr(ta.TRANS_DT,5,2),substr(ta.TRANS_DT,7,2))),9,2)
+         |then concat_ws('-',substr(ta.TRANS_DT,1,4),substr(ta.TRANS_DT,5,2),substr(ta.TRANS_DT,7,2))
+         |else null end as TRANS_DT,
+         |ta.RELATED_USR_ID as RELATED_USR_ID,
+         |ta.TRANS_PROCESS as TRANS_PROCESS,
+         |ta.RESPONSE_CODE as RESPONSE_CODE,
+         |ta.RESPONSE_MSG as RESPONSE_MSG
+         |FROM VIW_CHMGM_BILL_SUB_ORDER_DETAIL_INF ta
+         |WHERE  concat_ws('-',substr(ta.TRANS_DT,1,4),substr(ta.TRANS_DT,5,2),substr(ta.TRANS_DT,7,2)) >= '$start_dt'
+         |and concat_ws('-',substr(ta.TRANS_DT,1,4),substr(ta.TRANS_DT,5,2),substr(ta.TRANS_DT,7,2)) <= '$end_dt'
+         | """.stripMargin)
+
+    println("JOB_HV_33------>results:" + results.count())
+    if (!Option(results).isEmpty) {
+      results.registerTempTable("spark_hive_bill_sub_order_trans")
+    } else {
+      println("加载的表spark_hive_bill_sub_order_trans中无数据！")
+    }
+
+
+    // Xue create function about partition by date ^_^
+    def PartitionFun_JOB_HV_33(start_dt: String, end_dt: String) {
+      var sdf: SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd")
+      val start = LocalDate.parse(start_dt, dateFormatter)
+      val end = LocalDate.parse(end_dt, dateFormatter)
+      val days = Days.daysBetween(start, end).getDays
+      val dateStrs = for (day <- 0 to days) {
+        val currentDay = (start.plusDays(day).toString(dateFormatter))
+        println(s"=========插入'$currentDay'分区的数据=========")
+        sqlContext.sql(s"use $hive_dbname")
+        sqlContext.sql(s"alter table hive_bill_sub_order_trans drop partition (part_trans_dt='$currentDay')")
+        println(s"alter table hive_bill_sub_order_trans drop partition (part_trans_dt='$currentDay') successfully!")
+        sqlContext.sql(s"alter table hive_bill_sub_order_trans add partition (part_trans_dt='$currentDay')")
+        println(s"alter table hive_bill_sub_order_trans add partition (part_trans_dt='$currentDay') successfully!")
+        sqlContext.sql(s"insert into hive_bill_sub_order_trans partition (part_trans_dt='$currentDay') select * from spark_hive_bill_sub_order_trans htempa where htempa.trans_dt = '$currentDay'")
+        println(s"insert into hive_bill_sub_order_trans partition (part_trans_dt='$currentDay') successfully!")
+      }
+    }
+
+    PartitionFun_JOB_HV_33(start_dt, end_dt)
   }
 
   /**
     * hive-job-36 2016-08-26
     * tbl_umsvc_discount_bas_inf -> hive_discount_bas_inf
+    *
     * @author winslow yang
     * @param sqlContext
     */
@@ -2617,6 +2778,7 @@ object SparkDB22Hive {
   /**
     * hive-job-37  2016年9月21日 星期三
     * hive_filter_app_det-->tbl_umsvc_filter_app_det
+    *
     * @author tzq
     * @param sqlContext
     * @return
@@ -2666,6 +2828,7 @@ object SparkDB22Hive {
   /**
     * hive-job-38  2016年9月21日 星期三
     * hive_filter_rule_det-->tbl_umsvc_filter_rule_det
+    *
     * @author tzq
     * @param sqlContext
     * @return
@@ -2978,6 +3141,7 @@ object SparkDB22Hive {
   /**
     * hive-job-42  2016年10月11日 星期二
     * hive_active_code_pay_trans-->hive_achis_trans
+    *
     * @param sqlContext
     * @return
     */
@@ -3213,6 +3377,7 @@ object SparkDB22Hive {
   /**
     *  hive-job-43 2016-09-12
     *  viw_chmgm_swt_log -> hive_switch_point_trans
+    *
     * @author winslow yang
     * @param sqlContext
     */
@@ -3358,6 +3523,7 @@ object SparkDB22Hive {
   /**
     * hive-job-44/08-22
     * hive_cdhd_cashier_maktg_reward_dtl->viw_chacc_cdhd_cashier_maktg_reward_dtl
+    *
     * @author tzq
     * @param sqlContext
     * @return
@@ -3493,6 +3659,7 @@ object SparkDB22Hive {
     * JOB_HV_46/10-14
     * hive_prize_activity_bas_inf->tbl_umsvc_prize_activity_bas_inf
     * Code by Xue
+    *
     * @param sqlContext
     * @return
     */
@@ -3595,6 +3762,7 @@ object SparkDB22Hive {
     * JOB_HV_47/10-14
     * hive_prize_lvl_add_rule->tbl_umsvc_prize_lvl_add_rule
     * Code by Xue
+    *
     * @param sqlContext
     * @return
     */
@@ -3643,6 +3811,7 @@ object SparkDB22Hive {
   /**
     * hive-job-48/08-29
     * hive_prize_bas->tbl_umsvc_prize_bas
+    *
     * @author tzq
     * @param sqlContext
     * @return
@@ -3697,6 +3866,7 @@ object SparkDB22Hive {
   /**
     * hive-job-54/08-29
     * hive_cashier_bas_inf->tbl_chacc_cashier_bas_inf
+    *
     * @author tzq
     * @param sqlContext
     * @return
@@ -3812,6 +3982,7 @@ object SparkDB22Hive {
   /**
     * hive-job-67
     * Hive_signer_log -->tbl_umtxn_signer_log
+    *
     *@author tzq
     * @param sqlContext
     * @return
@@ -3851,6 +4022,7 @@ object SparkDB22Hive {
   /**
     * hive-job-68
     * hive_cashier_point_acct_oper_dtl-->tbl_umtxn_cashier_point_acct_oper_dtl
+    *
     * @author tzq
     * @param sqlContext
     * @return
@@ -3890,6 +4062,7 @@ object SparkDB22Hive {
     * JOB_HV_69/10-14
     * HIVE_PRIZE_LVL->tbl_umsvc_prize_lvl
     * Code by Xue
+    *
     * @param sqlContext
     * @return
     */
@@ -3950,6 +4123,7 @@ object SparkDB22Hive {
   /**
     *  hive-job-70 2016-09-12
     *  tbl_inf_source_class -> hive_inf_source_class
+    *
     * @author winslow yang
     * @param sqlContext
     */
