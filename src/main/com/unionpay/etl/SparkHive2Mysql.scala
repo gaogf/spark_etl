@@ -38,7 +38,7 @@ object SparkHive2Mysql {
     JOB_DM_5    //CODE BY TZQ
     JOB_DM_6    //CODE BY TZQ
     JOB_DM_9    //CODE BY XTP
-    JOB_DM_54   //CODE BY XTP  //Error:Kryo serialization failed: Buffer overflow
+//    JOB_DM_54   //CODE BY XTP  属于指标套表，不属于每日模板，无数据
     JOB_DM_55   //CODE BY TZQ
     JOB_DM_61   //CODE BY YX
     JOB_DM_62   //CODE BY TZQ
