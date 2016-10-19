@@ -40,7 +40,7 @@ object SparkUPH2H {
 
     println("######hive-job-39######")
 
-    val today_dt = DateUtils.getYesterdayByJob(end_dt)// end_dt-1
+    val today_dt = end_dt
     val df = sqlContext.read.parquet(s"hdfs://146.240.50.1:8020/user/ch_datas/upw_hive/hive_achis_trans/part_settle_dt=$today_dt")
     println("###### read hdfs://146.240.50.2:8020/ successful ######")
     df.registerTempTable("spark_hive_achis_trans")
