@@ -23,41 +23,39 @@ object SparkHive2Mysql {
   private lazy val hive_dbname =ConfigurationManager.getProperty(Constants.HIVE_DBNAME)
 
   def main(args: Array[String]) {
-
     val conf = new SparkConf().setAppName("SparkHive2Mysql")
-
     val sc = new SparkContext(conf)
     sc.setLogLevel("ERROR")
-
     implicit val sqlContext = new HiveContext(sc)
+    println(s"####当前JOB的执行日期为：start_dt=$start_dt,end_dt=$end_dt####")
 
-    JOB_DM_1    //CODE BY YX
-    JOB_DM_2    //CODE BY XTP
-    JOB_DM_3    //CODE BY YX
-    JOB_DM_4    //CODE BY XTP
-    JOB_DM_5    //CODE BY TZQ
-    JOB_DM_6    //CODE BY TZQ
-    JOB_DM_9    //CODE BY XTP
+//    JOB_DM_1    //CODE BY YX
+//    JOB_DM_2    //CODE BY XTP
+//    JOB_DM_3    //CODE BY YX
+//    JOB_DM_4    //CODE BY XTP
+//    JOB_DM_5    //CODE BY TZQ
+//    JOB_DM_6    //CODE BY TZQ
+//    JOB_DM_9    //CODE BY XTP
 //    JOB_DM_54   //CODE BY XTP  属于指标套表，不属于每日模板，无数据
-    JOB_DM_55   //CODE BY TZQ
-    JOB_DM_61   //CODE BY YX
-    JOB_DM_62   //CODE BY TZQ
-    JOB_DM_63   //CODE BY XTP
-    JOB_DM_65   //CODE BY XTP
-    JOB_DM_66   //CODE BY TZQ
-    JOB_DM_67   //CODE BY YX
-    JOB_DM_68   //CODE BY YX
-    JOB_DM_69   //CODE BY TZQ
-    JOB_DM_70   //CODE BY TZQ
-    JOB_DM_71   //CODE BY TZQ
-    JOB_DM_72   //CODE BY YX
-    JOB_DM_73   //CODE BY XTP
-    JOB_DM_74   //CODE BY XTP
-    JOB_DM_75   //CODE BY XTP
-    JOB_DM_76   //CODE BY TZQ
-    JOB_DM_78   //CODE BY XTP
-    JOB_DM_86   //CODE BY XTP
-    JOB_DM_87   //CODE BY TZQ
+//    JOB_DM_55   //CODE BY TZQ
+//    JOB_DM_61   //CODE BY YX
+//    JOB_DM_62   //CODE BY TZQ
+//    JOB_DM_63   //CODE BY XTP
+//    JOB_DM_65   //CODE BY XTP
+//    JOB_DM_66   //CODE BY TZQ
+//    JOB_DM_67   //CODE BY YX
+//    JOB_DM_68   //CODE BY YX
+//    JOB_DM_69   //CODE BY TZQ
+//    JOB_DM_70   //CODE BY TZQ
+//    JOB_DM_71   //CODE BY TZQ
+//    JOB_DM_72   //CODE BY YX
+//    JOB_DM_73   //CODE BY XTP
+//    JOB_DM_74   //CODE BY XTP
+//    JOB_DM_75   //CODE BY XTP
+//    JOB_DM_76   //CODE BY TZQ
+//    JOB_DM_78   //CODE BY XTP
+//    JOB_DM_86   //CODE BY XTP
+//    JOB_DM_87   //CODE BY TZQ
 
     sc.stop()
 

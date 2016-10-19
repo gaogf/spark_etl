@@ -28,7 +28,7 @@ object Constants {
   //Hive Database_name
   val HIVE_DBNAME = "hive.dbname"
 
-
+  val UPW_PROP="upw.prop"
 
   //SRC Hive Connectio
   val SRCHIVE_USER ="srchive.user"
