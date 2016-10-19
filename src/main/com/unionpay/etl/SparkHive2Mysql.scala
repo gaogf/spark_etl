@@ -2212,8 +2212,8 @@ object SparkHive2Mysql {
          |                        FROM
          |                            HIVE_PRIZE_DISCOUNT_RESULT
          |                        WHERE
-         |                            SETTLE_DT >= '$start_dt'
-         |                        AND SETTLE_DT <= '$end_dt') RSLT
+         |                            PART_SETTLE_DT >= '$start_dt'
+         |                        AND PART_SETTLE_DT <= '$end_dt') RSLT
          |                WHERE
          |                    PRIZE.LOC_ACTIVITY_ID = LVL.LOC_ACTIVITY_ID
          |                AND PRIZE.ACTIVITY_BEGIN_DT<= RSLT.SETTLE_DT
@@ -2237,8 +2237,8 @@ object SparkHive2Mysql {
          |                AND BAS.PRIZE_ID = PR.PRIZE_ID
          |                AND PRIZE.ACTIVITY_BEGIN_DT<= PR.SETTLE_DT
          |                AND PRIZE.ACTIVITY_END_DT>= PR.SETTLE_DT
-         |                AND PR.SETTLE_DT >= '$start_dt'
-         |                AND PR.SETTLE_DT <= '$end_dt'
+         |                AND PR.PART_SETTLE_DT >= '$start_dt'
+         |                AND PR.PART_SETTLE_DT <= '$end_dt'
          |                AND PR.TRANS_ID NOT LIKE 'V%'
          |                AND PRIZE.RUN_ST!='3'
          |                GROUP BY
@@ -2257,8 +2257,8 @@ object SparkHive2Mysql {
          |                        FROM
          |                            HIVE_PRIZE_DISCOUNT_RESULT
          |                        WHERE
-         |                            SETTLE_DT >= '$start_dt'
-         |                        AND SETTLE_DT <= '$end_dt') RSLT
+         |                            PART_SETTLE_DT >= '$start_dt'
+         |                        AND PART_SETTLE_DT <= '$end_dt') RSLT
          |                WHERE
          |                    PRIZE.ACTIVITY_BEGIN_DT<= RSLT.SETTLE_DT
          |                AND PRIZE.ACTIVITY_END_DT>=RSLT.SETTLE_DT
@@ -2285,7 +2285,7 @@ object SparkHive2Mysql {
          |FROM
          |HIVE_PRIZE_DISCOUNT_RESULT
          |WHERE
-         |SETTLE_DT >='$start_dt'AND SETTLE_DT <='$end_dt') RSLT
+         |PART_SETTLE_DT >='$start_dt'AND PART_SETTLE_DT <='$end_dt') RSLT
          |WHERE TRIM(D.INS_CN_NM) LIKE '%中国银联股份有限公司%分公司' OR  TRIM(D.INS_CN_NM) LIKE '%信息中心'
          |)  ta
          |GROUP BY
@@ -2343,8 +2343,8 @@ object SparkHive2Mysql {
          |                        FROM
          |                            HIVE_PRIZE_DISCOUNT_RESULT
          |                        WHERE
-         |                            SETTLE_DT >= '$start_dt'
-         |                        AND SETTLE_DT <= '$end_dt') RSLT
+         |                            PART_SETTLE_DT >= '$start_dt'
+         |                        AND PART_SETTLE_DT <= '$end_dt') RSLT
          |                WHERE
          |                    PRIZE.LOC_ACTIVITY_ID = LVL.LOC_ACTIVITY_ID
          |                AND PRIZE.ACTIVITY_BEGIN_DT<= RSLT.SETTLE_DT
@@ -2369,8 +2369,8 @@ object SparkHive2Mysql {
          |                AND BAS.PRIZE_ID = PR.PRIZE_ID
          |                AND PRIZE.ACTIVITY_BEGIN_DT<= PR.SETTLE_DT
          |                AND PRIZE.ACTIVITY_END_DT>= PR.SETTLE_DT
-         |                AND PR.SETTLE_DT >= '$start_dt'
-         |                AND PR.SETTLE_DT <= '$end_dt'
+         |                AND PR.PART_SETTLE_DT >= '$start_dt'
+         |                AND PR.PART_SETTLE_DT <= '$end_dt'
          |                AND PR.TRANS_ID NOT LIKE 'V%'
          |                AND PRIZE.RUN_ST!='3'
          |                GROUP BY
@@ -2454,8 +2454,8 @@ object SparkHive2Mysql {
          |			WHERE
          |				TRANS.AGIO_APP_ID=DBI.LOC_ACTIVITY_ID
          |			AND TRANS.AGIO_APP_ID IS NOT NULL
-         |			AND TRANS.SETTLE_DT >='$start_dt'
-         |			AND TRANS.SETTLE_DT <='$end_dt'
+         |			AND TRANS.PART_SETTLE_DT >='$start_dt'
+         |			AND TRANS.PART_SETTLE_DT <='$end_dt'
          |			GROUP BY
          |				DBI.LOC_ACTIVITY_ID,
          |				TRANSLATE(DBI.LOC_ACTIVITY_NM,' ',''),
