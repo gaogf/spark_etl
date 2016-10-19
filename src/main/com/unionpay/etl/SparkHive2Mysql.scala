@@ -847,7 +847,7 @@ object SparkHive2Mysql {
          |            TP.MCHNT_TP_DESC_CN AS TP_NM,
          |            TRANS.TRANS_DT AS TRANS_DT,
          |            COUNT(1)                    AS TRANSCNT,
-         |            COUNT(DISTINCT CDHD_USR_ID) AS TRANSUSRCNT
+         |            COUNT(DISTINCT TRANS.CDHD_USR_ID) AS TRANSUSRCNT
          |        FROM
          |            HIVE_BILL_ORDER_TRANS TRANS
          |        LEFT JOIN
@@ -881,7 +881,7 @@ object SparkHive2Mysql {
          |            TP_GRP.MCHNT_TP_GRP_DESC_CN AS GRP_NM,
          |            TP.MCHNT_TP_DESC_CN AS TP_NM,
          |            TRANS.TRANS_DT AS TRANS_DT,
-         |            COUNT(DISTINCT CDHD_USR_ID) AS PAYUSRCNT
+         |            COUNT(DISTINCT TRANS.CDHD_USR_ID) AS PAYUSRCNT
          |        FROM
          |            HIVE_BILL_ORDER_TRANS TRANS
          |        LEFT JOIN
@@ -933,7 +933,7 @@ object SparkHive2Mysql {
          |            COUNT(1)                      AS SUCTRANSCNT,
          |            SUM(BILL.BILL_ORIGINAL_PRICE) AS BILL_ORIGINAL_PRICE,
          |            SUM(BILL.BILL_PRICE)          AS BILL_PRICE,
-         |            COUNT(DISTINCT CDHD_USR_ID)   AS PAYSUCUSRCNT
+         |            COUNT(DISTINCT TRANS.CDHD_USR_ID)   AS PAYSUCUSRCNT
          |        FROM
          |            HIVE_BILL_ORDER_TRANS TRANS
          |        LEFT JOIN
