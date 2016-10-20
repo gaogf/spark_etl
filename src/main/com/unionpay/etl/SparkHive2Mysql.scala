@@ -167,9 +167,11 @@ object SparkHive2Mysql {
     * JOB_DM_2/10-14
     * dm_user_idcard_home->hive_pri_acct_inf,hive_acc_trans
     * Code by Xue
+    *
     * @param sqlContext
     * @return
     */
+
   def JOB_DM_2 (implicit sqlContext: HiveContext) = {
     println("###JOB_DM_2(dm_user_idcard_home->hive_pri_acct_inf,hive_acc_trans)")
     UPSQL_JDBC.delete("dm_user_idcard_home","report_dt",start_dt,end_dt)
@@ -196,9 +198,9 @@ object SparkHive2Mysql {
              |(
              |select
              |case when tempe.CITY_CARD in ('大连','宁波','厦门','青岛','深圳') then tempe.CITY_CARD else tempe.PROVINCE_CARD end as ID_AREA_NM,
-             |count(distinct(case when substr(tempe.rec_crt_ts,1,10)='$today_dt'  then tempe.cdhd_usr_id end)) as tpre,
-             |count(distinct(case when substr(tempe.rec_crt_ts,1,10)>=trunc('$today_dt','YYYY') and substr(tempe.rec_crt_ts,1,10)<='$today_dt'  then tempe.cdhd_usr_id end)) as years,
-             |count(distinct(case when substr(tempe.rec_crt_ts,1,10)<='$today_dt' then  tempe.cdhd_usr_id end)) as total
+             |count(distinct(case when to_date(tempe.rec_crt_ts)='$today_dt'  then tempe.cdhd_usr_id end)) as tpre,
+             |count(distinct(case when to_date(tempe.rec_crt_ts)>=trunc('$today_dt','YYYY') and to_date(tempe.rec_crt_ts)<='$today_dt'  then tempe.cdhd_usr_id end)) as years,
+             |count(distinct(case when to_date(tempe.rec_crt_ts)<='$today_dt' then  tempe.cdhd_usr_id end)) as total
              |from
              |(select cdhd_usr_id,rec_crt_ts, CITY_CARD,PROVINCE_CARD from HIVE_PRI_ACCT_INF where usr_st='1' ) tempe
              |group by (case when CITY_CARD in ('大连','宁波','厦门','青岛','深圳') then CITY_CARD else PROVINCE_CARD end)
@@ -207,10 +209,10 @@ object SparkHive2Mysql {
              |(
              |select
              |case when tempa.CITY_CARD in ('大连','宁波','厦门','青岛','深圳') then tempa.CITY_CARD else tempa.PROVINCE_CARD end as ID_AREA_NM,
-             |count(distinct(case when substr(tempa.rec_crt_ts,1,10)='$today_dt'  and substr(tempb.bind_dt,1,10)='$today_dt'  then  tempa.cdhd_usr_id end)) as tpre,
-             |count(distinct(case when substr(tempa.rec_crt_ts,1,10)>=trunc('$today_dt','YYYY') and substr(tempa.rec_crt_ts,1,10)<='$today_dt'
-             |and substr(tempb.bind_dt,1,10)>=trunc('$today_dt','YYYY') and  substr(tempb.bind_dt,1,10)<='$today_dt' then  tempa.cdhd_usr_id end)) as years,
-             |count(distinct(case when substr(tempa.rec_crt_ts,1,10)<='$today_dt' and  substr(tempb.bind_dt,1,10)<='$today_dt'  then  tempa.cdhd_usr_id end)) as total
+             |count(distinct(case when to_date(tempa.rec_crt_ts)='$today_dt'  and to_date(tempb.bind_dt)='$today_dt'  then  tempa.cdhd_usr_id end)) as tpre,
+             |count(distinct(case when to_date(tempa.rec_crt_ts)>=trunc('$today_dt','YYYY') and to_date(tempa.rec_crt_ts)<='$today_dt'
+             |and to_date(tempb.bind_dt)>=trunc('$today_dt','YYYY') and  to_date(tempb.bind_dt)<='$today_dt' then  tempa.cdhd_usr_id end)) as years,
+             |count(distinct(case when to_date(tempa.rec_crt_ts)<='$today_dt' and  to_date(tempb.bind_dt)<='$today_dt'  then  tempa.cdhd_usr_id end)) as total
              |from
              |(
              |select rec_crt_ts,CITY_CARD,PROVINCE_CARD,cdhd_usr_id from HIVE_PRI_ACCT_INF
@@ -223,10 +225,10 @@ object SparkHive2Mysql {
              |(
              |select
              |case when tempc.CITY_CARD in ('大连','宁波','厦门','青岛','深圳') then tempc.CITY_CARD else tempc.PROVINCE_CARD end as ID_AREA_NM,
-             |count(distinct(case when substr(tempc.rec_crt_ts,1,10)='$today_dt'  and substr(tempd.trans_dt,1,10)='$today_dt'  then tempc.cdhd_usr_id end)) as tpre,
-             |count(distinct(case when substr(tempc.rec_crt_ts,1,10)>=trunc('$today_dt','YYYY') and substr(tempc.rec_crt_ts,1,10)<='$today_dt'
-             |and substr(tempd.trans_dt,1,10)>=trunc('$today_dt','YYYY') and  substr(tempd.trans_dt,1,10)<='$today_dt' then  tempc.cdhd_usr_id end)) as years,
-             |count(distinct(case when substr(tempc.rec_crt_ts,1,10)<='$today_dt' and  substr(tempd.trans_dt,1,10)<='$today_dt'  then  tempc.cdhd_usr_id end)) as total
+             |count(distinct(case when to_date(tempc.rec_crt_ts)='$today_dt'  and to_date(tempd.trans_dt)='$today_dt'  then tempc.cdhd_usr_id end)) as tpre,
+             |count(distinct(case when to_date(tempc.rec_crt_ts)>=trunc('$today_dt','YYYY') and to_date(tempc.rec_crt_ts)<='$today_dt'
+             |and to_date(tempd.trans_dt)>=trunc('$today_dt','YYYY') and  to_date(tempd.trans_dt)<='$today_dt' then  tempc.cdhd_usr_id end)) as years,
+             |count(distinct(case when to_date(tempc.rec_crt_ts)<='$today_dt' and  to_date(tempd.trans_dt)<='$today_dt'  then  tempc.cdhd_usr_id end)) as total
              |from
              |(select CITY_CARD,CITY_CARD,PROVINCE_CARD,cdhd_usr_id,rec_crt_ts from HIVE_PRI_ACCT_INF
              |where usr_st='1') tempc
