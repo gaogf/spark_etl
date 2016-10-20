@@ -17,10 +17,10 @@ object UPSQL_JDBC {
   private lazy val driver=ConfigurationManager.getProperty(Constants.UPSQL_DRIVER)
   private lazy val user=ConfigurationManager.getProperty(Constants.UPSQL_USER)
   private lazy val password=ConfigurationManager.getProperty(Constants.UPSQL_PASSWORD)
-  private lazy val properties = new Properties();
-  properties.put("user", user);
-  properties.put("password", password);
-  properties.put("driver", driver);
+  private lazy val properties = new Properties()
+  properties.put("user", user)
+  properties.put("password", password)
+  properties.put("driver", driver)
 
   /**
     * 将DataFrame组成的临时表插入到数据库中
