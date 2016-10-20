@@ -71,7 +71,7 @@ object SparkDB22Hive {
 //    JOB_HV_30  //CODE BY YX
 //    JOB_HV_31  //CODE BY XTP
 //    JOB_HV_32  //CODE BY XTP
-//    JOB_HV_33  //CODE BY XTP
+//    JOB_HV_33  //CODE BY XTP new added
 //    JOB_HV_36  //CODE BY YX
 //    JOB_HV_37  //CODE BY TZQ
 //    JOB_HV_38  //CODE BY TZQ
