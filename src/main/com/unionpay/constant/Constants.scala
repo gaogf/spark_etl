@@ -28,12 +28,17 @@ object Constants {
   //Hive Database_name
   val HIVE_DBNAME = "hive.dbname"
 
-
+  val UPW_PROP="upw.prop"
 
   //SRC Hive Connectio
   val SRCHIVE_USER ="srchive.user"
   val SRCHIVE_PASSWORD ="srchive.password"
   val SRCHIVE_URL_HBKDB="srchive.url_hbkdb"
   val SRCHIVE_DRIVER ="srchive.driver"
+
+
+  //Config UP Hive repository
+  val UP_NAMENODE ="up.namenode"
+  val UP_HIVEDATAROOT ="up.hivedataroot"
 
 }

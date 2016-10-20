@@ -12,10 +12,15 @@ import org.apache.spark.sql.hive.HiveContext
 object SparkUPH2H {
 
   //计算开始日期：start_dt-1
-  private lazy val start_dt=DateUtils.getYesterdayByJob(ConfigurationManager.getProperty(Constants.START_DT))
+  private  val start_dt=DateUtils.getYesterdayByJob(ConfigurationManager.getProperty(Constants.START_DT))
   //结束日期
-  private lazy val end_dt=ConfigurationManager.getProperty(Constants.END_DT)
-
+  private  val end_dt=ConfigurationManager.getProperty(Constants.END_DT)
+  //UP NAMENODE URL
+  private val up_namenode=ConfigurationManager.getProperty(Constants.UP_NAMENODE)
+  //UP HIVE DATA ROOT URL
+  private val up_hivedataroot=ConfigurationManager.getProperty(Constants.UP_HIVEDATAROOT)
+  //指定HIVE数据库名
+  private lazy val hive_dbname =ConfigurationManager.getProperty(Constants.HIVE_DBNAME)
 
   def main(args: Array[String]): Unit = {
     val conf = new SparkConf().setAppName("SparkUPH2H")
@@ -38,14 +43,14 @@ object SparkUPH2H {
     */
   def JOB_HV_39(implicit sqlContext: SQLContext) = {
 
-    println("######hive-job-39######")
+    println("######JOB_HV_39######")
 
-    val today_dt = DateUtils.getYesterdayByJob(end_dt)// end_dt-1
-    val df = sqlContext.read.parquet(s"hdfs://146.240.50.1:8020/user/ch_datas/upw_hive/hive_achis_trans/part_settle_dt=$today_dt")
-    println("###### read hdfs://146.240.50.2:8020/ successful ######")
+    val today_dt = end_dt
+    val df = sqlContext.read.parquet(s"$up_namenode/$up_hivedataroot/hive_achis_trans/part_settle_dt=$today_dt")
+    println(s"###### read $up_namenode/ successful ######")
     df.registerTempTable("spark_hive_achis_trans")
 
-    sqlContext.sql("use upw_hive")
+    sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(s"alter table hive_achis_trans drop partition (part_settle_dt='$today_dt')")
     sqlContext.sql(s"alter table hive_achis_trans add partition (part_settle_dt='$today_dt')")
     sqlContext.sql(s"insert into table hive_achis_trans partition(part_settle_dt='$today_dt') select * from spark_hive_achis_trans")
@@ -62,16 +67,16 @@ object SparkUPH2H {
     */
   def JOB_HV_49(implicit sqlContext: HiveContext) = {
 
-    println("######hive-job-49######")
+    println("######JOB_HV_49######")
 
-    val df = sqlContext.read.parquet("hdfs://146.240.50.1:8020/user/ch_datas/upw_hive/hive_ucbiz_cdhd_bas_inf")
-    println("###### read hdfs://146.240.50.2:8020/ successful ######")
+    val df = sqlContext.read.parquet(s"$up_namenode/$up_hivedataroot/hive_ucbiz_cdhd_bas_inf")
+    println(s"###### read $up_namenode successful ######")
     df.registerTempTable("spark_ucbiz_cdhd_bas_inf")
 
-    sqlContext.sql("use upw_hive")
+    sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql("truncate table hive_ucbiz_cdhd_bas_inf")
     sqlContext.sql("insert into table hive_ucbiz_cdhd_bas_inf select * from spark_ucbiz_cdhd_bas_inf")
-    println("#### insert into table success ####")
+    println("#### insert into table (hive_ucbiz_cdhd_bas_inf) success ####")
 
   }
 
@@ -84,20 +89,20 @@ object SparkUPH2H {
     */
   def JOB_HV_52(implicit sqlContext: HiveContext) = {
 
-    println("######hive-job-52######")
+    println("######JOB_HV_52######")
     val part_dt = end_dt.substring(0,7)
-    val df = sqlContext.read.parquet(s"hdfs://146.240.50.1:8020/user/ch_datas/upw_hive/hive_active_card_acq_branch_mon/part_settle_month=$part_dt")
-    println("###### read hdfs://146.240.50.2:8020/ successful ######")
+    val df = sqlContext.read.parquet(s"$up_namenode/$up_hivedataroot/hive_active_card_acq_branch_mon/part_settle_month=$part_dt")
+    println(s"###### read $up_namenode/ successful ######")
     df.registerTempTable("spark_active_card_acq_branch_mon")
 
-    sqlContext.sql("use upw_hive")
+    sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(s"alter table hive_active_card_acq_branch_mon drop partition(part_settle_month='$part_dt')")
     sqlContext.sql(
       s"""
          |insert into table hive_active_card_acq_branch_mon partition(part_settle_month='$part_dt')
          |select * from spark_active_card_acq_branch_mon
        """.stripMargin)
-    println("#### insert into table success ####")
+    println("#### insert into table(hive_active_card_acq_branch_mon) success ####")
 
   }
 
