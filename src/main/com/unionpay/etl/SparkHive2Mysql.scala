@@ -482,10 +482,10 @@ object SparkHive2Mysql {
              | when tempb.card_auth_st='3' then   '可信+支付认证'
              |else '未认证' end) as card_auth_nm,
              |tempa.realnm_in as realnm_in,
-             |count(distinct(case when substr(tempa.rec_crt_ts,1,10)='$today_dt'  and substr(tempb.CARD_DT,1,10)='$today_dt'  then tempa.cdhd_usr_id end)) as tpre,
-             |count(distinct(case when substr(tempa.rec_crt_ts,1,10)>=trunc('$today_dt','YYYY') and substr(tempa.rec_crt_ts,1,10)<='$today_dt'
-             |and substr(tempb.CARD_DT,1,10)>=trunc('$today_dt','YYYY')  and  substr(tempb.CARD_DT,1,10)<='$today_dt' then  tempa.cdhd_usr_id end)) as years,
-             |count(distinct(case when substr(tempa.rec_crt_ts,1,10)<='$today_dt' and  substr(tempb.CARD_DT,1,10)<='$today_dt'  then tempa.cdhd_usr_id end)) as total
+             |count(distinct(case when to_date(tempa.rec_crt_ts)='$today_dt'  and to_date(tempb.CARD_DT)='$today_dt'  then tempa.cdhd_usr_id end)) as tpre,
+             |count(distinct(case when to_date(tempa.rec_crt_ts)>=trunc('$today_dt','YYYY') and to_date(tempa.rec_crt_ts)<='$today_dt'
+             |and to_date(tempb.CARD_DT)>=trunc('$today_dt','YYYY')  and  to_date(tempb.CARD_DT)<='$today_dt' then  tempa.cdhd_usr_id end)) as years,
+             |count(distinct(case when to_date(tempa.rec_crt_ts)<='$today_dt' and  to_date(tempb.CARD_DT)<='$today_dt'  then tempa.cdhd_usr_id end)) as total
              |from
              |(select cdhd_usr_id,rec_crt_ts,realnm_in from HIVE_PRI_ACCT_INF
              |where usr_st='1' ) tempa
@@ -512,10 +512,10 @@ object SparkHive2Mysql {
              | when tempc.card_auth_st='2' then   '可信认证'
              | when tempc.card_auth_st='3' then   '可信+支付认证'
              |else '未认证' end) as card_auth_nm,
-             |count(distinct(case when substr(tempc.rec_crt_ts,1,10)='$today_dt'  and substr(tempd.trans_dt,1,10)='$today_dt' then  tempc.cdhd_usr_id end)) as tpre,
-             |count(distinct(case when substr(tempc.rec_crt_ts,1,10)>=trunc('$today_dt','YYYY') and substr(tempc.rec_crt_ts,1,10)<='$today_dt'
-             |and substr(tempd.trans_dt,1,10)>=trunc('$today_dt','YYYY') and  substr(tempd.trans_dt,1,10)<='$today_dt' then  tempc.cdhd_usr_id end)) as years,
-             |count(distinct(case when substr(tempc.rec_crt_ts,1,10)<='$today_dt' and  substr(tempd.trans_dt,1,10)<='$today_dt'  then  tempc.cdhd_usr_id end)) as total
+             |count(distinct(case when to_date(tempc.rec_crt_ts)='$today_dt'  and to_date(tempd.trans_dt)='$today_dt' then  tempc.cdhd_usr_id end)) as tpre,
+             |count(distinct(case when to_date(tempc.rec_crt_ts)>=trunc('$today_dt','YYYY') and to_date(tempc.rec_crt_ts)<='$today_dt'
+             |and to_date(tempd.trans_dt)>=trunc('$today_dt','YYYY') and  to_date(tempd.trans_dt)<='$today_dt' then  tempc.cdhd_usr_id end)) as years,
+             |count(distinct(case when to_date(tempc.rec_crt_ts)<='$today_dt' and  to_date(tempd.trans_dt)<='$today_dt'  then  tempc.cdhd_usr_id end)) as total
              |from
              |(select distinct cdhd_usr_id,card_auth_st,rec_crt_ts from HIVE_CARD_BIND_INF) tempc
              |inner join (select distinct cdhd_usr_id,trans_dt from HIVE_ACC_TRANS ) tempd
@@ -821,6 +821,7 @@ object SparkHive2Mysql {
   /**
     * JOB_DM_54/10-14
     * dm_val_tkt_act_mchnt_tp_dly->hive_bill_order_trans,hive_bill_sub_order_trans
+    * Code by Xue
     * @param sqlContext
     */
   def JOB_DM_54 (implicit sqlContext: HiveContext) = {
@@ -1160,7 +1161,7 @@ object SparkHive2Mysql {
              |SUM(TRANS_AT) AS TRANS_SUCC_AT
              |from HIVE_LIFE_TRANS
              |where PROC_ST ='00'
-             |and substr(TRANS_DT,1,10)='$today_dt'
+             |and to_date(TRANS_DT)='$today_dt'
              |GROUP BY BUSS_TP_NM,CHNL_TP_NM
              |) A
              |LEFT JOIN
@@ -1171,7 +1172,7 @@ object SparkHive2Mysql {
              |COUNT(TRANS_NO) AS TRAN_ALL_CNT
              |from HIVE_LIFE_TRANS
              |where PROC_ST <>'00'
-             |and substr(TRANS_DT,1,10)='$today_dt'
+             |and to_date(TRANS_DT)='$today_dt'
              |GROUP BY BUSS_TP_NM,CHNL_TP_NM
              |) B
              |ON A.BUSS_TP_NM=B.BUSS_TP_NM AND A.BUSS_TP_NM=B.BUSS_TP_NM
