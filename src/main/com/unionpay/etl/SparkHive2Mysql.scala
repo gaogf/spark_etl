@@ -476,11 +476,11 @@ object SparkHive2Mysql {
              |
              |from (
              |select
-             |(case when tempb.card_auth_st='0' then   '默认'
+             |(case when tempb.card_auth_st='0' then   '未认证'
              | when tempb.card_auth_st='1' then   '支付认证'
              | when tempb.card_auth_st='2' then   '可信认证'
              | when tempb.card_auth_st='3' then   '可信+支付认证'
-             |else '--' end) as card_auth_nm,
+             |else '未认证' end) as card_auth_nm,
              |tempa.realnm_in as realnm_in,
              |count(distinct(case when substr(tempa.rec_crt_ts,1,10)='$today_dt'  and substr(tempb.CARD_DT,1,10)='$today_dt'  then tempa.cdhd_usr_id end)) as tpre,
              |count(distinct(case when substr(tempa.rec_crt_ts,1,10)>=trunc('$today_dt','YYYY') and substr(tempa.rec_crt_ts,1,10)<='$today_dt'
@@ -496,22 +496,22 @@ object SparkHive2Mysql {
              |from HIVE_CARD_BIND_INF tempe) tempb
              |on tempa.cdhd_usr_id=tempb.cdhd_usr_id
              |group by
-             |case when tempb.card_auth_st='0' then   '默认'
+             |case when tempb.card_auth_st='0' then   '未认证'
              | when tempb.card_auth_st='1' then   '支付认证'
              | when tempb.card_auth_st='2' then   '可信认证'
              | when tempb.card_auth_st='3' then   '可信+支付认证'
-             |else '--' end,tempa.realnm_in
+             |else '未认证' end,tempa.realnm_in
              |) a
              |
              |left join
              |
              |(
              |select
-             |(case when tempc.card_auth_st='0' then   '默认'
+             |(case when tempc.card_auth_st='0' then   '未认证'
              | when tempc.card_auth_st='1' then   '支付认证'
              | when tempc.card_auth_st='2' then   '可信认证'
              | when tempc.card_auth_st='3' then   '可信+支付认证'
-             |else '--' end) as card_auth_nm,
+             |else '未认证' end) as card_auth_nm,
              |count(distinct(case when substr(tempc.rec_crt_ts,1,10)='$today_dt'  and substr(tempd.trans_dt,1,10)='$today_dt' then  tempc.cdhd_usr_id end)) as tpre,
              |count(distinct(case when substr(tempc.rec_crt_ts,1,10)>=trunc('$today_dt','YYYY') and substr(tempc.rec_crt_ts,1,10)<='$today_dt'
              |and substr(tempd.trans_dt,1,10)>=trunc('$today_dt','YYYY') and  substr(tempd.trans_dt,1,10)<='$today_dt' then  tempc.cdhd_usr_id end)) as years,
@@ -521,11 +521,11 @@ object SparkHive2Mysql {
              |inner join (select distinct cdhd_usr_id,trans_dt from HIVE_ACC_TRANS ) tempd
              |on tempc.cdhd_usr_id=tempd.cdhd_usr_id
              |group by
-             |case when tempc.card_auth_st='0' then   '默认'
+             |case when tempc.card_auth_st='0' then   '未认证'
              | when tempc.card_auth_st='1' then   '支付认证'
              | when tempc.card_auth_st='2' then   '可信认证'
              | when tempc.card_auth_st='3' then   '可信+支付认证'
-             |else '--' end
+             |else '未认证' end
              |) b
              |on a.card_auth_nm=b.card_auth_nm
              | """.stripMargin)
@@ -1246,7 +1246,7 @@ object SparkHive2Mysql {
              |	  ) tempe
              |left join
              |
-         |(
+             |(
              |select
              |tempb.CUP_BRANCH_INS_ID_NM as CUP_BRANCH_INS_ID_NM,
              |count(case when tempd.trans_dt >=trunc('$today_dt','YYYY') and tempd.trans_dt <='$today_dt' then tempd.bill_id end) as accept_year_num,
