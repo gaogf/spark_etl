@@ -36,4 +36,9 @@ object Constants {
   val SRCHIVE_URL_HBKDB="srchive.url_hbkdb"
   val SRCHIVE_DRIVER ="srchive.driver"
 
+
+  //Config UP Hive repository
+  val UP_NAMENODE ="up.namenode"
+  val UP_HIVEDATAROOT ="up.hivedataroot"
+
 }
