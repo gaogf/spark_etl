@@ -37,7 +37,6 @@ object SparkDB22Hive {
 
     println(s"####当前JOB的执行日期为：start_dt=$start_dt,end_dt=$end_dt####")
 
-//    JOB_HV_49  //未添加
 //    JOB_HV_3   //CODE BY YX
 //    JOB_HV_41  //未添加
 //    JOB_HV_4   //CODE BY XTP
@@ -45,7 +44,6 @@ object SparkDB22Hive {
 //    JOB_HV_5   //未添加
 //    JOB_HV_15  //CODE BY TZQ  //测试出错，未解决
 //    JOB_HV_20  //未添加
-//    JOB_HV_39  //未添加
 //    JOB_HV_40  //CODE BY TZQ
 //    JOB_HV_42  //CODE BY TZQ
 //    JOB_HV_50  //未添加
