@@ -1098,8 +1098,8 @@ object SparkHive2Mysql {
              | else '未认证' end) as card_auth_nm,
              |card_attr as card_attr ,
              |'$today_dt' as report_dt ,
-             |count(distinct(case when rec_crt_ts = '$today_dt'  then cdhd_usr_id end))  as tpre,
-             |count(distinct(case when rec_crt_ts <= '$today_dt'  then cdhd_usr_id end))  as total
+             |count(distinct(case when to_date(rec_crt_ts) = '$today_dt'  then cdhd_usr_id end))  as tpre,
+             |count(distinct(case when to_date(rec_crt_ts) <= '$today_dt'  then cdhd_usr_id end))  as total
              |
              |from  (
              |select distinct cdhd_usr_id,card_auth_st,rec_crt_ts,substr(bind_card_no,1,8) as card_bin

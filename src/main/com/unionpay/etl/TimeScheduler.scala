@@ -19,6 +19,7 @@ object TimeScheduler {
 
   def main(args: Array[String]): Unit = {
     val filePath=this.getClass.getClassLoader.getResource(ConfigurationManager.getProperty(Constants.UPW_PROP)).getPath()
+    println(s"配置文件路径：$filePath")
     //若未传值则取当前系统时间减一天（即：昨天）
     val start_dt=if(args.length>1) args(0) else DateUtils.getYesterdayByJob(DateUtils.dateFormat.format(new Date()))
     val end_dt=if(args.length>1) args(1) else DateUtils.getYesterdayByJob(DateUtils.dateFormat.format(new Date()))
