@@ -3879,7 +3879,14 @@ object SparkDB22Hive {
       """
         |select
         |trim(cashier_usr_id) as cashier_usr_id,
-        |trim(reg_dt) as reg_dt,
+        |case
+        |	when
+        |		substr(trim(reg_dt),1,4) between '0001' and '9999' and substr(trim(reg_dt),5,2) between '01' and '12' and
+        |		substr(trim(reg_dt),7,2) between '01' and substr(last_day(concat_ws('-',substr(trim(reg_dt),1,4),substr(trim(reg_dt),5,2),substr(trim(reg_dt),7,2))),9,2)
+        |	then concat_ws('-',substr(trim(reg_dt),1,4),substr(trim(reg_dt),5,2),substr(trim(reg_dt),7,2))
+        |	else null
+        |end as reg_dt,
+        |
         |usr_nm,
         |real_nm,
         |trim(real_nm_st) as real_nm_st,
