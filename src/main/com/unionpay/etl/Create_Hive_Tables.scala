@@ -1,6 +1,8 @@
 package com.unionpay.etl
 
 
+import com.unionpay.conf.ConfigurationManager
+import com.unionpay.constant.Constants
 import org.apache.spark.sql.hive.HiveContext
 import org.apache.spark.{SparkConf, SparkContext}
 
@@ -9,7 +11,8 @@ import org.apache.spark.{SparkConf, SparkContext}
   * Created by Xue on 2016/10/20.
   */
 object Create_Hive_Tables {
-  private lazy val hive_dbname ="claud"
+  //指定HIVE数据库名
+  private lazy val hive_dbname =ConfigurationManager.getProperty(Constants.HIVE_DBNAME)
   def main(args: Array[String]) {
 
     val conf = new SparkConf().setAppName("Create_Hive_Tables")

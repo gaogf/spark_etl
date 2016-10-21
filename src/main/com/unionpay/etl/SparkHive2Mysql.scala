@@ -64,6 +64,7 @@ object SparkHive2Mysql {
   /**
     * dm-job-01 20160901
     * dm_user_mobile_home->hive_pri_acct_inf
+    *
     * @author winslow yang
     * @param sqlContext
     */
@@ -252,6 +253,7 @@ object SparkHive2Mysql {
   /**
     *  dm-job-3 20160912
     *  dm_user_regist_channel->hive_pri_acct_inf+hive_inf_source_dtl+hive_acc_trans+hive_card_bind_inf+hive_inf_source_class
+    *
     * @author winslow yang
     * @param sqlContext
     */
@@ -451,6 +453,7 @@ object SparkHive2Mysql {
     * JOB_DM_4/10-14
     * DM_USER_CARD_AUTH->HIVE_PRI_ACCT_INF,HIVE_CARD_BIND_INF,HIVE_ACC_TRANS
     * Code by Xue
+    *
     * @param sqlContext
     * @return
     */
@@ -545,6 +548,7 @@ object SparkHive2Mysql {
   /**
     * JOB_DM_5  2016年9月27日 星期二
     * dm_user_card_iss->hive_pri_acct_inf+hive_acc_trans+hive_card_bind_inf+hive_card_bin
+    *
     * @author tzq
     * @param sqlContext
     */
@@ -631,6 +635,7 @@ object SparkHive2Mysql {
   /**
     * JOB_DM_6  2016年9月27日 星期二
     * dm_user_card_nature
+    *
     * @author tzq
     * @param sqlContext
     */
@@ -729,6 +734,7 @@ object SparkHive2Mysql {
     * JOB_DM_9/10-14
     * dm_store_domain_branch_company->hive_mchnt_inf_wallet,hive_preferential_mchnt_inf,hive_mchnt_tp,hive_mchnt_tp_grp
     * Code by Xue
+    *
     * @param sqlContext
     * @return
     */
@@ -822,6 +828,7 @@ object SparkHive2Mysql {
     * JOB_DM_54/10-14
     * dm_val_tkt_act_mchnt_tp_dly->hive_bill_order_trans,hive_bill_sub_order_trans
     * Code by Xue
+    *
     * @param sqlContext
     */
   def JOB_DM_54 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
@@ -985,6 +992,7 @@ object SparkHive2Mysql {
     * JOB_DM_55  2016-9-6
     *
     * DM_DISC_ACT_BRANCH_DLY->hive_prize_discount_result
+    *
     * @author tzq
     * @param sqlContext
     */
@@ -1035,6 +1043,7 @@ object SparkHive2Mysql {
   /**
     * dm-job-61 20160905
     * dm_cashier_cup_red_branch->hive_cdhd_cashier_maktg_reward_dtl
+    *
     * @author winslow yang
     * @param sqlContext
     * @param start_dt
@@ -1076,6 +1085,7 @@ object SparkHive2Mysql {
   /**
     * JOB_DM_62  2016-9-6
     * dm_usr_auther_nature_tie_card --> hive_card_bind_inf
+    *
     * @author tzq
     * @param sqlContext
     */
@@ -1129,10 +1139,12 @@ object SparkHive2Mysql {
       }
     }
   }
+
   /**
     * JOB_DM_63/10-14
     * DM_LIFE_SERVE_BUSINESS_TRANS->HIVE_LIFE_TRANS
     * Code by Xue
+    *
     * @param sqlContext
     * @return
     */
@@ -1148,34 +1160,35 @@ object SparkHive2Mysql {
              |SELECT
              |A.BUSS_TP_NM as BUSS_TP_NM,
              |A.CHNL_TP_NM as CHNL_TP_NM,
-             |'$today_dt' as REPORT_DT,
-             |B.TRAN_ALL_CNT as TRAN_ALL_CNT,
-             |A.TRAN_SUCC_CNT as TRAN_SUCC_CNT,
-             |A.TRANS_SUCC_AT as TRANS_SUCC_AT
-             |FROM
-             |(
+             |A.TRANS_DT as REPORT_DT,
+             |SUM(B.TRAN_ALL_CNT) as TRAN_ALL_CNT,
+             |SUM(A.TRAN_SUCC_CNT) as TRAN_SUCC_CNT,
+             |SUM(A.TRANS_SUCC_AT) as TRANS_SUCC_AT
+             |FROM(
              |select
              |BUSS_TP_NM,
              |CHNL_TP_NM,
-             |COUNT(TRANS_NO) AS TRAN_SUCC_CNT,
+             |TO_DATE(TRANS_DT) as TRANS_DT,
+             |COUNT( TRANS_NO) AS TRAN_SUCC_CNT,
              |SUM(TRANS_AT) AS TRANS_SUCC_AT
              |from HIVE_LIFE_TRANS
              |where PROC_ST ='00'
-             |and to_date(TRANS_DT)='$today_dt'
-             |GROUP BY BUSS_TP_NM,CHNL_TP_NM
-             |) A
+             |and TO_DATE(TRANS_DT)>='$start_dt' AND   TO_DATE(TRANS_DT)<='$end_dt'
+             |GROUP BY BUSS_TP_NM,CHNL_TP_NM,TO_DATE(TRANS_DT)) A
              |LEFT JOIN
              |(
              |select
              |BUSS_TP_NM,
              |CHNL_TP_NM,
-             |COUNT(TRANS_NO) AS TRAN_ALL_CNT
+             |TO_DATE(TRANS_DT) as TRANS_DT,
+             |COUNT( TRANS_NO) AS TRAN_ALL_CNT
              |from HIVE_LIFE_TRANS
-             |where PROC_ST <>'00'
-             |and to_date(TRANS_DT)='$today_dt'
-             |GROUP BY BUSS_TP_NM,CHNL_TP_NM
-             |) B
-             |ON A.BUSS_TP_NM=B.BUSS_TP_NM AND A.BUSS_TP_NM=B.BUSS_TP_NM
+             |where  TO_DATE(TRANS_DT)>='$start_dt' AND   TO_DATE(TRANS_DT)<='$end_dt'
+             |GROUP BY BUSS_TP_NM,CHNL_TP_NM,TO_DATE(TRANS_DT)) B
+             |ON A.BUSS_TP_NM=B.BUSS_TP_NM AND A.BUSS_TP_NM=B.BUSS_TP_NM and A.TRANS_DT=B.TRANS_DT
+             |GROUP BY A.BUSS_TP_NM,
+             |A.CHNL_TP_NM,
+             |A.TRANS_DT
              | """.stripMargin)
         println(s"###JOB_DM_63------$today_dt results:"+results.count())
         if(!Option(results).isEmpty){
@@ -1192,6 +1205,7 @@ object SparkHive2Mysql {
     * JOB_DM_65/10-14
     * DM_HCE_COUPON_TRAN->HIVE_TICKET_BILL_BAS_INF
     * Code by Xue
+    *
     * @param sqlContext
     * @return
     */
@@ -1305,6 +1319,7 @@ object SparkHive2Mysql {
     * JOB_DM_66 2016-09-07
     *
     * dm_coupon_cfp_tran->hive_acc_trans+hive_ticket_bill_bas_inf
+    *
     * @author tzq
     * @param sqlContext
     */
@@ -1382,6 +1397,7 @@ object SparkHive2Mysql {
     *  hive_switch_point_trans
     *  hive_prize_discount_result
     *  hive_discount_bas_inf
+    *
     * @author winslow yang
     * @param sqlContext
     * @param start_dt
@@ -1745,6 +1761,7 @@ object SparkHive2Mysql {
   /**
     *  dm-job-68 20160905
     *  DM_OFFLINE_POINT_TRANS_DLY
+    *
     * @author winslow yang
     * @param sqlContext
     */
@@ -1799,6 +1816,7 @@ object SparkHive2Mysql {
     * JOB_DM_69  2016-9-1
     * dm_disc_tkt_act_dly->hive_ticket_bill_bas_inf+hive_acc_trans
     * (使用分区part_trans_dt 中的数据)
+    *
     * @author tzq
     * @param sqlContext
     */
@@ -1898,6 +1916,7 @@ object SparkHive2Mysql {
   /**
     * JOB_DM_70  2016-8-30
     * dm_elec_tkt_act_dly->hive_ticket_bill_bas_inf+hive_acc_trans
+    *
     * @author tzq
     * @param sqlContext
     */
@@ -1999,6 +2018,7 @@ object SparkHive2Mysql {
   /**
     * JOB_DM_71  2016-8-31
     * dm_vchr_tkt_act_dly->hive_ticket_bill_bas_inf+hive_acc_trans
+    *
     * @author tzq
     * @param sqlContext
     */
@@ -2096,6 +2116,7 @@ object SparkHive2Mysql {
   /**
     * dm-job-72 20160901
     * dm_offline_point_act_dly->hive_offline_point_trans
+    *
     * @author winslow yang
     * @param sqlContext
     */
@@ -2176,6 +2197,7 @@ object SparkHive2Mysql {
     * JOB_DM_73/10-14
     * DM_PRIZE_ACT_BRANCH_DLY->HIVE_PRIZE_ACTIVITY_BAS_INF,HIVE_PRIZE_LVL,HIVE_PRIZE_DISCOUNT_RESULT
     * Code by Xue
+    *
     * @param sqlContext
     * @return
     */
@@ -2305,6 +2327,7 @@ object SparkHive2Mysql {
     * JOB_DM_74/10-14
     * DM_PRIZE_ACT_DLY->HIVE_PRIZE_ACTIVITY_BAS_INF,HIVE_PRIZE_LVL,HIVE_PRIZE_BAS,HIVE_PRIZE_DISCOUNT_RESULT
     * Code by Xue
+    *
     * @param sqlContext
     * @return
     */
@@ -2400,6 +2423,7 @@ object SparkHive2Mysql {
     * JOB_DM_75/10-14
     * DM_DISC_ACT_DLY->HIVE_PRIZE_DISCOUNT_RESULT,HIVE_DISCOUNT_BAS_INF
     * Code by Xue
+    *
     * @param sqlContext
     * @return
     */
@@ -2480,6 +2504,7 @@ object SparkHive2Mysql {
     * JOB_DM_76  2016-8-31
     * dm_auto_disc_cfp_tran->hive_prize_discount_result
     * code by tzq
+    *
     * @param sqlContext
     */
   def JOB_DM_76(implicit sqlContext: HiveContext,start_dt:String,end_dt:String,interval:Int) = {
@@ -2535,6 +2560,7 @@ object SparkHive2Mysql {
     * JOB_DM_78/10-14
     * DM_ISS_DISC_CFP_TRAN->HIVE_CARD_BIN,HIVE_CARD_BIND_INF,HIVE_ACTIVE_CARD_ACQ_BRANCH_MON
     * Code by Xue
+    *
     * @param sqlContext
     * @return
     */
@@ -2677,6 +2703,7 @@ object SparkHive2Mysql {
     * JOB_DM_86/10-14
     * DM_USER_REAL_NAME->HIVE_PRI_ACCT_INF
     * Code by Xue
+    *
     * @param sqlContext
     * @return
     */
@@ -2755,10 +2782,11 @@ object SparkHive2Mysql {
     * dm_cashier_stat_dly ->
     * FROM :
     * cup_branch_ins_id_nm
-      hive_cashier_point_acct_oper_dtl
-      hive_cashier_bas_inf
-      hive_cdhd_cashier_maktg_reward_dtl
-      hive_signer_log
+    * hive_cashier_point_acct_oper_dtl
+    * hive_cashier_bas_inf
+    * hive_cdhd_cashier_maktg_reward_dtl
+    * hive_signer_log
+    *
     * @author tzq
     * @param sqlContext
     */
