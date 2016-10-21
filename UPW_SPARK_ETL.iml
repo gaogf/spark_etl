@@ -4,26 +4,10 @@
     <output url="file://$MODULE_DIR$/target/classes" />
     <output-test url="file://$MODULE_DIR$/target/test-classes" />
     <content url="file://$MODULE_DIR$">
-      <sourceFolder url="file://$MODULE_DIR$/src/main/jdbc" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/main/resources" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/test/java" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/main" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/main/etl" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/main/constant" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/main/module" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/main/utils" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/main/conf" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/main/test" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/main/com" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/main/com/unionpay" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/main/com/unionpay/conf" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/main/com/unionpay/constant" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/main/com/unionpay/etl" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/main/com/unionpay/jdbc" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/main/com/unionpay/model" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/main/com/unionpay/test" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/main/com/unionpay/utils" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/main/com/unionpay/hql" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>
     <orderEntry type="inheritedJdk" />
