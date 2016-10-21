@@ -5,6 +5,7 @@ import java.util.Calendar
 import com.unionpay.conf.ConfigurationManager
 import com.unionpay.constant.Constants
 import com.unionpay.jdbc.DB2_JDBC.ReadDB2
+import com.unionpay.jdbc.UPSQL_TIMEPARAMS_JDBC
 import com.unionpay.utils.DateUtils
 import org.apache.spark.sql.hive.HiveContext
 import org.apache.spark.{SparkConf, SparkContext}
@@ -16,15 +17,8 @@ import org.joda.time.format.DateTimeFormat
   * Created by tzq on 2016/10/13.
   */
 object SparkDB22Hive {
-
   // Xue update formatted date -_-
   private  lazy  val dateFormatter=DateTimeFormat.forPattern("yyyy-MM-dd")
-
-  //指定作业运行时间范围
-  private lazy val start_dt=DateUtils.getYesterdayByJob(ConfigurationManager.getProperty(Constants.START_DT))
-  private lazy val end_dt=ConfigurationManager.getProperty(Constants.END_DT)
-  //计算间隔天数
-  private lazy val interval=DateUtils.getIntervalDays(start_dt,end_dt).toInt
   //指定HIVE数据库名
   private lazy val hive_dbname =ConfigurationManager.getProperty(Constants.HIVE_DBNAME)
 
@@ -35,22 +29,28 @@ object SparkDB22Hive {
     sc.setLogLevel("ERROR")
     implicit val sqlContext = new HiveContext(sc)
 
+    //从数据库中获取当前JOB的执行起始和结束日期
+    val rowParams=UPSQL_TIMEPARAMS_JDBC.readTimeParams(sqlContext)
+    val start_dt=DateUtils.getYesterdayByJob(rowParams.getString(0))//获取开始日期：start_dt-1
+    val end_dt=rowParams.getString(1)//结束日期
+    val interval=DateUtils.getIntervalDays(start_dt,end_dt).toInt
+
     println(s"####当前JOB的执行日期为：start_dt=$start_dt,end_dt=$end_dt####")
 
-    JOB_HV_3   //CODE BY YX
-//    JOB_HV_41  //未添加
-    JOB_HV_4   //CODE BY XTP
+    JOB_HV_3(sqlContext,start_dt,end_dt)   //CODE BY YX
+    //JOB_HV_41 //未添加
+    JOB_HV_4(sqlContext,start_dt,end_dt)   //CODE BY XTP
     JOB_HV_1   //CODE BY YX
-//    JOB_HV_5   //未添加
+    //JOB_HV_5   //未添加
     JOB_HV_15  //CODE BY TZQ  //测试出错，未解决
-//    JOB_HV_20  //未添加
-    JOB_HV_40  //CODE BY TZQ
-    JOB_HV_42  //CODE BY TZQ
-//    JOB_HV_50  //未添加
-//    JOB_HV_51  //未添加
-//    JOB_HV_66  //未添加
+    //JOB_HV_20  //未添加
+    JOB_HV_40(sqlContext,start_dt,end_dt)  //CODE BY TZQ
+    JOB_HV_42(sqlContext,start_dt,end_dt)  //CODE BY TZQ
+    //JOB_HV_50  //未添加
+    //JOB_HV_51  //未添加
+    //JOB_HV_66  //未添加
 
-   JOB_HV_8   //CODE BY XTP
+    JOB_HV_8(sqlContext,start_dt,end_dt)   //CODE BY XTP
     JOB_HV_9   //CODE BY TZQ
     JOB_HV_10  //CODE BY TZQ
     JOB_HV_11  //CODE BY TZQ
@@ -58,22 +58,22 @@ object SparkDB22Hive {
     JOB_HV_13  //CODE BY TZQ
     JOB_HV_14  //CODE BY TZQ
     JOB_HV_16  //CODE BY TZQ
-    JOB_HV_18  //CODE BY YX
+    JOB_HV_18(sqlContext,start_dt,end_dt)  //CODE BY YX
     JOB_HV_19  //CODE BY YX
     JOB_HV_23  //CODE BY TZQ
     JOB_HV_24  //CODE BY YX
     JOB_HV_25  //CODE BY XTP
     JOB_HV_26  //CODE BY TZQ
-    JOB_HV_28  //CODE BY XTP
-    JOB_HV_29  //CODE BY XTP
-    JOB_HV_30  //CODE BY YX
-    JOB_HV_31  //CODE BY XTP
-    JOB_HV_32  //CODE BY XTP
-    JOB_HV_33  //CODE BY XTP new added
+    JOB_HV_28(sqlContext,start_dt,end_dt)  //CODE BY XTP
+    JOB_HV_29(sqlContext,start_dt,end_dt)  //CODE BY XTP
+    JOB_HV_30(sqlContext,start_dt,end_dt)  //CODE BY YX
+    JOB_HV_31(sqlContext,start_dt,end_dt)  //CODE BY XTP
+    JOB_HV_32(sqlContext,start_dt,end_dt)  //CODE BY XTP
+    JOB_HV_33(sqlContext,start_dt,end_dt)  //CODE BY XTP new added
     JOB_HV_36  //CODE BY YX
     JOB_HV_37  //CODE BY TZQ
     JOB_HV_38  //CODE BY TZQ
-    JOB_HV_43  //CODE BY YX
+    JOB_HV_43(sqlContext,start_dt,end_dt)  //CODE BY YX
     JOB_HV_44  //CODE BY TZQ
     JOB_HV_46  //CODE BY XTP
     JOB_HV_47  //CODE BY XTP
@@ -145,13 +145,14 @@ object SparkDB22Hive {
   }
 
   /**
-    *  hive-job-03/08-19
-    *  tbl_chacc_cdhd_pri_acct_inf -> hive_pri_acct_inf
-    *
+    * hive-job-03/08-19
+    * tbl_chacc_cdhd_pri_acct_inf -> hive_pri_acct_inf
     * @author winslow yang
     * @param sqlContext
+    * @param start_dt
+    * @param end_dt
     */
-  def JOB_HV_3(implicit sqlContext: HiveContext) = {
+  def JOB_HV_3(implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
     println("###JOB_HV_3(ch_accdb.tbl_chacc_cdhd_pri_acct_inf)")
     val df1 = sqlContext.jdbc_accdb_DF("ch_accdb.tbl_chacc_cdhd_pri_acct_inf")
     df1.registerTempTable("db2_pri_acct_inf")
@@ -319,11 +320,11 @@ object SparkDB22Hive {
     * JOB_HV_4/10-14
     * hive_acc_trans->viw_chacc_acc_trans_dtl
     * Code by Xue
-    *
     * @param sqlContext
-    * @return
+    * @param start_dt
+    * @param end_dt
     */
-  def JOB_HV_4 (implicit sqlContext: HiveContext) = {
+  def JOB_HV_4 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
     val df2_1 = sqlContext.jdbc_accdb_DF("ch_accdb.viw_chacc_acc_trans_dtl")
     println("分区数为:" + {
       df2_1.rdd.getNumPartitions
@@ -592,11 +593,12 @@ object SparkDB22Hive {
     * JOB_HV_8/10-14
     * HIVE_STORE_TERM_RELATION->TBL_CHMGM_STORE_TERM_RELATION
     * Code by Xue
-    *
     * @param sqlContext
+    * @param start_dt
+    * @param end_dt
     * @return
     */
-  def JOB_HV_8 (implicit sqlContext: HiveContext) =  {
+  def JOB_HV_8 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String) =  {
     val df2_1 = sqlContext.jdbc_mgmdb_DF("ch_mgmdb.TBL_CHMGM_STORE_TERM_RELATION")
     println("分区数为:" + {
       df2_1.rdd.getNumPartitions
@@ -711,7 +713,6 @@ object SparkDB22Hive {
   /**
     * JOB_HV_9/08-23
     * hive_preferential_mchnt_inf->tbl_chmgm_preferential_mchnt_inf
-    *
     * @author tzq
     * @param sqlContext
     * @return
@@ -1506,16 +1507,15 @@ object SparkDB22Hive {
   }
 
 
-
   /**
     * hive-job-18 2016-08-26
     * viw_chmgm_trans_his -> hive_download_trans
-    *
-    * @author tzq
     * @author winslow yang
     * @param sqlContext
+    * @param start_dt
+    * @param end_dt
     */
-  def JOB_HV_18(implicit sqlContext: HiveContext) = {
+  def JOB_HV_18(implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
     println("###JOB_HV_18(viw_chmgm_trans_his -> hive_download_trans)")
     val df = sqlContext.jdbc_mgmdb_DF("CH_MGMDB.VIW_CHMGM_TRANS_HIS")
     df.registerTempTable("db2_trans_his")
@@ -1904,16 +1904,15 @@ object SparkDB22Hive {
   }
 
 
-
   /**
     * JOB_HV_28/10-14
     * hive_online_point_trans->viw_chacc_online_point_trans_inf
     * Code by Xue
-    *
     * @param sqlContext
-    * @return
+    * @param start_dt
+    * @param end_dt
     */
-  def JOB_HV_28 (implicit sqlContext: HiveContext) = {
+  def JOB_HV_28 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
     val df2_1 = sqlContext.jdbc_accdb_DF("ch_accdb.viw_chacc_online_point_trans_inf")
     println("分区数为:" + {
       df2_1.rdd.getNumPartitions
@@ -2041,11 +2040,11 @@ object SparkDB22Hive {
     * JOB_HV_29/10-14
     * hive_offline_point_trans->tbl_chacc_cdhd_point_addup_dtl
     * Code by Xue
-    *
     * @param sqlContext
-    * @return
+    * @param start_dt
+    * @param end_dt
     */
-  def JOB_HV_29 (implicit sqlContext: HiveContext) = {
+  def JOB_HV_29 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
     val df2_1 = sqlContext.jdbc_accdb_DF("ch_accdb.tbl_chacc_cdhd_point_addup_dtl")
     println("分区数为:" + {
       df2_1.rdd.getNumPartitions
@@ -2215,14 +2214,15 @@ object SparkDB22Hive {
   }
 
 
-
   /**
     * hive-job-30 2016-08-22
     * viw_chacc_code_pay_tran_dtl -> hive_passive_code_pay_trans
-    *
+    * @author yangxue
     * @param sqlContext
+    * @param start_dt
+    * @param end_dt
     */
-  def JOB_HV_30(implicit sqlContext: HiveContext) = {
+  def JOB_HV_30(implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
     println("###JOB_HV_30(viw_chacc_code_pay_tran_dtl -> hive_passive_code_pay_trans)")
     sqlContext.sql(s"use $hive_dbname")
     val df = sqlContext.jdbc_accdb_DF("CH_ACCDB.VIW_CHACC_CODE_PAY_TRAN_DTL")
@@ -2320,12 +2320,11 @@ object SparkDB22Hive {
     * JOB_HV_31/10-14
     * HIVE_BILL_ORDER_TRANS->VIW_CHMGM_BILL_ORDER_AUX_INF
     * Code by Xue
-    *
     * @param sqlContext
-    * @return
+    * @param start_dt
+    * @param end_dt
     */
-
-  def JOB_HV_31 (implicit sqlContext: HiveContext) = {
+  def JOB_HV_31 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
     val df2_1 = sqlContext.jdbc_mgmdb_DF("ch_mgmdb.VIW_CHMGM_BILL_ORDER_AUX_INF")
     println("分区数为:" + {
       df2_1.rdd.getNumPartitions
@@ -2459,9 +2458,11 @@ object SparkDB22Hive {
     * hive_prize_discount_result->tbl_umsvc_prize_discount_result
     * Code by Xue
     * @param sqlContext
+    * @param start_dt
+    * @param end_dt
     * @return
     */
-  def JOB_HV_32 (implicit sqlContext: HiveContext) = {
+  def JOB_HV_32 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
     val df2_1 = sqlContext.jdbc_mgmdb_DF("ch_mgmdb.tbl_umsvc_prize_discount_result")
     println("分区数为:" + {
       df2_1.rdd.getNumPartitions
@@ -2602,20 +2603,18 @@ object SparkDB22Hive {
     * JOB_HV_33/10-19
     * hive_bill_sub_order_trans->VIW_CHMGM_BILL_SUB_ORDER_DETAIL_INF
     * Code by Xue
+    * @param start_dt
+    * @param end_dt
     * @param sqlContext
     * @return
     */
-
-  def JOB_HV_33(implicit sqlContext: HiveContext) = {
+  def JOB_HV_33(implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
     val df2_1 = sqlContext.jdbc_mgmdb_DF("ch_mgmdb.VIW_CHMGM_BILL_SUB_ORDER_DETAIL_INF")
     println("分区数为:" + {
       df2_1.rdd.getNumPartitions
     })
     df2_1.printSchema()
     df2_1.registerTempTable("VIW_CHMGM_BILL_SUB_ORDER_DETAIL_INF")
-
-    val start_dt = "2016-09-08"
-    val end_dt = "2016-09-09"
 
     val results = sqlContext.sql(
       s"""
@@ -2876,17 +2875,15 @@ object SparkDB22Hive {
 
 
   /**
-    *
     * hive-job-40/08-22
     * hive_life_trans->  hive_achis_trans（分区字段格式为：part_hp_settle_dt=2016-04-13）
-    *
-    * 报错：（但不影响程序运行）
-    * ERROR hdfs.KeyProviderCache: Could not find uri with key [dfs.encryption.key.provider.uri] to create a keyProvider !!
-    *
+    * @author tzq
     * @param sqlContext
+    * @param start_dt
+    * @param end_dt
     * @return
     */
-  def JOB_HV_40(implicit sqlContext: HiveContext) = {
+  def JOB_HV_40(implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
     println("###JOB_HV_40(hive_life_trans -> hive_achis_trans)")
 
     //1.1格式化日期
@@ -3139,12 +3136,14 @@ object SparkDB22Hive {
   /**
     * hive-job-42  2016年10月11日 星期二
     * hive_active_code_pay_trans-->hive_achis_trans
-    *
+    * @author tzq
     * @param sqlContext
+    * @param start_dt
+    * @param end_dt
     * @return
     */
-  def JOB_HV_42(implicit sqlContext: HiveContext) = {
-    println("job42---------->JOB_HV_42( hive_active_code_pay_trans-> hive_achis_trans)")
+  def JOB_HV_42(implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
+    println("###JOB_HV_42( hive_active_code_pay_trans-> hive_achis_trans)")
 
     //1.1格式化日期
     val dateFormat = new SimpleDateFormat("yyyy-MM-dd")
@@ -3378,8 +3377,10 @@ object SparkDB22Hive {
     *
     * @author winslow yang
     * @param sqlContext
+    * @param start_dt
+    * @param end_dt
     */
-  def JOB_HV_43(implicit sqlContext: HiveContext) = {
+  def JOB_HV_43(implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
     println("###JOB_HV_43(viw_chmgm_swt_log -> hive_switch_point_trans)")
     sqlContext.sql(s"use $hive_dbname")
     val df = sqlContext.jdbc_mgmdb_DF("CH_MGMDB.VIW_CHMGM_SWT_LOG")
