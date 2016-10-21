@@ -1,20 +1,14 @@
 package com.unionpay.etl
 import com.unionpay.conf.ConfigurationManager
 import com.unionpay.constant.Constants
-import com.unionpay.utils.DateUtils
+import com.unionpay.jdbc.UPSQL_TIMEPARAMS_JDBC
 import org.apache.spark.SparkConf
 import org.apache.spark.SparkContext
-import org.apache.spark.sql.SQLContext
 import org.apache.spark.sql.hive.HiveContext
 /**
   * UP HIVE -> UPW HIVE
   */
 object SparkUPH2H {
-
-  //计算开始日期：start_dt-1
-  private  val start_dt=DateUtils.getYesterdayByJob(ConfigurationManager.getProperty(Constants.START_DT))
-  //结束日期
-  private  val end_dt=ConfigurationManager.getProperty(Constants.END_DT)
   //UP NAMENODE URL
   private val up_namenode=ConfigurationManager.getProperty(Constants.UP_NAMENODE)
   //UP HIVE DATA ROOT URL
@@ -28,9 +22,12 @@ object SparkUPH2H {
     sc.setLogLevel("ERROR")
     implicit val sqlContext = new HiveContext(sc)
 
-    JOB_HV_39 //hive-job40依赖
+    val rowParams=UPSQL_TIMEPARAMS_JDBC.readTimeParams(sqlContext)
+    val end_dt=rowParams.getString(1)//结束日期(未减一处理)
+
+    JOB_HV_39(sqlContext,end_dt) //hive-job40依赖
     JOB_HV_49 //hive-job3依赖
-    JOB_HV_52 //
+    JOB_HV_52(sqlContext,end_dt)
 
     sc.stop()
   }
@@ -41,7 +38,7 @@ object SparkUPH2H {
     * @author winslow yang
     * @param sqlContext
     */
-  def JOB_HV_39(implicit sqlContext: SQLContext) = {
+  def JOB_HV_39(implicit sqlContext: HiveContext,end_dt:String) = {
 
     println("######JOB_HV_39######")
 
@@ -87,7 +84,7 @@ object SparkUPH2H {
     * @author winslow yang
     * @param sqlContext
     */
-  def JOB_HV_52(implicit sqlContext: HiveContext) = {
+  def JOB_HV_52(implicit sqlContext: HiveContext,end_dt:String) = {
 
     println("######JOB_HV_52######")
     val part_dt = end_dt.substring(0,7)
