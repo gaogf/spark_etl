@@ -3,6 +3,7 @@ package com.unionpay.etl
 import com.unionpay.conf.ConfigurationManager
 import com.unionpay.constant.Constants
 import com.unionpay.jdbc.UPSQL_JDBC
+import com.unionpay.jdbc.UPSQL_TIMEPARAMS_JDBC
 import com.unionpay.jdbc.UPSQL_JDBC.DataFrame2Mysql
 import com.unionpay.utils.DateUtils
 import org.apache.spark.sql.hive.HiveContext
@@ -12,13 +13,6 @@ import org.apache.spark.{SparkConf, SparkContext}
   * Created by tzq on 2016/10/13.
   */
 object SparkHive2Mysql {
-
-  //计算开始日期：start_dt-1
-  private lazy val start_dt=DateUtils.getYesterdayByJob(ConfigurationManager.getProperty(Constants.START_DT))
-  //结束日期
-  private lazy val end_dt=ConfigurationManager.getProperty(Constants.END_DT)
-  //计算间隔天数
-  private lazy val interval=DateUtils.getIntervalDays(start_dt,end_dt).toInt
   //指定HIVE数据库名
   private lazy val hive_dbname =ConfigurationManager.getProperty(Constants.HIVE_DBNAME)
 
@@ -27,35 +21,41 @@ object SparkHive2Mysql {
     val sc = new SparkContext(conf)
     sc.setLogLevel("ERROR")
     implicit val sqlContext = new HiveContext(sc)
+
+    val rowParams=UPSQL_TIMEPARAMS_JDBC.readTimeParams(sqlContext)
+    val start_dt=DateUtils.getYesterdayByJob(rowParams.getString(0))//获取开始日期：start_dt-1
+    val end_dt=rowParams.getString(1)//结束日期
+    val interval=DateUtils.getIntervalDays(start_dt,end_dt).toInt
+
     println(s"####当前JOB的执行日期为：start_dt=$start_dt,end_dt=$end_dt####")
 
-//    JOB_DM_1    //CODE BY YX
-//    JOB_DM_2    //CODE BY XTP
-//    JOB_DM_3    //CODE BY YX
-//    JOB_DM_4    //CODE BY XTP
-//    JOB_DM_5    //CODE BY TZQ
-//    JOB_DM_6    //CODE BY TZQ
-//    JOB_DM_9    //CODE BY XTP
-//    JOB_DM_54   //CODE BY XTP  属于指标套表，不属于每日模板，无数据
-//    JOB_DM_55   //CODE BY TZQ
-//    JOB_DM_61   //CODE BY YX
-//    JOB_DM_62   //CODE BY TZQ
-//    JOB_DM_63   //CODE BY XTP
-//    JOB_DM_65   //CODE BY XTP
-//    JOB_DM_66   //CODE BY TZQ
-//    JOB_DM_67   //CODE BY YX
-//    JOB_DM_68   //CODE BY YX
-//    JOB_DM_69   //CODE BY TZQ
-//    JOB_DM_70   //CODE BY TZQ
-//    JOB_DM_71   //CODE BY TZQ
-//    JOB_DM_72   //CODE BY YX
-//    JOB_DM_73   //CODE BY XTP
-//    JOB_DM_74   //CODE BY XTP
-//    JOB_DM_75   //CODE BY XTP
-//    JOB_DM_76   //CODE BY TZQ
-//    JOB_DM_78   //CODE BY XTP
-//    JOB_DM_86   //CODE BY XTP
-//    JOB_DM_87   //CODE BY TZQ
+    JOB_DM_1(sqlContext,start_dt,end_dt,interval)    //CODE BY YX
+    JOB_DM_2(sqlContext,start_dt,end_dt,interval)    //CODE BY XTP
+    JOB_DM_3(sqlContext,start_dt,end_dt,interval)    //CODE BY YX
+    JOB_DM_4(sqlContext,start_dt,end_dt,interval)    //CODE BY XTP
+    JOB_DM_5(sqlContext,start_dt,end_dt,interval)    //CODE BY TZQ
+    JOB_DM_6(sqlContext,start_dt,end_dt,interval)    //CODE BY TZQ
+    JOB_DM_9(sqlContext,start_dt,end_dt,interval)    //CODE BY XTP
+    JOB_DM_54(sqlContext,start_dt,end_dt)   //CODE BY XTP  属于指标套表，不属于每日模板，无数据
+    JOB_DM_55(sqlContext,start_dt,end_dt)   //CODE BY TZQ
+    JOB_DM_61(sqlContext,start_dt,end_dt,interval)   //CODE BY YX
+    JOB_DM_62(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ
+    JOB_DM_63(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP
+    JOB_DM_65(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP
+    JOB_DM_66(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ
+    JOB_DM_67(sqlContext,start_dt,end_dt)   //CODE BY YX
+    JOB_DM_68(sqlContext,start_dt,end_dt)   //CODE BY YX
+    JOB_DM_69(sqlContext,start_dt,end_dt)   //CODE BY TZQ
+    JOB_DM_70(sqlContext,start_dt,end_dt)   //CODE BY TZQ
+    JOB_DM_71(sqlContext,start_dt,end_dt)   //CODE BY TZQ
+    JOB_DM_72(sqlContext,start_dt,end_dt)   //CODE BY YX
+    JOB_DM_73(sqlContext,start_dt,end_dt)   //CODE BY XTP
+    JOB_DM_74(sqlContext,start_dt,end_dt)   //CODE BY XTP
+    JOB_DM_75(sqlContext,start_dt,end_dt)   //CODE BY XTP
+    JOB_DM_76(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ
+    JOB_DM_78(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP
+    JOB_DM_86(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP
+    JOB_DM_87(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ
 
     sc.stop()
 
@@ -67,7 +67,7 @@ object SparkHive2Mysql {
     * @author winslow yang
     * @param sqlContext
     */
-  def JOB_DM_1(implicit sqlContext: HiveContext) = {
+  def JOB_DM_1(implicit sqlContext: HiveContext,start_dt:String,end_dt:String,interval:Int) = {
     println("###JOB_DM_1(dm_user_card_nature->hive_pri_acct_inf)")
 
     UPSQL_JDBC.delete("dm_user_mobile_home","report_dt",start_dt,end_dt)
@@ -172,7 +172,7 @@ object SparkHive2Mysql {
     * @return
     */
 
-  def JOB_DM_2 (implicit sqlContext: HiveContext) = {
+  def JOB_DM_2 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String,interval:Int) = {
     println("###JOB_DM_2(dm_user_idcard_home->hive_pri_acct_inf,hive_acc_trans)")
     UPSQL_JDBC.delete("dm_user_idcard_home","report_dt",start_dt,end_dt)
 
@@ -255,7 +255,7 @@ object SparkHive2Mysql {
     * @author winslow yang
     * @param sqlContext
     */
-  def JOB_DM_3(implicit sqlContext: HiveContext) = {
+  def JOB_DM_3(implicit sqlContext: HiveContext,start_dt:String,end_dt:String,interval:Int) = {
     println("###JOB_DM_3(dm_user_regist_channel->hive_pri_acct_inf+hive_inf_source_dtl+hive_acc_trans+hive_card_bind_inf+hive_inf_source_class)")
 
     UPSQL_JDBC.delete("dm_user_regist_channel","report_dt",start_dt,end_dt)
@@ -454,7 +454,7 @@ object SparkHive2Mysql {
     * @param sqlContext
     * @return
     */
-  def JOB_DM_4 (implicit sqlContext: HiveContext) = {
+  def JOB_DM_4 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String,interval:Int) = {
     println("###JOB_DM_4(dm_user_card_auth->hive_pri_acct_inf,hive_card_bind_inf,hive_acc_trans)")
     UPSQL_JDBC.delete("DM_USER_CARD_AUTH","REPORT_DT",start_dt,end_dt)
     var today_dt=start_dt
@@ -548,7 +548,7 @@ object SparkHive2Mysql {
     * @author tzq
     * @param sqlContext
     */
-  def JOB_DM_5(implicit sqlContext: HiveContext) = {
+  def JOB_DM_5(implicit sqlContext: HiveContext,start_dt:String,end_dt:String,interval:Int) = {
 
     println("###JOB_DM_5(dm_user_card_iss->hive_pri_acct_inf+hive_acc_trans+hive_card_bind_inf+hive_card_bin)")
 
@@ -634,7 +634,7 @@ object SparkHive2Mysql {
     * @author tzq
     * @param sqlContext
     */
-  def JOB_DM_6(implicit sqlContext: HiveContext) = {
+  def JOB_DM_6(implicit sqlContext: HiveContext,start_dt:String,end_dt:String,interval:Int) = {
 
     println("JOB_DM_6------->JOB_DM_6(dm_user_card_nature->hive_pri_acct_inf+hive_card_bind_inf+hive_acc_trans)")
 
@@ -732,7 +732,7 @@ object SparkHive2Mysql {
     * @param sqlContext
     * @return
     */
-  def JOB_DM_9 (implicit sqlContext: HiveContext) = {
+  def JOB_DM_9 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String,interval:Int) = {
     println("###JOB_DM_9(dm_store_domain_branch_company->hive_mchnt_inf_wallet,hive_preferential_mchnt_inf,hive_mchnt_tp,hive_mchnt_tp_grp)")
     UPSQL_JDBC.delete(s"DM_STORE_DOMAIN_BRANCH_COMPANY","REPORT_DT",start_dt,end_dt)
     var today_dt=start_dt
@@ -824,7 +824,7 @@ object SparkHive2Mysql {
     * Code by Xue
     * @param sqlContext
     */
-  def JOB_DM_54 (implicit sqlContext: HiveContext) = {
+  def JOB_DM_54 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
     println("###JOB_DM_54(dm_val_tkt_act_mchnt_tp_dly->hive_bill_order_trans,hive_bill_sub_order_trans)")
     UPSQL_JDBC.delete(s"DM_VAL_TKT_ACT_MCHNT_TP_DLY","REPORT_DT",s"$start_dt",s"$end_dt")
     sqlContext.sql(s"use $hive_dbname")
@@ -988,7 +988,7 @@ object SparkHive2Mysql {
     * @author tzq
     * @param sqlContext
     */
-  def JOB_DM_55(implicit sqlContext: HiveContext) = {
+  def JOB_DM_55(implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
 
     println("###JOB_DM_55-----JOB_DM_55(dm_disc_act_branch_dly->hive_prize_discount_result)")
 
@@ -1040,7 +1040,7 @@ object SparkHive2Mysql {
     * @param start_dt
     * @param end_dt
     */
-  def JOB_DM_61(implicit sqlContext: HiveContext) = {
+  def JOB_DM_61(implicit sqlContext: HiveContext,start_dt:String,end_dt:String,interval:Int) = {
     println("###JOB_DM_61(dm_cashier_cup_red_branch->hive_cdhd_cashier_maktg_reward_dtl)")
 
     UPSQL_JDBC.delete("dm_cashier_cup_red_branch","report_dt",start_dt,end_dt)
@@ -1079,7 +1079,7 @@ object SparkHive2Mysql {
     * @author tzq
     * @param sqlContext
     */
-  def JOB_DM_62(implicit sqlContext: HiveContext) = {
+  def JOB_DM_62(implicit sqlContext: HiveContext,start_dt:String,end_dt:String,interval:Int) = {
     println("###JOB_DM_62-----JOB_DM_62(dm_usr_auther_nature_tie_card->hive_card_bind_inf)")
 
     UPSQL_JDBC.delete("dm_usr_auther_nature_tie_card","report_dt",start_dt,end_dt)
@@ -1136,7 +1136,7 @@ object SparkHive2Mysql {
     * @param sqlContext
     * @return
     */
-  def JOB_DM_63 (implicit sqlContext: HiveContext) = {
+  def JOB_DM_63 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String,interval:Int) = {
     println("###JOB_DM_63(dm_life_serve_business_trans->hive_life_trans)")
     UPSQL_JDBC.delete(s"DM_LIFE_SERVE_BUSINESS_TRANS","REPORT_DT",start_dt,end_dt)
     var today_dt=start_dt
@@ -1195,7 +1195,7 @@ object SparkHive2Mysql {
     * @param sqlContext
     * @return
     */
-  def JOB_DM_65 (implicit sqlContext: HiveContext) = {
+  def JOB_DM_65 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String,interval:Int) = {
     println("###JOB_DM_65(dm_hce_coupon_tran->hive_ticket_bill_bas_inf)")
     UPSQL_JDBC.delete(s"DM_HCE_COUPON_TRAN","REPORT_DT",start_dt,end_dt)
     var today_dt=start_dt
@@ -1308,7 +1308,7 @@ object SparkHive2Mysql {
     * @author tzq
     * @param sqlContext
     */
-  def JOB_DM_66(implicit sqlContext: HiveContext) = {
+  def JOB_DM_66(implicit sqlContext: HiveContext,start_dt:String,end_dt:String,interval:Int) = {
     println("###JOB_DM_66(dm_coupon_cfp_tran->hive_acc_trans+hive_ticket_bill_bas_inf)")
 
     UPSQL_JDBC.delete("dm_coupon_cfp_tran","report_dt",start_dt,end_dt)
@@ -1387,7 +1387,7 @@ object SparkHive2Mysql {
     * @param start_dt
     * @param end_dt
     */
-  def JOB_DM_67(implicit sqlContext: HiveContext) = {
+  def JOB_DM_67(implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
     println("###JOB_DM_67(dm_o2o_trans_dly)")
 
     UPSQL_JDBC.delete("dm_o2o_trans_dly","report_dt",start_dt,end_dt)
@@ -1725,7 +1725,7 @@ object SparkHive2Mysql {
          |                    trans.settle_dt) h
          |        on
          |            (
-         |                a.cup_branch_ins_id_nm = g.cup_branch_ins_id_nm
+         |                a.cup_branch_ins_id_nm = h.cup_branch_ins_id_nm
          |            and a.trans_dt = h.trans_dt)) t
          |group by
          |    t.cup_branch_ins_id_nm,
@@ -1748,7 +1748,7 @@ object SparkHive2Mysql {
     * @author winslow yang
     * @param sqlContext
     */
-  def JOB_DM_68(implicit sqlContext: HiveContext) = {
+  def JOB_DM_68(implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
     println("###JOB_DM_68(dm_offline_point_trans_dly)")
 
 
@@ -1802,7 +1802,7 @@ object SparkHive2Mysql {
     * @author tzq
     * @param sqlContext
     */
-  def JOB_DM_69(implicit sqlContext: HiveContext) = {
+  def JOB_DM_69(implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
     println("###JOB_DM_69-----JOB_DM_69(dm_disc_tkt_act_dly->hive_ticket_bill_bas_inf+hive_acc_trans)")
 
     UPSQL_JDBC.delete("dm_disc_tkt_act_dly","report_dt",start_dt,end_dt);
@@ -1901,7 +1901,7 @@ object SparkHive2Mysql {
     * @author tzq
     * @param sqlContext
     */
-  def JOB_DM_70(implicit sqlContext: HiveContext) = {
+  def JOB_DM_70(implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
     println("###JOB_DM_70-----JOB_DM_70(dm_elec_tkt_act_dly->hive_ticket_bill_bas_inf+hive_acc_trans)")
 
     UPSQL_JDBC.delete("dm_elec_tkt_act_dly","report_dt",start_dt,end_dt);
@@ -2002,7 +2002,7 @@ object SparkHive2Mysql {
     * @author tzq
     * @param sqlContext
     */
-  def JOB_DM_71(implicit sqlContext: HiveContext) = {
+  def JOB_DM_71(implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
 
     println("###JOB_DM_71-----JOB_DM_71(dm_vchr_tkt_act_dly->hive_ticket_bill_bas_inf+hive_acc_trans)")
 
@@ -2099,7 +2099,7 @@ object SparkHive2Mysql {
     * @author winslow yang
     * @param sqlContext
     */
-  def JOB_DM_72(implicit sqlContext: HiveContext) = {
+  def JOB_DM_72(implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
     println("###JOB_DM_72(dm_offline_point_act_dly->hive_offline_point_trans)")
 
     UPSQL_JDBC.delete("dm_offline_point_act_dly","report_dt",start_dt,end_dt)
@@ -2179,7 +2179,7 @@ object SparkHive2Mysql {
     * @param sqlContext
     * @return
     */
-  def JOB_DM_73 (implicit sqlContext: HiveContext) = {
+  def JOB_DM_73 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
     UPSQL_JDBC.delete(s"DM_PRIZE_ACT_BRANCH_DLY","REPORT_DT",s"$start_dt",s"$end_dt")
     sqlContext.sql(s"use $hive_dbname")
     val results = sqlContext.sql(
@@ -2308,7 +2308,7 @@ object SparkHive2Mysql {
     * @param sqlContext
     * @return
     */
-  def JOB_DM_74 (implicit sqlContext: HiveContext) = {
+  def JOB_DM_74 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
     UPSQL_JDBC.delete(s"DM_PRIZE_ACT_DLY","REPORT_DT",s"$start_dt",s"$end_dt")
     sqlContext.sql(s"use $hive_dbname")
     val results = sqlContext.sql(
@@ -2403,7 +2403,7 @@ object SparkHive2Mysql {
     * @param sqlContext
     * @return
     */
-  def JOB_DM_75 (implicit sqlContext: HiveContext) = {
+  def JOB_DM_75 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
     UPSQL_JDBC.delete(s"DM_DISC_ACT_DLY","REPORT_DT",s"$start_dt",s"$end_dt")
     sqlContext.sql(s"use $hive_dbname")
     val results = sqlContext.sql(
@@ -2479,9 +2479,10 @@ object SparkHive2Mysql {
   /**
     * JOB_DM_76  2016-8-31
     * dm_auto_disc_cfp_tran->hive_prize_discount_result
+    * code by tzq
     * @param sqlContext
     */
-  def JOB_DM_76(implicit sqlContext: HiveContext) = {
+  def JOB_DM_76(implicit sqlContext: HiveContext,start_dt:String,end_dt:String,interval:Int) = {
 
     println("###JOB_DM_76(dm_auto_disc_cfp_tran->hive_prize_discount_result)")
 
@@ -2537,7 +2538,7 @@ object SparkHive2Mysql {
     * @param sqlContext
     * @return
     */
-  def JOB_DM_78 (implicit sqlContext: HiveContext) = {
+  def JOB_DM_78 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String,interval:Int) = {
     UPSQL_JDBC.delete(s"DM_ISS_DISC_CFP_TRAN","REPORT_DT",start_dt,end_dt)
     var today_dt=start_dt
     if(interval>0 ){
@@ -2679,7 +2680,7 @@ object SparkHive2Mysql {
     * @param sqlContext
     * @return
     */
-  def JOB_DM_86 (implicit sqlContext: HiveContext) = {
+  def JOB_DM_86 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String,interval:Int) = {
     UPSQL_JDBC.delete(s"DM_USER_REAL_NAME","REPORT_DT",start_dt,end_dt)
     var today_dt=start_dt
     if(interval>0 ){
@@ -2761,7 +2762,7 @@ object SparkHive2Mysql {
     * @author tzq
     * @param sqlContext
     */
-  def JOB_DM_87(implicit sqlContext: HiveContext) = {
+  def JOB_DM_87(implicit sqlContext: HiveContext,start_dt:String,end_dt:String,interval:Int) = {
 
     println("###JOB_DM_87(dm_cashier_stat_dly->hive_cashier_bas_inf+cup_branch_ins_id_nm+hive_cashier_point_acct_oper_dtl+hive_cdhd_cashier_maktg_reward_dtl+hive_signer_log)")
 
