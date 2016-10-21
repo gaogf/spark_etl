@@ -1,63 +1,34 @@
 package com.unionpay.etl
-
-
-import java.io.FileOutputStream
-import java.io.File
-import java.util.{Date, Properties}
-
-import com.typesafe.config.Config
-import com.unionpay.conf.ConfigurationManager
-import com.unionpay.constant.Constants
+import java.util.Date
+import com.unionpay.jdbc.UPSQL_TIMEPARAMS_JDBC
 import com.unionpay.utils.DateUtils
+import org.apache.spark.sql.hive.HiveContext
+import org.apache.spark.{SparkConf, SparkContext}
 
 /**
-  * 时间调度器
+  * 重抽历史设置调度的时间区间，接收2个时间参数,格式为：yyyy-MM-dd
+  * 每日每日调度不传参
   * Created by tzq on 2016/10/19.
   */
 object TimeScheduler {
-  private lazy val prop =new Properties()
-
   def main(args: Array[String]): Unit = {
-    val filePath=this.getClass.getClassLoader.getResource(ConfigurationManager.getProperty(Constants.UPW_PROP)).getPath()
-    println(s"配置文件路径：$filePath")
-    //若未传值则取当前系统时间减一天（即：昨天）
-    val start_dt=if(args.length>1) args(0) else DateUtils.getYesterdayByJob(DateUtils.dateFormat.format(new Date()))
-    val end_dt=if(args.length>1) args(1) else DateUtils.getYesterdayByJob(DateUtils.dateFormat.format(new Date()))
+    val conf = new SparkConf().setAppName("TimeScheduler")
+    val sc = new SparkContext(conf)
+    sc.setLogLevel("ERROR")
+    implicit val sqlContext = new HiveContext(sc)
 
-    load()//加载配置文件
+    //先获取并查看上一次的调度日期
+    val rowParams=UPSQL_TIMEPARAMS_JDBC.readTimeParams(sqlContext)
+    println("###上次调度的是日期为：start_dt:"+rowParams.getString(0)+"  end_dt:"+rowParams.getString(1))
 
-    writeProperties(Constants.START_DT,start_dt,filePath)
-    writeProperties(Constants.END_DT,end_dt,filePath)
-  }
+    //注： 传入参数则取参数日期，没有参数则默认系统时间减一天
+   val start_dt=if(args.length>=2) args(0) else DateUtils.getYesterdayByJob(DateUtils.dateFormat.format(new Date()))
+   val end_dt=if(args.length>=2) args(1) else DateUtils.getYesterdayByJob(DateUtils.dateFormat.format(new Date()))
 
-  def load(): Unit ={
-    val in=this.getClass.getClassLoader.getResourceAsStream(ConfigurationManager.getProperty(Constants.UPW_PROP))
-    try{
-      prop.load(in)
-    }catch {
-      case e: Exception => e.printStackTrace()
-    }finally {
-      in.close()
-    }
+    UPSQL_TIMEPARAMS_JDBC.save2Mysql(sc,sqlContext,start_dt,end_dt)
+    println(s"###保存当前调度的时间(start_dt:$start_dt,end_dt:$end_dt)成功！")
 
   }
 
-  /**
-    * 更新配置文件
-    * @param key
-    * @param value
-    * @param filePath
-    */
-  def writeProperties(key:String,value:String,filePath:String): Unit ={
-    val fos=new FileOutputStream(filePath,false)
-    try {
-      prop.setProperty(key,value)
-      prop.store(fos, "SET SCHEDULER TIME")
-      println(s"当前修改的键为 : $key 值为：$value")
-    } catch {
-      case e: Exception => e.printStackTrace()
-    }finally {
-      fos.close()
-    }
-  }
 }
+

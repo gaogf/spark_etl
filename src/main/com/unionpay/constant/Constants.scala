@@ -17,8 +17,11 @@ object Constants {
   val UPSQL_DRIVER = "upsql.driver"
   val UPSQL_URL="upsql.url"
 
+  //upsql time scheduler params
+  val UPSQL_PARAMS_URL="upsql.params.url"
+  val UPSQL_PARAMS_TABLE="upsql.params.table"
 
-  //Db2 Connection
+  //Db2 connection
   val DB2_USER="db2.user"
   val DB2_PASSWORD ="db2.password"
   val DB2_URL_ACCDB="db2.url_accdb"
