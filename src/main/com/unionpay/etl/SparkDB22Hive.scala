@@ -37,53 +37,53 @@ object SparkDB22Hive {
 
     println(s"####当前JOB的执行日期为：start_dt=$start_dt,end_dt=$end_dt####")
 
-//    JOB_HV_3   //CODE BY YX
+    JOB_HV_3   //CODE BY YX
 //    JOB_HV_41  //未添加
-//    JOB_HV_4   //CODE BY XTP
-//    JOB_HV_1   //CODE BY YX
+    JOB_HV_4   //CODE BY XTP
+    JOB_HV_1   //CODE BY YX
 //    JOB_HV_5   //未添加
-//    JOB_HV_15  //CODE BY TZQ  //测试出错，未解决
+    JOB_HV_15  //CODE BY TZQ  //测试出错，未解决
 //    JOB_HV_20  //未添加
-//    JOB_HV_40  //CODE BY TZQ
-//    JOB_HV_42  //CODE BY TZQ
+    JOB_HV_40  //CODE BY TZQ
+    JOB_HV_42  //CODE BY TZQ
 //    JOB_HV_50  //未添加
 //    JOB_HV_51  //未添加
 //    JOB_HV_66  //未添加
 
-//   JOB_HV_8   //CODE BY XTP
-//    JOB_HV_9   //CODE BY TZQ
-//    JOB_HV_10  //CODE BY TZQ
-//    JOB_HV_11  //CODE BY TZQ
-//    JOB_HV_12  //CODE BY TZQ
-//    JOB_HV_13  //CODE BY TZQ
-//    JOB_HV_14  //CODE BY TZQ
-//    JOB_HV_16  //CODE BY TZQ
-//    JOB_HV_18  //CODE BY YX
-//    JOB_HV_19  //CODE BY YX
-//    JOB_HV_23  //CODE BY TZQ
-//    JOB_HV_24  //CODE BY YX
-//    JOB_HV_25  //CODE BY XTP
-//    JOB_HV_26  //CODE BY TZQ
-//    JOB_HV_28  //CODE BY XTP
-//    JOB_HV_29  //CODE BY XTP
-//    JOB_HV_30  //CODE BY YX
-//    JOB_HV_31  //CODE BY XTP
-//    JOB_HV_32  //CODE BY XTP
-//    JOB_HV_33  //CODE BY XTP new added
-//    JOB_HV_36  //CODE BY YX
-//    JOB_HV_37  //CODE BY TZQ
-//    JOB_HV_38  //CODE BY TZQ
-//    JOB_HV_43  //CODE BY YX
-//    JOB_HV_44  //CODE BY TZQ
-//    JOB_HV_46  //CODE BY XTP
-//    JOB_HV_47  //CODE BY XTP
-//    JOB_HV_48  //CODE BY TZQ
-//    JOB_HV_54  //CODE BY TZQ
-//    JOB_HV_67  //CODE BY TZQ
-//    JOB_HV_68  //CODE BY TZQ
-//    JOB_HV_69  //CODE BY XTP
-//    JOB_HV_69  //CODE BY XTP
-//    JOB_HV_70  //CODE BY YX
+   JOB_HV_8   //CODE BY XTP
+    JOB_HV_9   //CODE BY TZQ
+    JOB_HV_10  //CODE BY TZQ
+    JOB_HV_11  //CODE BY TZQ
+    JOB_HV_12  //CODE BY TZQ
+    JOB_HV_13  //CODE BY TZQ
+    JOB_HV_14  //CODE BY TZQ
+    JOB_HV_16  //CODE BY TZQ
+    JOB_HV_18  //CODE BY YX
+    JOB_HV_19  //CODE BY YX
+    JOB_HV_23  //CODE BY TZQ
+    JOB_HV_24  //CODE BY YX
+    JOB_HV_25  //CODE BY XTP
+    JOB_HV_26  //CODE BY TZQ
+    JOB_HV_28  //CODE BY XTP
+    JOB_HV_29  //CODE BY XTP
+    JOB_HV_30  //CODE BY YX
+    JOB_HV_31  //CODE BY XTP
+    JOB_HV_32  //CODE BY XTP
+    JOB_HV_33  //CODE BY XTP new added
+    JOB_HV_36  //CODE BY YX
+    JOB_HV_37  //CODE BY TZQ
+    JOB_HV_38  //CODE BY TZQ
+    JOB_HV_43  //CODE BY YX
+    JOB_HV_44  //CODE BY TZQ
+    JOB_HV_46  //CODE BY XTP
+    JOB_HV_47  //CODE BY XTP
+    JOB_HV_48  //CODE BY TZQ
+    JOB_HV_54  //CODE BY TZQ
+    JOB_HV_67  //CODE BY TZQ
+    JOB_HV_68  //CODE BY TZQ
+    JOB_HV_69  //CODE BY XTP
+    JOB_HV_69  //CODE BY XTP
+    JOB_HV_70  //CODE BY YX
 
 
     sc.stop()
@@ -2075,7 +2075,7 @@ object SparkDB22Hive {
          |trim(ta.mchnt_tp) as mchnt_tp,
          |trim(ta.mchnt_cd) as mchnt_cd,
          |trim(ta.term_id) as term_id,
-         |trim(ta.trans_dt) as trans_dt,
+         |concat_ws('-',substr(trim(ta.trans_dt),1,4),substr(trim(ta.trans_dt),5,2),substr(trim(ta.trans_dt),7,2)) as trans_dt,
          |trim(ta.trans_tm) as trans_tm,
          |case
          |	when
@@ -2189,6 +2189,7 @@ object SparkDB22Hive {
     println("JOB_HV_29------>results:"+results.count())
     if(!Option(results).isEmpty){
       results.registerTempTable("spark_hive_offline_point_trans")
+      results.show(10)
     }else{
       println("加载的表spark_hive_offline_point_trans中无数据！")
     }
@@ -2204,9 +2205,7 @@ object SparkDB22Hive {
         sqlContext.sql(s"use $hive_dbname")
         sqlContext.sql(s"alter table hive_offline_point_trans drop partition (part_trans_dt='$currentDay')")
         println(s"alter table hive_offline_point_trans drop partition (part_trans_dt='$currentDay') successfully!")
-        sqlContext.sql(s"alter table hive_offline_point_trans add partition (part_trans_dt='$currentDay')")
-        println(s"alter table hive_offline_point_trans add partition (part_trans_dt='$currentDay') successfully!")
-        sqlContext.sql(s"insert into hive_offline_point_trans partition (part_trans_dt='$currentDay') select * from spark_hive_offline_point_trans htempa where htempa.trans_dt = '$currentDay'")
+        sqlContext.sql(s"insert into hive_offline_point_trans partition (part_trans_dt='$currentDay') select * from spark_hive_offline_point_trans htempa where htempa.trans_dt= '$currentDay'")
         println(s"insert into hive_offline_point_trans partition (part_trans_dt='$currentDay') successfully!")
       }
     }

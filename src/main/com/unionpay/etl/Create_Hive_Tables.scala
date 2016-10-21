@@ -1,8 +1,6 @@
 package com.unionpay.etl
 
 
-import com.unionpay.conf.ConfigurationManager
-import com.unionpay.constant.Constants
 import org.apache.spark.sql.hive.HiveContext
 import org.apache.spark.{SparkConf, SparkContext}
 
@@ -11,7 +9,7 @@ import org.apache.spark.{SparkConf, SparkContext}
   * Created by Xue on 2016/10/20.
   */
 object Create_Hive_Tables {
-  private lazy val hive_dbname =ConfigurationManager.getProperty(Constants.HIVE_DBNAME)
+  private lazy val hive_dbname ="claud"
   def main(args: Array[String]) {
 
     val conf = new SparkConf().setAppName("Create_Hive_Tables")
@@ -21,7 +19,68 @@ object Create_Hive_Tables {
 
     println("=======Create all tables on the hive=======")
 
+    hive_acc_trans
+    hive_achis_trans
+    hive_active_card_acq_branch_mon
+    hive_card_bind_inf
+    hive_city_card
+    hive_ct
+    hive_discount_bas_inf
+    hive_download_trans
+    hive_inf_source_class
+    hive_ins_inf
+    hive_mchnt_para
+    hive_passive_code_pay_trans
+    hive_pri_acct_inf
+    hive_province_card
+    hive_switch_point_trans
+    hive_ucbiz_cdhd_bas_inf
+    hive_access_bas_inf
+    hive_active_code_pay_trans
+    hive_branch_acpt_ins_inf
+    hive_brand_inf
+    hive_card_bin
+    hive_cashier_maktg_reward_dtl
+    hive_cashier_point_acct_oper_dtl
+    hive_chara_grp_def_bat
+    hive_cups_trans
+    hive_filter_app_det
+    hive_filter_rule_det
+    hive_inf_source_dtl
+    hive_life_trans
+    hive_mchnt_inf_wallet
+    hive_mchnt_tp_grp
+    hive_org_tdapp_activitynew
+    hive_org_tdapp_device
+    hive_org_tdapp_devicenew
+    hive_org_tdapp_eventnew
+    hive_org_tdapp_exception
+    hive_org_tdapp_exceptionnew
+    hive_org_tdapp_keyvalue
+    hive_org_tdapp_newuser
+    hive_org_tdapp_tactivity
+    hive_org_tdapp_tappevent
+    hive_org_tdapp_terminate
+    hive_org_tdapp_tlaunch
+    hive_org_tdapp_tlaunchnew
+    hive_preferential_mchnt_inf
+    hive_prize_bas
+    hive_signer_log
+    hive_ticket_bill_bas_inf
+    hive_undefine_store_inf
+    hive_use_td_d
+    HIVE_BILL_ORDER_TRANS
+    HIVE_BILL_SUB_ORDER_TRANS
+    HIVE_MCHNT_TP
+    HIVE_OFFLINE_POINT_TRANS
+    HIVE_ONLINE_POINT_TRANS
+    HIVE_PRIZE_ACTIVITY_BAS_INF
+    HIVE_PRIZE_DISCOUNT_RESULT
+    HIVE_PRIZE_LVL_ADD_RULE
+    HIVE_PRIZE_LVL
+    HIVE_STORE_TERM_RELATION
 
+    println("=======Create all tables on the hive successfully=======")
 
     sc.stop()
 
@@ -2735,4 +2794,461 @@ object Create_Hive_Tables {
     println("=======Create hive_use_td_d successfully ! =======")
 
   }
+
+  def HIVE_BILL_ORDER_TRANS (implicit sqlContext: HiveContext) = {
+    println("=======Create HIVE_BILL_ORDER_TRANS=======")
+    sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql(
+      s"""
+         create table if not exists $hive_dbname.HIVE_BILL_ORDER_TRANS
+         |(
+         |BILL_ORDER_ID          string,
+         |MCHNT_CD               string,
+         |MCHNT_NM               string,
+         |SUB_MCHNT_CD           string,
+         |CDHD_USR_ID            string,
+         |SUB_MCHNT_NM           string,
+         |RELATED_USR_ID         bigint,
+         |CUPS_TRACE_NUMBER      string,
+         |TRANS_TM               string,
+         |TRANS_DT               timestamp,
+         |ORIG_TRANS_SEQ         string,
+         |TRANS_SEQ              string,
+         |MOBILE_ORDER_ID        string,
+         |ACP_ORDER_ID           string,
+         |DELIVERY_PROV_CD       string,
+         |DELIVERY_CITY_CD       string,
+         |DELIVERY_DISTRICT_NM   string,
+         |DELIVERY_DISTRICT_CD   string,
+         |DELIVERY_ZIP_CD        string,
+         |DELIVERY_ADDRESS       string,
+         |RECEIVER_NM            string,
+         |RECEIVER_MOBILE        string,
+         |DELIVERY_TIME_DESC     string,
+         |INVOICE_DESC           string,
+         |TRANS_AT               bigint,
+         |REFUND_AT              bigint,
+         |ORDER_ST               string,
+         |ORDER_CRT_TS           timestamp,
+         |ORDER_TIMEOUT_TS       timestamp,
+         |CARD_NO                string,
+         |ORDER_CHNL             string,
+         |ORDER_IP               string,
+         |DEVICE_INF             string,
+         |REMARK                 string,
+         |REC_CRT_TS             timestamp,
+         |CRT_CDHD_USR_ID        string,
+         |REC_UPD_TS             timestamp,
+         |UPD_CDHD_USR_ID        string
+         |)
+         |partitioned by(part_trans_dt string)
+         |row format delimited fields terminated by '!|'
+         |stored as parquet
+         | """.stripMargin)
+
+    println("=======Create HIVE_BILL_ORDER_TRANS successfully ! =======")
+
+  }
+
+  def HIVE_BILL_SUB_ORDER_TRANS (implicit sqlContext: HiveContext) = {
+    println("=======Create HIVE_BILL_SUB_ORDER_TRANS=======")
+    sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql(
+      s"""
+         create table if not exists $hive_dbname.HIVE_BILL_SUB_ORDER_TRANS(
+         |BILL_SUB_ORDER_ID    BIGINT          comment '票券子订单编号  ',
+         |BILL_ORDER_ID        STRING          comment '票券订单编号   ',
+         |MCHNT_CD             STRING          comment '商户代码     ',
+         |MCHNT_NM             STRING          comment '商户名称     ',
+         |SUB_MCHNT_CD         STRING          comment '二级商户号    ',
+         |SUB_MCHNT_NM         STRING          comment '二级商户名称   ',
+         |BILL_ID              STRING          comment '票券ID     ',
+         |BILL_PRICE           BIGINT          comment '票券销售价格   ',
+         |TRANS_SEQ            STRING          comment '交易流水号(um)',
+         |REFUND_REASON        STRING          comment '退货原因     ',
+         |ORDER_ST             STRING          comment '订单状态     ',
+         |REC_CRT_TS           TIMESTAMP       comment '记录创建时间   ',
+         |CRT_CDHD_USR_ID      STRING          comment '创建用户标识码  ',
+         |REC_UPD_TS           TIMESTAMP       comment '记录更新时间   ',
+         |UPD_CDHD_USR_ID      STRING          comment '修改用户标识码  ',
+         |ORDER_TIMEOUT_TS     TIMESTAMP       comment '订单超时时    ',
+         |TRANS_DT             TIMESTAMP       comment '交易日期     ',
+         |RELATED_USR_ID       BIGINT          comment '关联用户id   ',
+         |TRANS_PROCESS        STRING          comment '订单流水     ',
+         |RESPONSE_CODE        STRING          comment '交易应答码-1  ',
+         |RESPONSE_MSG         STRING          comment '交易报文     '
+         |)
+         |partitioned by(part_trans_dt string)
+         |row format delimited fields terminated by '!|'
+         |stored as parquet
+         | """.stripMargin)
+
+    println("=======Create HIVE_BILL_SUB_ORDER_TRANS successfully ! =======")
+
+  }
+
+  def HIVE_MCHNT_TP (implicit sqlContext: HiveContext) = {
+    println("=======Create HIVE_MCHNT_TP=======")
+    sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql(
+      s"""
+         |create table if not exists $hive_dbname.HIVE_MCHNT_TP(
+         |MCHNT_TP          string,
+         |MCHNT_TP_GRP      string,
+         |MCHNT_TP_DESC_CN  string,
+         |MCHNT_TP_DESC_EN  string,
+         |REC_ID            int,
+         |REC_ST            string,
+         |MCC_TYPE          string,
+         |LAST_OPER_IN      string,
+         |REC_UPD_USR_ID    string,
+         |REC_UPD_TS        timestamp,
+         |REC_CRT_TS        timestamp,
+         |SYNC_ST           string,
+         |SYNC_BAT_NO       int,
+         |SYNC_TS           timestamp
+         |)
+         |row format delimited fields terminated by '!|'
+         |stored as parquet
+         | """.stripMargin)
+
+    println("=======Create HIVE_MCHNT_TP successfully ! =======")
+
+  }
+
+  def HIVE_OFFLINE_POINT_TRANS (implicit sqlContext: HiveContext) = {
+    println("=======Create HIVE_OFFLINE_POINT_TRANS=======")
+    sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql(
+      s"""
+         |create table if not exists $hive_dbname.HIVE_OFFLINE_POINT_TRANS(
+         |DTL_SEQ                      bigint,
+         |CDHD_USR_ID                  string,
+         |PRI_ACCT_NO                  string,
+         |ACPT_INS_ID_CD               string,
+         |FWD_INS_ID_CD                string,
+         |SYS_TRA_NO                   string,
+         |TFR_DT_TM                    string,
+         |CARD_CLASS                   string,
+         |CARD_ATTR                    string,
+         |CARD_STD                     string,
+         |CARD_MEDIA                   string,
+         |CUPS_CARD_IN                 string,
+         |CUPS_SIG_CARD_IN             string,
+         |TRANS_ID                     string,
+         |REGION_CD                    string,
+         |CARD_BIN                     string,
+         |MCHNT_TP                     string,
+         |MCHNT_CD                     string,
+         |TERM_ID                      string,
+         |TRANS_DT                     timestamp,
+         |TRANS_TM                     string,
+         |SETTLE_DT                    timestamp,
+         |SETTLE_AT                    int,
+         |TRANS_CHNL                   string,
+         |ACPT_TERM_TP                 string,
+         |POINT_PLAN_ID                int,
+         |PLAN_ID                      int,
+         |INS_ACCT_ID                  string,
+         |POINT_AT                     bigint,
+         |OPER_ST                      string,
+         |RULE_ID                      int,
+         |PRI_KEY                      string,
+         |VER_NO                       int,
+         |ACCT_ADDUP_BAT_DT            timestamp,
+         |ISS_INS_ID_CD                string,
+         |EXTRA_SP_INS_ACCT_ID         string,
+         |EXTRA_POINT_AT               bigint,
+         |EXTEND_INS_ID_CD             string,
+         |CUP_BRANCH_INS_ID_CD         string,
+         |CUP_BRANCH_INS_ID_NM         string,
+         |UM_TRANS_ID                  string,
+         |BUSS_TP                      string,
+         |BILL_ID                      string,
+         |BILL_NUM                     bigint,
+         |OPER_DT                      timestamp,
+         |TMP_FLAG                     string,
+         |BILL_NM                      string,
+         |CHARA_ACCT_TP                string,
+         |CHARA_ACCT_NM                string,
+         |ACCT_ADDUP_TP                string,
+         |REC_CRT_TS                   timestamp,
+         |REC_UPD_TS                   timestamp,
+         |ORIG_TRANS_SEQ               string,
+         |NOTICE_ON_ACCOUNT            string,
+         |ORIG_TFR_DT_TM               string,
+         |ORIG_SYS_TRA_NO              string,
+         |ORIG_ACPT_INS_ID_CD          string,
+         |ORIG_FWD_INS_ID_CD           string,
+         |INDIRECT_TRANS_IN            string,
+         |BOOKING_REC_ID               bigint,
+         |BOOKING_IN                   string,
+         |PLAN_NM                      string,
+         |PLAN_GIVE_TOTAL_NUM          bigint,
+         |PLAN_GIVE_LIMIT_TP           string,
+         |PLAN_GIVE_LIMIT              int,
+         |DAY_GIVE_LIMIT               int,
+         |GIVE_LIMIT_IN                string,
+         |RETRI_REF_NO                 string
+         |)
+         |partitioned by(part_trans_dt string)
+         |row format delimited fields terminated by '!|'
+         |stored as parquet
+         | """.stripMargin)
+
+    println("=======Create HIVE_OFFLINE_POINT_TRANS successfully ! =======")
+
+  }
+
+  def HIVE_ONLINE_POINT_TRANS (implicit sqlContext: HiveContext) = {
+    println("=======Create HIVE_ONLINE_POINT_TRANS=======")
+    sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql(
+      s"""
+         |create table if not exists $hive_dbname.HIVE_ONLINE_POINT_TRANS(
+         |TRANS_ID                     bigint,
+         |CDHD_USR_ID                  string,
+         |TRANS_TP                     string,
+         |BUSS_TP                      string,
+         |TRANS_POINT_AT               bigint,
+         |CHARA_ACCT_TP                string,
+         |BILL_ID                      string,
+         |BILL_NUM                     bigint,
+         |TRANS_DT                     timestamp,
+         |TRANS_TM                     string,
+         |VENDOR_ID                    string,
+         |REMARK                       string,
+         |CARD_NO                      string,
+         |STATUS                       string,
+         |TERM_TRANS_SEQ               string,
+         |ORIG_TERM_TRANS_SEQ          string,
+         |MCHNT_CD                     string,
+         |TERM_ID                      string,
+         |REFUND_TS                    timestamp,
+         |ORDER_TP                     string,
+         |TRANS_AT                     bigint,
+         |SVC_ORDER_ID                 string,
+         |TRANS_DTL                    string,
+         |EXCH_RATE                    bigint,
+         |DISC_AT_POINT                bigint,
+         |CDHD_FK                      string,
+         |BILL_NM                      string,
+         |CHARA_ACCT_NM                string,
+         |REC_CRT_TS                   timestamp,
+         |TRANS_SEQ                    string,
+         |SYS_ERR_CD                   string,
+         |BILL_ACQ_MD                  string,
+         |CUP_BRANCH_INS_ID_CD         string,
+         |CUP_BRANCH_INS_ID_NM         string
+         |)
+         |partitioned by(part_trans_dt string)
+         |row format delimited fields terminated by '!|'
+         |stored as parquet
+         | """.stripMargin)
+
+    println("=======Create HIVE_ONLINE_POINT_TRANS successfully ! =======")
+
+  }
+
+  def HIVE_PRIZE_ACTIVITY_BAS_INF (implicit sqlContext: HiveContext) = {
+    println("=======Create HIVE_PRIZE_ACTIVITY_BAS_INF=======")
+    sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql(
+      s"""
+         |create table if not exists $hive_dbname.HIVE_PRIZE_ACTIVITY_BAS_INF
+         |(
+         |LOC_ACTIVITY_ID        int,
+         |ACTIVITY_PLAT          string,
+         |LOC_ACTIVITY_NM        string,
+         |LOC_ACTIVITY_DESC      string,
+         |ACTIVITY_BEGIN_DT      TIMESTAMP,
+         |ACTIVITY_END_DT        TIMESTAMP,
+         |WEEK_TM_BMP            string,
+         |CHECK_ST               string,
+         |SYNC_ST                string,
+         |SYNC_BAT_NO            int,
+         |RUN_ST                 string,
+         |OPER_IN                string,
+         |EVENT_ID               int,
+         |REC_ID                 int,
+         |REC_UPD_USR_ID         string,
+         |REC_UPD_TS             timestamp,
+         |REC_CRT_TS             timestamp,
+         |REC_CRT_USR_ID         string,
+         |DEL_IN                 string,
+         |AUD_USR_ID             string,
+         |AUD_TS                 timestamp,
+         |AUD_IDEA               string,
+         |ACTIVITY_ST            string,
+         |LOC_ACTIVITY_CRT_INS   string,
+         |CUP_BRANCH_INS_ID_NM   string,
+         |VER_NO                 int,
+         |ACTIVITY_TP            string,
+         |REPRIZE_LIMIT          string,
+         |SMS_FLAG               string,
+         |CASHIER_REWARD_IN      string,
+         |MCHNT_CD               string
+         |)
+         |row format delimited fields terminated by '!|'
+         |stored as parquet
+         | """.stripMargin)
+
+    println("=======Create HIVE_PRIZE_ACTIVITY_BAS_INF successfully ! =======")
+
+  }
+
+  def HIVE_PRIZE_DISCOUNT_RESULT (implicit sqlContext: HiveContext) = {
+    println("=======Create HIVE_PRIZE_DISCOUNT_RESULT=======")
+    sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql(
+      s"""
+         |create table if not exists $hive_dbname.HIVE_PRIZE_DISCOUNT_RESULT
+         |(
+         |PRIZE_RESULT_SEQ       INT,
+         |TRANS_ID               string,
+         |SYS_TRA_NO             string,
+         |SYS_TRA_NO_CONV        string,
+         |PRI_ACCT_NO            string,
+         |TRANS_AT               INT,
+         |TRANS_AT_CONV          INT,
+         |TRANS_POS_AT           INT,
+         |TRANS_DT_TM            string,
+         |LOC_TRANS_DT           string,
+         |LOC_TRANS_TM           string,
+         |SETTLE_DT              timestamp,
+         |MCHNT_TP               string,
+         |ACPT_INS_ID_CD         string,
+         |ISS_INS_ID_CD          string,
+         |ACQ_INS_ID_CD          string,
+         |CUP_BRANCH_INS_ID_CD   string,
+         |CUP_BRANCH_INS_ID_NM   string,
+         |MCHNT_CD               string,
+         |TERM_ID                string,
+         |TRANS_CURR_CD          string,
+         |TRANS_CHNL             string,
+         |PROD_IN                string,
+         |AGIO_APP_ID            string,
+         |AGIO_INF               string,
+         |PRIZE_APP_ID           string,
+         |PRIZE_ID               string,
+         |PRIZE_LVL              string,
+         |REC_CRT_DT             timestamp,
+         |IS_MATCH_IN            string,
+         |FWD_INS_ID_CD          string,
+         |ORIG_TRANS_TFR_TM      string,
+         |ORIG_SYS_TRA_NO        string,
+         |ORIG_ACPT_INS_ID_CD    string,
+         |ORIG_FWD_INS_ID_CD     string,
+         |SUB_CARD_NO            string,
+         |IS_PROCED              string,
+         |ENTITY_CARD_NO         string,
+         |CLOUD_PAY_IN           string,
+         |CARD_MEDIA             string
+         |)
+         |partitioned by(part_settle_dt string)
+         |row format delimited fields terminated by '!|'
+         |stored as parquet
+         | """.stripMargin)
+
+    println("=======Create HIVE_PRIZE_DISCOUNT_RESULT successfully ! =======")
+
+  }
+
+  def HIVE_PRIZE_LVL_ADD_RULE (implicit sqlContext: HiveContext) = {
+    println("=======Create HIVE_PRIZE_LVL_ADD_RULE=======")
+    sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql(
+      s"""
+         |create table if not exists $hive_dbname.HIVE_PRIZE_LVL_ADD_RULE
+         |(
+         |LOC_ACTIVITY_ID    int,
+         |ACTIVITY_PLAT      int,
+         |LOC_ACTIVITY_NM    bigint,
+         |LOC_ACTIVITY_DESC  bigint,
+         |ACTIVITY_BEGIN_DT  string,
+         |ACTIVITY_END_DT    int,
+         |WEEK_TM_BMP        string,
+         |CHECK_ST           string,
+         |SYNC_ST            bigint,
+         |SYNC_BAT_NO        bigint,
+         |RUN_ST             bigint,
+         |OPER_IN            string
+         |)
+         |row format delimited fields terminated by '!|'
+         |stored as parquet
+         | """.stripMargin)
+
+    println("=======Create HIVE_PRIZE_LVL_ADD_RULE successfully ! =======")
+
+  }
+
+  def HIVE_PRIZE_LVL (implicit sqlContext: HiveContext) = {
+    println("=======Create HIVE_PRIZE_LVL=======")
+    sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql(
+      s"""
+         |create table if not exists $hive_dbname.HIVE_PRIZE_LVL
+         |(
+         |LOC_ACTIVITY_ID      int,
+         |PRIZE_TP             string,
+         |PRIZE_LVL            int,
+         |PRIZE_ID_LVL         int,
+         |ACTIVITY_PLAT        string,
+         |PRIZE_ID             int,
+         |RUN_ST               string,
+         |SYNC_ST              string,
+         |SYNC_BAT_NO          int,
+         |LVL_PRIZE_NUM        int,
+         |PRIZE_LVL_DESC       string,
+         |REPRIZE_LIMIT        string,
+         |PRIZE_PAY_TP         string,
+         |CYCLE_PRIZE_NUM      int,
+         |CYCLE_SPAN           int,
+         |CYCLE_UNIT           string,
+         |PROGRS_IN            string,
+         |SEG_PRIZE_NUM        int,
+         |MIN_PRIZE_TRANS_AT   bigint,
+         |MAX_PRIZE_TRANS_AT   bigint,
+         |PRIZE_AT             bigint,
+         |OPER_IN              string,
+         |EVENT_ID             int,
+         |REC_ID               int,
+         |REC_UPD_USR_ID       string,
+         |REC_UPD_TS           timestamp,
+         |REC_CRT_TS           timestamp,
+         |VER_NO               int
+         |)
+         |row format delimited fields terminated by '!|'
+         |stored as parquet
+         | """.stripMargin)
+
+    println("=======Create HIVE_PRIZE_LVL successfully ! =======")
+
+  }
+
+  def HIVE_STORE_TERM_RELATION (implicit sqlContext: HiveContext) = {
+    println("=======Create HIVE_STORE_TERM_RELATION=======")
+    sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql(
+      s"""
+         |create table if not exists $hive_dbname.HIVE_STORE_TERM_RELATION(
+         |REC_ID                bigint,
+         |MCHNT_CD              string,
+         |TERM_ID               string,
+         |THIRD_PARTY_INS_FK    int,
+         |REC_UPD_USR_ID        string,
+         |REC_UPD_TS            timestamp,
+         |REC_CRT_USR_ID        string,
+         |REC_CRT_TS            timestamp,
+         |THIRD_PARTY_INS_ID    string,
+         |IS_TRANS_TP           string
+         |)
+         |row format delimited fields terminated by '!|'
+         |stored as parquet
+         | """.stripMargin)
+
+    println("=======Create HIVE_STORE_TERM_RELATION successfully ! =======")
+
+  }
+
 }
