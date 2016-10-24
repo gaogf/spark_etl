@@ -207,26 +207,26 @@ object SparkHive2Mysql {
              |(
              |select
              |case when tempe.CITY_CARD in ('大连','宁波','厦门','青岛','深圳') then tempe.CITY_CARD else tempe.PROVINCE_CARD end as ID_AREA_NM,
-             |count(distinct(case when to_date(tempe.rec_crt_ts)='$today_dt'  then tempe.cdhd_usr_id end)) as tpre,
-             |count(distinct(case when to_date(tempe.rec_crt_ts)>=trunc('$today_dt','YYYY') and to_date(tempe.rec_crt_ts)<='$today_dt'  then tempe.cdhd_usr_id end)) as years,
-             |count(distinct(case when to_date(tempe.rec_crt_ts)<='$today_dt' then  tempe.cdhd_usr_id end)) as total
+             |count(distinct(case when tempe.rec_crt_ts='$today_dt'  then tempe.cdhd_usr_id end)) as tpre,
+             |count(distinct(case when tempe.rec_crt_ts>=trunc('$today_dt','YYYY') and tempe.rec_crt_ts<='$today_dt'  then tempe.cdhd_usr_id end)) as years,
+             |count(distinct(case when tempe.rec_crt_ts<='$today_dt' then  tempe.cdhd_usr_id end)) as total
              |from
-             |(select cdhd_usr_id,rec_crt_ts, CITY_CARD,PROVINCE_CARD from HIVE_PRI_ACCT_INF where usr_st='1' ) tempe
+             |(select cdhd_usr_id,to_date(rec_crt_ts) as rec_crt_ts, CITY_CARD,PROVINCE_CARD from HIVE_PRI_ACCT_INF where usr_st='1' ) tempe
              |group by (case when CITY_CARD in ('大连','宁波','厦门','青岛','深圳') then CITY_CARD else PROVINCE_CARD end)
              |) a
              |left join
              |(
              |select
              |case when tempa.CITY_CARD in ('大连','宁波','厦门','青岛','深圳') then tempa.CITY_CARD else tempa.PROVINCE_CARD end as ID_AREA_NM,
-             |count(distinct(case when to_date(tempa.rec_crt_ts)='$today_dt'  and to_date(tempb.bind_dt)='$today_dt'  then  tempa.cdhd_usr_id end)) as tpre,
-             |count(distinct(case when to_date(tempa.rec_crt_ts)>=trunc('$today_dt','YYYY') and to_date(tempa.rec_crt_ts)<='$today_dt'
-             |and to_date(tempb.bind_dt)>=trunc('$today_dt','YYYY') and  to_date(tempb.bind_dt)<='$today_dt' then  tempa.cdhd_usr_id end)) as years,
-             |count(distinct(case when to_date(tempa.rec_crt_ts)<='$today_dt' and  to_date(tempb.bind_dt)<='$today_dt'  then  tempa.cdhd_usr_id end)) as total
+             |count(distinct(case when tempa.rec_crt_ts='$today_dt'  and tempb.bind_dt='$today_dt'  then  tempa.cdhd_usr_id end)) as tpre,
+             |count(distinct(case when tempa.rec_crt_ts>=trunc('$today_dt','YYYY') and tempa.rec_crt_ts<='$today_dt'
+             |and tempb.bind_dt)>=trunc('$today_dt','YYYY') and  tempb.bind_dt<='$today_dt' then  tempa.cdhd_usr_id end)) as years,
+             |count(distinct(case when tempa.rec_crt_ts<='$today_dt' and  tempb.bind_dt<='$today_dt'  then  tempa.cdhd_usr_id end)) as total
              |from
              |(
-             |select rec_crt_ts,CITY_CARD,PROVINCE_CARD,cdhd_usr_id from HIVE_PRI_ACCT_INF
+             |select to_date(rec_crt_ts) as rec_crt_ts,CITY_CARD,PROVINCE_CARD,cdhd_usr_id from HIVE_PRI_ACCT_INF
              |where usr_st='1' ) tempa
-             |inner join (select distinct cdhd_usr_id , rec_crt_ts as  bind_dt  from HIVE_CARD_BIND_INF where card_auth_st in ('1','2','3') ) tempb
+             |inner join (select distinct cdhd_usr_id , to_date(rec_crt_ts) as  bind_dt  from HIVE_CARD_BIND_INF where card_auth_st in ('1','2','3') ) tempb
              |on tempa.cdhd_usr_id=tempb.cdhd_usr_id
              |group by (case when tempa.CITY_CARD in ('大连','宁波','厦门','青岛','深圳') then tempa.CITY_CARD else tempa.PROVINCE_CARD end) ) b
              |on a.ID_AREA_NM =b.ID_AREA_NM
@@ -234,12 +234,12 @@ object SparkHive2Mysql {
              |(
              |select
              |case when tempc.CITY_CARD in ('大连','宁波','厦门','青岛','深圳') then tempc.CITY_CARD else tempc.PROVINCE_CARD end as ID_AREA_NM,
-             |count(distinct(case when to_date(tempc.rec_crt_ts)='$today_dt'  and to_date(tempd.trans_dt)='$today_dt'  then tempc.cdhd_usr_id end)) as tpre,
-             |count(distinct(case when to_date(tempc.rec_crt_ts)>=trunc('$today_dt','YYYY') and to_date(tempc.rec_crt_ts)<='$today_dt'
-             |and to_date(tempd.trans_dt)>=trunc('$today_dt','YYYY') and  to_date(tempd.trans_dt)<='$today_dt' then  tempc.cdhd_usr_id end)) as years,
-             |count(distinct(case when to_date(tempc.rec_crt_ts)<='$today_dt' and  to_date(tempd.trans_dt)<='$today_dt'  then  tempc.cdhd_usr_id end)) as total
+             |count(distinct(case when tempc.rec_crt_ts='$today_dt'  and tempd.trans_dt='$today_dt'  then tempc.cdhd_usr_id end)) as tpre,
+             |count(distinct(case when tempc.rec_crt_ts>=trunc('$today_dt','YYYY') and tempc.rec_crt_ts<='$today_dt'
+             |and tempd.trans_dt>=trunc('$today_dt','YYYY') and  tempd.trans_dt<='$today_dt' then  tempc.cdhd_usr_id end)) as years,
+             |count(distinct(case when tempc.rec_crt_ts<='$today_dt' and  tempd.trans_dt<='$today_dt'  then  tempc.cdhd_usr_id end)) as total
              |from
-             |(select CITY_CARD,CITY_CARD,PROVINCE_CARD,cdhd_usr_id,rec_crt_ts from HIVE_PRI_ACCT_INF
+             |(select CITY_CARD,CITY_CARD,PROVINCE_CARD,cdhd_usr_id,to_date(rec_crt_ts) as rec_crt_ts  from HIVE_PRI_ACCT_INF
              |where usr_st='1') tempc
              |inner join (select distinct cdhd_usr_id,trans_dt from HIVE_ACC_TRANS ) tempd
              |on tempc.cdhd_usr_id=tempd.cdhd_usr_id
@@ -493,17 +493,17 @@ object SparkHive2Mysql {
              | when tempb.card_auth_st='3' then   '可信+支付认证'
              |else '未认证' end) as card_auth_nm,
              |tempa.realnm_in as realnm_in,
-             |count(distinct(case when to_date(tempa.rec_crt_ts)='$today_dt'  and to_date(tempb.CARD_DT)='$today_dt'  then tempa.cdhd_usr_id end)) as tpre,
-             |count(distinct(case when to_date(tempa.rec_crt_ts)>=trunc('$today_dt','YYYY') and to_date(tempa.rec_crt_ts)<='$today_dt'
-             |and to_date(tempb.CARD_DT)>=trunc('$today_dt','YYYY')  and  to_date(tempb.CARD_DT)<='$today_dt' then  tempa.cdhd_usr_id end)) as years,
-             |count(distinct(case when to_date(tempa.rec_crt_ts)<='$today_dt' and  to_date(tempb.CARD_DT)<='$today_dt'  then tempa.cdhd_usr_id end)) as total
+             |count(distinct(case when tempa.rec_crt_ts='$today_dt'  and tempb.CARD_DT='$today_dt'  then tempa.cdhd_usr_id end)) as tpre,
+             |count(distinct(case when tempa.rec_crt_ts>=trunc('$today_dt','YYYY') and tempa.rec_crt_ts<='$today_dt'
+             |and tempb.CARD_DT>=trunc('$today_dt','YYYY')  and tempb.CARD_DT<='$today_dt' then  tempa.cdhd_usr_id end)) as years,
+             |count(distinct(case when tempa.rec_crt_ts<='$today_dt' and tempb.CARD_DT<='$today_dt'  then tempa.cdhd_usr_id end)) as total
              |from
-             |(select cdhd_usr_id,rec_crt_ts,realnm_in from HIVE_PRI_ACCT_INF
+             |(select cdhd_usr_id,to_date(rec_crt_ts) as rec_crt_ts,realnm_in from HIVE_PRI_ACCT_INF
              |where usr_st='1' ) tempa
              |inner join
              |(select distinct tempe.cdhd_usr_id as cdhd_usr_id,
              |tempe.card_auth_st as card_auth_st,
-             |tempe.rec_crt_ts as CARD_DT
+             |to_date(tempe.rec_crt_ts) as CARD_DT
              |from HIVE_CARD_BIND_INF tempe) tempb
              |on tempa.cdhd_usr_id=tempb.cdhd_usr_id
              |group by
@@ -523,12 +523,12 @@ object SparkHive2Mysql {
              | when tempc.card_auth_st='2' then   '可信认证'
              | when tempc.card_auth_st='3' then   '可信+支付认证'
              |else '未认证' end) as card_auth_nm,
-             |count(distinct(case when to_date(tempc.rec_crt_ts)='$today_dt'  and to_date(tempd.trans_dt)='$today_dt' then  tempc.cdhd_usr_id end)) as tpre,
-             |count(distinct(case when to_date(tempc.rec_crt_ts)>=trunc('$today_dt','YYYY') and to_date(tempc.rec_crt_ts)<='$today_dt'
-             |and to_date(tempd.trans_dt)>=trunc('$today_dt','YYYY') and  to_date(tempd.trans_dt)<='$today_dt' then  tempc.cdhd_usr_id end)) as years,
-             |count(distinct(case when to_date(tempc.rec_crt_ts)<='$today_dt' and  to_date(tempd.trans_dt)<='$today_dt'  then  tempc.cdhd_usr_id end)) as total
+             |count(distinct(case when tempc.rec_crt_ts='$today_dt'  and tempd.trans_dt='$today_dt' then  tempc.cdhd_usr_id end)) as tpre,
+             |count(distinct(case when tempc.rec_crt_ts>=trunc('$today_dt','YYYY') and tempc.rec_crt_ts<='$today_dt'
+             |and tempd.trans_dt>=trunc('$today_dt','YYYY') and  tempd.trans_dt<='$today_dt' then  tempc.cdhd_usr_id end)) as years,
+             |count(distinct(case when tempc.rec_crt_ts<='$today_dt' and  tempd.trans_dt<='$today_dt'  then  tempc.cdhd_usr_id end)) as total
              |from
-             |(select distinct cdhd_usr_id,card_auth_st,rec_crt_ts from HIVE_CARD_BIND_INF) tempc
+             |(select distinct cdhd_usr_id,card_auth_st,to_date(rec_crt_ts) as rec_crt_ts from HIVE_CARD_BIND_INF) tempc
              |inner join (select distinct cdhd_usr_id,trans_dt from HIVE_ACC_TRANS ) tempd
              |on tempc.cdhd_usr_id=tempd.cdhd_usr_id
              |group by
@@ -778,7 +778,7 @@ object SparkHive2Mysql {
              |GROUP BY gb_region_nm) a
              |left join
              |
-         |(
+             |(
              |select
              |tempb.cup_branch_ins_id_nm as cup_branch_ins_id_nm,
              |count(distinct(case when to_date(tempb.rec_crt_ts)='$today_dt'  and tempb.valid_begin_dt='$today_dt' AND tempb.valid_end_dt='$today_dt'  then tempb.MCHNT_CD end)) as tpre,
@@ -2644,14 +2644,14 @@ object SparkHive2Mysql {
              |   '03100000','04031000','64031000','04010000','04012902',
              |   '04012900','04100000','05105840','06105840','03070000')
              |
-         |)tempc
+             |)tempc
              | on tempb.card_bin=tempc.card_bin
              |  ) tempa
              |where tempa.card_attr is not null
              |group by tempa.bank_nm, tempa.card_attr
              |) A
              |
-         |LEFT JOIN
+             |LEFT JOIN
              |(
              |select
              |iss_root_ins_id_cd,
@@ -2682,7 +2682,7 @@ object SparkHive2Mysql {
              |     when month('$today_dt') in (10,11,12) and  trans_month>= concat(year('$today_dt'),'07')  and trans_month<=concat(year('$today_dt'),'09')  then active_card_num
              |	 end) as LAST_QUARTER_ACTIVE_CNT
              |
-         |from HIVE_ACTIVE_CARD_ACQ_BRANCH_MON
+             |from HIVE_ACTIVE_CARD_ACQ_BRANCH_MON
              |where trans_class ='4' and
              |iss_root_ins_id_cd in ('0801020000','0801030000','0801040000','0801040003','0803070010',
              |   '0801050000','0801050001','0861000000','0801009999','0801000000',
@@ -2733,8 +2733,8 @@ object SparkHive2Mysql {
              |(
              |SELECT
              |A.PHONE_LOCATION,
-             |COUNT(distinct (CASE WHEN date(A.rec_upd_ts) > date(A.rec_crt_ts) THEN A.cdhd_usr_id END)) AS STOCK_NUM,
-             |COUNT(distinct (CASE WHEN date(A.rec_upd_ts) = date(A.rec_crt_ts) THEN A.cdhd_usr_id END)) AS TODAY_NUM,
+             |COUNT(distinct (CASE WHEN to_date(A.rec_upd_ts) > to_date(A.rec_crt_ts) THEN A.cdhd_usr_id END)) AS STOCK_NUM,
+             |COUNT(distinct (CASE WHEN to_date(A.rec_upd_ts) = to_date(A.rec_crt_ts) THEN A.cdhd_usr_id END)) AS TODAY_NUM,
              |B.TOTAL_NUM AS TOTAL_NUM
              |FROM
              |(
@@ -2745,9 +2745,9 @@ object SparkHive2Mysql {
              |rec_crt_ts
              |FROM HIVE_PRI_ACCT_INF
              |where
-             |substr(rec_upd_ts,1,10)>='$today_dt'
-             |and substr(rec_upd_ts,1,10)<='$today_dt'
-             |and date(rec_upd_ts) > date(rec_crt_ts) and
+             |to_date(rec_upd_ts)>='$today_dt'
+             |and to_date(rec_upd_ts)<='$today_dt'
+             |and rec_upd_ts >rec_crt_ts and
              |(usr_st='1' or (usr_st='2' and note='BDYX_FREEZE')) and  realnm_in='01'
              |) A
              |LEFT JOIN
@@ -2762,7 +2762,7 @@ object SparkHive2Mysql {
              |PHONE_LOCATION
              |FROM
              |HIVE_PRI_ACCT_INF
-             |where  substr(rec_upd_ts,1,10)<'$today_dt' and
+             |where  to_date(rec_upd_ts)<'$today_dt' and
              |(usr_st='1' or (usr_st='2' and note='BDYX_FREEZE'))
              |and  realnm_in='01'
              |)tempa

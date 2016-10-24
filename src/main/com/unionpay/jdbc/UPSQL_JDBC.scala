@@ -2,7 +2,6 @@ package com.unionpay.jdbc
 
 import java.sql.DriverManager
 import java.util.Properties
-
 import com.unionpay.conf.ConfigurationManager
 import com.unionpay.constant.Constants
 import org.apache.spark.sql.{DataFrame, SaveMode}
