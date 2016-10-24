@@ -172,6 +172,7 @@ object SparkHive2Mysql {
     }
   }
 
+
   /**
     * JOB_DM_2/10-14
     * dm_user_idcard_home->hive_pri_acct_inf,hive_acc_trans
@@ -180,7 +181,6 @@ object SparkHive2Mysql {
     * @param sqlContext
     * @return
     */
-
   def JOB_DM_2 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String,interval:Int) = {
     println("###JOB_DM_2(dm_user_idcard_home->hive_pri_acct_inf,hive_acc_trans)")
     UPSQL_JDBC.delete("dm_user_idcard_home","report_dt",start_dt,end_dt)
@@ -194,15 +194,15 @@ object SparkHive2Mysql {
              |select
              |NVL(a.ID_AREA_NM,'其它') as IDCARD_HOME,
              |'$today_dt' as report_dt,
-             |a.tpre   as   REG_TPRE_ADD_NUM    ,
-             |a.years  as   REG_YEAR_ADD_NUM    ,
-             |a.total  as   REG_TOTLE_ADD_NUM   ,
-             |b.tpre   as   EFFECT_TPRE_ADD_NUM ,
-             |b.years  as   EFFECT_YEAR_ADD_NUM ,
-             |b.total  as   EFFECT_TOTLE_ADD_NUM,
-             |c.tpre   as   DEAL_TPRE_ADD_NUM   ,
-             |c.years  as   DEAL_YEAR_ADD_NUM   ,
-             |c.total  as   DEAL_TOTLE_ADD_NUM
+             |sum(a.tpre)   as   REG_TPRE_ADD_NUM    ,
+             |sum(a.years)  as   REG_YEAR_ADD_NUM    ,
+             |sum(a.total)  as   REG_TOTLE_ADD_NUM   ,
+             |sum(b.tpre)   as   EFFECT_TPRE_ADD_NUM ,
+             |sum(b.years)  as   EFFECT_YEAR_ADD_NUM ,
+             |sum(b.total)  as   EFFECT_TOTLE_ADD_NUM,
+             |sum(c.tpre)   as   DEAL_TPRE_ADD_NUM   ,
+             |sum(c.years)  as   DEAL_YEAR_ADD_NUM   ,
+             |sum(c.total)  as   DEAL_TOTLE_ADD_NUM
              |from
              |(
              |select
@@ -220,7 +220,7 @@ object SparkHive2Mysql {
              |case when tempa.CITY_CARD in ('大连','宁波','厦门','青岛','深圳') then tempa.CITY_CARD else tempa.PROVINCE_CARD end as ID_AREA_NM,
              |count(distinct(case when tempa.rec_crt_ts='$today_dt'  and tempb.bind_dt='$today_dt'  then  tempa.cdhd_usr_id end)) as tpre,
              |count(distinct(case when tempa.rec_crt_ts>=trunc('$today_dt','YYYY') and tempa.rec_crt_ts<='$today_dt'
-             |and tempb.bind_dt)>=trunc('$today_dt','YYYY') and  tempb.bind_dt<='$today_dt' then  tempa.cdhd_usr_id end)) as years,
+             |and tempb.bind_dt>=trunc('$today_dt','YYYY') and  tempb.bind_dt<='$today_dt' then  tempa.cdhd_usr_id end)) as years,
              |count(distinct(case when tempa.rec_crt_ts<='$today_dt' and  tempb.bind_dt<='$today_dt'  then  tempa.cdhd_usr_id end)) as total
              |from
              |(
@@ -245,6 +245,7 @@ object SparkHive2Mysql {
              |on tempc.cdhd_usr_id=tempd.cdhd_usr_id
              |group by (case when tempc.CITY_CARD in ('大连','宁波','厦门','青岛','深圳') then tempc.CITY_CARD else tempc.PROVINCE_CARD end) ) c
              |on a.ID_AREA_NM=c.ID_AREA_NM
+             |group by NVL(a.ID_AREA_NM,'其它'),'$today_dt'
              | """.stripMargin)
         println(s"###JOB_DM_2------$today_dt results:"+results.count())
         if(!Option(results).isEmpty){
@@ -478,12 +479,12 @@ object SparkHive2Mysql {
              |a.card_auth_nm as CARD_AUTH,
              |a.realnm_in as DIFF_NAME,
              |'$today_dt' as REPORT_DT,
-             |a.tpre   as   EFFECT_TPRE_ADD_NUM ,
-             |a.years  as   EFFECT_YEAR_ADD_NUM ,
-             |a.total  as   EFFECT_TOTLE_ADD_NUM,
-             |b.tpre   as   DEAL_TPRE_ADD_NUM   ,
-             |b.years  as   DEAL_YEAR_ADD_NUM   ,
-             |b.total  as   DEAL_TOTLE_ADD_NUM
+             |sum(a.tpre)   as   EFFECT_TPRE_ADD_NUM ,
+             |sum(a.years)  as   EFFECT_YEAR_ADD_NUM ,
+             |sum(a.total)  as   EFFECT_TOTLE_ADD_NUM,
+             |sum(b.tpre)   as   DEAL_TPRE_ADD_NUM   ,
+             |sum(b.years)  as   DEAL_YEAR_ADD_NUM   ,
+             |sum(b.total)  as   DEAL_TOTLE_ADD_NUM
              |
              |from (
              |select
@@ -539,6 +540,9 @@ object SparkHive2Mysql {
              |else '未认证' end
              |) b
              |on a.card_auth_nm=b.card_auth_nm
+             |group by a.card_auth_nm,
+             |a.realnm_in,
+             |'$today_dt'
              | """.stripMargin)
         println(s"###JOB_DM_4------$today_dt results:"+results.count())
         if(!Option(results).isEmpty){
