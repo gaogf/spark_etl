@@ -1536,7 +1536,7 @@ object SparkHive2Mysql {
          |            (
          |                select
          |                    bill.cup_branch_ins_id_nm,
-         |                    trans.trans_dt,
+         |                    to_date(trans.trans_dt) as trans_dt,
          |                    count(1) as trans_cnt,
          |                    count(1) as accept_num,
          |                    sum((
@@ -1573,12 +1573,12 @@ object SparkHive2Mysql {
          |                and trans.part_trans_dt <= '$end_dt'
          |                group by
          |                    bill.cup_branch_ins_id_nm,
-         |                    trans.trans_dt) a
+         |                    to_date(trans.trans_dt)) a
          |        full outer join
          |            (
          |                select
          |                    ins.cup_branch_ins_id_nm,
-         |                    trans.trans_dt,
+         |                    to_date(trans.trans_dt) as trans_dt,
          |                    count(*) as trans_cnt
          |                from
          |                    hive_acc_trans trans
@@ -1595,7 +1595,7 @@ object SparkHive2Mysql {
          |                and trans.part_trans_dt <= '$end_dt'
          |                group by
          |                    ins.cup_branch_ins_id_nm,
-         |                    trans.trans_dt) b
+         |                    to_date(trans.trans_dt)) b
          |        on
          |            (
          |                a.cup_branch_ins_id_nm = b.cup_branch_ins_id_nm
@@ -1604,7 +1604,7 @@ object SparkHive2Mysql {
          |            (
          |                select
          |                    trans.cup_branch_ins_id_nm as cup_branch_ins_id_nm,
-         |                    trans.trans_dt as trans_dt,
+         |                    to_date(trans.trans_dt) as trans_dt,
          |                    count(*)                as trans_cnt
          |                from
          |                    hive_offline_point_trans trans
@@ -1616,7 +1616,7 @@ object SparkHive2Mysql {
          |                and trans.point_at>0
          |                group by
          |                    trans.cup_branch_ins_id_nm,
-         |                    trans.trans_dt) c
+         |                    to_date(trans.trans_dt)) c
          |        on
          |            (
          |                a.cup_branch_ins_id_nm = c.cup_branch_ins_id_nm
@@ -1625,7 +1625,7 @@ object SparkHive2Mysql {
          |            (
          |                select
          |                    trans.cup_branch_ins_id_nm,
-         |                    trans.trans_dt,
+         |                    to_date(trans.trans_dt) as trans_dt,
          |                    count(*) as trans_cnt
          |                from
          |                    hive_online_point_trans trans
@@ -1635,7 +1635,7 @@ object SparkHive2Mysql {
          |                and trans.part_trans_dt <= '$end_dt'
          |                group by
          |                    trans.cup_branch_ins_id_nm,
-         |                    trans.trans_dt) d
+         |                    to_date(trans.trans_dt)) d
          |        on
          |            (
          |                a.cup_branch_ins_id_nm = d.cup_branch_ins_id_nm
@@ -1644,7 +1644,7 @@ object SparkHive2Mysql {
          |            (
          |                select
          |                    mchnt.cup_branch_ins_id_nm,
-         |                    trans.trans_dt,
+         |                    to_date(trans.trans_dt) as trans_dt,
          |                    count(*) as trans_cnt
          |                from
          |                    hive_passive_code_pay_trans trans
@@ -1660,7 +1660,7 @@ object SparkHive2Mysql {
          |                and trans.part_trans_dt <= '$end_dt'
          |                group by
          |                    mchnt.cup_branch_ins_id_nm,
-         |                    trans.trans_dt) e
+         |                    to_date(trans.trans_dt)) e
          |        on
          |            (
          |                a.cup_branch_ins_id_nm = e.cup_branch_ins_id_nm
@@ -1669,7 +1669,7 @@ object SparkHive2Mysql {
          |            (
          |                select
          |                    bill.cup_branch_ins_id_nm,
-         |                    a.trans_dt,
+         |                    to_date(a.trans_dt) as trans_dt,
          |                    count(1) as download_num
          |                from
          |                    hive_download_trans a
@@ -1687,7 +1687,7 @@ object SparkHive2Mysql {
          |                and a.part_trans_dt <= '$end_dt'
          |                group by
          |                    bill.cup_branch_ins_id_nm,
-         |                    a.trans_dt) f
+         |                    to_date(a.trans_dt)) f
          |        on
          |            (
          |                a.cup_branch_ins_id_nm = f.cup_branch_ins_id_nm
@@ -1696,7 +1696,7 @@ object SparkHive2Mysql {
          |            (
          |                select
          |                    ins.cup_branch_ins_id_nm as cup_branch_ins_id_nm,
-         |                    swt.trans_dt             as trans_dt,
+         |                    to_date(swt.trans_dt)             as trans_dt,
          |                    sum(
          |                        case
          |                            when substr(swt.trans_st,1,1)='1'
@@ -1716,7 +1716,7 @@ object SparkHive2Mysql {
          |                and swt.rout_ins_id_cd not like '0016%'
          |                group by
          |                    ins.cup_branch_ins_id_nm,
-         |                    swt.trans_dt)g
+         |                    to_date(swt.trans_dt))g
          |        on
          |            (
          |                a.cup_branch_ins_id_nm = g.cup_branch_ins_id_nm
@@ -1725,7 +1725,7 @@ object SparkHive2Mysql {
          |            (
          |                select
          |                    dbi.cup_branch_ins_id_nm as cup_branch_ins_id_nm,
-         |                    trans.settle_dt          as trans_dt,
+         |                    to_date(trans.settle_dt)          as trans_dt,
          |                    sum (
          |                        case
          |                            when trans.trans_id in ('V52',
@@ -1746,7 +1746,7 @@ object SparkHive2Mysql {
          |                and trans.part_settle_dt <= '$end_dt'
          |                group by
          |                    dbi.cup_branch_ins_id_nm,
-         |                    trans.settle_dt) h
+         |                    to_date(trans.settle_dt)) h
          |        on
          |            (
          |                a.cup_branch_ins_id_nm = h.cup_branch_ins_id_nm
@@ -1784,7 +1784,7 @@ object SparkHive2Mysql {
       s"""
          |select
          |    cup_branch_ins_id_nm,
-         |    acct_addup_bat_dt as report_dt,
+         |    to_date(acct_addup_bat_dt) as report_dt,
          |    count(distinct(plan_id)) as plan_cnt,
          |    count(*)                as trans_cnt,
          |    sum(
@@ -1807,7 +1807,7 @@ object SparkHive2Mysql {
          |   to_date(acct_addup_bat_dt) >= '$start_dt' and to_date(acct_addup_bat_dt) <= '$end_dt'
          |group by
          |    cup_branch_ins_id_nm,
-         |    acct_addup_bat_dt
+         |    to_date(acct_addup_bat_dt)
       """.stripMargin)
 
     println(s"###JOB_DM_68------ ( $start_dt-$end_dt ) results:"+results.count())
@@ -2158,7 +2158,7 @@ object SparkHive2Mysql {
          |                select
          |                    trans.plan_id,
          |                    regexp_replace(trans.plan_nm,' ','') as plan_nm,
-         |                    trans.acct_addup_bat_dt as acpt_addup_bat_dt,
+         |                    to_date(trans.acct_addup_bat_dt) as acpt_addup_bat_dt,
          |                    count(*) as trans_cnt,
          |                    sum(
          |                        case

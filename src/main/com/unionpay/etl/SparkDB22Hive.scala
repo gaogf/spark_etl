@@ -298,7 +298,6 @@ object SparkDB22Hive {
          |	hive_ct t4 on trim(substr(substr(t1.mobile,-11,11),1,4)) = trim(t4.id)
          |left join
          |	hive_ucbiz_cdhd_bas_inf t5 on trim(t1.cdhd_usr_id) = trim(t5.usr_id)
-         |where substr(t1.rec_upd_ts,1,10) >= '$start_dt' and substr(t1.rec_upd_ts,1,10) <= '$end_dt'
        """.stripMargin)
 
     if(!Option(results).isEmpty){
