@@ -29,9 +29,15 @@ object SparkUPWH2H {
 
     println(s"####当前JOB的执行日期为：start_dt=$start_dt,end_dt=$end_dt####")
 
-
+    /**
+      * 每日模板job
+      */
 //    JOB_HV_40(sqlContext,start_dt,end_dt,interval)
 //    JOB_HV_42(sqlContext,start_dt,end_dt,interval)
+
+    /**
+      *  指标套表job
+      */
 
 
   }
