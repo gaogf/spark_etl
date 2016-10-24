@@ -1,8 +1,5 @@
 package com.unionpay.etl
 
-import java.text.SimpleDateFormat
-import java.util.Calendar
-
 import com.unionpay.conf.ConfigurationManager
 import com.unionpay.constant.Constants
 import com.unionpay.jdbc.UPSQL_TIMEPARAMS_JDBC
@@ -19,7 +16,7 @@ object SparkUPWH2H {
   private lazy val hive_dbname =ConfigurationManager.getProperty(Constants.HIVE_DBNAME)
 
   def main(args: Array[String]): Unit = {
-    val conf = new SparkConf().setAppName("SparkDB22Hive")
+    val conf = new SparkConf().setAppName("SparkUPWH2H")
     val sc = new SparkContext(conf)
     sc.setLogLevel("ERROR")
     implicit val sqlContext = new HiveContext(sc)
@@ -32,8 +29,9 @@ object SparkUPWH2H {
 
     println(s"####当前JOB的执行日期为：start_dt=$start_dt,end_dt=$end_dt####")
 
-    JOB_HV_40(sqlContext,start_dt,end_dt,interval)
-    JOB_HV_42(sqlContext,start_dt,end_dt,interval)
+
+//    JOB_HV_40(sqlContext,start_dt,end_dt,interval)
+//    JOB_HV_42(sqlContext,start_dt,end_dt,interval)
 
 
   }
