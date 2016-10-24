@@ -32,7 +32,7 @@ object SparkHive2Mysql {
     /**
       * 每日模板job
       */
-//    JOB_DM_1(sqlContext,start_dt,end_dt,interval)    //CODE BY YX
+//   JOB_DM_1(sqlContext,start_dt,end_dt,interval)    //CODE BY YX
 //    JOB_DM_3(sqlContext,start_dt,end_dt,interval)    //CODE BY YX
 //    JOB_DM_9(sqlContext,start_dt,end_dt,interval)    //CODE BY XTP
 //    JOB_DM_55(sqlContext,start_dt,end_dt)   //CODE BY TZQ
@@ -123,15 +123,14 @@ object SparkHive2Mysql {
              |(
              |select
              |phone_location,
-             |sum(case when to_date(rec_crt_ts)='$today_dt'  and to_date(bind_dt)='$today_dt'  then  1  else 0 end) as tpre,
-             |sum(case when to_date(rec_crt_ts)>=trunc('$today_dt','YYYY') and to_date(rec_crt_ts)<='$today_dt'
-             |          and to_date(bind_dt)>=trunc('$today_dt','YYYY') and  to_date(bind_dt)<='$today_dt' then   1 else 0 end) as months,
-             |sum(case when to_date(rec_crt_ts)>=trunc('$today_dt','YYYY') and to_date(rec_crt_ts)<='$today_dt'
-             |          and to_date(bind_dt)>=trunc('$today_dt','YYYY') and  to_date(bind_dt)<='$today_dt' then  1 else 0 end) as years,
-             |sum(case when to_date(rec_crt_ts)<='$today_dt' and  to_date(bind_dt)<='$today_dt'  then  1 else 0 end) as total
+             |sum(case when to_date(bind_dt)='$today_dt'  then  1  else 0 end) as tpre,
+             |sum(case when to_date(bind_dt)>=trunc('$today_dt','YYYY') and  to_date(bind_dt)<='$today_dt' then   1 else 0 end) as months,
+             |sum(case when to_date(bind_dt)>=trunc('$today_dt','YYYY') and  to_date(bind_dt)<='$today_dt' then  1 else 0 end) as years,
+             |sum(case when to_date(bind_dt)<='$today_dt'  then  1 else 0 end) as total
              |from (select rec_crt_ts,phone_location,cdhd_usr_id from hive_pri_acct_inf
              |where usr_st='1' ) a
-             |inner join (select distinct(cdhd_usr_id) , rec_crt_ts as bind_dt from hive_card_bind_inf where card_auth_st in ('1','2','3') ) b
+             |inner join (select distinct cdhd_usr_id, min(rec_crt_ts) as bind_dt from hive_card_bind_inf where card_auth_st in ('1','2','3')
+             |group by cdhd_usr_id) b
              |on a.cdhd_usr_id=b.cdhd_usr_id
              |group by phone_location ) b
              |on a.phone_location =b.phone_location
@@ -1618,6 +1617,7 @@ object SparkHive2Mysql {
          |                and trans.oper_st in('0' ,
          |                                     '3')
          |                and trans.point_at>0
+         |                and UM_TRANS_ID in('AD00000002','AD00000003','AD00000007')
          |                group by
          |                    trans.cup_branch_ins_id_nm,
          |                    to_date(trans.trans_dt)) c
