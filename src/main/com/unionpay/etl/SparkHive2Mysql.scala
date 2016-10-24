@@ -2152,7 +2152,7 @@ object SparkHive2Mysql {
          |            a.trans_cnt,
          |            a.point_at,
          |            a.bill_num,
-         |            row_number() over(partition by a.acpt_addup_bat_dt order by a.bill_num desc) as rn
+         |            row_number() over(partition by to_date(a.acpt_addup_bat_dt) order by a.bill_num desc) as rn
          |        from
          |            (
          |                select
@@ -2184,7 +2184,7 @@ object SparkHive2Mysql {
          |                		to_date(trans.acct_addup_bat_dt) >= '$start_dt' and to_date(trans.acct_addup_bat_dt) <= '$end_dt'
          |                group by
          |                    trans.plan_id,
-         |                    regexp_replace(trans.plan_nm,' ',''),trans.acct_addup_bat_dt)a) b
+         |                    regexp_replace(trans.plan_nm,' ',''),to_date(trans.acct_addup_bat_dt))a) b
          |        where
          |            b.rn <= 10
       """.stripMargin)
