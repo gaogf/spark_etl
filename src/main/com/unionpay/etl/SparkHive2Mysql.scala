@@ -29,14 +29,12 @@ object SparkHive2Mysql {
 
     println(s"####当前JOB的执行日期为：start_dt=$start_dt,end_dt=$end_dt####")
 
+    /**
+      * 每日模板job
+      */
     JOB_DM_1(sqlContext,start_dt,end_dt,interval)    //CODE BY YX
-    JOB_DM_2(sqlContext,start_dt,end_dt,interval)    //CODE BY XTP
     JOB_DM_3(sqlContext,start_dt,end_dt,interval)    //CODE BY YX
-    JOB_DM_4(sqlContext,start_dt,end_dt,interval)    //CODE BY XTP
-    JOB_DM_5(sqlContext,start_dt,end_dt,interval)    //CODE BY TZQ
-    JOB_DM_6(sqlContext,start_dt,end_dt,interval)    //CODE BY TZQ
     JOB_DM_9(sqlContext,start_dt,end_dt,interval)    //CODE BY XTP
-    JOB_DM_54(sqlContext,start_dt,end_dt)   //CODE BY XTP  属于指标套表，不属于每日模板，无数据
     JOB_DM_55(sqlContext,start_dt,end_dt)   //CODE BY TZQ
     JOB_DM_61(sqlContext,start_dt,end_dt,interval)   //CODE BY YX
     JOB_DM_62(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ
@@ -56,6 +54,16 @@ object SparkHive2Mysql {
     JOB_DM_78(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP
     JOB_DM_86(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP
     JOB_DM_87(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ
+
+    /**
+      * 指标套表job
+      */
+    JOB_DM_4(sqlContext,start_dt,end_dt,interval)    //CODE BY XTP
+    JOB_DM_2(sqlContext,start_dt,end_dt,interval)    //CODE BY XTP
+    JOB_DM_5(sqlContext,start_dt,end_dt,interval)    //CODE BY TZQ
+    JOB_DM_6(sqlContext,start_dt,end_dt,interval)    //CODE BY TZQ
+    JOB_DM_54(sqlContext,start_dt,end_dt)   //CODE BY XTP  属于指标套表，不属于每日模板，无数据
+
 
     sc.stop()
 
