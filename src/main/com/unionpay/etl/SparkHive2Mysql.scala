@@ -32,37 +32,37 @@ object SparkHive2Mysql {
     /**
       * 每日模板job
       */
-    JOB_DM_1(sqlContext,start_dt,end_dt,interval)    //CODE BY YX
-    JOB_DM_3(sqlContext,start_dt,end_dt,interval)    //CODE BY YX
-    JOB_DM_9(sqlContext,start_dt,end_dt,interval)    //CODE BY XTP
-    JOB_DM_55(sqlContext,start_dt,end_dt)   //CODE BY TZQ
-    JOB_DM_61(sqlContext,start_dt,end_dt,interval)   //CODE BY YX
-    JOB_DM_62(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ
-    JOB_DM_63(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP
-    JOB_DM_65(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP
-    JOB_DM_66(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ
-    JOB_DM_67(sqlContext,start_dt,end_dt)   //CODE BY YX
-    JOB_DM_68(sqlContext,start_dt,end_dt)   //CODE BY YX
-    JOB_DM_69(sqlContext,start_dt,end_dt)   //CODE BY TZQ
-    JOB_DM_70(sqlContext,start_dt,end_dt)   //CODE BY TZQ
-    JOB_DM_71(sqlContext,start_dt,end_dt)   //CODE BY TZQ
-    JOB_DM_72(sqlContext,start_dt,end_dt)   //CODE BY YX
-    JOB_DM_73(sqlContext,start_dt,end_dt)   //CODE BY XTP
-    JOB_DM_74(sqlContext,start_dt,end_dt)   //CODE BY XTP
-    JOB_DM_75(sqlContext,start_dt,end_dt)   //CODE BY XTP
-    JOB_DM_76(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ
-    JOB_DM_78(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP
-    JOB_DM_86(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP
-    JOB_DM_87(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ
+//    JOB_DM_1(sqlContext,start_dt,end_dt,interval)    //CODE BY YX
+//    JOB_DM_3(sqlContext,start_dt,end_dt,interval)    //CODE BY YX
+//    JOB_DM_9(sqlContext,start_dt,end_dt,interval)    //CODE BY XTP
+//    JOB_DM_55(sqlContext,start_dt,end_dt)   //CODE BY TZQ
+//    JOB_DM_61(sqlContext,start_dt,end_dt,interval)   //CODE BY YX
+//    JOB_DM_62(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ
+//    JOB_DM_63(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP
+//    JOB_DM_65(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP
+//    JOB_DM_66(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ
+//    JOB_DM_67(sqlContext,start_dt,end_dt)   //CODE BY YX
+//    JOB_DM_68(sqlContext,start_dt,end_dt)   //CODE BY YX
+//    JOB_DM_69(sqlContext,start_dt,end_dt)   //CODE BY TZQ
+//    JOB_DM_70(sqlContext,start_dt,end_dt)   //CODE BY TZQ
+//    JOB_DM_71(sqlContext,start_dt,end_dt)   //CODE BY TZQ
+//    JOB_DM_72(sqlContext,start_dt,end_dt)   //CODE BY YX
+//    JOB_DM_73(sqlContext,start_dt,end_dt)   //CODE BY XTP
+//    JOB_DM_74(sqlContext,start_dt,end_dt)   //CODE BY XTP
+//    JOB_DM_75(sqlContext,start_dt,end_dt)   //CODE BY XTP
+//    JOB_DM_76(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ
+//    JOB_DM_78(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP
+//    JOB_DM_86(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP
+//    JOB_DM_87(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ
 
     /**
       * 指标套表job
       */
-    JOB_DM_4(sqlContext,start_dt,end_dt,interval)    //CODE BY XTP
-    JOB_DM_2(sqlContext,start_dt,end_dt,interval)    //CODE BY XTP
-    JOB_DM_5(sqlContext,start_dt,end_dt,interval)    //CODE BY TZQ
-    JOB_DM_6(sqlContext,start_dt,end_dt,interval)    //CODE BY TZQ
-    JOB_DM_54(sqlContext,start_dt,end_dt)   //CODE BY XTP  属于指标套表，不属于每日模板，无数据
+//    JOB_DM_4(sqlContext,start_dt,end_dt,interval)    //CODE BY XTP
+//    JOB_DM_2(sqlContext,start_dt,end_dt,interval)    //CODE BY XTP
+//    JOB_DM_5(sqlContext,start_dt,end_dt,interval)    //CODE BY TZQ
+//    JOB_DM_6(sqlContext,start_dt,end_dt,interval)    //CODE BY TZQ
+//    JOB_DM_54(sqlContext,start_dt,end_dt)   //CODE BY XTP  属于指标套表，不属于每日模板，无数据
 
 
     sc.stop()
