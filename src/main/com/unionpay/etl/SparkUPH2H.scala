@@ -25,9 +25,17 @@ object SparkUPH2H {
     val rowParams=UPSQL_TIMEPARAMS_JDBC.readTimeParams(sqlContext)
     val end_dt=rowParams.getString(1)//结束日期(未减一处理)
 
-    JOB_HV_39(sqlContext,end_dt) //hive-job40依赖
-    JOB_HV_49 //hive-job3依赖
-    JOB_HV_52(sqlContext,end_dt)
+
+    /**
+      * 每日模板job
+      */
+//    JOB_HV_39(sqlContext,end_dt) //hive-job40依赖
+//    JOB_HV_49 //hive-job3依赖
+//    JOB_HV_52(sqlContext,end_dt)
+
+    /**
+      * 指标套表job
+      */
 
     sc.stop()
   }
