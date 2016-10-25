@@ -123,15 +123,14 @@ object SparkHive2Mysql {
              |(
              |select
              |phone_location,
-             |sum(case when to_date(rec_crt_ts)='$today_dt'  and to_date(bind_dt)='$today_dt'  then  1  else 0 end) as tpre,
-             |sum(case when to_date(rec_crt_ts)>=trunc('$today_dt','YYYY') and to_date(rec_crt_ts)<='$today_dt'
-             |          and to_date(bind_dt)>=trunc('$today_dt','YYYY') and  to_date(bind_dt)<='$today_dt' then   1 else 0 end) as months,
-             |sum(case when to_date(rec_crt_ts)>=trunc('$today_dt','YYYY') and to_date(rec_crt_ts)<='$today_dt'
-             |          and to_date(bind_dt)>=trunc('$today_dt','YYYY') and  to_date(bind_dt)<='$today_dt' then  1 else 0 end) as years,
-             |sum(case when to_date(rec_crt_ts)<='$today_dt' and  to_date(bind_dt)<='$today_dt'  then  1 else 0 end) as total
+             |sum(case when to_date(bind_dt)='$today_dt'  then  1  else 0 end) as tpre,
+             |sum(case when to_date(bind_dt)>=trunc('$today_dt','YYYY') and  to_date(bind_dt)<='$today_dt' then   1 else 0 end) as months,
+             |sum(case when to_date(bind_dt)>=trunc('$today_dt','YYYY') and  to_date(bind_dt)<='$today_dt' then  1 else 0 end) as years,
+             |sum(case when to_date(bind_dt)<='$today_dt'  then  1 else 0 end) as total
              |from (select rec_crt_ts,phone_location,cdhd_usr_id from hive_pri_acct_inf
              |where usr_st='1' ) a
-             |inner join (select distinct(cdhd_usr_id) , rec_crt_ts as bind_dt from hive_card_bind_inf where card_auth_st in ('1','2','3') ) b
+             |inner join (select distinct cdhd_usr_id, min(rec_crt_ts) as bind_dt from hive_card_bind_inf where card_auth_st in ('1','2','3')
+             |group by cdhd_usr_id) b
              |on a.cdhd_usr_id=b.cdhd_usr_id
              |group by phone_location ) b
              |on a.phone_location =b.phone_location
@@ -1020,7 +1019,7 @@ object SparkHive2Mysql {
       s"""
          |select
          |    dbi.cup_branch_ins_id_nm as cup_branch_ins_id_nm,
-         |    trans.settle_dt as report_dt,
+         |    to_date(trans.settle_dt) as report_dt,
          |    count(1)                                 as trans_cnt,
          |    sum(trans.trans_pos_at)                  as trans_at,
          |    sum(trans.trans_pos_at - trans.trans_at) as discount_at
@@ -1037,7 +1036,7 @@ object SparkHive2Mysql {
          |and trans.part_settle_dt <= '$end_dt'
          |group by
          |    dbi.cup_branch_ins_id_nm,
-         |    trans.settle_dt
+         |    to_date(trans.settle_dt)
          |
       """.stripMargin)
 
@@ -1618,6 +1617,7 @@ object SparkHive2Mysql {
          |                and trans.oper_st in('0' ,
          |                                     '3')
          |                and trans.point_at>0
+         |                and UM_TRANS_ID in('AD00000002','AD00000003','AD00000007')
          |                group by
          |                    trans.cup_branch_ins_id_nm,
          |                    to_date(trans.trans_dt)) c
@@ -1885,7 +1885,7 @@ object SparkHive2Mysql {
          |            (
          |                select
          |                    bill_id,
-         |                    trans_dt,
+         |                    to_date(trans_dt),
          |                    count(*) as concnt,
          |                    sum(
          |                        case
@@ -1904,7 +1904,7 @@ object SparkHive2Mysql {
          |
          |                and sys_det_cd='S'
          |                group by
-         |                    bill_id,trans_dt)  trans_data
+         |                    bill_id,to_date(trans_dt))  trans_data
          |        on
          |            (
          |                bill_data.bill_id = trans_data.bill_id)
@@ -1986,7 +1986,7 @@ object SparkHive2Mysql {
          |            (
          |                select
          |                    bill_id,
-         |                    trans_dt,
+         |                    to_date(trans_dt),
          |                    count(*) as concnt,
          |                    sum(
          |                        case
@@ -2003,7 +2003,7 @@ object SparkHive2Mysql {
          |               and part_trans_dt >= '$start_dt'
          |               and part_trans_dt <= '$end_dt'
          |                and sys_det_cd='S'
-         |                group by bill_id, trans_dt
+         |                group by bill_id, to_date(trans_dt)
          |            ) as trans_data
          |        on
          |            (
@@ -2088,7 +2088,7 @@ object SparkHive2Mysql {
          |            (
          |                select
          |                    bill_id,
-         |                    trans_dt,
+         |                    to_date(trans_dt),
          |                    count(*) as concnt,
          |                    sum(
          |                        case
@@ -2105,7 +2105,7 @@ object SparkHive2Mysql {
          |               and part_trans_dt >= '$start_dt'
          |               and part_trans_dt <= '$end_dt'
          |               and sys_det_cd='S'
-         |                group by bill_id,trans_dt) as trans_data
+         |                group by bill_id,to_date(trans_dt)) as trans_data
          |        on
          |            (
          |                bill_data.bill_id = trans_data.bill_id)
@@ -2538,19 +2538,19 @@ object SparkHive2Mysql {
              |     when cloud_pay_in in ('2','3') then '三星pay'
              |     when cloud_pay_in='4' then 'ic卡挥卡'
              |   else '其它' end ) as cfp_sign,
-             |settle_dt as  report_dt,
+             |to_date(settle_dt) as  report_dt,
              |count(case when to_date(settle_dt) >= trunc('$today_dt','YYYY') and
              |       to_date(settle_dt) <='$today_dt' then pri_acct_no end) as year_tran_num,
              |count(case when to_date(settle_dt) = '$today_dt' then pri_acct_no end) as today_tran_num
              |
-         |from hive_prize_discount_result
+             |from hive_prize_discount_result
              |where  prod_in='0'
              |group by cup_branch_ins_id_nm,
              |case when cloud_pay_in='0' then 'Apple Pay'
              |     when cloud_pay_in='1' then 'HCE'
              |     when cloud_pay_in in ('2','3') then '三星pay'
              |     when cloud_pay_in='4' then 'IC卡挥卡'
-             |   else '其它' end , settle_dt
+             |   else '其它' end , to_date(settle_dt)
       """.stripMargin)
 
         println(s"###JOB_DM_76------$today_dt results:"+results.count())
@@ -3143,7 +3143,7 @@ object SparkHive2Mysql {
              |    (
              |        a11.cup_branch_ins_id_nm = a83.cup_branch_ins_id_nm)
              |
-         |
+             |
       """.stripMargin)
         println(s"###JOB_DM_87------$today_dt results:"+results.count())
         if(!Option(results).isEmpty){

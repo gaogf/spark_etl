@@ -32,8 +32,8 @@ object SparkUPWH2H {
     /**
       * 每日模板job
       */
-//    JOB_HV_40(sqlContext,start_dt,end_dt,interval)
-//    JOB_HV_42(sqlContext,start_dt,end_dt,interval)
+//    JOB_HV_40(sqlContext,start_dt,end_dt,interval) //CODE BY TZQ
+//    JOB_HV_42(sqlContext,start_dt,end_dt,interval) //CODE BY TZQ
 
     /**
       *  指标套表job

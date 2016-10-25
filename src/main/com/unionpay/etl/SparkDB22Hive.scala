@@ -1562,44 +1562,29 @@ object SparkDB22Hive {
       """.stripMargin)
     results.registerTempTable("spark_trans_his")
 
-    val dateFormat = new SimpleDateFormat("yyyy-MM-dd")
-    val start_date = dateFormat.parse(start_dt)
-    val end_date = dateFormat.parse(end_dt)
-    val diff_days = (end_date.getTime-start_date.getTime)/(1000*60*60*24)
+    def InsertPart_JOB_HV_18(start_dt: String, end_dt: String)  {
+      var sdf: SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd")
+      val start = LocalDate.parse(start_dt, dateFormatter)
+      val end = LocalDate.parse(end_dt, dateFormatter)
+      val days = Days.daysBetween(start, end).getDays
+      val dateStrs = for (day <- 0 to days) {
+        val currentDay = (start.plusDays(day).toString(dateFormatter))
+        println(s"=========插入'$currentDay'分区的数据=========")
 
-    //1.将数据插入start_dt分区中
-    var part_dt = start_dt
-    var trans_date = part_dt
+        sqlContext.sql(s"use $hive_dbname")
+        sqlContext.sql(s"alter table hive_download_trans drop partition (part_trans_dt='$currentDay')")
+        println(s"alter table hive_download_trans drop partition (part_trans_dt='$currentDay') successfully!")
 
-    sqlContext.sql(s"use $hive_dbname")
-    sqlContext.sql(s"alter table hive_download_trans drop partition (part_trans_dt='$part_dt')")
-    sqlContext.sql(
-      s"""
-         |insert into hive_download_trans partition(part_trans_dt='$part_dt')
-         |select * from spark_trans_his where trans_dt = '$trans_date'
-    """.stripMargin)
-    println(s"#### insert into hive_download_trans part_trans_dt='$part_dt' successful ####")
-
-    //2.将数据插入对应分区，包含end_dt分区
-    val cal = Calendar.getInstance
-    cal.setTime(start_date)
-    for(i <- 1 to diff_days.toInt){
-      cal.add(Calendar.DATE,1)
-      part_dt = dateFormat.format(cal.getTime)
-      trans_date = part_dt
-      println("#### part_dt = " + part_dt + " ####\n" + "#### trans_date = " + trans_date + " ####")
-
-      sqlContext.sql(s"use $hive_dbname")
-      sqlContext.sql(s"alter table hive_download_trans drop partition (part_trans_dt='$part_dt')")
-      sqlContext.sql(
-        s"""
-           |insert into hive_download_trans partition(part_trans_dt='$part_dt')
-           |select * from spark_trans_his where trans_dt = '$trans_date'
-    """.stripMargin)
-      println(s"#### insert into hive_download_trans part_trans_dt='$part_dt' successful ####")
-
+        sqlContext.sql(
+          s"""
+             |insert into hive_download_trans partition (part_trans_dt='$currentDay')
+             |select * from spark_trans_his where trans_dt = '$currentDay'
+           """.stripMargin)
+        println(s"insert into hive_download_trans partition (part_trans_dt='$currentDay') successfully!")
+      }
     }
 
+    InsertPart_JOB_HV_18 (start_dt,end_dt)
   }
 
   /**
@@ -2267,43 +2252,29 @@ object SparkDB22Hive {
     )
     results.registerTempTable("spark_code_pay_tran_dtl")
 
+    def InsertPart_JOB_HV_30(start_dt: String, end_dt: String)  {
+      var sdf: SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd")
+      val start = LocalDate.parse(start_dt, dateFormatter)
+      val end = LocalDate.parse(end_dt, dateFormatter)
+      val days = Days.daysBetween(start, end).getDays
+      val dateStrs = for (day <- 0 to days) {
+        val currentDay = (start.plusDays(day).toString(dateFormatter))
+        println(s"=========插入'$currentDay'分区的数据=========")
 
-    val dateFormat = new SimpleDateFormat("yyyy-MM-dd")
-    val start_date = dateFormat.parse(start_dt)
-    val end_date = dateFormat.parse(end_dt)
-    val diff_days = (end_date.getTime-start_date.getTime)/(1000*60*60*24)
+        sqlContext.sql(s"use $hive_dbname")
+        sqlContext.sql(s"alter table hive_passive_code_pay_trans drop partition (part_trans_dt='$currentDay')")
+        println(s"alter table hive_passive_code_pay_trans drop partition (part_trans_dt='$currentDay') successfully!")
 
-    //1.将数据插入start_dt分区中
-    var part_dt = start_dt
-    var trans_date = part_dt
-
-    sqlContext.sql(s"alter table hive_passive_code_pay_trans drop partition (part_trans_dt='$part_dt')")
-    sqlContext.sql(
-      s"""
-         |insert into hive_passive_code_pay_trans partition(part_trans_dt='$part_dt')
-         |select * from spark_code_pay_tran_dtl where trans_dt = '$trans_date'
-    """.stripMargin)
-    println(s"#### insert into hive_passive_code_pay_trans part_trans_dt='$part_dt' successful ####")
-
-    //2.将数据插入对应分区，包含end_dt分区
-    val cal = Calendar.getInstance
-    cal.setTime(start_date)
-    for(i <- 1 to diff_days.toInt){
-      cal.add(Calendar.DATE,1)
-      part_dt = dateFormat.format(cal.getTime)
-      trans_date = part_dt
-      println("#### part_dt = " + part_dt + " ####\n" + "#### trans_date = " + trans_date + " ####")
-
-      sqlContext.sql(s"use $hive_dbname")
-      sqlContext.sql(s"alter table hive_passive_code_pay_trans drop partition (part_trans_dt='$part_dt')")
-      sqlContext.sql(
-        s"""
-           |insert into hive_passive_code_pay_trans partition(part_trans_dt='$part_dt')
-           |select * from spark_code_pay_tran_dtl where trans_dt = '$trans_date'
-    """.stripMargin)
-      println(s"#### insert into hive_passive_code_pay_trans part_trans_dt='$part_dt' successful ####")
-
+        sqlContext.sql(
+          s"""
+             |insert into hive_passive_code_pay_trans partition (part_trans_dt='$currentDay')
+             |select * from spark_code_pay_tran_dtl where trans_dt = '$currentDay'
+           """.stripMargin)
+        println(s"insert into hive_passive_code_pay_trans partition (part_trans_dt='$currentDay') successfully!")
+      }
     }
+
+    InsertPart_JOB_HV_30 (start_dt,end_dt)
 
   }
 
@@ -2972,41 +2943,30 @@ object SparkDB22Hive {
     )
     results.registerTempTable("spark_swt_log")
 
-    val dateFormat = new SimpleDateFormat("yyyy-MM-dd")
-    val start_date = dateFormat.parse(start_dt)
-    val end_date = dateFormat.parse(end_dt)
-    val diff_days = (end_date.getTime-start_date.getTime)/(1000*60*60*24)
+    def InsertPart_JOB_HV_43 (start_dt: String, end_dt: String)  {
+      var sdf: SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd")
+      val start = LocalDate.parse(start_dt, dateFormatter)
+      val end = LocalDate.parse(end_dt, dateFormatter)
+      val days = Days.daysBetween(start, end).getDays
+      val dateStrs = for (day <- 0 to days) {
+        val currentDay = (start.plusDays(day).toString(dateFormatter))
+        println(s"=========插入'$currentDay'分区的数据=========")
 
-    //1.将数据插入start_dt分区中
-    var part_dt = start_dt
-    var trans_date = part_dt
+        sqlContext.sql(s"use $hive_dbname")
+        sqlContext.sql(s"alter table hive_switch_point_trans drop partition (part_trans_dt='$currentDay')")
+        println(s"alter table hive_switch_point_trans drop partition (part_trans_dt='$currentDay') successfully!")
 
-    sqlContext.sql(s"alter table hive_switch_point_trans drop partition (part_trans_dt='$part_dt')")
-    sqlContext.sql(
-      s"""
-         |insert into hive_switch_point_trans partition(part_trans_dt='$part_dt')
-         |select * from spark_swt_log where trans_dt = '$trans_date'
-    """.stripMargin)
-    println(s"#### insert into hive_switch_point_trans part_trans_dt='$part_dt' successful ####")
-
-    //2.将数据插入对应分区，包含end_dt分区
-    val cal = Calendar.getInstance
-    cal.setTime(start_date)
-    for(i <- 1 to diff_days.toInt){
-      cal.add(Calendar.DATE,1)
-      part_dt = dateFormat.format(cal.getTime)
-      trans_date = part_dt
-      println("#### part_dt = " + part_dt + " ####\n" + "#### trans_date = " + trans_date + " ####")
-
-      sqlContext.sql(s"use $hive_dbname")
-      sqlContext.sql(s"alter table hive_switch_point_trans drop partition (part_trans_dt='$part_dt')")
-      sqlContext.sql(
-        s"""
-           |insert into hive_switch_point_trans partition(part_trans_dt='$part_dt')
-           |select * from spark_swt_log where trans_dt = '$trans_date'
-    """.stripMargin)
-      println(s"#### insert into hive_switch_point_trans part_trans_dt='$part_dt' successful ####")
+        sqlContext.sql(
+          s"""
+             |insert into hive_switch_point_trans partition (part_trans_dt='$currentDay')
+             |select * from spark_swt_log where trans_dt = '$currentDay'
+           """.stripMargin)
+        println(s"insert into hive_switch_point_trans partition (part_trans_dt='$currentDay') successfully!")
+      }
     }
+
+    InsertPart_JOB_HV_43 (start_dt,end_dt)
+
   }
   /**
     * hive-job-44/08-22
