@@ -573,8 +573,6 @@ object SparkDB22Hive {
         sqlContext.sql(s"use $hive_dbname")
         sqlContext.sql(s"alter table hive_acc_trans drop partition (part_trans_dt='$currentDay')")
         println(s"alter table hive_acc_trans drop partition (part_trans_dt='$currentDay') successfully!")
-        sqlContext.sql(s"alter table hive_acc_trans add partition (part_trans_dt='$currentDay')")
-        println(s"alter table hive_acc_trans add partition (part_trans_dt='$currentDay') successfully!")
         sqlContext.sql(s"insert into hive_acc_trans partition (part_trans_dt='$currentDay') select * from spark_acc_trans htempa where htempa.trans_dt = '$currentDay'")
         println(s"insert into hive_acc_trans partition (part_trans_dt='$currentDay') successfully!")
       }
@@ -1917,7 +1915,7 @@ object SparkDB22Hive {
 
     val results = sqlContext.sql(
       s"""
-        select
+         |select
          |ta.trans_id as trans_id,
          |trim(ta.cdhd_usr_id) as cdhd_usr_id,
          |trim(ta.trans_tp) as trans_tp,
@@ -2021,8 +2019,6 @@ object SparkDB22Hive {
         sqlContext.sql(s"use $hive_dbname")
         sqlContext.sql(s"alter table hive_online_point_trans drop partition (part_trans_dt='$currentDay')")
         println(s"alter table hive_online_point_trans drop partition (part_trans_dt='$currentDay') successfully!")
-        sqlContext.sql(s"alter table hive_online_point_trans add partition (part_trans_dt='$currentDay')")
-        println(s"alter table hive_online_point_trans add partition (part_trans_dt='$currentDay') successfully!")
         sqlContext.sql(s"insert into hive_online_point_trans partition (part_trans_dt='$currentDay') select * from spark_hive_online_point_trans htempa where htempa.trans_dt = '$currentDay'")
         println(s"insert into hive_online_point_trans partition (part_trans_dt='$currentDay') successfully!")
       }
@@ -2329,7 +2325,7 @@ object SparkDB22Hive {
 
     val results = sqlContext.sql(
       s"""
-        select
+         |select
          |trim(ta.BILL_ORDER_ID) as BILL_ORDER_ID,
          |trim(ta.MCHNT_CD) as MCHNT_CD,
          |ta.MCHNT_NM as MCHNT_NM,
@@ -2584,8 +2580,6 @@ object SparkDB22Hive {
         sqlContext.sql(s"use $hive_dbname")
         sqlContext.sql(s"alter table hive_prize_discount_result drop partition (part_settle_dt='$currentDay')")
         println(s"alter table hive_prize_discount_result drop partition (part_settle_dt='$currentDay') successfully!")
-        sqlContext.sql(s"alter table hive_prize_discount_result add partition (part_settle_dt='$currentDay')")
-        println(s"alter table hive_prize_discount_result add partition (part_settle_dt='$currentDay') successfully!")
         sqlContext.sql(s"insert into hive_prize_discount_result partition (part_settle_dt='$currentDay') select * from spark_hive_prize_discount_result htempa where htempa.settle_dt = '$currentDay'")
         println(s"insert into hive_prize_discount_result partition (part_settle_dt='$currentDay') successfully!")
       }
@@ -2664,8 +2658,6 @@ object SparkDB22Hive {
         sqlContext.sql(s"use $hive_dbname")
         sqlContext.sql(s"alter table hive_bill_sub_order_trans drop partition (part_trans_dt='$currentDay')")
         println(s"alter table hive_bill_sub_order_trans drop partition (part_trans_dt='$currentDay') successfully!")
-        sqlContext.sql(s"alter table hive_bill_sub_order_trans add partition (part_trans_dt='$currentDay')")
-        println(s"alter table hive_bill_sub_order_trans add partition (part_trans_dt='$currentDay') successfully!")
         sqlContext.sql(s"insert into hive_bill_sub_order_trans partition (part_trans_dt='$currentDay') select * from spark_hive_bill_sub_order_trans htempa where htempa.trans_dt = '$currentDay'")
         println(s"insert into hive_bill_sub_order_trans partition (part_trans_dt='$currentDay') successfully!")
       }
