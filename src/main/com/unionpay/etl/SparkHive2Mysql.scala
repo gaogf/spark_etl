@@ -2596,8 +2596,8 @@ object SparkHive2Mysql {
              |select
              |tempa.bank_nm as bank_nm,
              |tempa.card_attr as card_attr,
-             |count(case when tempa.bind_dt<='$today_dt' then tempa.bind_card_no end ) as TOTAL_BIND_CNT,
-             |count(case when tempa.bind_dt='$today_dt' then tempa.bind_card_no end ) as TODAY_CNT
+             |count(case when tempa.bind_dt<='$today_dt' then 1 end ) as TOTAL_BIND_CNT,
+             |count(case when tempa.bind_dt='$today_dt' then 1 end ) as TODAY_CNT
              |from
              |(
              |select
@@ -2605,12 +2605,10 @@ object SparkHive2Mysql {
              |tempb.bind_dt as bind_dt,
              |(case when tempc.card_attr in ('01') then '借记卡'
              |      when tempc.card_attr in ('02', '03') then '贷记卡'
-             |      else null end) as card_attr,
-             |tempb.bind_card_no as bind_card_no
+             |      else null end) as card_attr
              |from
              |(
              |select
-             |distinct(bind_card_no),
              |date(bind_ts) as bind_dt,
              |substr(trim(bind_card_no),1,8) as card_bin
              |from HIVE_CARD_BIND_INF where card_bind_st='0'
