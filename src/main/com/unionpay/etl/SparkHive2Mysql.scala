@@ -32,7 +32,7 @@ object SparkHive2Mysql {
     /**
       * 每日模板job
       */
-//   JOB_DM_1(sqlContext,start_dt,end_dt,interval)    //CODE BY YX
+//    JOB_DM_1(sqlContext,start_dt,end_dt,interval)    //CODE BY YX
 //    JOB_DM_3(sqlContext,start_dt,end_dt,interval)    //CODE BY YX
 //    JOB_DM_9(sqlContext,start_dt,end_dt,interval)    //CODE BY XTP
 //    JOB_DM_55(sqlContext,start_dt,end_dt)   //CODE BY TZQ
