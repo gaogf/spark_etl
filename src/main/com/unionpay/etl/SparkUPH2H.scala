@@ -25,17 +25,23 @@ object SparkUPH2H {
     val rowParams=UPSQL_TIMEPARAMS_JDBC.readTimeParams(sqlContext)
     val end_dt=rowParams.getString(1)//结束日期(未减一处理)
 
+    println(s"####当前JOB的执行日期为：$end_dt####")
 
-    /**
-      * 每日模板job
-      */
-//    JOB_HV_39(sqlContext,end_dt) //CODE BY YX
-//    JOB_HV_49 //CODE BY YX
-//    JOB_HV_52(sqlContext,end_dt) //CODE BY YX
+    val jobName = if(args.length>0) args(0) else None
+    println(s"#### 当前执行JobName为： $jobName ####")
+    jobName match {
+      /**
+        * 每日模板job
+        */
+      case "JOB_HV_39"  => JOB_HV_39(sqlContext,end_dt) //CODE BY YX
+      case "JOB_HV_49"  => JOB_HV_49 //CODE BY YX
+      case "JOB_HV_52"  => JOB_HV_52(sqlContext,end_dt) //CODE BY YX
 
-    /**
-      * 指标套表job
-      */
+      /**
+        * 指标套表job
+        */
+
+    }
 
     sc.stop()
   }

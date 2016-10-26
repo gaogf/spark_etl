@@ -29,16 +29,22 @@ object SparkUPWH2H {
 
     println(s"####当前JOB的执行日期为：start_dt=$start_dt,end_dt=$end_dt####")
 
-    /**
-      * 每日模板job
-      */
-//    JOB_HV_40(sqlContext,start_dt,end_dt,interval) //CODE BY TZQ
-//    JOB_HV_42(sqlContext,start_dt,end_dt,interval) //CODE BY TZQ
+    val jobName = if(args.length>0) args(0) else None
+    println(s"#### 当前执行JobName为： $jobName ####")
+    jobName match {
+      /**
+        * 每日模板job
+        */
+      case "JOB_HV_40"  => JOB_HV_40(sqlContext,start_dt,end_dt,interval) //CODE BY TZQ
+      case "JOB_HV_42"  => JOB_HV_42(sqlContext,start_dt,end_dt,interval) //CODE BY TZQ
 
-    /**
-      *  指标套表job
-      */
+      /**
+        *  指标套表job
+        */
 
+    }
+
+    sc.stop()
 
   }
 
