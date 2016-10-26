@@ -116,18 +116,19 @@ object SparkHive2Mysql {
              |select
              |t.phone_location,
              |sum(case when to_date(t.rec_crt_ts)='$today_dt' then  1  else 0 end) as tpre,
-             |sum(case when to_date(t.rec_crt_ts)>=trunc('$today_dt','YYYY') and to_date(t.rec_crt_ts)<='$today_dt'  then  1 else 0 end) as months,
+             |sum(case when to_date(t.rec_crt_ts)>=trunc('$today_dt','MM') and to_date(t.rec_crt_ts)<='$today_dt'  then  1 else 0 end) as months,
              |sum(case when to_date(t.rec_crt_ts)>=trunc('$today_dt','YYYY') and to_date(t.rec_crt_ts)<='$today_dt'  then  1 else 0 end) as years,
              |sum(case when to_date(t.rec_crt_ts)<='$today_dt' then  1 else 0 end) as total
              |from
-             |(select cdhd_usr_id,rec_crt_ts, phone_location,realnm_in from hive_pri_acct_inf where usr_st='1' ) t
+             |(select cdhd_usr_id,rec_crt_ts, phone_location,realnm_in from hive_pri_acct_inf where usr_st='1' or (usr_st='2' and note='BDYX_FREEZE')
+             |) t
              |group by t.phone_location  ) a
              |left join
              |(
              |select
              |phone_location,
              |sum(case when to_date(bind_dt)='$today_dt'  then  1  else 0 end) as tpre,
-             |sum(case when to_date(bind_dt)>=trunc('$today_dt','YYYY') and  to_date(bind_dt)<='$today_dt' then   1 else 0 end) as months,
+             |sum(case when to_date(bind_dt)>=trunc('$today_dt','MM') and  to_date(bind_dt)<='$today_dt' then   1 else 0 end) as months,
              |sum(case when to_date(bind_dt)>=trunc('$today_dt','YYYY') and  to_date(bind_dt)<='$today_dt' then  1 else 0 end) as years,
              |sum(case when to_date(bind_dt)<='$today_dt'  then  1 else 0 end) as total
              |from (select rec_crt_ts,phone_location,cdhd_usr_id from hive_pri_acct_inf
