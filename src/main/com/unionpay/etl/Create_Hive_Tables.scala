@@ -22,12 +22,13 @@ object Create_Hive_Tables {
 
     println("=======Create all tables on the hive=======")
 
+    hive_ct
+    hive_life
+    hive_city_card
     hive_acc_trans
     hive_achis_trans
     hive_active_card_acq_branch_mon
     hive_card_bind_inf
-    hive_city_card
-    hive_ct
     hive_discount_bas_inf
     hive_download_trans
     hive_inf_source_class
@@ -519,6 +520,24 @@ object Create_Hive_Tables {
          | """.stripMargin)
 
     println("=======Create hive_ct successfully ! =======")
+
+  }
+
+  def hive_life (implicit sqlContext: HiveContext) = {
+    println("=======Create hive_life=======")
+    sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql(
+      s"""
+         |create table if not exists $hive_dbname.hive_life(
+         |MCHNT_CD                     string    ,
+         |CHNL_TP_NM                   string    ,
+         |BUSS_TP_NM                   string
+         |)
+         |row format delimited fields terminated by '!|'
+         |stored as parquet
+         | """.stripMargin)
+
+    println("=======Create hive_life successfully ! =======")
 
   }
 
