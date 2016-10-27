@@ -788,10 +788,10 @@ object SparkHive2Mysql {
              |(
              |select
              |tempb.cup_branch_ins_id_nm as cup_branch_ins_id_nm,
-             |count(distinct(case when to_date(tempb.rec_crt_ts)='$today_dt'  and tempb.valid_begin_dt='$today_dt' AND tempb.valid_end_dt='$today_dt'  then tempb.MCHNT_CD end)) as tpre,
-             |count(distinct(case when to_date(tempb.rec_crt_ts)>=trunc('$today_dt','YYYY') and to_date(tempb.rec_crt_ts)='$today_dt'
+             |count(distinct(case when tempb.rec_crt_ts='$today_dt'  and tempb.valid_begin_dt='$today_dt' AND tempb.valid_end_dt='$today_dt'  then tempb.MCHNT_CD end)) as tpre,
+             |count(distinct(case when tempb.rec_crt_ts>=trunc('$today_dt','YYYY') and tempb.rec_crt_ts='$today_dt'
              |and tempb.valid_begin_dt>=trunc('$today_dt','YYYY') and  tempb.valid_end_dt<='$today_dt' then  tempb.MCHNT_CD end)) as years,
-             |count(distinct(case when to_date(tempb.rec_crt_ts)<='$today_dt' and  tempb.valid_begin_dt='$today_dt' AND tempb.valid_end_dt='$today_dt'  then  tempb.MCHNT_CD end)) as total
+             |count(distinct(case when tempb.rec_crt_ts<='$today_dt' and  tempb.valid_begin_dt='$today_dt' AND tempb.valid_end_dt='$today_dt'  then  tempb.MCHNT_CD end)) as total
              |from
              |(
              |select distinct
@@ -800,9 +800,9 @@ object SparkHive2Mysql {
              |tempc.mchnt_county_cd as mchnt_county_cd,
              |tempc.mchnt_addr as mchnt_addr,
              |access.cup_branch_ins_id_nm as cup_branch_ins_id_nm,
-             |bill.valid_begin_dt as valid_begin_dt,
-             |bill.valid_end_dt as valid_end_dt,
-             |tempc.rec_crt_ts as rec_crt_ts,
+             |to_date(bill.valid_begin_dt) as valid_begin_dt,
+             |to_date(bill.valid_end_dt) as valid_end_dt,
+             |to_date(tempc.rec_crt_ts) as rec_crt_ts,
              |tempc.MCHNT_CD as MCHNT_CD
              |from
              |(select *
@@ -1279,8 +1279,8 @@ object SparkHive2Mysql {
              |(
              |select
              |tempb.CUP_BRANCH_INS_ID_NM as CUP_BRANCH_INS_ID_NM,
-             |count(case when tempd.trans_dt >=trunc('$today_dt','YYYY') and tempd.trans_dt <='$today_dt' then tempd.bill_id end) as accept_year_num,
-             |count(case when  tempd.trans_dt ='$today_dt' then tempd.bill_id end) as accept_today_num
+             |count(case when to_date(tempd.trans_dt)>=trunc('$today_dt','YYYY') and to_date(tempd.trans_dt)<='$today_dt' then tempd.bill_id end) as accept_year_num,
+             |count(case when  to_date(tempd.trans_dt) ='$today_dt' then tempd.bill_id end) as accept_today_num
              |from
              |(
              |select
@@ -2615,7 +2615,7 @@ object SparkHive2Mysql {
              |(
              |select
              |distinct(bind_card_no),
-             |date(bind_ts) as bind_dt,
+             |to_date(bind_ts) as bind_dt,
              |substr(trim(bind_card_no),1,8) as card_bin
              |from HIVE_CARD_BIND_INF where card_bind_st='0'
              |) tempb
