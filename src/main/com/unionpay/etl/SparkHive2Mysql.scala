@@ -116,18 +116,19 @@ object SparkHive2Mysql {
              |select
              |t.phone_location,
              |sum(case when to_date(t.rec_crt_ts)='$today_dt' then  1  else 0 end) as tpre,
-             |sum(case when to_date(t.rec_crt_ts)>=trunc('$today_dt','YYYY') and to_date(t.rec_crt_ts)<='$today_dt'  then  1 else 0 end) as months,
+             |sum(case when to_date(t.rec_crt_ts)>=trunc('$today_dt','MM') and to_date(t.rec_crt_ts)<='$today_dt'  then  1 else 0 end) as months,
              |sum(case when to_date(t.rec_crt_ts)>=trunc('$today_dt','YYYY') and to_date(t.rec_crt_ts)<='$today_dt'  then  1 else 0 end) as years,
              |sum(case when to_date(t.rec_crt_ts)<='$today_dt' then  1 else 0 end) as total
              |from
-             |(select cdhd_usr_id,rec_crt_ts, phone_location,realnm_in from hive_pri_acct_inf where usr_st='1' ) t
+             |(select cdhd_usr_id,rec_crt_ts, phone_location,realnm_in from hive_pri_acct_inf where usr_st='1' or (usr_st='2' and note='BDYX_FREEZE')
+             |) t
              |group by t.phone_location  ) a
              |left join
              |(
              |select
              |phone_location,
              |sum(case when to_date(bind_dt)='$today_dt'  then  1  else 0 end) as tpre,
-             |sum(case when to_date(bind_dt)>=trunc('$today_dt','YYYY') and  to_date(bind_dt)<='$today_dt' then   1 else 0 end) as months,
+             |sum(case when to_date(bind_dt)>=trunc('$today_dt','MM') and  to_date(bind_dt)<='$today_dt' then   1 else 0 end) as months,
              |sum(case when to_date(bind_dt)>=trunc('$today_dt','YYYY') and  to_date(bind_dt)<='$today_dt' then  1 else 0 end) as years,
              |sum(case when to_date(bind_dt)<='$today_dt'  then  1 else 0 end) as total
              |from (select rec_crt_ts,phone_location,cdhd_usr_id from hive_pri_acct_inf
@@ -1254,7 +1255,7 @@ object SparkHive2Mysql {
              |CUP_BRANCH_INS_ID_NM,
              |(case when dwn_total_num=-1 then dwn_num else dwn_total_num end) as dwn_total_num,dwn_num
              |from HIVE_TICKET_BILL_BAS_INF
-             |where valid_begin_dt>=trunc('$today_dt','YYYY') and valid_end_dt<='$today_dt'
+             |where valid_begin_dt<='$today_dt' and valid_end_dt >= trunc('$today_dt','YYYY')
              |and  exclusive_in ='1' and  bill_nm not like '%机场%' and bill_nm not like '%住两晚送一晚%' and
              |      bill_nm not like '%测试%'         and
              |      bill_nm not like '%验证%'         and
