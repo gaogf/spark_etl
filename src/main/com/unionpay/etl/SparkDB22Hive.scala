@@ -326,24 +326,12 @@ object SparkDB22Hive {
     */
   def JOB_HV_4 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
     val df2_1 = sqlContext.jdbc_accdb_DF("viw_chacc_acc_trans_dtl")
-    println("分区数为:" + {
-      df2_1.rdd.getNumPartitions
-    })
-    df2_1.printSchema()
     df2_1.registerTempTable("viw_chacc_acc_trans_dtl")
 
     val df2_2 = sqlContext.jdbc_accdb_DF("viw_chacc_acc_trans_log")
-    println("分区数为:" + {
-      df2_2.rdd.getNumPartitions
-    })
-    df2_2.printSchema()
     df2_2.registerTempTable("viw_chacc_acc_trans_log")
 
     val df2_3 = sqlContext.jdbc_mgmdb_DF("tbl_chmgm_swt_log00") //缺少表：ch_mgmdb.viw_chmgm_swt_log  （字段丢失，大数据平台73，现在还是68）
-    println("分区数为:" + {
-      df2_3.rdd.getNumPartitions
-    })
-    df2_3.printSchema()
     df2_3.registerTempTable("viw_chmgm_swt_log")
 
 
@@ -1897,10 +1885,6 @@ object SparkDB22Hive {
     */
   def JOB_HV_28 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
     val df2_1 = sqlContext.jdbc_accdb_DF("ch_accdb.viw_chacc_online_point_trans_inf")
-    println("分区数为:" + {
-      df2_1.rdd.getNumPartitions
-    })
-    df2_1.printSchema()
     df2_1.registerTempTable("viw_chacc_online_point_trans_inf")
 
     val results = sqlContext.sql(
@@ -2027,10 +2011,6 @@ object SparkDB22Hive {
     */
   def JOB_HV_29 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
     val df2_1 = sqlContext.jdbc_accdb_DF("ch_accdb.tbl_chacc_cdhd_point_addup_dtl")
-    println("分区数为:" + {
-      df2_1.rdd.getNumPartitions
-    })
-    df2_1.printSchema()
     df2_1.registerTempTable("tbl_chacc_cdhd_point_addup_dtl")
 
     val results = sqlContext.sql(
@@ -2431,10 +2411,6 @@ object SparkDB22Hive {
     */
   def JOB_HV_32 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
     val df2_1 = sqlContext.jdbc_mgmdb_DF("ch_mgmdb.tbl_umsvc_prize_discount_result")
-    println("分区数为:" + {
-      df2_1.rdd.getNumPartitions
-    })
-    df2_1.printSchema()
     df2_1.registerTempTable("tbl_umsvc_prize_discount_result")
 
     val results = sqlContext.sql(
@@ -2575,10 +2551,6 @@ object SparkDB22Hive {
     */
   def JOB_HV_33(implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
     val df2_1 = sqlContext.jdbc_mgmdb_DF("ch_mgmdb.VIW_CHMGM_BILL_SUB_ORDER_DETAIL_INF")
-    println("分区数为:" + {
-      df2_1.rdd.getNumPartitions
-    })
-    df2_1.printSchema()
     df2_1.registerTempTable("VIW_CHMGM_BILL_SUB_ORDER_DETAIL_INF")
 
     val results = sqlContext.sql(
@@ -3119,10 +3091,6 @@ object SparkDB22Hive {
 
   def JOB_HV_46 (implicit sqlContext: HiveContext) = {
     val df2_1 = sqlContext.jdbc_mgmdb_DF("ch_mgmdb.tbl_umsvc_prize_activity_bas_inf")
-    println("分区数为:" + {
-      df2_1.rdd.getNumPartitions
-    })
-    df2_1.printSchema()
     df2_1.registerTempTable("tbl_umsvc_prize_activity_bas_inf")
 
     val results = sqlContext.sql(
@@ -3222,10 +3190,6 @@ object SparkDB22Hive {
 
   def JOB_HV_47 (implicit sqlContext: HiveContext) = {
     val df2_1 = sqlContext.jdbc_mgmdb_DF("ch_mgmdb.tbl_umsvc_prize_lvl_add_rule")
-    println("分区数为:" + {
-      df2_1.rdd.getNumPartitions
-    })
-    df2_1.printSchema()
     df2_1.registerTempTable("tbl_umsvc_prize_lvl_add_rule")
 
 
@@ -3528,10 +3492,6 @@ object SparkDB22Hive {
     */
   def JOB_HV_69 (implicit sqlContext: HiveContext) = {
     val df2_1 = sqlContext.jdbc_mgmdb_DF("ch_mgmdb.tbl_umsvc_prize_lvl")
-    println("分区数为:" + {
-      df2_1.rdd.getNumPartitions
-    })
-    df2_1.printSchema()
     df2_1.registerTempTable("tbl_umsvc_prize_lvl")
     val results = sqlContext.sql(
       """
