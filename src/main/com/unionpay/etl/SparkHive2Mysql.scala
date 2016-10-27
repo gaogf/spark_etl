@@ -1279,8 +1279,8 @@ object SparkHive2Mysql {
              |(
              |select
              |tempb.CUP_BRANCH_INS_ID_NM as CUP_BRANCH_INS_ID_NM,
-             |count(case when tempd.trans_dt >=trunc('$today_dt','YYYY') and tempd.trans_dt <='$today_dt' then tempd.bill_id end) as accept_year_num,
-             |count(case when  tempd.trans_dt ='$today_dt' then tempd.bill_id end) as accept_today_num
+             |count(case when to_date(valid_end_dt) >=trunc('$today_dt','YYYY') and to_date(valid_end_dt) <='$today_dt' then tempd.bill_id end) as accept_year_num,
+             |count(case when  to_date(valid_end_dt) ='$today_dt' then tempd.bill_id end) as accept_today_num
              |from
              |(
              |select
