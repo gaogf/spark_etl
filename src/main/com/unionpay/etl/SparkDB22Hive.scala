@@ -1,6 +1,5 @@
 package com.unionpay.etl
 import java.text.SimpleDateFormat
-import java.util.Calendar
 
 import com.unionpay.conf.ConfigurationManager
 import com.unionpay.constant.Constants
@@ -9,8 +8,8 @@ import com.unionpay.jdbc.UPSQL_TIMEPARAMS_JDBC
 import com.unionpay.utils.DateUtils
 import org.apache.spark.sql.hive.HiveContext
 import org.apache.spark.{SparkConf, SparkContext}
-import org.joda.time.{Days, LocalDate}
 import org.joda.time.format.DateTimeFormat
+import org.joda.time.{Days, LocalDate}
 
 /**
   * 作业：抽取DB2中的数据到Hive数据仓库
@@ -102,7 +101,7 @@ object SparkDB22Hive {
     */
   def JOB_HV_1(implicit sqlContext: HiveContext) = {
     println("###JOB_HV_1(tbl_chacc_cdhd_card_bind_inf -> hive_card_bind_inf)")
-    val df = sqlContext.jdbc_accdb_DF("CH_ACCDB.TBL_CHACC_CDHD_CARD_BIND_INF")
+    val df = sqlContext.jdbc_accdb_DF("TBL_CHACC_CDHD_CARD_BIND_INF")
     df.registerTempTable("db2_card_bind_inf")
     val results = sqlContext.sql(
       """
@@ -155,8 +154,8 @@ object SparkDB22Hive {
     * @param end_dt
     */
   def JOB_HV_3(implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
-    println("###JOB_HV_3(ch_accdb.tbl_chacc_cdhd_pri_acct_inf)")
-    val df1 = sqlContext.jdbc_accdb_DF("ch_accdb.tbl_chacc_cdhd_pri_acct_inf")
+    println("###JOB_HV_3(tbl_chacc_cdhd_pri_acct_inf)")
+    val df1 = sqlContext.jdbc_accdb_DF("tbl_chacc_cdhd_pri_acct_inf")
     df1.registerTempTable("db2_pri_acct_inf")
 
     sqlContext.sql(s"use $hive_dbname")
@@ -326,21 +325,21 @@ object SparkDB22Hive {
     * @param end_dt
     */
   def JOB_HV_4 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
-    val df2_1 = sqlContext.jdbc_accdb_DF("ch_accdb.viw_chacc_acc_trans_dtl")
+    val df2_1 = sqlContext.jdbc_accdb_DF("viw_chacc_acc_trans_dtl")
     println("分区数为:" + {
       df2_1.rdd.getNumPartitions
     })
     df2_1.printSchema()
     df2_1.registerTempTable("viw_chacc_acc_trans_dtl")
 
-    val df2_2 = sqlContext.jdbc_accdb_DF("ch_accdb.viw_chacc_acc_trans_log")
+    val df2_2 = sqlContext.jdbc_accdb_DF("viw_chacc_acc_trans_log")
     println("分区数为:" + {
       df2_2.rdd.getNumPartitions
     })
     df2_2.printSchema()
     df2_2.registerTempTable("viw_chacc_acc_trans_log")
 
-    val df2_3 = sqlContext.jdbc_mgmdb_DF("ch_mgmdb.tbl_chmgm_swt_log00") //缺少表：ch_mgmdb.viw_chmgm_swt_log  （字段丢失，大数据平台73，现在还是68）
+    val df2_3 = sqlContext.jdbc_mgmdb_DF("tbl_chmgm_swt_log00") //缺少表：ch_mgmdb.viw_chmgm_swt_log  （字段丢失，大数据平台73，现在还是68）
     println("分区数为:" + {
       df2_3.rdd.getNumPartitions
     })
