@@ -27,6 +27,9 @@ object Constants {
   val DB2_URL_ACCDB="db2.url_accdb"
   val DB2_URL_MGMDB="db2.url_mgmdb"
   val DB2_DRIVER="db2.driver"
+  val SCHEMAS_ACCDB="db2.accdb_schemas_name"
+  val SCHEMAS_MGMDB="db2.mgmdb_schemas_name"
+
 
   //Hive Database_name
   val HIVE_DBNAME = "hive.dbname"

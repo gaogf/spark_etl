@@ -20,6 +20,8 @@ object SparkDB22Hive {
   private  lazy  val dateFormatter=DateTimeFormat.forPattern("yyyy-MM-dd")
   //指定HIVE数据库名
   private lazy val hive_dbname =ConfigurationManager.getProperty(Constants.HIVE_DBNAME)
+  private lazy val schemas_accdb =ConfigurationManager.getProperty(Constants.SCHEMAS_ACCDB)
+  private lazy val schemas_mgmdb =ConfigurationManager.getProperty(Constants.SCHEMAS_MGMDB)
 
   def main(args: Array[String]) {
 
@@ -101,7 +103,7 @@ object SparkDB22Hive {
     */
   def JOB_HV_1(implicit sqlContext: HiveContext) = {
     println("###JOB_HV_1(tbl_chacc_cdhd_card_bind_inf -> hive_card_bind_inf)")
-    val df = sqlContext.jdbc_accdb_DF("TBL_CHACC_CDHD_CARD_BIND_INF")
+    val df = sqlContext.jdbc_accdb_DF(s"$schemas_accdb.TBL_CHACC_CDHD_CARD_BIND_INF")
     df.registerTempTable("db2_card_bind_inf")
     val results = sqlContext.sql(
       """
@@ -155,7 +157,7 @@ object SparkDB22Hive {
     */
   def JOB_HV_3(implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
     println("###JOB_HV_3(tbl_chacc_cdhd_pri_acct_inf)")
-    val df1 = sqlContext.jdbc_accdb_DF("tbl_chacc_cdhd_pri_acct_inf")
+    val df1 = sqlContext.jdbc_accdb_DF(s"$schemas_accdb.tbl_chacc_cdhd_pri_acct_inf")
     df1.registerTempTable("db2_pri_acct_inf")
 
     sqlContext.sql(s"use $hive_dbname")
@@ -320,18 +322,19 @@ object SparkDB22Hive {
     * JOB_HV_4/10-14
     * hive_acc_trans->viw_chacc_acc_trans_dtl
     * Code by Xue
+    *
     * @param sqlContext
     * @param start_dt
     * @param end_dt
     */
   def JOB_HV_4 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
-    val df2_1 = sqlContext.jdbc_accdb_DF("viw_chacc_acc_trans_dtl")
+    val df2_1 = sqlContext.jdbc_accdb_DF(s"$schemas_accdb.viw_chacc_acc_trans_dtl")
     df2_1.registerTempTable("viw_chacc_acc_trans_dtl")
 
-    val df2_2 = sqlContext.jdbc_accdb_DF("viw_chacc_acc_trans_log")
+    val df2_2 = sqlContext.jdbc_accdb_DF(s"$schemas_accdb.viw_chacc_acc_trans_log")
     df2_2.registerTempTable("viw_chacc_acc_trans_log")
 
-    val df2_3 = sqlContext.jdbc_mgmdb_DF("tbl_chmgm_swt_log00") //缺少表：ch_mgmdb.viw_chmgm_swt_log  （字段丢失，大数据平台73，现在还是68）
+    val df2_3 = sqlContext.jdbc_mgmdb_DF(s"$schemas_mgmdb.viw_chmgm_swt_log")
     df2_3.registerTempTable("viw_chmgm_swt_log")
 
 
@@ -502,16 +505,16 @@ object SparkDB22Hive {
          |NULL as order_id
          |
          |from (select * from viw_chacc_acc_trans_dtl where
-         |concat_ws('-',substr(trans_dt,1,4),substr(trans_dt,5,2),substr(trans_dt,7,2))>='$start_dt'
+         |concat_ws('-',substr(trans_dt,1,4),substr(trans_dt,5,2),substr(trans_dt,7,2))>=date_sub('$start_dt',1)
          |and concat_ws('-',substr(trans_dt,1,4),substr(trans_dt,5,2),substr(trans_dt,7,2))<='$end_dt'
          |and um_trans_id<>'AC02202000') ta
          |left join  (select * from viw_chacc_acc_trans_log
-         |where concat_ws('-',substr(msg_settle_dt,1,4),substr(msg_settle_dt,5,2),substr(msg_settle_dt,7,2))>='$start_dt'
+         |where concat_ws('-',substr(msg_settle_dt,1,4),substr(msg_settle_dt,5,2),substr(msg_settle_dt,7,2))>=date_sub('$start_dt',1)
          |and concat_ws('-',substr(msg_settle_dt,1,4),substr(msg_settle_dt,5,2),substr(msg_settle_dt,7,2))<='$end_dt'
          |and um_trans_id<>'AC02202000') tb
          |on trim(ta.trans_tfr_tm)=trim(tb.trans_tfr_tm) and trim(ta.sys_tra_no)=trim(tb.sys_tra_no) and trim(ta.acpt_ins_id_cd)=trim(tb.acpt_ins_id_cd) and trim(ta.fwd_ins_id_cd)=trim(tb.fwd_ins_id_cd)
          |left join  ( select * from viw_chmgm_swt_log where
-         |concat_ws('-',substr(trans_dt,1,4),substr(trans_dt,5,2),substr(trans_dt,7,2))>='$start_dt'
+         |concat_ws('-',substr(trans_dt,1,4),substr(trans_dt,5,2),substr(trans_dt,7,2))>=date_sub('$start_dt',1)
          |and concat_ws('-',substr(trans_dt,1,4),substr(trans_dt,5,2),substr(trans_dt,7,2))<='$end_dt') tc
          |on trim(ta.trans_tfr_tm)=trim(tc.tfr_dt_tm)  and  trim(ta.sys_tra_no)=trim(tc.sys_tra_no) and trim(ta.acpt_ins_id_cd)=trim(tc.acpt_ins_id_cd) and trim(ta.fwd_ins_id_cd)=trim(tc.msg_fwd_ins_id_cd)
          |left join
@@ -532,10 +535,10 @@ object SparkDB22Hive {
          |tempa.trans_proc_start_ts as trans_proc_start_ts,
          |row_number() over (order by tempa.trans_proc_start_ts) rank
          |from (select * from viw_chacc_acc_trans_dtl
-         |where concat_ws('-',substr(trans_dt,1,4),substr(trans_dt,5,2),substr(trans_dt,7,2))>='$start_dt'
+         |where concat_ws('-',substr(trans_dt,1,4),substr(trans_dt,5,2),substr(trans_dt,7,2))>=date_sub('$start_dt',1)
          |and concat_ws('-',substr(trans_dt,1,4),substr(trans_dt,5,2),substr(trans_dt,7,2))<='$end_dt') tempa,
          |(select * from viw_chacc_acc_trans_log
-         |where concat_ws('-',substr(msg_settle_dt,1,4),substr(msg_settle_dt,5,2),substr(msg_settle_dt,7,2))>='$start_dt'
+         |where concat_ws('-',substr(msg_settle_dt,1,4),substr(msg_settle_dt,5,2),substr(msg_settle_dt,7,2))>=date_sub('$start_dt',1)
          |and concat_ws('-',substr(msg_settle_dt,1,4),substr(msg_settle_dt,5,2),substr(msg_settle_dt,7,2))<='$end_dt') tempb
          |where tempa.um_trans_id='AC02202000' and tempb.um_trans_id='AC02202000'
          |group by tempa.trans_tfr_tm,tempa.sys_tra_no,tempa.acpt_ins_id_cd,tempa.fwd_ins_id_cd,tempa.trans_proc_start_ts) tempc
@@ -575,6 +578,7 @@ object SparkDB22Hive {
 
   }
 
+
   /**
     * JOB_HV_8/10-14
     * HIVE_STORE_TERM_RELATION->TBL_CHMGM_STORE_TERM_RELATION
@@ -585,7 +589,7 @@ object SparkDB22Hive {
     * @return
     */
   def JOB_HV_8 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String) =  {
-    val df2_1 = sqlContext.jdbc_mgmdb_DF("ch_mgmdb.TBL_CHMGM_STORE_TERM_RELATION")
+    val df2_1 = sqlContext.jdbc_mgmdb_DF(s"$schemas_mgmdb.TBL_CHMGM_STORE_TERM_RELATION")
     println("分区数为:" + {
       df2_1.rdd.getNumPartitions
     })
@@ -705,7 +709,7 @@ object SparkDB22Hive {
     */
   def JOB_HV_9(implicit sqlContext: HiveContext) = {
     println("###JOB_HV_9(hive_preferential_mchnt_inf --->tbl_chmgm_preferential_mchnt_inf)")
-    val df = sqlContext.jdbc_mgmdb_DF("CH_MGMDB.TBL_CHMGM_PREFERENTIAL_MCHNT_INF")
+    val df = sqlContext.jdbc_mgmdb_DF(s"$schemas_mgmdb.TBL_CHMGM_PREFERENTIAL_MCHNT_INF")
     df.registerTempTable("db2_tbl_chmgm_preferential_mchnt_inf")
     val results = sqlContext.sql(
       """
@@ -824,7 +828,7 @@ object SparkDB22Hive {
     */
   def JOB_HV_10(implicit sqlContext: HiveContext) = {
     println("###JOB_HV_10(hive_access_bas_inf->tbl_chmgm_access_bas_inf)")
-    val df = sqlContext.jdbc_mgmdb_DF("CH_MGMDB.TBL_CHMGM_ACCESS_BAS_INF")
+    val df = sqlContext.jdbc_mgmdb_DF(s"$schemas_mgmdb.TBL_CHMGM_ACCESS_BAS_INF")
     df.registerTempTable("db2_tbl_chmgm_access_bas_inf")
     val results = sqlContext.sql(
       """
@@ -948,7 +952,7 @@ object SparkDB22Hive {
     */
   def JOB_HV_11(implicit sqlContext: HiveContext) = {
     println("###JOB_HV_11(hive_ticket_bill_bas_inf->tbl_chacc_ticket_bill_bas_inf)")
-    val df = sqlContext.jdbc_accdb_DF("CH_ACCDB.TBL_CHACC_TICKET_BILL_BAS_INF")
+    val df = sqlContext.jdbc_accdb_DF(s"$schemas_accdb.TBL_CHACC_TICKET_BILL_BAS_INF")
 
     df.registerTempTable("db2_tbl_chacc_ticket_bill_bas_inf")
     val results = sqlContext.sql(
@@ -1107,7 +1111,7 @@ object SparkDB22Hive {
     */
   def JOB_HV_12(implicit sqlContext: HiveContext) = {
     println("###JOB_HV_12(hive_chara_grp_def_bat->tbl_chmgm_chara_grp_def_bat)")
-    val df = sqlContext.jdbc_mgmdb_DF("CH_MGMDB.TBL_CHMGM_CHARA_GRP_DEF_BAT")
+    val df = sqlContext.jdbc_mgmdb_DF(s"$schemas_mgmdb.TBL_CHMGM_CHARA_GRP_DEF_BAT")
     df.registerTempTable("db2_tbl_chmgm_chara_grp_def_bat")
     val results = sqlContext.sql(
       """
@@ -1166,7 +1170,7 @@ object SparkDB22Hive {
     */
   def JOB_HV_13(implicit sqlContext: HiveContext) = {
     println("###JOB_HV_13(hive_card_bin->tbl_chmgm_card_bin)")
-    val df = sqlContext.jdbc_mgmdb_DF("CH_MGMDB.TBL_CHMGM_CARD_BIN")
+    val df = sqlContext.jdbc_mgmdb_DF(s"$schemas_mgmdb.TBL_CHMGM_CARD_BIN")
 
     df.registerTempTable("db2_tbl_chmgm_card_bin")
     val results = sqlContext.sql(
@@ -1237,7 +1241,7 @@ object SparkDB22Hive {
     */
   def JOB_HV_14(implicit sqlContext: HiveContext) = {
     println("###JOB_HV_14(hive_inf_source_dtl->tbl_inf_source_dtl)")
-    val df = sqlContext.jdbc_accdb_DF("CH_ACCDB.TBL_INF_SOURCE_DTL")
+    val df = sqlContext.jdbc_accdb_DF(s"$schemas_accdb.TBL_INF_SOURCE_DTL")
     df.registerTempTable("db2_tbl_inf_source_dtl")
     val results = sqlContext.sql(
       """
@@ -1335,13 +1339,13 @@ object SparkDB22Hive {
     */
   def JOB_HV_16(implicit sqlContext: HiveContext) = {
     println("###JOB_HV_16(hive_mchnt_inf_wallet->tbl_chmgm_mchnt_inf/TBL_CHMGM_STORE_TERM_RELATION/TBL_CHMGM_ACCESS_BAS_INF)")
-    val df = sqlContext.jdbc_mgmdb_DF("CH_MGMDB.TBL_CHMGM_MCHNT_INF")
+    val df = sqlContext.jdbc_mgmdb_DF(s"$schemas_mgmdb.TBL_CHMGM_MCHNT_INF")
     df.registerTempTable("db2_tbl_chmgm_mchnt_inf")
 
-    val df1 = sqlContext.jdbc_mgmdb_DF("CH_MGMDB.TBL_CHMGM_STORE_TERM_RELATION")
+    val df1 = sqlContext.jdbc_mgmdb_DF(s"$schemas_mgmdb.TBL_CHMGM_STORE_TERM_RELATION")
     df1.registerTempTable("db2_tbl_chmgm_store_term_relation")
 
-    val df2 = sqlContext.jdbc_mgmdb_DF("CH_MGMDB.TBL_CHMGM_ACCESS_BAS_INF")
+    val df2 = sqlContext.jdbc_mgmdb_DF(s"$schemas_mgmdb.TBL_CHMGM_ACCESS_BAS_INF")
     df2.registerTempTable("db2_tbl_chmgm_access_bas_inf")
 
     val results = sqlContext.sql(
@@ -1503,7 +1507,7 @@ object SparkDB22Hive {
     */
   def JOB_HV_18(implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
     println("###JOB_HV_18(viw_chmgm_trans_his -> hive_download_trans)")
-    val df = sqlContext.jdbc_mgmdb_DF("CH_MGMDB.VIW_CHMGM_TRANS_HIS")
+    val df = sqlContext.jdbc_mgmdb_DF(s"$schemas_mgmdb.VIW_CHMGM_TRANS_HIS")
     df.registerTempTable("db2_trans_his")
 
     sqlContext.sql(s"use $hive_dbname")
@@ -1591,7 +1595,7 @@ object SparkDB22Hive {
   def JOB_HV_19(implicit sqlContext: HiveContext) = {
     println("###JOB_HV_19(tbl_chmgm_ins_inf -> hive_ins_inf)")
     sqlContext.sql(s"use $hive_dbname")
-    val df = sqlContext.jdbc_mgmdb_DF("CH_MGMDB.TBL_CHMGM_INS_INF")
+    val df = sqlContext.jdbc_mgmdb_DF(s"$schemas_mgmdb.TBL_CHMGM_INS_INF")
     df.registerTempTable("db2_ins_inf")
 
     val results = sqlContext.sql(
@@ -1690,7 +1694,7 @@ object SparkDB22Hive {
   def JOB_HV_23(implicit sqlContext: HiveContext) = {
     println("###JOB_HV_23(hive_brand_inf->tbl_chmgm_brand_inf)")
 
-    val df = sqlContext.jdbc_mgmdb_DF("CH_MGMDB.TBL_CHMGM_BRAND_INF")
+    val df = sqlContext.jdbc_mgmdb_DF(s"$schemas_mgmdb.TBL_CHMGM_BRAND_INF")
     df.registerTempTable("db2_tbl_chmgm_brand_inf")
     val results = sqlContext.sql(
       """
@@ -1746,7 +1750,7 @@ object SparkDB22Hive {
     println("###JOB_HV_24(tbl_chmgm_mchnt_para -> hive_mchnt_para)")
 
     sqlContext.sql(s"use $hive_dbname")
-    val df = sqlContext.jdbc_mgmdb_DF("CH_MGMDB.TBL_CHMGM_MCHNT_PARA")
+    val df = sqlContext.jdbc_mgmdb_DF(s"$schemas_mgmdb.TBL_CHMGM_MCHNT_PARA")
     df.registerTempTable("db2_mchnt_para")
     val results = sqlContext.sql(
       """
@@ -1787,7 +1791,7 @@ object SparkDB22Hive {
     * @return
     */
   def JOB_HV_25 (implicit sqlContext: HiveContext) = {
-    val df2_1 = sqlContext.jdbc_mgmdb_DF("ch_mgmdb.tbl_mcmgm_mchnt_tp")
+    val df2_1 = sqlContext.jdbc_mgmdb_DF(s"$schemas_mgmdb.tbl_mcmgm_mchnt_tp")
     println("分区数为:" + {
       df2_1.rdd.getNumPartitions
     })
@@ -1838,7 +1842,7 @@ object SparkDB22Hive {
     */
   def JOB_HV_26(implicit sqlContext: HiveContext) = {
     println("###JOB_HV_26(hive_mchnt_tp_grp-->tbl_mcmgm_mchnt_tp_grp)")
-    val df = sqlContext.jdbc_mgmdb_DF("CH_MGMDB.TBL_MCMGM_MCHNT_TP_GRP")
+    val df = sqlContext.jdbc_mgmdb_DF(s"$schemas_mgmdb.TBL_MCMGM_MCHNT_TP_GRP")
     df.registerTempTable("db2_tbl_mcmgm_mchnt_tp_grp")
     val results = sqlContext.sql(
       """
@@ -1884,7 +1888,7 @@ object SparkDB22Hive {
     * @param end_dt
     */
   def JOB_HV_28 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
-    val df2_1 = sqlContext.jdbc_accdb_DF("ch_accdb.viw_chacc_online_point_trans_inf")
+    val df2_1 = sqlContext.jdbc_accdb_DF(s"$schemas_accdb.viw_chacc_online_point_trans_inf")
     df2_1.registerTempTable("viw_chacc_online_point_trans_inf")
 
     val results = sqlContext.sql(
@@ -2010,7 +2014,7 @@ object SparkDB22Hive {
     * @param end_dt
     */
   def JOB_HV_29 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
-    val df2_1 = sqlContext.jdbc_accdb_DF("ch_accdb.tbl_chacc_cdhd_point_addup_dtl")
+    val df2_1 = sqlContext.jdbc_accdb_DF(s"$schemas_accdb.tbl_chacc_cdhd_point_addup_dtl")
     df2_1.registerTempTable("tbl_chacc_cdhd_point_addup_dtl")
 
     val results = sqlContext.sql(
@@ -2186,7 +2190,7 @@ object SparkDB22Hive {
   def JOB_HV_30(implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
     println("###JOB_HV_30(viw_chacc_code_pay_tran_dtl -> hive_passive_code_pay_trans)")
     sqlContext.sql(s"use $hive_dbname")
-    val df = sqlContext.jdbc_accdb_DF("CH_ACCDB.VIW_CHACC_CODE_PAY_TRAN_DTL")
+    val df = sqlContext.jdbc_accdb_DF(s"$schemas_accdb.VIW_CHACC_CODE_PAY_TRAN_DTL")
     df.registerTempTable("db2_code_pay_tran_dtl")
     val results = sqlContext.sql(
       s"""
@@ -2272,11 +2276,7 @@ object SparkDB22Hive {
     * @param end_dt
     */
   def JOB_HV_31 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
-    val df2_1 = sqlContext.jdbc_mgmdb_DF("ch_mgmdb.VIW_CHMGM_BILL_ORDER_AUX_INF")
-    println("分区数为:" + {
-      df2_1.rdd.getNumPartitions
-    })
-    df2_1.printSchema()
+    val df2_1 = sqlContext.jdbc_mgmdb_DF(s"$schemas_mgmdb.VIW_CHMGM_BILL_ORDER_AUX_INF")
     df2_1.registerTempTable("VIW_CHMGM_BILL_ORDER_AUX_INF")
 
     val results = sqlContext.sql(
@@ -2410,7 +2410,7 @@ object SparkDB22Hive {
     * @return
     */
   def JOB_HV_32 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
-    val df2_1 = sqlContext.jdbc_mgmdb_DF("ch_mgmdb.tbl_umsvc_prize_discount_result")
+    val df2_1 = sqlContext.jdbc_mgmdb_DF(s"$schemas_mgmdb.tbl_umsvc_prize_discount_result")
     df2_1.registerTempTable("tbl_umsvc_prize_discount_result")
 
     val results = sqlContext.sql(
@@ -2550,7 +2550,7 @@ object SparkDB22Hive {
     * @return
     */
   def JOB_HV_33(implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
-    val df2_1 = sqlContext.jdbc_mgmdb_DF("ch_mgmdb.VIW_CHMGM_BILL_SUB_ORDER_DETAIL_INF")
+    val df2_1 = sqlContext.jdbc_mgmdb_DF(s"$schemas_mgmdb.VIW_CHMGM_BILL_SUB_ORDER_DETAIL_INF")
     df2_1.registerTempTable("VIW_CHMGM_BILL_SUB_ORDER_DETAIL_INF")
 
     val results = sqlContext.sql(
@@ -2624,7 +2624,7 @@ object SparkDB22Hive {
   def JOB_HV_36(implicit sqlContext: HiveContext) = {
     println("###JOB_HV_36(tbl_umsvc_discount_bas_inf -> hive_discount_bas_inf)")
     sqlContext.sql(s"use $hive_dbname")
-    val df = sqlContext.jdbc_mgmdb_DF("CH_MGMDB.TBL_UMSVC_DISCOUNT_BAS_INF")
+    val df = sqlContext.jdbc_mgmdb_DF(s"$schemas_mgmdb.TBL_UMSVC_DISCOUNT_BAS_INF")
     df.registerTempTable("db2_dis_bas_inf")
     val results = sqlContext.sql(
       """
@@ -2717,7 +2717,7 @@ object SparkDB22Hive {
     */
   def JOB_HV_37(implicit sqlContext: HiveContext) = {
     println("###JOB_HV_37(hive_filter_app_det-->tbl_umsvc_filter_app_det)")
-    val df = sqlContext.jdbc_mgmdb_DF("CH_MGMDB.TBL_UMSVC_FILTER_APP_DET")
+    val df = sqlContext.jdbc_mgmdb_DF(s"$schemas_mgmdb.TBL_UMSVC_FILTER_APP_DET")
     df.registerTempTable("db2_tbl_umsvc_filter_app_det")
     val results = sqlContext.sql(
       """
@@ -2767,7 +2767,7 @@ object SparkDB22Hive {
     */
   def JOB_HV_38(implicit sqlContext: HiveContext) = {
     println("###JOB_HV_38(hive_filter_rule_det-->tbl_umsvc_filter_rule_det)")
-    val df = sqlContext.jdbc_mgmdb_DF("CH_MGMDB.TBL_UMSVC_FILTER_RULE_DET")
+    val df = sqlContext.jdbc_mgmdb_DF(s"$schemas_mgmdb.TBL_UMSVC_FILTER_RULE_DET")
     df.registerTempTable("db2_tbl_umsvc_filter_rule_det")
     val results = sqlContext.sql(
       """
@@ -2820,7 +2820,7 @@ object SparkDB22Hive {
   def JOB_HV_43(implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
     println("###JOB_HV_43(viw_chmgm_swt_log -> hive_switch_point_trans)")
     sqlContext.sql(s"use $hive_dbname")
-    val df = sqlContext.jdbc_mgmdb_DF("CH_MGMDB.VIW_CHMGM_SWT_LOG")
+    val df = sqlContext.jdbc_mgmdb_DF(s"$schemas_mgmdb.VIW_CHMGM_SWT_LOG")
     df.registerTempTable("db2_swt_log")
     val results = sqlContext.sql(
       s"""
@@ -2956,7 +2956,7 @@ object SparkDB22Hive {
   def JOB_HV_44(implicit sqlContext: HiveContext) = {
     println("###JOB_HV_44(viw_chacc_cdhd_cashier_maktg_reward_dtl)")
 
-    val df= sqlContext.jdbc_accdb_DF("CH_ACCDB.VIW_CHACC_CDHD_CASHIER_MAKTG_REWARD_DTL")
+    val df= sqlContext.jdbc_accdb_DF(s"$schemas_accdb.VIW_CHACC_CDHD_CASHIER_MAKTG_REWARD_DTL")
 
     df.registerTempTable("db2_cdhd_cashier_maktg_reward_dtl")
 
@@ -3090,7 +3090,7 @@ object SparkDB22Hive {
     */
 
   def JOB_HV_46 (implicit sqlContext: HiveContext) = {
-    val df2_1 = sqlContext.jdbc_mgmdb_DF("ch_mgmdb.tbl_umsvc_prize_activity_bas_inf")
+    val df2_1 = sqlContext.jdbc_mgmdb_DF(s"$schemas_mgmdb.tbl_umsvc_prize_activity_bas_inf")
     df2_1.registerTempTable("tbl_umsvc_prize_activity_bas_inf")
 
     val results = sqlContext.sql(
@@ -3189,7 +3189,7 @@ object SparkDB22Hive {
     */
 
   def JOB_HV_47 (implicit sqlContext: HiveContext) = {
-    val df2_1 = sqlContext.jdbc_mgmdb_DF("ch_mgmdb.tbl_umsvc_prize_lvl_add_rule")
+    val df2_1 = sqlContext.jdbc_mgmdb_DF(s"$schemas_mgmdb.tbl_umsvc_prize_lvl_add_rule")
     df2_1.registerTempTable("tbl_umsvc_prize_lvl_add_rule")
 
 
@@ -3235,7 +3235,7 @@ object SparkDB22Hive {
     */
   def JOB_HV_48(implicit sqlContext: HiveContext) = {
     println("###JOB_HV_48(hive_prize_bas->tbl_umsvc_prize_bas)")
-    val df = sqlContext.jdbc_mgmdb_DF("CH_MGMDB.TBL_UMSVC_PRIZE_BAS")
+    val df = sqlContext.jdbc_mgmdb_DF(s"$schemas_mgmdb.TBL_UMSVC_PRIZE_BAS")
 
     df.registerTempTable("db2_tbl_umsvc_prize_bas")
     val results = sqlContext.sql(
@@ -3290,7 +3290,7 @@ object SparkDB22Hive {
     */
   def JOB_HV_54(implicit sqlContext: HiveContext) = {
     println("###JOB_HV_54(tbl_chacc_cashier_bas_inf)")
-    val df = sqlContext.jdbc_accdb_DF("CH_ACCDB.TBL_CHACC_CASHIER_BAS_INF")
+    val df = sqlContext.jdbc_accdb_DF(s"$schemas_accdb.TBL_CHACC_CASHIER_BAS_INF")
 
     df.registerTempTable("db2_tbl_chacc_cashier_bas_inf")
     val results = sqlContext.sql(
@@ -3413,7 +3413,7 @@ object SparkDB22Hive {
     */
   def JOB_HV_67(implicit sqlContext: HiveContext) = {
     println("###JOB_HV_67(Hive_signer_log -->tbl_umtxn_signer_log)")
-    val df = sqlContext.jdbc_accdb_DF("CH_ACCDB.TBL_UMTXN_SIGNER_LOG")
+    val df = sqlContext.jdbc_accdb_DF(s"$schemas_accdb.TBL_UMTXN_SIGNER_LOG")
 
     df.registerTempTable("db2_tbl_umtxn_signer_log")
     val results = sqlContext.sql(
@@ -3453,7 +3453,7 @@ object SparkDB22Hive {
     */
   def JOB_HV_68(implicit sqlContext: HiveContext) = {
     println("###JOB_HV_68(tbl_umtxn_cashier_point_acct_oper_dtl)")
-    val df = sqlContext.jdbc_accdb_DF("CH_ACCDB.TBL_UMTXN_CASHIER_POINT_ACCT_OPER_DTL")
+    val df = sqlContext.jdbc_accdb_DF(s"$schemas_accdb.TBL_UMTXN_CASHIER_POINT_ACCT_OPER_DTL")
     df.registerTempTable("db2_tbl_umtxn_cashier_point_acct_oper_dtl")
     val results = sqlContext.sql(
       """
@@ -3550,7 +3550,7 @@ object SparkDB22Hive {
   def JOB_HV_70(implicit sqlContext: HiveContext) = {
     println("###JOB_HV_70(tbl_inf_source_class -> hive_inf_source_class)")
     sqlContext.sql(s"use $hive_dbname")
-    val df = sqlContext.jdbc_accdb_DF("CH_ACCDB.TBL_INF_SOURCE_CLASS")
+    val df = sqlContext.jdbc_accdb_DF(s"$schemas_accdb.TBL_INF_SOURCE_CLASS")
     df.registerTempTable("db2_inf_source_class")
     val results = sqlContext.sql(
       """
