@@ -1255,7 +1255,7 @@ object SparkHive2Mysql {
              |CUP_BRANCH_INS_ID_NM,
              |(case when dwn_total_num=-1 then dwn_num else dwn_total_num end) as dwn_total_num,dwn_num
              |from HIVE_TICKET_BILL_BAS_INF
-             |where valid_begin_dt>=trunc('$today_dt','YYYY') and valid_end_dt<='$today_dt'
+             |where valid_begin_dt<='$today_dt' and valid_end_dt >= trunc('$today_dt','YYYY')
              |and  exclusive_in ='1' and  bill_nm not like '%机场%' and bill_nm not like '%住两晚送一晚%' and
              |      bill_nm not like '%测试%'         and
              |      bill_nm not like '%验证%'         and
