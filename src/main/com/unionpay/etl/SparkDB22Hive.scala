@@ -505,16 +505,16 @@ object SparkDB22Hive {
          |NULL as order_id
          |
          |from (select * from viw_chacc_acc_trans_dtl where
-         |concat_ws('-',substr(trans_dt,1,4),substr(trans_dt,5,2),substr(trans_dt,7,2))>=date_sub('$start_dt',1)
+         |concat_ws('-',substr(trans_dt,1,4),substr(trans_dt,5,2),substr(trans_dt,7,2))>='$start_dt'
          |and concat_ws('-',substr(trans_dt,1,4),substr(trans_dt,5,2),substr(trans_dt,7,2))<='$end_dt'
          |and um_trans_id<>'AC02202000') ta
          |left join  (select * from viw_chacc_acc_trans_log
-         |where concat_ws('-',substr(msg_settle_dt,1,4),substr(msg_settle_dt,5,2),substr(msg_settle_dt,7,2))>=date_sub('$start_dt',1)
+         |where concat_ws('-',substr(msg_settle_dt,1,4),substr(msg_settle_dt,5,2),substr(msg_settle_dt,7,2))>='$start_dt'
          |and concat_ws('-',substr(msg_settle_dt,1,4),substr(msg_settle_dt,5,2),substr(msg_settle_dt,7,2))<='$end_dt'
          |and um_trans_id<>'AC02202000') tb
          |on trim(ta.trans_tfr_tm)=trim(tb.trans_tfr_tm) and trim(ta.sys_tra_no)=trim(tb.sys_tra_no) and trim(ta.acpt_ins_id_cd)=trim(tb.acpt_ins_id_cd) and trim(ta.fwd_ins_id_cd)=trim(tb.fwd_ins_id_cd)
          |left join  ( select * from viw_chmgm_swt_log where
-         |concat_ws('-',substr(trans_dt,1,4),substr(trans_dt,5,2),substr(trans_dt,7,2))>=date_sub('$start_dt',1)
+         |concat_ws('-',substr(trans_dt,1,4),substr(trans_dt,5,2),substr(trans_dt,7,2))>='$start_dt'
          |and concat_ws('-',substr(trans_dt,1,4),substr(trans_dt,5,2),substr(trans_dt,7,2))<='$end_dt') tc
          |on trim(ta.trans_tfr_tm)=trim(tc.tfr_dt_tm)  and  trim(ta.sys_tra_no)=trim(tc.sys_tra_no) and trim(ta.acpt_ins_id_cd)=trim(tc.acpt_ins_id_cd) and trim(ta.fwd_ins_id_cd)=trim(tc.msg_fwd_ins_id_cd)
          |left join
@@ -535,10 +535,10 @@ object SparkDB22Hive {
          |tempa.trans_proc_start_ts as trans_proc_start_ts,
          |row_number() over (order by tempa.trans_proc_start_ts) rank
          |from (select * from viw_chacc_acc_trans_dtl
-         |where concat_ws('-',substr(trans_dt,1,4),substr(trans_dt,5,2),substr(trans_dt,7,2))>=date_sub('$start_dt',1)
+         |where concat_ws('-',substr(trans_dt,1,4),substr(trans_dt,5,2),substr(trans_dt,7,2))>='$start_dt'
          |and concat_ws('-',substr(trans_dt,1,4),substr(trans_dt,5,2),substr(trans_dt,7,2))<='$end_dt') tempa,
          |(select * from viw_chacc_acc_trans_log
-         |where concat_ws('-',substr(msg_settle_dt,1,4),substr(msg_settle_dt,5,2),substr(msg_settle_dt,7,2))>=date_sub('$start_dt',1)
+         |where concat_ws('-',substr(msg_settle_dt,1,4),substr(msg_settle_dt,5,2),substr(msg_settle_dt,7,2))>='$start_dt'
          |and concat_ws('-',substr(msg_settle_dt,1,4),substr(msg_settle_dt,5,2),substr(msg_settle_dt,7,2))<='$end_dt') tempb
          |where tempa.um_trans_id='AC02202000' and tempb.um_trans_id='AC02202000'
          |group by tempa.trans_tfr_tm,tempa.sys_tra_no,tempa.acpt_ins_id_cd,tempa.fwd_ins_id_cd,tempa.trans_proc_start_ts) tempc
