@@ -1196,7 +1196,7 @@ object SparkHive2Mysql {
              |BUSS_TP_NM,
              |CHNL_TP_NM,
              |TO_DATE(TRANS_DT) as TRANS_DT,
-             |COUNT( TRANS_NO) AS TRAN_ALL_CNT
+             |COUNT(TRANS_NO) AS TRAN_ALL_CNT
              |from HIVE_LIFE_TRANS
              |where  TO_DATE(TRANS_DT)>='$start_dt' AND   TO_DATE(TRANS_DT)<='$end_dt'
              |GROUP BY BUSS_TP_NM,CHNL_TP_NM,TO_DATE(TRANS_DT)) B
