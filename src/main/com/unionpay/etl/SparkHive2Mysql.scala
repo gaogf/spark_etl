@@ -1121,7 +1121,7 @@ object SparkHive2Mysql {
              |  when card_auth_st='1' then   '支付认证'
              |  when card_auth_st='2' then   '可信认证'
              |  when card_auth_st='3' then   '可信+支付认证'
-             | else '未认证' end) as card_auth_nm,
+             | else '--' end) as card_auth_nm,
              |card_attr as card_attr ,
              |'$today_dt' as report_dt ,
              |count(distinct(case when to_date(rec_crt_ts) = '$today_dt'  then cdhd_usr_id end))  as tpre,
@@ -1137,7 +1137,7 @@ object SparkHive2Mysql {
              |  when card_auth_st='1' then   '支付认证'
              |  when card_auth_st='2' then   '可信认证'
              |  when card_auth_st='3' then   '可信+支付认证'
-             | else '未认证' end),card_attr
+             | else '--' end),card_attr
              |
             """.stripMargin)
 
