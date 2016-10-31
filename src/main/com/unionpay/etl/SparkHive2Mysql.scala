@@ -1188,7 +1188,7 @@ object SparkHive2Mysql {
              |SUM(TRANS_AT) AS TRANS_SUCC_AT
              |from HIVE_LIFE_TRANS
              |where PROC_ST ='00'
-             |and TO_DATE(TRANS_DT)>='$start_dt' AND   TO_DATE(TRANS_DT)<='$end_dt'
+             |and TO_DATE(TRANS_DT)>='$today_dt' AND   TO_DATE(TRANS_DT)<='$today_dt'
              |GROUP BY BUSS_TP_NM,CHNL_TP_NM,TO_DATE(TRANS_DT)) A
              |LEFT JOIN
              |(
@@ -1198,7 +1198,7 @@ object SparkHive2Mysql {
              |TO_DATE(TRANS_DT) as TRANS_DT,
              |COUNT( TRANS_NO) AS TRAN_ALL_CNT
              |from HIVE_LIFE_TRANS
-             |where  TO_DATE(TRANS_DT)>='$start_dt' AND   TO_DATE(TRANS_DT)<='$end_dt'
+             |where  TO_DATE(TRANS_DT)>='$today_dt' AND   TO_DATE(TRANS_DT)<='$today_dt'
              |GROUP BY BUSS_TP_NM,CHNL_TP_NM,TO_DATE(TRANS_DT)) B
              |ON A.BUSS_TP_NM=B.BUSS_TP_NM AND A.BUSS_TP_NM=B.BUSS_TP_NM and A.TRANS_DT=B.TRANS_DT
              |GROUP BY A.BUSS_TP_NM,
@@ -1215,6 +1215,7 @@ object SparkHive2Mysql {
       }
     }
   }
+
 
   /**
     * JOB_DM_65/10-14
@@ -1889,7 +1890,7 @@ object SparkHive2Mysql {
          |            (
          |                select
          |                    bill_id,
-         |                    to_date(trans_dt),
+         |                    to_date(trans_dt) as trans_dt,
          |                    count(*) as concnt,
          |                    sum(
          |                        case
@@ -1990,7 +1991,7 @@ object SparkHive2Mysql {
          |            (
          |                select
          |                    bill_id,
-         |                    to_date(trans_dt),
+         |                    to_date(trans_dt) as trans_dt,
          |                    count(*) as concnt,
          |                    sum(
          |                        case
@@ -2092,7 +2093,7 @@ object SparkHive2Mysql {
          |            (
          |                select
          |                    bill_id,
-         |                    to_date(trans_dt),
+         |                    to_date(trans_dt) as trans_dt,
          |                    count(*) as concnt,
          |                    sum(
          |                        case
