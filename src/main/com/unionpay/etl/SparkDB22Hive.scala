@@ -12,8 +12,7 @@ import org.joda.time.format.DateTimeFormat
 import org.joda.time.{Days, LocalDate}
 
 /**
-  * 作业：抽取DB2中的数据到Hive数据仓库
-  * Created by tzq on 2016/10/13.
+  * 作业：抽取DB2中的数据到钱包Hive数据仓库
   */
 object SparkDB22Hive {
   // Xue update formatted date -_-
@@ -56,6 +55,7 @@ object SparkDB22Hive {
       case "JOB_HV_16"  => JOB_HV_16  //CODE BY TZQ
       case "JOB_HV_18"  => JOB_HV_18(sqlContext,start_dt,end_dt)  //CODE BY YX
       case "JOB_HV_19"  => JOB_HV_19  //CODE BY YX
+      case "JOB_HV_20"  => JOB_HV_20  //CODE BY YX
       case "JOB_HV_28"  => JOB_HV_28(sqlContext,start_dt,end_dt)  //CODE BY XTP
       case "JOB_HV_29"  => JOB_HV_29(sqlContext,start_dt,end_dt)  //CODE BY XTP
       case "JOB_HV_30"  => JOB_HV_30(sqlContext,start_dt,end_dt)  //CODE BY YX
@@ -64,6 +64,7 @@ object SparkDB22Hive {
       case "JOB_HV_36"  => JOB_HV_36  //CODE BY YX
       case "JOB_HV_43"  => JOB_HV_43(sqlContext,start_dt,end_dt)  //CODE BY YX
       case "JOB_HV_44"  => JOB_HV_44  //CODE BY TZQ
+      case "JOB_HV_45"  => JOB_HV_45  //CODE BY YX
       case "JOB_HV_46"  => JOB_HV_46  //CODE BY XTP
       case "JOB_HV_47"  => JOB_HV_47  //CODE BY XTP
       case "JOB_HV_48"  => JOB_HV_48  //CODE BY TZQ
@@ -142,8 +143,6 @@ object SparkDB22Hive {
     }else{
       println("加载的表tbl_chmgm_preferential_mchnt_inf中无数据！")
     }
-
-
 
   }
 
@@ -1683,6 +1682,8 @@ object SparkDB22Hive {
       println("加载的表HIVE_INS_INF中无数据！")
     }
   }
+
+
   /**
     * hive-job-23  2016年10月9日
     * hive_brand_inf-->TBL_CHMGM_BRAND_INF
@@ -3079,6 +3080,80 @@ object SparkDB22Hive {
 
   }
 
+
+  /**
+    * JOB_HV_45 2016-10-28
+    * TBL_CUP_BRANCH_ACPT_INS_INF -> HIVE_BRANCH_ACPT_INS_INF
+    *
+    * @author winslow yang
+    * @param sqlContext
+    * */
+  def JOB_HV_45 (implicit sqlContext: HiveContext) = {
+    println("###JOB_HV_45(hive_branch_acpt_ins_inf)")
+
+    val df = sqlContext.jdbc_accdb_DF(s"$schemas_accdb.TBL_CUP_BRANCH_ACPT_INS_INF")
+    df.registerTempTable("spark_tbl_cup_branch_acpt_ins_inf")
+
+    val results = sqlContext.sql(
+      """
+        |select
+        |trim(cup_branch_ins_id_cd),
+        |trim(ins_id_cd),
+        |case
+        |when cup_branch_ins_id_cd='00011000'  then '北京'
+        |when cup_branch_ins_id_cd='00011100'  then '天津'
+        |when cup_branch_ins_id_cd='00011200'  then '河北'
+        |when cup_branch_ins_id_cd='00011600'  then '山西'
+        |when cup_branch_ins_id_cd='00011900'  then '内蒙古'
+        |when cup_branch_ins_id_cd='00012210'  then '辽宁'
+        |when cup_branch_ins_id_cd='00012220'  then '大连'
+        |when cup_branch_ins_id_cd='00012400'  then '吉林'
+        |when cup_branch_ins_id_cd='00012600'  then '黑龙江'
+        |when cup_branch_ins_id_cd='00012900'  then '上海'
+        |when cup_branch_ins_id_cd='00013000'  then '江苏'
+        |when cup_branch_ins_id_cd='00013310'  then '浙江'
+        |when cup_branch_ins_id_cd='00013320'  then '宁波'
+        |when cup_branch_ins_id_cd='00013600'  then '安徽'
+        |when cup_branch_ins_id_cd='00013900'  then '福建'
+        |when cup_branch_ins_id_cd='00013930'  then '厦门'
+        |when cup_branch_ins_id_cd='00014200'  then '江西'
+        |when cup_branch_ins_id_cd='00014500'  then '山东'
+        |when cup_branch_ins_id_cd='00014520'  then '青岛'
+        |when cup_branch_ins_id_cd='00014900'  then '河南'
+        |when cup_branch_ins_id_cd='00015210'  then '湖北'
+        |when cup_branch_ins_id_cd='00015500'  then '湖南'
+        |when cup_branch_ins_id_cd='00015800'  then '广东'
+        |when cup_branch_ins_id_cd='00015840'  then '深圳'
+        |when cup_branch_ins_id_cd='00016100'  then '广西'
+        |when cup_branch_ins_id_cd='00016400'  then '海南'
+        |when cup_branch_ins_id_cd='00016500'  then '四川'
+        |when cup_branch_ins_id_cd='00016530'  then '重庆'
+        |when cup_branch_ins_id_cd='00017000'  then '贵州'
+        |when cup_branch_ins_id_cd='00017310'  then '云南'
+        |when cup_branch_ins_id_cd='00017700'  then '西藏'
+        |when cup_branch_ins_id_cd='00017900'  then '陕西'
+        |when cup_branch_ins_id_cd='00018200'  then '甘肃'
+        |when cup_branch_ins_id_cd='00018500'  then '青海'
+        |when cup_branch_ins_id_cd='00018700'  then '宁夏'
+        |when cup_branch_ins_id_cd='00018800'  then '新疆'
+        |else '总公司'
+        |end as cup_branch_ins_id_cd
+        |from
+        |spark_tbl_cup_branch_acpt_ins_inf
+      """.stripMargin)
+    println("JOB_HV_45------>results:"+results.count())
+    results.registerTempTable("spark_hive_branch_acpt_ins_inf")
+
+    if(!Option(results).isEmpty){
+      sqlContext.sql(s"use $hive_dbname")
+      sqlContext.sql("truncate table hive_branch_acpt_ins_inf")
+      sqlContext.sql("insert into table hive_branch_acpt_ins_inf select * from spark_hive_branch_acpt_ins_inf")
+      println("###JOB_HV_45(insert into hive_branch_acpt_ins_inf successful)")
+    }else{
+      println("加载的表spark_hive_branch_acpt_ins_inf中无数据！")
+    }
+
+  }
 
   /**
     * JOB_HV_46/10-14
