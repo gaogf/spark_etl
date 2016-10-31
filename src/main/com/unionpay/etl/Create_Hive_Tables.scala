@@ -8,7 +8,7 @@ import org.apache.spark.{SparkConf, SparkContext}
 
 
 /**
-  * Created by Xue on 2016/10/20.
+  * 初始化建表类
   */
 object Create_Hive_Tables {
   //指定HIVE数据库名
@@ -22,67 +22,70 @@ object Create_Hive_Tables {
 
     println("=======Create all tables on the hive=======")
 
-    hive_ct
-    hive_life
-    hive_city_card
-    hive_acc_trans
-    hive_achis_trans
-    hive_active_card_acq_branch_mon
-    hive_card_bind_inf
-    hive_discount_bas_inf
-    hive_download_trans
-    hive_inf_source_class
-    hive_ins_inf
-    hive_mchnt_para
-    hive_passive_code_pay_trans
-    hive_pri_acct_inf
-    hive_province_card
-    hive_switch_point_trans
-    hive_ucbiz_cdhd_bas_inf
-    hive_access_bas_inf
-    hive_active_code_pay_trans
-    hive_branch_acpt_ins_inf
-    hive_brand_inf
-    hive_card_bin
-    hive_cashier_maktg_reward_dtl
-    hive_cashier_point_acct_oper_dtl
-    hive_chara_grp_def_bat
-    hive_cups_trans
-    hive_filter_app_det
-    hive_filter_rule_det
-    hive_inf_source_dtl
-    hive_life_trans
-    hive_mchnt_inf_wallet
-    hive_mchnt_tp_grp
-    hive_org_tdapp_activitynew
-    hive_org_tdapp_device
-    hive_org_tdapp_devicenew
-    hive_org_tdapp_eventnew
-    hive_org_tdapp_exception
-    hive_org_tdapp_exceptionnew
-    hive_org_tdapp_keyvalue
-    hive_org_tdapp_newuser
-    hive_org_tdapp_tactivity
-    hive_org_tdapp_tappevent
-    hive_org_tdapp_terminate
-    hive_org_tdapp_tlaunch
-    hive_org_tdapp_tlaunchnew
-    hive_preferential_mchnt_inf
-    hive_prize_bas
-    hive_signer_log
-    hive_ticket_bill_bas_inf
-    hive_undefine_store_inf
-    hive_use_td_d
-    HIVE_BILL_ORDER_TRANS
-    HIVE_BILL_SUB_ORDER_TRANS
-    HIVE_MCHNT_TP
-    HIVE_OFFLINE_POINT_TRANS
-    HIVE_ONLINE_POINT_TRANS
-    HIVE_PRIZE_ACTIVITY_BAS_INF
-    HIVE_PRIZE_DISCOUNT_RESULT
-    HIVE_PRIZE_LVL_ADD_RULE
-    HIVE_PRIZE_LVL
-    HIVE_STORE_TERM_RELATION
+//    仅初始化使用，默认关闭
+
+//    hive_ct
+//    hive_life
+//    hive_city_card
+//    hive_acc_trans
+//    hive_achis_trans
+//    hive_active_card_acq_branch_mon
+//    hive_card_bind_inf
+//    hive_discount_bas_inf
+//    hive_download_trans
+//    hive_inf_source_class
+//    hive_ins_inf
+//    hive_mchnt_para
+//    hive_passive_code_pay_trans
+//    hive_pri_acct_inf
+//    hive_province_card
+//    hive_switch_point_trans
+//    hive_ucbiz_cdhd_bas_inf
+//    hive_access_bas_inf
+//    hive_active_code_pay_trans
+//    hive_branch_acpt_ins_inf
+//    hive_brand_inf
+//    hive_card_bin
+//    hive_cashier_maktg_reward_dtl
+//    hive_cashier_point_acct_oper_dtl
+//    hive_chara_grp_def_bat
+//    hive_cups_trans
+//    hive_filter_app_det
+//    hive_filter_rule_det
+//    hive_inf_source_dtl
+//    hive_life_trans
+//    hive_mchnt_inf_wallet
+//    hive_mchnt_tp_grp
+//    hive_org_tdapp_activitynew
+//    hive_org_tdapp_device
+//    hive_org_tdapp_devicenew
+//    hive_org_tdapp_eventnew
+//    hive_org_tdapp_exception
+//    hive_org_tdapp_exceptionnew
+//    hive_org_tdapp_keyvalue
+//    hive_org_tdapp_newuser
+//    hive_org_tdapp_tactivity
+//    hive_org_tdapp_tappevent
+//    hive_org_tdapp_terminate
+//    hive_org_tdapp_tlaunch
+//    hive_org_tdapp_tlaunchnew
+//    hive_preferential_mchnt_inf
+//    hive_prize_bas
+//    hive_signer_log
+//    hive_ticket_bill_bas_inf
+//    hive_undefine_store_inf
+//    hive_use_td_d
+//    hive_bill_order_trans
+//    hive_bill_sub_order_trans
+//    hive_mchnt_tp
+//    hive_offline_point_trans
+//    hive_online_point_trans
+//    hive_prize_activity_bas_inf
+//    hive_prize_discount_result
+//    hive_prize_lvl_add_rule
+//    hive_prize_lvl
+//    hive_store_term_relation
+    hive_term_inf
 
     println("=======Create all tables on the hive successfully=======")
 
@@ -2817,7 +2820,7 @@ object Create_Hive_Tables {
 
   }
 
-  def HIVE_BILL_ORDER_TRANS (implicit sqlContext: HiveContext) = {
+  def hive_bill_order_trans (implicit sqlContext: HiveContext) = {
     println("=======Create HIVE_BILL_ORDER_TRANS=======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
@@ -2872,7 +2875,7 @@ object Create_Hive_Tables {
 
   }
 
-  def HIVE_BILL_SUB_ORDER_TRANS (implicit sqlContext: HiveContext) = {
+  def hive_bill_sub_order_trans (implicit sqlContext: HiveContext) = {
     println("=======Create HIVE_BILL_SUB_ORDER_TRANS=======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
@@ -2909,7 +2912,7 @@ object Create_Hive_Tables {
 
   }
 
-  def HIVE_MCHNT_TP (implicit sqlContext: HiveContext) = {
+  def hive_mchnt_tp (implicit sqlContext: HiveContext) = {
     println("=======Create HIVE_MCHNT_TP=======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
@@ -2938,7 +2941,7 @@ object Create_Hive_Tables {
 
   }
 
-  def HIVE_OFFLINE_POINT_TRANS (implicit sqlContext: HiveContext) = {
+  def hive_offline_point_trans (implicit sqlContext: HiveContext) = {
     println("=======Create HIVE_OFFLINE_POINT_TRANS=======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
@@ -3022,7 +3025,7 @@ object Create_Hive_Tables {
 
   }
 
-  def HIVE_ONLINE_POINT_TRANS (implicit sqlContext: HiveContext) = {
+  def hive_online_point_trans (implicit sqlContext: HiveContext) = {
     println("=======Create HIVE_ONLINE_POINT_TRANS=======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
@@ -3072,7 +3075,7 @@ object Create_Hive_Tables {
 
   }
 
-  def HIVE_PRIZE_ACTIVITY_BAS_INF (implicit sqlContext: HiveContext) = {
+  def hive_prize_activity_bas_inf (implicit sqlContext: HiveContext) = {
     println("=======Create HIVE_PRIZE_ACTIVITY_BAS_INF=======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
@@ -3119,7 +3122,7 @@ object Create_Hive_Tables {
 
   }
 
-  def HIVE_PRIZE_DISCOUNT_RESULT (implicit sqlContext: HiveContext) = {
+  def hive_prize_discount_result (implicit sqlContext: HiveContext) = {
     println("=======Create HIVE_PRIZE_DISCOUNT_RESULT=======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
@@ -3176,7 +3179,7 @@ object Create_Hive_Tables {
 
   }
 
-  def HIVE_PRIZE_LVL_ADD_RULE (implicit sqlContext: HiveContext) = {
+  def hive_prize_lvl_add_rule (implicit sqlContext: HiveContext) = {
     println("=======Create HIVE_PRIZE_LVL_ADD_RULE=======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
@@ -3204,7 +3207,7 @@ object Create_Hive_Tables {
 
   }
 
-  def HIVE_PRIZE_LVL (implicit sqlContext: HiveContext) = {
+  def hive_prize_lvl (implicit sqlContext: HiveContext) = {
     println("=======Create HIVE_PRIZE_LVL=======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
@@ -3248,7 +3251,7 @@ object Create_Hive_Tables {
 
   }
 
-  def HIVE_STORE_TERM_RELATION (implicit sqlContext: HiveContext) = {
+  def hive_store_term_relation (implicit sqlContext: HiveContext) = {
     println("=======Create HIVE_STORE_TERM_RELATION=======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
@@ -3270,6 +3273,36 @@ object Create_Hive_Tables {
          | """.stripMargin)
 
     println("=======Create HIVE_STORE_TERM_RELATION successfully ! =======")
+
+  }
+
+  def hive_term_inf (implicit sqlContext: HiveContext) = {
+    println("=======Create HIVE_TERM_INF=======")
+    sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql(
+      s"""
+        |create table if not exists $hive_dbname.hive_term_inf(
+        |mchnt_cd        string     ,
+        |term_id         string     ,
+        |term_tp         string     ,
+        |term_st         string     ,
+        |open_dt         timestamp  ,
+        |close_dt        timestamp  ,
+        |bank_cd         string     ,
+        |rec_st          string     ,
+        |last_oper_in    string     ,
+        |event_id        int        ,
+        |rec_id          int        ,
+        |rec_upd_usr_id  string     ,
+        |rec_upd_ts      timestamp  ,
+        |rec_crt_ts      timestamp  ,
+        |is_trans_at_tp  string
+        |)
+        |row format delimited fields terminated by '!|'
+        |stored as parquet
+      """.stripMargin)
+
+    println("=======Create HIVE_TERM_INF successfully ! =======")
 
   }
 

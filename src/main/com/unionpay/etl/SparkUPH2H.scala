@@ -6,7 +6,7 @@ import org.apache.spark.SparkConf
 import org.apache.spark.SparkContext
 import org.apache.spark.sql.hive.HiveContext
 /**
-  * UP HIVE -> UPW HIVE
+  * 作业：抽取银联Hive的数据到钱包Hive数据仓库
   */
 object SparkUPH2H {
   //UP NAMENODE URL
