@@ -8,8 +8,7 @@ import org.apache.spark.{SparkConf, SparkContext}
 import org.apache.spark.sql.hive.HiveContext
 
 /**
-  * UPW->UPW hive库
-  * Created by TZQ on 2016/10/24.
+  * 作业：抽取钱包Hive数据到钱包Hive数据仓库
   */
 object SparkUPWH2H {
   //指定HIVE数据库名

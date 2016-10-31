@@ -9,8 +9,7 @@ import com.unionpay.utils.DateUtils
 import org.apache.spark.sql.hive.HiveContext
 import org.apache.spark.{SparkConf, SparkContext}
 /**
-  * 作业：抽取hive数据仓库中的数据到UPSQL数据库
-  * Created by tzq on 2016/10/13.
+  * 作业：抽取钱包Hive数据仓库中的数据到UPSQL数据库
   */
 object SparkHive2Mysql {
   //指定HIVE数据库名
@@ -1196,7 +1195,7 @@ object SparkHive2Mysql {
              |BUSS_TP_NM,
              |CHNL_TP_NM,
              |TO_DATE(TRANS_DT) as TRANS_DT,
-             |COUNT( TRANS_NO) AS TRAN_ALL_CNT
+             |COUNT(TRANS_NO) AS TRAN_ALL_CNT
              |from HIVE_LIFE_TRANS
              |where  TO_DATE(TRANS_DT)>='$today_dt' AND   TO_DATE(TRANS_DT)<='$today_dt'
              |GROUP BY BUSS_TP_NM,CHNL_TP_NM,TO_DATE(TRANS_DT)) B
