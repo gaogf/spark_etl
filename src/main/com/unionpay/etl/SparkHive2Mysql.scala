@@ -1288,7 +1288,7 @@ object SparkHive2Mysql {
              |trans_dt,
              |substr(udf_fld,31,2) as CFP_SIGN
              |from  HIVE_ACC_TRANS
-             |where substr(udf_fld,31,2) not in ('',' ', '00') and
+             |where substr(udf_fld,31,2) not in ('',' ','  ','00') and
              |      UM_TRANS_ID in ('AC02000065','AC02000063') and
              |      buss_tp in ('04','05','06')
              |      and sys_det_cd='S' and
@@ -2755,8 +2755,7 @@ object SparkHive2Mysql {
              |where
              |to_date(rec_upd_ts)>='$today_dt'
              |and to_date(rec_upd_ts)<='$today_dt'
-             |and rec_upd_ts >rec_crt_ts and
-             |(usr_st='1' or (usr_st='2' and note='BDYX_FREEZE')) and  realnm_in='01'
+             |and (usr_st='1' or (usr_st='2' and note='BDYX_FREEZE')) and  realnm_in='01'
              |) A
              |LEFT JOIN
              |(
