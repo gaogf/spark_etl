@@ -1123,11 +1123,11 @@ object SparkHive2Mysql {
              | else '--' end) as card_auth_nm,
              |card_attr as card_attr ,
              |'$today_dt' as report_dt ,
-             |count(distinct(case when to_date(bind_ts) = '$today_dt'  then cdhd_usr_id end))  as tpre,
-             |count(distinct(case when to_date(bind_ts) <= '$today_dt'  then cdhd_usr_id end))  as total
+             |count(case when to_date(bind_ts) = '$today_dt'  then 1 end)  as tpre,
+             |count(case when to_date(bind_ts) <= '$today_dt'  then 1 end)  as total
              |
              |from  (
-             |select distinct cdhd_usr_id,card_auth_st,bind_ts,substr(bind_card_no,1,8) as card_bin
+             |select  card_auth_st,bind_ts,substr(bind_card_no,1,8) as card_bin
              |from hive_card_bind_inf where card_bind_st='0') a
              |left join
              |(select card_attr,card_bin from hive_card_bin ) b
