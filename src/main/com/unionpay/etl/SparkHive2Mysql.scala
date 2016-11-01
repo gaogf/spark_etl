@@ -64,7 +64,7 @@ object SparkHive2Mysql {
       case "JOB_DM_2"  => JOB_DM_2(sqlContext,start_dt,end_dt,interval)    //CODE BY XTP
       case "JOB_DM_5"  => JOB_DM_5(sqlContext,start_dt,end_dt,interval)    //CODE BY TZQ
       case "JOB_DM_6"  => JOB_DM_6(sqlContext,start_dt,end_dt,interval)    //CODE BY TZQ
-      case "JOB_DM_54"  => JOB_DM_54(sqlContext,start_dt,end_dt)   //CODE BY XTP 无数据
+      case "JOB_DM_54" =>JOB_DM_54(sqlContext,start_dt,end_dt)   //CODE BY XTP 无数据
     }
 
     sc.stop()
@@ -1035,12 +1035,12 @@ object SparkHive2Mysql {
          |        trans.agio_app_id=dbi.loc_activity_id)
          |where
          |trans.prod_in = '0'
+         |and trans.trans_id='S22'
          |and trans.part_settle_dt >= '$start_dt'
          |and trans.part_settle_dt <= '$end_dt'
          |group by
          |    dbi.cup_branch_ins_id_nm,
          |    to_date(trans.settle_dt)
-         |
       """.stripMargin)
 
     if(!Option(results).isEmpty){
@@ -1663,7 +1663,7 @@ object SparkHive2Mysql {
          |                where
          |                    trans.mchnt_cd is not null
          |                and trans.mchnt_cd<>''
-         |                and trans.tran_certi like '10%'
+         |                and trans_st=‘04’
          |                and trans.part_trans_dt >= '$start_dt'
          |                and trans.part_trans_dt <= '$end_dt'
          |                group by
@@ -1750,6 +1750,7 @@ object SparkHive2Mysql {
          |                where
          |                    trans.agio_app_id=dbi.loc_activity_id
          |                and trans.agio_app_id is not null
+         |                and trans.trans_id='S22'
          |                and trans.part_settle_dt >= '$start_dt'
          |                and trans.part_settle_dt <= '$end_dt'
          |                group by
@@ -1762,6 +1763,7 @@ object SparkHive2Mysql {
          |group by
          |    t.cup_branch_ins_id_nm,
          |    t.report_dt
+         |
       """.stripMargin)
 
     println(s"###JOB_DM_67------ ( $start_dt-$end_dt ) results:"+results.count())
@@ -2261,7 +2263,7 @@ object SparkHive2Mysql {
          |                GROUP BY
          |                    PRIZE.CUP_BRANCH_INS_ID_NM,
          |                    RSLT.SETTLE_DT
-         |			) A,
+         |   ) A,
          |            (
          |                SELECT
          |                    PRIZE.CUP_BRANCH_INS_ID_NM AS CUP_BRANCH_INS_ID_NM,
@@ -2276,13 +2278,14 @@ object SparkHive2Mysql {
          |                AND BAS.PRIZE_ID = PR.PRIZE_ID
          |                AND PRIZE.ACTIVITY_BEGIN_DT<= PR.SETTLE_DT
          |                AND PRIZE.ACTIVITY_END_DT>= PR.SETTLE_DT
+         |                AND PRIZE.trans_id='S22'
          |                AND PR.PART_SETTLE_DT >= '$start_dt'
          |                AND PR.PART_SETTLE_DT <= '$end_dt'
          |                AND PR.TRANS_ID NOT LIKE 'V%'
          |                AND PRIZE.RUN_ST!='3'
          |                GROUP BY
          |                    PRIZE.CUP_BRANCH_INS_ID_NM,PR.SETTLE_DT
-         |			) B,
+         |   ) B,
          |            (
          |                SELECT
          |                    PRIZE.CUP_BRANCH_INS_ID_NM AS CUP_BRANCH_INS_ID_NM,
@@ -2305,7 +2308,7 @@ object SparkHive2Mysql {
          |                GROUP BY
          |                    PRIZE.CUP_BRANCH_INS_ID_NM,
          |                    RSLT.SETTLE_DT
-         |			) C
+         |   ) C
          |        WHERE
          |            A.CUP_BRANCH_INS_ID_NM=B.CUP_BRANCH_INS_ID_NM
          |        AND B.CUP_BRANCH_INS_ID_NM=C.CUP_BRANCH_INS_ID_NM
@@ -2329,6 +2332,7 @@ object SparkHive2Mysql {
          |)  ta
          |GROUP BY
          |ta.CUP_BRANCH_INS_ID_NM,ta.SETTLE_DT
+         |
          | """.stripMargin)
 
     println(s"###JOB_DM_73----($start_dt-$end_dt)--results:"+results.count())
@@ -2352,7 +2356,7 @@ object SparkHive2Mysql {
     sqlContext.sql(s"use $hive_dbname")
     val results = sqlContext.sql(
       s"""
-         | SELECT
+         |SELECT
          |    C.ACTIVITY_ID AS ACTIVITY_ID,
          |    C.ACTIVITY_NM AS ACTIVITY_NM,
          |    C.SETTLE_DT AS REPORT_DT,
@@ -2409,6 +2413,7 @@ object SparkHive2Mysql {
          |                AND BAS.PRIZE_ID = PR.PRIZE_ID
          |                AND PRIZE.ACTIVITY_BEGIN_DT<= PR.SETTLE_DT
          |                AND PRIZE.ACTIVITY_END_DT>= PR.SETTLE_DT
+         |                AND PRIZE.trans_id='S22'
          |                AND PR.PART_SETTLE_DT >= '$start_dt'
          |                AND PR.PART_SETTLE_DT <= '$end_dt'
          |                AND PR.TRANS_ID NOT LIKE 'V%'
@@ -2425,6 +2430,7 @@ object SparkHive2Mysql {
          |) C
          |WHERE
          |    C.RN <= 10
+         |
          | """.stripMargin)
 
     println(s"###JOB_DM_74-----($start_dt-$end_dt)--results:"+results.count())
@@ -2448,63 +2454,65 @@ object SparkHive2Mysql {
     sqlContext.sql(s"use $hive_dbname")
     val results = sqlContext.sql(
       s"""
-         |SELECT
-         |		B.ACTIVITY_ID as ACTIVITY_ID,
-         |		B.ACTIVITY_NM as ACTIVITY_NM,
-         |		B.SETTLE_DT as REPORT_DT,
-         |		B.TRANS_CNT as TRANS_CNT,
-         |		B.TRANS_AT as TRANS_AT,
-         |		B.DISCOUNT_AT as DISCOUNT_AT
-         |	FROM
-         |	(
-         |	SELECT
-         |	A.ACTIVITY_ID                         AS ACTIVITY_ID,
-         |	A.ACTIVITY_NM                        AS ACTIVITY_NM,
-         |	A.SETTLE_DT                           AS SETTLE_DT,
-         |	A.TRANS_CNT                           AS TRANS_CNT,
-         |	A.TRANS_POS_AT_TTL                    AS TRANS_AT,
-         |	(A.TRANS_POS_AT_TTL - A.TRANS_AT_TTL) AS DISCOUNT_AT,
-         |	ROW_NUMBER() OVER(PARTITION BY A.SETTLE_DT ORDER BY A.TRANS_CNT DESC) AS RN
-         |	FROM
-         |		(
-         |			SELECT
-         |				DBI.LOC_ACTIVITY_ID                 AS ACTIVITY_ID,
-         |				TRANSLATE(DBI.LOC_ACTIVITY_NM,' ','') AS ACTIVITY_NM,
-         |				TRANS.SETTLE_DT,
-         |				SUM (
-         |					CASE
-         |						WHEN TRANS.TRANS_ID IN ('V52','R22','V50','R20','S30')
-         |						THEN -1
-         |						ELSE 1
-         |					END) AS TRANS_CNT,
-         |				SUM (
-         |					CASE
-         |						WHEN TRANS.TRANS_ID IN ('V52','R22','V50','R20','S30')
-         |						THEN -TRANS.TRANS_POS_AT
-         |						ELSE TRANS.TRANS_POS_AT
-         |					END) AS TRANS_POS_AT_TTL,
-         |				SUM (
-         |					CASE
-         |						WHEN TRANS.TRANS_ID IN ('V52','R22','V50','R20','S30')
-         |						THEN -TRANS.TRANS_AT
-         |						ELSE TRANS.TRANS_AT
-         |					END) AS TRANS_AT_TTL
-         |			FROM
-         |				HIVE_PRIZE_DISCOUNT_RESULT TRANS,
-         |				HIVE_DISCOUNT_BAS_INF DBI
-         |			WHERE
-         |				TRANS.AGIO_APP_ID=DBI.LOC_ACTIVITY_ID
-         |			AND TRANS.AGIO_APP_ID IS NOT NULL
-         |			AND TRANS.PART_SETTLE_DT >='$start_dt'
-         |			AND TRANS.PART_SETTLE_DT <='$end_dt'
-         |			GROUP BY
-         |				DBI.LOC_ACTIVITY_ID,
-         |				TRANSLATE(DBI.LOC_ACTIVITY_NM,' ',''),
-         |				TRANS.SETTLE_DT
-         |		) A
-         |	) B
-         |	WHERE
-         |		B.RN <= 10
+         SELECT
+         |  B.ACTIVITY_ID as ACTIVITY_ID,
+         |  B.ACTIVITY_NM as ACTIVITY_NM,
+         |  B.SETTLE_DT as REPORT_DT,
+         |  B.TRANS_CNT as TRANS_CNT,
+         |  B.TRANS_AT as TRANS_AT,
+         |  B.DISCOUNT_AT as DISCOUNT_AT
+         | FROM
+         | (
+         | SELECT
+         | A.ACTIVITY_ID                         AS ACTIVITY_ID,
+         | A.ACTIVITY_NM                        AS ACTIVITY_NM,
+         | A.SETTLE_DT                           AS SETTLE_DT,
+         | A.TRANS_CNT                           AS TRANS_CNT,
+         | A.TRANS_POS_AT_TTL                    AS TRANS_AT,
+         | (A.TRANS_POS_AT_TTL - A.TRANS_AT_TTL) AS DISCOUNT_AT,
+         | ROW_NUMBER() OVER(PARTITION BY A.SETTLE_DT ORDER BY A.TRANS_CNT DESC) AS RN
+         | FROM
+         |  (
+         |   SELECT
+         |    DBI.LOC_ACTIVITY_ID                 AS ACTIVITY_ID,
+         |    TRANSLATE(DBI.LOC_ACTIVITY_NM,' ','') AS ACTIVITY_NM,
+         |    TRANS.SETTLE_DT,
+         |    SUM (
+         |     CASE
+         |      WHEN TRANS.TRANS_ID IN ('V52','R22','V50','R20','S30')
+         |      THEN -1
+         |      ELSE 1
+         |     END) AS TRANS_CNT,
+         |    SUM (
+         |     CASE
+         |      WHEN TRANS.TRANS_ID IN ('V52','R22','V50','R20','S30')
+         |      THEN -TRANS.TRANS_POS_AT
+         |      ELSE TRANS.TRANS_POS_AT
+         |     END) AS TRANS_POS_AT_TTL,
+         |    SUM (
+         |     CASE
+         |      WHEN TRANS.TRANS_ID IN ('V52','R22','V50','R20','S30')
+         |      THEN -TRANS.TRANS_AT
+         |      ELSE TRANS.TRANS_AT
+         |     END) AS TRANS_AT_TTL
+         |   FROM
+         |    HIVE_PRIZE_DISCOUNT_RESULT TRANS,
+         |    HIVE_DISCOUNT_BAS_INF DBI
+         |   WHERE
+         |    TRANS.AGIO_APP_ID=DBI.LOC_ACTIVITY_ID
+         |   AND TRANS.AGIO_APP_ID IS NOT NULL
+         |   AND TRANS.trans_id='S22'
+         |   AND TRANS.PART_SETTLE_DT >='$start_dt'
+         |   AND TRANS.PART_SETTLE_DT <='$end_dt'
+         |   GROUP BY
+         |    DBI.LOC_ACTIVITY_ID,
+         |    TRANSLATE(DBI.LOC_ACTIVITY_NM,' ',''),
+         |    TRANS.SETTLE_DT
+         |  ) A
+         | ) B
+         | WHERE
+         |  B.RN <= 10
+         |
          | """.stripMargin)
 
     println(s"###JOB_DM_75----($start_dt-$end_dt)--results:"+results.count())
@@ -2600,8 +2608,8 @@ object SparkHive2Mysql {
              |select
              |tempa.bank_nm as bank_nm,
              |tempa.card_attr as card_attr,
-             |count(case when tempa.bind_dt<='$today_dt' then tempa.bind_card_no end ) as TOTAL_BIND_CNT,
-             |count(case when tempa.bind_dt='$today_dt' then tempa.bind_card_no end ) as TODAY_CNT
+             |count(case when tempa.bind_dt<='$today_dt' then 1 end ) as TOTAL_BIND_CNT,
+             |count(case when tempa.bind_dt='$today_dt' then 1 end ) as TODAY_CNT
              |from
              |(
              |select
@@ -2609,8 +2617,7 @@ object SparkHive2Mysql {
              |tempb.bind_dt as bind_dt,
              |(case when tempc.card_attr in ('01') then '借记卡'
              |      when tempc.card_attr in ('02', '03') then '贷记卡'
-             |      else null end) as card_attr,
-             |tempb.bind_card_no as bind_card_no
+             |      else null end) as card_attr
              |from
              |(
              |select
@@ -2817,7 +2824,7 @@ object SparkHive2Mysql {
       for(i <- 0 to interval){
         val results=sqlContext.sql(
           s"""
-             |select
+             select
              |    a11.cup_branch_ins_id_nm                                      as cup_branch_ins_id_nm,
              |    '$today_dt'                                                   as report_dt,
              |    a11.cashier_cnt_tot                                           as cashier_cnt_tot,
@@ -2858,7 +2865,7 @@ object SparkHive2Mysql {
              |        from
              |            hive_cashier_bas_inf
              |        where
-             |            reg_dt<= '$today_dt'
+             |            to_date(activate_ts) <= '$today_dt'
              |        and usr_st in ('1')
              |        group by
              |            cup_branch_ins_id_nm) a12
@@ -2874,7 +2881,7 @@ object SparkHive2Mysql {
              |        from
              |            hive_cashier_bas_inf
              |        where
-             |            reg_dt<= '$today_dt'
+             |            to_date(activate_ts)<= '$today_dt'
              |        and usr_st in ('0')
              |        group by
              |            cup_branch_ins_id_nm) a13
@@ -2907,8 +2914,8 @@ object SparkHive2Mysql {
              |        from
              |            hive_cashier_bas_inf
              |        where
-             |            reg_dt <= '$today_dt'
-             |        and reg_dt >= concat(substring('$today_dt',1,5),'01-01')
+             |            to_date(activate_ts) <= '$today_dt'
+             |        and to_date(activate_ts) >= concat(substring('$today_dt',1,5),'01-01')
              |        and usr_st in ('1')
              |        group by
              |            cup_branch_ins_id_nm) a22
@@ -2923,8 +2930,8 @@ object SparkHive2Mysql {
              |        from
              |            hive_cashier_bas_inf
              |        where
-             |            reg_dt <= '$today_dt'
-             |        and reg_dt >= concat(substring('$today_dt',1,5),'01-01')
+             |            to_date(activate_ts) <= '$today_dt'
+             |        and to_date(activate_ts) >= concat(substring('$today_dt',1,5),'01-01')
              |        and usr_st in ('0')
              |        group by
              |            cup_branch_ins_id_nm) a23
@@ -2956,8 +2963,8 @@ object SparkHive2Mysql {
              |        from
              |            hive_cashier_bas_inf
              |        where
-             |            reg_dt <= '$today_dt'
-             |        and reg_dt >= concat(substring('$today_dt',1,8),'01')
+             |            to_date(activate_ts) <= '$today_dt'
+             |        and to_date(activate_ts) >= concat(substring('$today_dt',1,8),'01')
              |        and usr_st in ('1')
              |        group by
              |            cup_branch_ins_id_nm) a32
@@ -2972,8 +2979,8 @@ object SparkHive2Mysql {
              |        from
              |            hive_cashier_bas_inf
              |        where
-             |            reg_dt <= '$today_dt'
-             |        and reg_dt >= concat(substring('$today_dt',1,8),'01')
+             |            to_date(activate_ts) <= '$today_dt'
+             |        and to_date(activate_ts) >= concat(substring('$today_dt',1,8),'01')
              |        and usr_st in ('0')
              |        group by
              |            cup_branch_ins_id_nm) a33
@@ -3123,7 +3130,7 @@ object SparkHive2Mysql {
              |        from
              |            hive_cashier_bas_inf
              |        where
-             |            reg_dt= '$today_dt'
+             |            to_date(activate_ts) = '$today_dt'
              |        and usr_st in ('1')
              |        group by
              |            cup_branch_ins_id_nm) a82
@@ -3138,14 +3145,13 @@ object SparkHive2Mysql {
              |        from
              |            hive_cashier_bas_inf
              |        where
-             |            reg_dt= '$today_dt'
+             |            to_date(activate_ts) = '$today_dt'
              |        and usr_st in ('0')
              |        group by
              |            cup_branch_ins_id_nm) a83
              |on
              |    (
              |        a11.cup_branch_ins_id_nm = a83.cup_branch_ins_id_nm)
-             |
              |
       """.stripMargin)
         println(s"###JOB_DM_87------$today_dt results:"+results.count())

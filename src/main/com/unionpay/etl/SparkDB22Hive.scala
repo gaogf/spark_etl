@@ -55,7 +55,7 @@ object SparkDB22Hive {
       case "JOB_HV_16"  => JOB_HV_16  //CODE BY TZQ
       case "JOB_HV_18"  => JOB_HV_18(sqlContext,start_dt,end_dt)  //CODE BY YX
       case "JOB_HV_19"  => JOB_HV_19  //CODE BY YX
-      case "JOB_HV_20"  => JOB_HV_20  //CODE BY YX
+//      case "JOB_HV_20"  => JOB_HV_20  //CODE BY YX
       case "JOB_HV_28"  => JOB_HV_28(sqlContext,start_dt,end_dt)  //CODE BY XTP
       case "JOB_HV_29"  => JOB_HV_29(sqlContext,start_dt,end_dt)  //CODE BY XTP
       case "JOB_HV_30"  => JOB_HV_30(sqlContext,start_dt,end_dt)  //CODE BY YX
