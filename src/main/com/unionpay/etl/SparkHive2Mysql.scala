@@ -1172,8 +1172,8 @@ object SparkHive2Mysql {
         val results = sqlContext.sql(
           s"""
              |SELECT
-             |A.BUSS_TP_NM as BUSS_TP_NM,
-             |A.CHNL_TP_NM as CHNL_TP_NM,
+             |NVL(A.BUSS_TP_NM,'--') as BUSS_TP_NM,
+             |NVL(A.CHNL_TP_NM,'--') as CHNL_TP_NM,
              |A.TRANS_DT as REPORT_DT,
              |SUM(B.TRAN_ALL_CNT) as TRAN_ALL_CNT,
              |SUM(A.TRAN_SUCC_CNT) as TRAN_SUCC_CNT,
