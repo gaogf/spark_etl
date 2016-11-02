@@ -1414,9 +1414,11 @@ object SparkHive2Mysql {
              |      when substr(udf_fld,31,2)='02'  then 'Apple Pay'
              |      when substr(udf_fld,31,2)in ('03','04')  then '三星pay'
              |      when substr(udf_fld,31,2)='05'  then 'IC卡挥卡'
+             |      when substr(udf_fld,31,2)='06'  then '华为pay'
+             |      when substr(udf_fld,31,2)='07'  then '小米pay'
              | else '其它' end  as cfp_sign
              |from hive_acc_trans
-             | where substr(udf_fld,31,2) not in ('',' ', '00') and
+             | where substr(udf_fld,31,2) not in ('',' ','  ','00') and
              |       um_trans_id in ('AC02000065','AC02000063') and
              |       buss_tp in ('04','05','06')
              |       and sys_det_cd='S' and
