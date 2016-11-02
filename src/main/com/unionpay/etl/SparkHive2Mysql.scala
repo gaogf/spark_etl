@@ -2544,25 +2544,29 @@ object SparkHive2Mysql {
         val results=sqlContext.sql(
           s"""
              |select
-             |cup_branch_ins_id_nm as branch_nm,
-             |max(case when cloud_pay_in='0' then 'apple pay'
-             |     when cloud_pay_in='1' then 'hce'
-             |     when cloud_pay_in in ('2','3') then '三星pay'
-             |     when cloud_pay_in='4' then 'ic卡挥卡'
-             |   else '其它' end ) as cfp_sign,
-             |to_date(settle_dt) as  report_dt,
-             |count(case when to_date(settle_dt) >= trunc('$today_dt','YYYY') and
-             |       to_date(settle_dt) <='$today_dt' then pri_acct_no end) as year_tran_num,
-             |count(case when to_date(settle_dt) = '$today_dt' then pri_acct_no end) as today_tran_num
+             | cup_branch_ins_id_nm as branch_nm,
+             | (case when cloud_pay_in='0' then 'apple pay'
+             |      when cloud_pay_in='1' then 'hce'
+             |      when cloud_pay_in in ('2','3') then '三星pay'
+             |      when cloud_pay_in='4' then 'ic卡挥卡'
+             |      when cloud_pay_in='5' then '华为pay'
+             |      when cloud_pay_in='6' then '小米pay'
+             |    else '其它' end ) as cfp_sign,
+             | to_date(settle_dt) as  report_dt,
+             | count(case when to_date(settle_dt) >= trunc('$today_dt','YYYY') and
+             |        to_date(settle_dt) <='$today_dt' then pri_acct_no end) as year_tran_num,
+             | count(case when to_date(settle_dt) = '$today_dt' then pri_acct_no end) as today_tran_num
              |
-             |from hive_prize_discount_result
-             |where  prod_in='0'
-             |group by cup_branch_ins_id_nm,
-             |case when cloud_pay_in='0' then 'Apple Pay'
-             |     when cloud_pay_in='1' then 'HCE'
-             |     when cloud_pay_in in ('2','3') then '三星pay'
-             |     when cloud_pay_in='4' then 'IC卡挥卡'
-             |   else '其它' end , to_date(settle_dt)
+             | from hive_prize_discount_result
+             | where  prod_in='0'  and  trans_id='S22'
+             | group by cup_branch_ins_id_nm,
+             | case when cloud_pay_in='0' then 'Apple Pay'
+             |      when cloud_pay_in='1' then 'HCE'
+             |      when cloud_pay_in in ('2','3') then '三星pay'
+             |      when cloud_pay_in='4' then 'IC卡挥卡'
+             |      when cloud_pay_in='5' then '华为pay'
+             |      when cloud_pay_in='6' then '小米pay'
+             |    else '其它' end , to_date(settle_dt)
       """.stripMargin)
 
         println(s"###JOB_DM_76------$today_dt results:"+results.count())
