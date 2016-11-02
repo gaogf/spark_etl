@@ -2330,7 +2330,7 @@ object SparkHive2Mysql {
          |                AND BAS.PRIZE_ID = PR.PRIZE_ID
          |                AND PRIZE.ACTIVITY_BEGIN_DT<= PR.SETTLE_DT
          |                AND PRIZE.ACTIVITY_END_DT>= PR.SETTLE_DT
-         |                AND PRIZE.trans_id='S22'
+         |                AND PR.trans_id='S22'
          |                AND PR.PART_SETTLE_DT >= '$start_dt'
          |                AND PR.PART_SETTLE_DT <= '$end_dt'
          |                AND PR.TRANS_ID NOT LIKE 'V%'
@@ -2465,7 +2465,7 @@ object SparkHive2Mysql {
          |                AND BAS.PRIZE_ID = PR.PRIZE_ID
          |                AND PRIZE.ACTIVITY_BEGIN_DT<= PR.SETTLE_DT
          |                AND PRIZE.ACTIVITY_END_DT>= PR.SETTLE_DT
-         |                AND PRIZE.trans_id='S22'
+         |                AND PR.trans_id='S22'
          |                AND PR.PART_SETTLE_DT >= '$start_dt'
          |                AND PR.PART_SETTLE_DT <= '$end_dt'
          |                AND PR.TRANS_ID NOT LIKE 'V%'
@@ -2506,7 +2506,7 @@ object SparkHive2Mysql {
     sqlContext.sql(s"use $hive_dbname")
     val results = sqlContext.sql(
       s"""
-         SELECT
+         |SELECT
          |  B.ACTIVITY_ID as ACTIVITY_ID,
          |  B.ACTIVITY_NM as ACTIVITY_NM,
          |  B.SETTLE_DT as REPORT_DT,
