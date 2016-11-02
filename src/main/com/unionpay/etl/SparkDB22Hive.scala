@@ -74,6 +74,7 @@ object SparkDB22Hive {
       case "JOB_HV_69"  => JOB_HV_69  //CODE BY XTP
       case "JOB_HV_70"  => JOB_HV_70  //CODE BY YX
 
+
       /**
         * 指标套表job
         */
@@ -87,6 +88,8 @@ object SparkDB22Hive {
       case "JOB_HV_31"  => JOB_HV_31(sqlContext,start_dt,end_dt)  //CODE BY XTP
       case "JOB_HV_37"  => JOB_HV_37  //CODE BY TZQ
       case "JOB_HV_38"  => JOB_HV_38  //CODE BY TZQ
+      case "JOB_HV_72"  => JOB_HV_72  //CODE BY TZQ
+      case "JOB_HV_73"  => JOB_HV_73  //CODE BY TZQ
 
       case _ => println("Please input JobName")
     }
@@ -1282,9 +1285,9 @@ object SparkDB22Hive {
         |select
         |c.card_accptr_cd as mchnt_cd,
         |c.card_accptr_term_id as term_id,
-        |nvl(store_cd,null),
-        |nvl(store_grp_cd,null),
-        |nvl(brand_id,0)
+        |nvl(store_cd,null) as store_cd,
+        |nvl(store_grp_cd,null) as store_grp_cd,
+        |nvl(brand_id,0) as brand_id
         |from
         |(select
         |a.card_accptr_cd,a.card_accptr_term_id
@@ -3822,6 +3825,138 @@ object SparkDB22Hive {
       sqlContext.sql("insert into table hive_inf_source_class select * from spark_inf_source_class")
     }else{
       println("加载的表tbl_inf_source_class中无数据！")
+    }
+  }
+
+
+  /**
+    *  hive-job-72 2016-11-2
+    *  hive_bill_order_aux_inf->viw_chmgm_bill_order_aux_inf
+    *
+    * @author tzq
+    * @param sqlContext
+    */
+  def JOB_HV_72(implicit sqlContext: HiveContext) = {
+    println("###JOB_HV_72(hive_bill_order_aux_inf->viw_chmgm_bill_order_aux_inf)")
+    sqlContext.sql(s"use $hive_dbname")
+    val df = sqlContext.jdbc_mgmdb_DF(s"$schemas_mgmdb.viw_chmgm_bill_order_aux_inf")
+    df.registerTempTable("db2_viw_chmgm_bill_order_aux_inf")
+    val results = sqlContext.sql(
+      """
+        |select
+        |trim(bill_order_id),
+        |trim(mchnt_cd),
+        |mchnt_nm,
+        |trim(sub_mchnt_cd),
+        |trim(cdhd_usr_id),
+        |sub_mchnt_nm,
+        |related_usr_id,
+        |trim(cups_trace_number),
+        |trim(trans_tm),
+        |case
+        |	when
+        |		substr(trans_dt,1,4) between '0001' and '9999' and substr(trans_dt,5,2) between '01' and '12' and
+        |		substr(trans_dt,7,2) between '01' and substr(last_day(concat_ws('-',substr(trans_dt,1,4),substr(trans_dt,5,2),substr(trans_dt,7,2))),9,2)
+        |	then concat_ws('-',substr(trans_dt,1,4),substr(trans_dt,5,2),substr(trans_dt,7,2))
+        |	else null
+        |end as trans_dt,
+        |trim(orig_trans_seq),
+        |trim(trans_seq),
+        |trim(mobile_order_id),
+        |trim(acp_order_id),
+        |trim(delivery_prov_cd),
+        |trim(delivery_city_cd),
+        |trim(delivery_district_cd),
+        |trim(delivery_zip_cd),
+        |delivery_address,
+        |trim(receiver_nm),
+        |trim(receiver_mobile),
+        |delivery_time_desc,
+        |invoice_desc,
+        |trans_at,
+        |refund_at,
+        |trim(order_st),
+        |order_crt_ts,
+        |order_timeout_ts,
+        |trim(card_no),
+        |trim(order_chnl),
+        |trim(order_ip),
+        |device_inf,
+        |remark,
+        |rec_crt_ts,
+        |trim(crt_cdhd_usr_id),
+        |rec_upd_ts,
+        |trim(upd_cdhd_usr_id)
+        |
+        |from
+        |db2_viw_chmgm_bill_order_aux_inf
+        |
+      """.stripMargin
+    )
+    println("JOB_HV_72------>results:"+results.count())
+    if(!Option(results).isEmpty){
+      results.registerTempTable("spark_db2_viw_chmgm_bill_order_aux_inf")
+      sqlContext.sql("truncate table hive_bill_order_aux_inf")
+      sqlContext.sql("insert into table hive_bill_order_aux_inf select * from spark_db2_viw_chmgm_bill_order_aux_inf")
+    }else{
+      println("加载的视图：viw_chmgm_bill_order_aux_inf 中无数据！")
+    }
+  }
+
+  /**
+    *  hive-job-73 2016-11-2
+    * hive_bill_sub_order_detail_inf->viw_chmgm_bill_sub_order_detail_inf
+    *
+    * @author tzq
+    * @param sqlContext
+    */
+  def JOB_HV_73(implicit sqlContext: HiveContext) = {
+    println("###JOB_HV_73(hive_bill_sub_order_detail_inf->viw_chmgm_bill_sub_order_detail_inf)")
+    sqlContext.sql(s"use $hive_dbname")
+    val df = sqlContext.jdbc_mgmdb_DF(s"$schemas_mgmdb.viw_chmgm_bill_sub_order_detail_inf")
+    df.registerTempTable("db2_viw_chmgm_bill_sub_order_detail_inf")
+    val results = sqlContext.sql(
+      """
+        |select
+        |bill_sub_order_id,
+        |trim(bill_order_id),
+        |trim(mchnt_cd),
+        |mchnt_nm,
+        |trim(sub_mchnt_cd),
+        |sub_mchnt_nm,
+        |trim(bill_id),
+        |bill_price,
+        |trim(trans_seq),
+        |refund_reason,
+        |trim(order_st),
+        |rec_crt_ts,
+        |trim(crt_cdhd_usr_id),
+        |rec_upd_ts,
+        |trim(upd_cdhd_usr_id),
+        |order_timeout_ts,
+        |case
+        |	when
+        |		substr(trans_dt,1,4) between '0001' and '9999' and substr(trans_dt,5,2) between '01' and '12' and
+        |		substr(trans_dt,7,2) between '01' and substr(last_day(concat_ws('-',substr(trans_dt,1,4),substr(trans_dt,5,2),substr(trans_dt,7,2))),9,2)
+        |	then concat_ws('-',substr(trans_dt,1,4),substr(trans_dt,5,2),substr(trans_dt,7,2))
+        |	else null
+        |end as trans_dt,
+        |related_usr_id,
+        |trans_process,
+        |response_code,
+        |response_msg
+        |from
+        |db2_viw_chmgm_bill_sub_order_detail_inf
+        |
+      """.stripMargin
+    )
+    println("JOB_HV_73------>results:"+results.count())
+    if(!Option(results).isEmpty){
+      results.registerTempTable("spark_db2_viw_chmgm_bill_sub_order_detail_inf")
+      sqlContext.sql("truncate table hive_bill_sub_order_detail_inf")
+      sqlContext.sql("insert into table hive_bill_sub_order_detail_inf select * from spark_db2_viw_chmgm_bill_sub_order_detail_inf")
+    }else{
+      println("加载的视图：viw_chmgm_bill_sub_order_detail_inf 中无数据！")
     }
   }
 
