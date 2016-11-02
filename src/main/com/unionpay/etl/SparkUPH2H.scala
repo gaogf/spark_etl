@@ -117,4 +117,31 @@ object SparkUPH2H {
 
   }
 
+
+  /**
+    * hive-job-71 2016-11-2
+    * hive_ach_order_inf -> rtdtrs_dtl_ach_order_inf
+    * @author tzq
+    * @param sqlContext
+    * @param end_dt
+    */
+  def JOB_HV_71(implicit sqlContext: HiveContext,end_dt:String) = {
+
+    println("######JOB_HV_71######")
+    val part_dt = end_dt.substring(0,7)
+    val df = sqlContext.read.parquet(s"$up_namenode/$up_hivedataroot/hive_ach_order_inf/hp_trans_dt=$part_dt")
+    println(s"###### read $up_namenode/ successful ######")
+    df.registerTempTable("spark_hive_ach_order_inf")
+
+    sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql(s"alter table hive_ach_order_inf drop partition(hp_trans_dt='$part_dt')")
+    sqlContext.sql(
+      s"""
+         |insert into table hive_ach_order_inf partition(hp_trans_dt='$part_dt')
+         |select * from spark_hive_ach_order_inf
+       """.stripMargin)
+    println("#### insert into table(hive_ach_order_inf) success ####")
+
+  }
+
 }

@@ -1714,7 +1714,7 @@ object SparkHive2Mysql {
          |                where
          |                    trans.mchnt_cd is not null
          |                and trans.mchnt_cd<>''
-         |                and trans_st=‘04’
+         |                and trans_st='04'
          |                and trans.part_trans_dt >= '$start_dt'
          |                and trans.part_trans_dt <= '$end_dt'
          |                group by
@@ -2328,7 +2328,7 @@ object SparkHive2Mysql {
          |                AND BAS.PRIZE_ID = PR.PRIZE_ID
          |                AND PRIZE.ACTIVITY_BEGIN_DT<= PR.SETTLE_DT
          |                AND PRIZE.ACTIVITY_END_DT>= PR.SETTLE_DT
-         |                AND PR.trans_id='S22'
+         |                AND PRIZE.trans_id='S22'
          |                AND PR.PART_SETTLE_DT >= '$start_dt'
          |                AND PR.PART_SETTLE_DT <= '$end_dt'
          |                AND PR.TRANS_ID NOT LIKE 'V%'
@@ -2463,7 +2463,7 @@ object SparkHive2Mysql {
          |                AND BAS.PRIZE_ID = PR.PRIZE_ID
          |                AND PRIZE.ACTIVITY_BEGIN_DT<= PR.SETTLE_DT
          |                AND PRIZE.ACTIVITY_END_DT>= PR.SETTLE_DT
-         |                AND PR.trans_id='S22'
+         |                AND PRIZE.trans_id='S22'
          |                AND PR.PART_SETTLE_DT >= '$start_dt'
          |                AND PR.PART_SETTLE_DT <= '$end_dt'
          |                AND PR.TRANS_ID NOT LIKE 'V%'
@@ -2593,29 +2593,25 @@ object SparkHive2Mysql {
       for(i <- 0 to interval){
         val results=sqlContext.sql(
           s"""
-             |           select
-             |              tmp.cup_branch_nm AS cup_branch_nm,
-             |              tmp.cfp_sign AS cfp_sign,
-             |              tmp.settle_dt AS settle_dt,
-             |              count(case when tmp.settle_dt >= trunc('$today_dt','YYYY') and
-             |                        tmp.settle_dt <='$today_dt' then tmp.pri_acct_no end) as year_tran_num,
-             |              count(case when tmp.settle_dt = '$today_dt' then tmp.pri_acct_no end) as today_tran_num
-             |              from (
-             |              select (case when t.cloud_pay_in='0' then 'apple pay'
-             |                   when t.cloud_pay_in='1' then 'hce'
-             |                   when t.cloud_pay_in in ('2','3') then '三星pay'
-             |                   when t.cloud_pay_in='4' then 'ic卡挥卡'
-             |                   when t.cloud_pay_in='5' then '华为pay'
-             |                   when t.cloud_pay_in='6' then '小米pay'
-             |                 else '其它' end ) as cfp_sign ,
-             |                 t.cup_branch_ins_id_nm as cup_branch_nm,
-             |                to_date(t.settle_dt) as settle_dt,
-             |                t.pri_acct_no as pri_acct_no
-             |              from hive_prize_discount_result  t
-             |              where  t.prod_in='0'  and  t.trans_id='S22'
-             |              ) tmp
-             |              group by tmp.cup_branch_nm, tmp.cfp_sign, tmp.settle_dt
-             |
+             |select
+             | tmp.cup_branch_nm as branch_nm,
+             | tmp.cfp_sign,
+             | tmp.settle_dt as report_dt,
+             | count(case when tmp.settle_dt >= trunc('$today_dt','YYYY') and
+             |           tmp.settle_dt <='$today_dt' then tmp.pri_acct_no end) as year_tran_num,
+             | count(case when tmp.settle_dt = '$today_dt' then tmp.pri_acct_no end) as today_tran_num
+             | from (
+             | select (case when t.cloud_pay_in='0' then 'apple pay'
+             |      when t.cloud_pay_in='1' then 'hce'
+             |      when t.cloud_pay_in in ('2','3') then '三星pay'
+             |      when t.cloud_pay_in='4' then 'ic卡挥卡'
+             |      when t.cloud_pay_in='5' then '华为pay'
+             |      when t.cloud_pay_in='6' then '小米pay'
+             |    else '其它' end ) as cfp_sign ,t.cup_branch_ins_id_nm as cup_branch_nm,to_date(t.settle_dt) as settle_dt,t.pri_acct_no
+             | from hive_prize_discount_result  t
+             | where  t.prod_in='0'  and  t.trans_id='S22'
+             | ) tmp
+             | group by tmp.cup_branch_nm, tmp.cfp_sign, tmp.settle_dt
       """.stripMargin)
 
         println(s"###JOB_DM_76------$today_dt results:"+results.count())
