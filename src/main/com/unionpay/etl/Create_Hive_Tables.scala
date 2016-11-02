@@ -85,7 +85,7 @@ object Create_Hive_Tables {
 //    hive_prize_lvl_add_rule
 //    hive_prize_lvl
 //    hive_store_term_relation
-    hive_term_inf
+//    hive_term_inf
 
     println("=======Create all tables on the hive successfully=======")
 
