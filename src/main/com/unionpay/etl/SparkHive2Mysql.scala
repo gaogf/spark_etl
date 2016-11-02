@@ -776,45 +776,96 @@ object SparkHive2Mysql {
              |FROM
              |(
              |select
-             |tempe.gb_region_nm as gb_region_nm,
-             |count(distinct(case when to_date(tempe.rec_crt_ts)='$today_dt'  then tempe.MCHNT_CD end)) as tpre,
-             |count(distinct(case when to_date(tempe.rec_crt_ts)>=trunc('$today_dt','YYYY') and to_date(tempe.rec_crt_ts)<='$today_dt' then  tempe.MCHNT_CD end)) as years,
-             |count(distinct(case when to_date(tempe.rec_crt_ts)<='$today_dt' then tempe.MCHNT_CD end)) as total
-             |from HIVE_MCHNT_INF_WALLET tempe where substr(tempe.OPEN_BUSS_BMP,1,2)<>00
-             |GROUP BY gb_region_nm) a
-             |left join
+             |tempe.PROV_DIVISION_CD as gb_region_nm,
+             |count(distinct(case when to_date(tempe.rec_crt_ts)='$today_dt'  then 1 end)) as tpre,
+             |count(distinct(case when to_date(tempe.rec_crt_ts)>=trunc('$today_dt','YYYY') and to_date(tempe.rec_crt_ts)<='$today_dt' then  1 end)) as years,
+             |count(distinct(case when to_date(tempe.rec_crt_ts)<='$today_dt' then 1 end)) as total
+             |from
+             |(
+             |select distinct  PROV_DIVISION_CD,rec_crt_ts
+             |from HIVE_PREFERENTIAL_MCHNT_INF
+             |where  mchnt_st='2' and mchnt_nm not like '%验证%' and mchnt_nm not like '%测试%' and  brand_id<>68988
+             |union all
+             |select PROV_DIVISION_CD, rec_crt_ts
+             |from HIVE_PREFERENTIAL_MCHNT_INF
+             |where mchnt_st='2' and mchnt_nm not like '%验证%' and mchnt_nm not like '%测试%' and brand_id=68988
+             |)  tempe
+             |group by  tempe.PROV_DIVISION_CD
+             |) a
              |
+             |left join
              |(
              |select
-             |tempb.cup_branch_ins_id_nm as cup_branch_ins_id_nm,
-             |count(distinct(case when tempb.rec_crt_ts='$today_dt'  and tempb.valid_begin_dt='$today_dt' AND tempb.valid_end_dt='$today_dt'  then tempb.MCHNT_CD end)) as tpre,
-             |count(distinct(case when tempb.rec_crt_ts>=trunc('$today_dt','YYYY') and tempb.rec_crt_ts='$today_dt'
-             |and tempb.valid_begin_dt>=trunc('$today_dt','YYYY') and  tempb.valid_end_dt<='$today_dt' then  tempb.MCHNT_CD end)) as years,
-             |count(distinct(case when tempb.rec_crt_ts<='$today_dt' and  tempb.valid_begin_dt='$today_dt' AND tempb.valid_end_dt='$today_dt'  then  tempb.MCHNT_CD end)) as total
+             |tempb.PROV_DIVISION_CD as cup_branch_ins_id_nm,
+             |sum(case when to_date(tempb.trans_dt)='$today_dt'  then tempb.cnt end) as tpre,
+             |sum(case when to_date(tempb.trans_dt)>=trunc('$today_dt','YYYY') and to_date(tempb.trans_dt)<='$today_dt' then  tempb.cnt end) as years,
+             |sum(case when to_date(tempb.trans_dt)<='$today_dt'  then  tempb.cnt end) as total
              |from
              |(
-             |select distinct
-             |tempc.mchnt_prov as mchnt_prov,
-             |tempc.mchnt_city_cd as mchnt_city_cd,
-             |tempc.mchnt_county_cd as mchnt_county_cd,
-             |tempc.mchnt_addr as mchnt_addr,
-             |access.cup_branch_ins_id_nm as cup_branch_ins_id_nm,
-             |to_date(bill.valid_begin_dt) as valid_begin_dt,
-             |to_date(bill.valid_end_dt) as valid_end_dt,
-             |to_date(tempc.rec_crt_ts) as rec_crt_ts,
-             |tempc.MCHNT_CD as MCHNT_CD
+             |select tp.PROV_DIVISION_CD ,tp.trans_dt, sum(cnt) as cnt
+             |from(
+             |select
+             |t1.PROV_DIVISION_CD,
+             |t1.trans_dt,
+             |count(*) as cnt
+             |from (
+             |select mchnt.PROV_DIVISION_CD , a.trans_dt
+             |from (
+             |select distinct card_accptr_cd,card_accptr_term_id,trans_dt
+             |from HIVE_ACC_TRANS
+             |where UM_TRANS_ID in ('AC02000065','AC02000063') and
+             |buss_tp in ('02','04','05','06') and sys_det_cd='S'
+             |) a
+             |left join HIVE_STORE_TERM_RELATION b
+             |on a.card_accptr_cd=b.mchnt_cd and a.card_accptr_term_id=b.term_id
+             |left join HIVE_PREFERENTIAL_MCHNT_INF mchnt
+             |on b.THIRD_PARTY_INS_ID=mchnt.mchnt_cd
+             |where b.THIRD_PARTY_INS_ID is not null
+             |) t1
+             |group by t1.PROV_DIVISION_CD,t1.trans_dt
+             |
+             |union all
+             |
+             |select
+             |t2.PROV_DIVISION_CD,
+             |t2.trans_dt,
+             |count(*) as cnt
+             |from (
+             |select mcf.PROV_DIVISION_CD, a.trans_dt
+             |from (
+             |select distinct card_accptr_cd,card_accptr_term_id, trans_dt
+             |from HIVE_ACC_TRANS
+             |where UM_TRANS_ID in ('AC02000065','AC02000063') and
+             |buss_tp in ('02','04','05','06') and sys_det_cd='S'
+             |) a
+             |left join HIVE_STORE_TERM_RELATION b
+             |on a.card_accptr_cd=b.mchnt_cd and a.card_accptr_term_id=b.term_id
+             |inner join HIVE_PREFERENTIAL_MCHNT_INF mcf
+             |on a.card_accptr_cd=mcf.MCHNT_CD
+             |where b.THIRD_PARTY_INS_ID is null
+             |) t2
+             |group by t2.PROV_DIVISION_CD,t2.trans_dt
+             |
+             |union all
+             |select
+             |dis.CUP_BRANCH_INS_ID_NM as PROV_DIVISION_CD,
+             |dis.settle_dt as trans_dt,
+             |count(distinct dis.term_id) as cnt
              |from
-             |(select *
-             |from HIVE_PREFERENTIAL_MCHNT_INF tempf
-             |where tempf.mchnt_cd like 'T%' and tempf.mchnt_st='2' and tempf.mchnt_nm not like '%验证%' and tempf.mchnt_nm not like '%测试%'
-             |and tempf.brand_id<>68988) tempc
-             |inner join HIVE_CHARA_GRP_DEF_BAT grp on tempc.mchnt_cd=grp.chara_data
-             |inner join HIVE_ACCESS_BAS_INF access on access.ch_ins_id_cd=tempc.mchnt_cd
-             |inner join (select distinct(chara_grp_cd),valid_begin_dt,valid_end_dt from HIVE_TICKET_BILL_BAS_INF ) bill
-             |on bill.chara_grp_cd=grp.chara_grp_cd
+             |(select CUP_BRANCH_INS_ID_NM,term_id,settle_dt
+             |from HIVE_PRIZE_DISCOUNT_RESULT where trans_id='S22') dis
+             |left join
+             |(select term_id from HIVE_STORE_TERM_RELATION ) rt
+             |on dis.term_id=rt.term_id
+             |where rt.term_id is null
+             |group by dis.CUP_BRANCH_INS_ID_NM,dis.settle_dt
+             |) tp
+             |group by tp.PROV_DIVISION_CD ,tp.trans_dt
+             |
              |) tempb
-             |group by tempb.cup_branch_ins_id_nm) b
+             |group by tempb.PROV_DIVISION_CD) b
              |on a.gb_region_nm=b.cup_branch_ins_id_nm
+             |
              |left join
              |(
              |select
@@ -1794,7 +1845,7 @@ object SparkHive2Mysql {
       s"""
          |select
          |    cup_branch_ins_id_nm,
-         |    to_date(acct_addup_bat_dt) as report_dt,
+         |    trans_dt as report_dt,
          |    count(distinct(plan_id)) as plan_cnt,
          |    count(*)                as trans_cnt,
          |    sum(
@@ -1812,12 +1863,11 @@ object SparkHive2Mysql {
          |from
          |    hive_offline_point_trans  trans
          |where
-         |		trans.part_trans_dt >='$start_dt' and trans.part_trans_dt >='$end_dt' and
-         |   oper_st in('0','3') and
-         |   to_date(acct_addup_bat_dt) >= '$start_dt' and to_date(acct_addup_bat_dt) <= '$end_dt'
+         |  trans.part_trans_dt >='$start_dt' and trans.part_trans_dt >='$end_dt' and
+         |   oper_st in('0','3')
          |group by
          |    cup_branch_ins_id_nm,
-         |    to_date(acct_addup_bat_dt)
+         |    trans_dt
       """.stripMargin)
 
     println(s"###JOB_DM_68------ ( $start_dt-$end_dt ) results:"+results.count())
