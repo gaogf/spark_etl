@@ -1930,8 +1930,8 @@ object SparkHive2Mysql {
          |                    bill_nm,
          |                    dwn_total_num,
          |                    dwn_num,
-         |                    to_date(valid_begin_dt),
-         |                    to_date(valid_end_dt)
+         |                    to_date(valid_begin_dt) as valid_begin_dt,
+         |                    to_date(valid_end_dt) as valid_end_dt
          |                from
          |                    hive_ticket_bill_bas_inf
          |                where
@@ -2030,8 +2030,8 @@ object SparkHive2Mysql {
          |                    bill_nm,
          |                    dwn_total_num,
          |                    dwn_num,
-         |                    to_date(valid_begin_dt),
-         |                    to_date(valid_end_dt)
+         |                    to_date(valid_begin_dt) as valid_begin_dt,
+         |                    to_date(valid_end_dt) as valid_end_dt
          |                from
          |                    hive_ticket_bill_bas_inf
          |                where
@@ -2132,8 +2132,8 @@ object SparkHive2Mysql {
          |                    bill_nm,
          |                    dwn_total_num,
          |                    dwn_num,
-         |                    to_date(valid_begin_dt),
-         |                    to_date(valid_end_dt)
+         |                   to_date(valid_begin_dt) as valid_begin_dt,
+         |                    to_date(valid_end_dt) as valid_end_dt
          |                from
          |                    hive_ticket_bill_bas_inf
          |                where
