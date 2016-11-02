@@ -1930,8 +1930,8 @@ object SparkHive2Mysql {
          |                    bill_nm,
          |                    dwn_total_num,
          |                    dwn_num,
-         |                    valid_begin_dt,
-         |                    valid_end_dt
+         |                    to_date(valid_begin_dt),
+         |                    to_date(valid_end_dt)
          |                from
          |                    hive_ticket_bill_bas_inf
          |                where
@@ -2030,8 +2030,8 @@ object SparkHive2Mysql {
          |                    bill_nm,
          |                    dwn_total_num,
          |                    dwn_num,
-         |                    valid_begin_dt,
-         |                    valid_end_dt
+         |                    to_date(valid_begin_dt),
+         |                    to_date(valid_end_dt)
          |                from
          |                    hive_ticket_bill_bas_inf
          |                where
@@ -2132,8 +2132,8 @@ object SparkHive2Mysql {
          |                    bill_nm,
          |                    dwn_total_num,
          |                    dwn_num,
-         |                    valid_begin_dt,
-         |                    valid_end_dt
+         |                    to_date(valid_begin_dt),
+         |                    to_date(valid_end_dt)
          |                from
          |                    hive_ticket_bill_bas_inf
          |                where
@@ -2595,7 +2595,7 @@ object SparkHive2Mysql {
           s"""
              |select
              | tmp.cup_branch_nm as branch_nm,
-             | tmp.cfp_sign,
+             | tmp.cfp_sign as cfp_sign ,
              | tmp.settle_dt as report_dt,
              | count(case when tmp.settle_dt >= trunc('$today_dt','YYYY') and
              |           tmp.settle_dt <='$today_dt' then tmp.pri_acct_no end) as year_tran_num,
