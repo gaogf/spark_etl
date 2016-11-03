@@ -2875,336 +2875,476 @@ object SparkHive2Mysql {
       for(i <- 0 to interval){
         val results=sqlContext.sql(
           s"""
-             |select
-             |    a11.cup_branch_ins_id_nm                                      as cup_branch_ins_id_nm,
-             |    '$today_dt'                                                   as report_dt,
-             |    a11.cashier_cnt_tot                                           as cashier_cnt_tot,
-             |    if(a12.act_cashier_cnt_tot is null,0,a12.act_cashier_cnt_tot)         as act_cashier_cnt_tot,
-             |    if(a13.non_act_cashier_cnt_tot is null,0,a13.non_act_cashier_cnt_tot) as non_act_cashier_cnt_tot,
-             |    if(a21.cashier_cnt_year is null,0,a21.cashier_cnt_year)              as cashier_cnt_year,
-             |    if(a22.act_cashier_cnt_year is null,0,a22.act_cashier_cnt_year)         as act_cashier_cnt_year,
-             |    if(a23.non_act_cashier_cnt_year is null,0,a23.non_act_cashier_cnt_year) as non_act_cashier_cnt_year,
-             |    if(a31.cashier_cnt_mth is null,0,a31.cashier_cnt_mth)                as cashier_cnt_mth,
-             |    if(a32.act_cashier_cnt_mth is null,0,a32.act_cashier_cnt_mth)         as act_cashier_cnt_mth,
-             |    if(a33.non_act_cashier_cnt_mth is null,0,a33.non_act_cashier_cnt_mth) as non_act_cashier_cnt_mth,
-             |    if(a4.pnt_acct_cashier_cnt is null,0,a4.pnt_acct_cashier_cnt)       as pnt_acct_cashier_cnt_tot,
-             |    if(a5.reward_cashier_cnt_tot is null,0,a5.reward_cashier_cnt_tot)           as reward_cashier_cnt_tot,
-             |    if(a6.reward_cdhd_cashier_cnt_tot is null,0,a6.reward_cdhd_cashier_cnt_tot) as reward_cdhd_cashier_cnt_tot,
-             |    if(a7.sign_cashier_cnt_dly is null,0,a7.sign_cashier_cnt_dly)         as sign_cashier_cnt_dly,
-             |    if(a81.cashier_cnt_dly is null,0,a81.cashier_cnt_dly)                 as cashier_cnt_dly,
-             |    if(a82.act_cashier_cnt_dly is null,0,a82.act_cashier_cnt_dly)         as act_cashier_cnt_dly,
-             |    if(a83.non_act_cashier_cnt_dly is null,0,a83.non_act_cashier_cnt_dly) as non_act_cashier_cnt_dly
-             |from
-             |
+             |SELECT
+             |    t.cup_branch_ins_id_nm,
+             |    t.report_dt,
+             |    SUM(t.cashier_cnt_tot),
+             |    SUM(t.act_cashier_cnt_tot),
+             |    SUM(t.non_act_cashier_cnt_tot),
+             |    SUM(t.cashier_cnt_year),
+             |    SUM(t.act_cashier_cnt_year),
+             |    SUM(t.non_act_cashier_cnt_year),
+             |    SUM(t.cashier_cnt_mth),
+             |    SUM(t.act_cashier_cnt_mth),
+             |    SUM(t.non_act_cashier_cnt_mth),
+             |    SUM(t.pnt_acct_cashier_cnt_tot),
+             |    SUM(t.reward_cashier_cnt_tot),
+             |    SUM(t.reward_cdhd_cashier_cnt_tot),
+             |    SUM(t.cashier_cnt_dly),
+             |    SUM(t.act_cashier_cnt_dly),
+             |    SUM(t.non_act_cashier_cnt_dly)
+             |FROM
              |    (
-             |        select
-             |            cup_branch_ins_id_nm,
-             |            count(distinct cashier_usr_id) as cashier_cnt_tot
-             |        from
-             |            hive_cashier_bas_inf
-             |        where
-             |            reg_dt<= '$today_dt'
-             |        and usr_st not in ('4', '9')
-             |        group by
-             |            cup_branch_ins_id_nm) a11
-             |left join
-             |
-             |    (
-             |        select
-             |            cup_branch_ins_id_nm,
-             |            count(distinct cashier_usr_id) as act_cashier_cnt_tot
-             |        from
-             |            hive_cashier_bas_inf
-             |        where
-             |            to_date(activate_ts) <= '$today_dt'
-             |        and usr_st in ('1')
-             |        group by
-             |            cup_branch_ins_id_nm) a12
-             |on
-             |    (
-             |        a11.cup_branch_ins_id_nm = a12.cup_branch_ins_id_nm)
-             |left join
-             |
-             |    (
-             |        select
-             |            cup_branch_ins_id_nm,
-             |            count(distinct cashier_usr_id) as non_act_cashier_cnt_tot
-             |        from
-             |            hive_cashier_bas_inf
-             |        where
-             |            to_date(activate_ts)<= '$today_dt'
-             |        and usr_st in ('0')
-             |        group by
-             |            cup_branch_ins_id_nm) a13
-             |on
-             |    (
-             |        a11.cup_branch_ins_id_nm = a13.cup_branch_ins_id_nm)
-             |left join
-             |
-             |    (
-             |        select
-             |            cup_branch_ins_id_nm,
-             |            count(distinct cashier_usr_id) as cashier_cnt_year
-             |        from
-             |            hive_cashier_bas_inf
-             |        where
-             |            reg_dt <= '$today_dt'
-             |        and reg_dt >= concat(substring('$today_dt',1,5),'01-01')
-             |        and usr_st not in ('4', '9')
-             |        group by
-             |            cup_branch_ins_id_nm) a21
-             |on
-             |    (
-             |        a11.cup_branch_ins_id_nm = a21.cup_branch_ins_id_nm)
-             |left join
-             |
-             |    (
-             |        select
-             |            cup_branch_ins_id_nm,
-             |            count(distinct cashier_usr_id) as act_cashier_cnt_year
-             |        from
-             |            hive_cashier_bas_inf
-             |        where
-             |            to_date(activate_ts) <= '$today_dt'
-             |        and to_date(activate_ts) >= concat(substring('$today_dt',1,5),'01-01')
-             |        and usr_st in ('1')
-             |        group by
-             |            cup_branch_ins_id_nm) a22
-             |on
-             |    (
-             |        a11.cup_branch_ins_id_nm = a22.cup_branch_ins_id_nm)
-             |left join
-             |    (
-             |        select
-             |            cup_branch_ins_id_nm,
-             |            count(distinct cashier_usr_id) as non_act_cashier_cnt_year
-             |        from
-             |            hive_cashier_bas_inf
-             |        where
-             |            to_date(activate_ts) <= '$today_dt'
-             |        and to_date(activate_ts) >= concat(substring('$today_dt',1,5),'01-01')
-             |        and usr_st in ('0')
-             |        group by
-             |            cup_branch_ins_id_nm) a23
-             |on
-             |    (
-             |        a11.cup_branch_ins_id_nm = a23.cup_branch_ins_id_nm)
-             |left join
-             |    (
-             |        select
-             |            cup_branch_ins_id_nm,
-             |            count(distinct cashier_usr_id) as cashier_cnt_mth
-             |        from
-             |            hive_cashier_bas_inf
-             |        where
-             |            reg_dt <= '$today_dt'
-             |        and reg_dt >= concat(substring('$today_dt',1,8),'01')
-             |        and usr_st not in ('4',
-             |                           '9')
-             |        group by
-             |            cup_branch_ins_id_nm) a31
-             |on
-             |    (
-             |        a11.cup_branch_ins_id_nm = a31.cup_branch_ins_id_nm)
-             |left join
-             |    (
-             |        select
-             |            cup_branch_ins_id_nm,
-             |            count(distinct cashier_usr_id) as act_cashier_cnt_mth
-             |        from
-             |            hive_cashier_bas_inf
-             |        where
-             |            to_date(activate_ts) <= '$today_dt'
-             |        and to_date(activate_ts) >= concat(substring('$today_dt',1,8),'01')
-             |        and usr_st in ('1')
-             |        group by
-             |            cup_branch_ins_id_nm) a32
-             |on
-             |    (
-             |        a11.cup_branch_ins_id_nm = a32.cup_branch_ins_id_nm)
-             |left join
-             |    (
-             |        select
-             |            cup_branch_ins_id_nm,
-             |            count(distinct cashier_usr_id) as non_act_cashier_cnt_mth
-             |        from
-             |            hive_cashier_bas_inf
-             |        where
-             |            to_date(activate_ts) <= '$today_dt'
-             |        and to_date(activate_ts) >= concat(substring('$today_dt',1,8),'01')
-             |        and usr_st in ('0')
-             |        group by
-             |            cup_branch_ins_id_nm) a33
-             |on
-             |    (
-             |        a11.cup_branch_ins_id_nm = a33.cup_branch_ins_id_nm)
-             |left join
-             |    (
-             |        select
-             |            b.cup_branch_ins_id_nm,
-             |            count(distinct a.cashier_usr_id) as pnt_acct_cashier_cnt
-             |        from
+             |        SELECT
+             |            CASE
+             |                WHEN a11.cup_branch_ins_id_nm IS NULL
+             |                THEN
+             |                    CASE
+             |                        WHEN a12.cup_branch_ins_id_nm IS NULL
+             |                        THEN
+             |                            CASE
+             |                                WHEN a13.cup_branch_ins_id_nm IS NULL
+             |                                THEN
+             |                                    CASE
+             |                                        WHEN a21.cup_branch_ins_id_nm IS NULL
+             |                                        THEN
+             |                                            CASE
+             |                                                WHEN a22.cup_branch_ins_id_nm IS NULL
+             |                                                THEN
+             |                                                    CASE
+             |                                                        WHEN a23.cup_branch_ins_id_nm IS NULL
+             |                                                        THEN
+             |                                                            CASE
+             |                                                                WHEN a31.cup_branch_ins_id_nm
+             |                                                                    IS NULL
+             |                                                                THEN
+             |                                                                    CASE
+             |                                                                        WHEN
+             |                                                                            a32.cup_branch_ins_id_nm
+             |                                                                            IS NULL
+             |                                                                        THEN
+             |                                                                            CASE
+             |                                                                                WHEN
+             |                                                                                    a33.cup_branch_ins_id_nm
+             |                                                                                    IS NULL
+             |                                                                                THEN
+             |                                                                                    CASE
+             |                                                                                        WHEN
+             |                                                                                            a4.cup_branch_ins_id_nm
+             |                                                                                            IS NULL
+             |                                                                                        THEN
+             |                                                                                            CASE
+             |                                                                                                WHEN
+             |                                                                                                    a5.cup_branch_ins_id_nm
+             |                                                                                                    IS NULL
+             |                                                                                                THEN
+             |                                                                                                    CASE
+             |                                                                                                        WHEN
+             |                                                                                                            a6.cup_branch_ins_id_nm
+             |                                                                                                            IS NULL
+             |                                                                                                        THEN
+             |                                                                                                            CASE
+             |                                                                                                                WHEN
+             |                                                                                                                    a7.cup_branch_ins_id_nm
+             |                                                                                                                    IS NULL
+             |                                                                                                                THEN
+             |                                                                                                                    CASE
+             |                                                                                                                        WHEN
+             |                                                                                                                            a81.cup_branch_ins_id_nm
+             |                                                                                                                            IS NULL
+             |                                                                                                                        THEN
+             |                                                                                                                            CASE
+             |                                                                                                                                WHEN
+             |                                                                                                                                    a82.cup_branch_ins_id_nm
+             |                                                                                                                                    IS NULL
+             |                                                                                                                                THEN
+             |                                                                                                                                    CASE
+             |                                                                                                                                        WHEN
+             |                                                                                                                                            a83.cup_branch_ins_id_nm
+             |                                                                                                                                            IS NOT NULL
+             |                                                                                                                                        THEN
+             |                                                                                                                                            a83.cup_branch_ins_id_nm
+             |                                                                                                                                    END
+             |                                                                                                                                ELSE
+             |                                                                                                                                    a82.cup_branch_ins_id_nm
+             |                                                                                                                            END
+             |                                                                                                                        ELSE
+             |                                                                                                                            a81.cup_branch_ins_id_nm
+             |                                                                                                                    END
+             |                                                                                                                ELSE
+             |                                                                                                                    a7.cup_branch_ins_id_nm
+             |                                                                                                            END
+             |                                                                                                        ELSE
+             |                                                                                                            a6.cup_branch_ins_id_nm
+             |                                                                                                    END
+             |                                                                                                ELSE
+             |                                                                                                    a5.cup_branch_ins_id_nm
+             |                                                                                            END
+             |                                                                                        ELSE
+             |                                                                                            a4.cup_branch_ins_id_nm
+             |                                                                                    END
+             |                                                                                ELSE
+             |                                                                                    a33.cup_branch_ins_id_nm
+             |                                                                            END
+             |                                                                        ELSE
+             |                                                                            a32.cup_branch_ins_id_nm
+             |                                                                    END
+             |                                                                ELSE a31.cup_branch_ins_id_nm
+             |                                                            END
+             |                                                        ELSE a23.cup_branch_ins_id_nm
+             |                                                    END
+             |                                                ELSE a22.cup_branch_ins_id_nm
+             |                                            END
+             |                                        ELSE a21.cup_branch_ins_id_nm
+             |                                    END
+             |                                ELSE a13.cup_branch_ins_id_nm
+             |                            END
+             |                        ELSE a12.cup_branch_ins_id_nm
+             |                    END
+             |                ELSE a11.cup_branch_ins_id_nm
+             |            END                                                   AS cup_branch_ins_id_nm,
+             |            '$today_dt'                                           AS report_dt,
+             |            IF(a11.cashier_cnt_tot IS NULL,0,a11.cashier_cnt_tot)         AS cashier_cnt_tot,
+             |            IF(a12.act_cashier_cnt_tot IS NULL,0,a12.act_cashier_cnt_tot)    AS act_cashier_cnt_tot,
+             |            IF(a13.non_act_cashier_cnt_tot IS NULL,0,a13.non_act_cashier_cnt_tot) AS
+             |                                                                       non_act_cashier_cnt_tot,
+             |            IF(a21.cashier_cnt_year IS NULL,0,a21.cashier_cnt_year)         AS cashier_cnt_year,
+             |            IF(a22.act_cashier_cnt_year IS NULL,0,a22.act_cashier_cnt_year) AS act_cashier_cnt_year
+             |            ,
+             |            IF(a23.non_act_cashier_cnt_year IS NULL,0,a23.non_act_cashier_cnt_year) AS
+             |                                                                     non_act_cashier_cnt_year,
+             |            IF(a31.cashier_cnt_mth IS NULL,0,a31.cashier_cnt_mth)         AS cashier_cnt_mth,
+             |            IF(a32.act_cashier_cnt_mth IS NULL,0,a32.act_cashier_cnt_mth)    AS act_cashier_cnt_mth,
+             |            IF(a33.non_act_cashier_cnt_mth IS NULL,0,a33.non_act_cashier_cnt_mth) AS
+             |            non_act_cashier_cnt_mth,
+             |            IF(a4.pnt_acct_cashier_cnt IS NULL,0,a4.pnt_acct_cashier_cnt) AS
+             |            pnt_acct_cashier_cnt_tot,
+             |            IF(a5.reward_cashier_cnt_tot IS NULL,0,a5.reward_cashier_cnt_tot) AS
+             |            reward_cashier_cnt_tot,
+             |            IF(a6.reward_cdhd_cashier_cnt_tot IS NULL,0,a6.reward_cdhd_cashier_cnt_tot) AS
+             |                                                                        reward_cdhd_cashier_cnt_tot,
+             |            IF(a7.sign_cashier_cnt_dly IS NULL,0,a7.sign_cashier_cnt_dly)   AS sign_cashier_cnt_dly,
+             |            IF(a81.cashier_cnt_dly IS NULL,0,a81.cashier_cnt_dly)                AS cashier_cnt_dly,
+             |            IF(a82.act_cashier_cnt_dly IS NULL,0,a82.act_cashier_cnt_dly)    AS act_cashier_cnt_dly,
+             |            IF(a83.non_act_cashier_cnt_dly IS NULL,0,a83.non_act_cashier_cnt_dly) AS
+             |            non_act_cashier_cnt_dly
+             |        FROM
              |            (
-             |                select distinct cashier_usr_id
-             |                from
-             |                    hive_cashier_point_acct_oper_dtl
-             |                where
-             |                    to_date(acct_oper_ts) <= '$today_dt'
-             |                and to_date(acct_oper_ts) >= concat(substring('$today_dt',1,8),'01'))a
-             |        inner join
-             |            (
-             |                select
+             |                SELECT
              |                    cup_branch_ins_id_nm,
-             |                    cashier_usr_id
-             |                from
+             |                    COUNT(DISTINCT cashier_usr_id) AS cashier_cnt_tot
+             |                FROM
              |                    hive_cashier_bas_inf
-             |                where
+             |                WHERE
              |                    reg_dt<= '$today_dt'
-             |                and usr_st not in ('4','9') )b
-             |        on
-             |            a.cashier_usr_id=b.cashier_usr_id
-             |        group by
-             |            b. cup_branch_ins_id_nm) a4
-             |on
-             |    (
-             |        a11.cup_branch_ins_id_nm = a4.cup_branch_ins_id_nm)
-             |left join
-             |    (
-             |        select
-             |            b.cup_branch_ins_id_nm,
-             |            count(distinct b.cashier_usr_id) as reward_cashier_cnt_tot
-             |        from
+             |                AND usr_st NOT IN ('4',
+             |                                   '9')
+             |                GROUP BY
+             |                    cup_branch_ins_id_nm) a11
+             |        FULL OUTER JOIN
              |            (
-             |                select
-             |                    mobile
-             |                from
-             |                    hive_cdhd_cashier_maktg_reward_dtl
-             |                where
-             |                    to_date(settle_dt) <= '$today_dt'
-             |                and rec_st='2'
-             |                and activity_tp='004'
-             |                group by
-             |                    mobile ) a
-             |        inner join
-             |            hive_cashier_bas_inf b
-             |        on
-             |            a.mobile=b.mobile
-             |        group by
-             |            b.cup_branch_ins_id_nm) a5
-             |on
-             |    (
-             |        a11.cup_branch_ins_id_nm = a5.cup_branch_ins_id_nm)
-             |left join
-             |    (
-             |        select
-             |            b.cup_branch_ins_id_nm,
-             |            count(distinct b.cashier_usr_id) reward_cdhd_cashier_cnt_tot
-             |        from
-             |            (
-             |                select
-             |                    mobile
-             |                from
-             |                    hive_cdhd_cashier_maktg_reward_dtl
-             |                where
-             |                    to_date(settle_dt) <= '$today_dt'
-             |                and rec_st='2'
-             |                and activity_tp='004'
-             |                group by mobile ) a
-             |        inner join
-             |            hive_cashier_bas_inf b
-             |        on
-             |            a.mobile=b.mobile
-             |        inner join
-             |            hive_pri_acct_inf c
-             |        on
-             |            a.mobile=c.mobile
-             |        where
-             |            c.usr_st='1'
-             |        group by
-             |            b.cup_branch_ins_id_nm) a6
-             |on
-             |    (
-             |        a11.cup_branch_ins_id_nm = a6.cup_branch_ins_id_nm)
-             |left join
-             |    (
-             |        select
-             |            b.cup_branch_ins_id_nm,
-             |            count(distinct b.cashier_usr_id) as sign_cashier_cnt_dly
-             |        from
-             |            (
-             |                select
-             |                    pri_acct_no
-             |                from
-             |                    hive_signer_log
-             |                where
-             |                    concat_ws('-',substr(cashier_trans_tm,1,4),substr(cashier_trans_tm,5,2),substr(cashier_trans_tm,7,2)) = '$today_dt'
-             |                group by
-             |                    pri_acct_no ) a
-             |        inner join
-             |            (
-             |                select
+             |                SELECT
              |                    cup_branch_ins_id_nm,
-             |                    cashier_usr_id,
-             |                    bind_card_no
-             |                from
+             |                    COUNT(DISTINCT cashier_usr_id) AS act_cashier_cnt_tot
+             |                FROM
              |                    hive_cashier_bas_inf
-             |                where
+             |                WHERE
+             |                    to_date(activate_ts) <= '$today_dt'
+             |                AND usr_st IN ('1')
+             |                GROUP BY
+             |                    cup_branch_ins_id_nm) a12
+             |        ON
+             |            (
+             |                a11.cup_branch_ins_id_nm = a12.cup_branch_ins_id_nm)
+             |        FULL OUTER JOIN
+             |            (
+             |                SELECT
+             |                    cup_branch_ins_id_nm,
+             |                    COUNT(DISTINCT cashier_usr_id) AS non_act_cashier_cnt_tot
+             |                FROM
+             |                    hive_cashier_bas_inf
+             |                WHERE
+             |                    to_date(activate_ts)<= '$today_dt'
+             |                AND usr_st IN ('0')
+             |                GROUP BY
+             |                    cup_branch_ins_id_nm) a13
+             |        ON
+             |            (
+             |                a11.cup_branch_ins_id_nm = a13.cup_branch_ins_id_nm)
+             |        FULL OUTER JOIN
+             |            (
+             |                SELECT
+             |                    cup_branch_ins_id_nm,
+             |                    COUNT(DISTINCT cashier_usr_id) AS cashier_cnt_year
+             |                FROM
+             |                    hive_cashier_bas_inf
+             |                WHERE
              |                    reg_dt <= '$today_dt'
-             |                and usr_st not in ('4', '9') ) b
-             |        on
-             |            a.pri_acct_no=b.bind_card_no
-             |        group by
-             |            b.cup_branch_ins_id_nm) a7
-             |on
-             |    (
-             |        a11.cup_branch_ins_id_nm = a7.cup_branch_ins_id_nm)
-             |left join
-             |    (
-             |        select
-             |            cup_branch_ins_id_nm,
-             |            count(distinct cashier_usr_id) as cashier_cnt_dly
-             |        from
-             |            hive_cashier_bas_inf
-             |        where
-             |            reg_dt = '$today_dt'
-             |        and usr_st not in ('4','9')
-             |        group by
-             |            cup_branch_ins_id_nm) a81
-             |on
-             |    (
-             |        a11.cup_branch_ins_id_nm = a81.cup_branch_ins_id_nm)
-             |left join
-             |    (
-             |        select
-             |            cup_branch_ins_id_nm,
-             |            count(distinct cashier_usr_id) as act_cashier_cnt_dly
-             |        from
-             |            hive_cashier_bas_inf
-             |        where
-             |            to_date(activate_ts) = '$today_dt'
-             |        and usr_st in ('1')
-             |        group by
-             |            cup_branch_ins_id_nm) a82
-             |on
-             |    (
-             |        a11.cup_branch_ins_id_nm = a82.cup_branch_ins_id_nm)
-             |left join
-             |    (
-             |        select
-             |            cup_branch_ins_id_nm,
-             |            count(distinct cashier_usr_id) as non_act_cashier_cnt_dly
-             |        from
-             |            hive_cashier_bas_inf
-             |        where
-             |            to_date(activate_ts) = '$today_dt'
-             |        and usr_st in ('0')
-             |        group by
-             |            cup_branch_ins_id_nm) a83
-             |on
-             |(a11.cup_branch_ins_id_nm = a83.cup_branch_ins_id_nm)
-             |
-             |
-             |
+             |                AND reg_dt >= concat(substring('$today_dt',1,5),'01-01')
+             |                AND usr_st NOT IN ('4',
+             |                                   '9')
+             |                GROUP BY
+             |                    cup_branch_ins_id_nm) a21
+             |        ON
+             |            (
+             |                a11.cup_branch_ins_id_nm = a21.cup_branch_ins_id_nm)
+             |        FULL OUTER JOIN
+             |            (
+             |                SELECT
+             |                    cup_branch_ins_id_nm,
+             |                    COUNT(DISTINCT cashier_usr_id) AS act_cashier_cnt_year
+             |                FROM
+             |                    hive_cashier_bas_inf
+             |                WHERE
+             |                    to_date(activate_ts) <= '$today_dt'
+             |                AND to_date(activate_ts) >= concat(substring('$today_dt',1,5),'01-01')
+             |                AND usr_st IN ('1')
+             |                GROUP BY
+             |                    cup_branch_ins_id_nm) a22
+             |        ON
+             |            (
+             |                a11.cup_branch_ins_id_nm = a22.cup_branch_ins_id_nm)
+             |        FULL OUTER JOIN
+             |            (
+             |                SELECT
+             |                    cup_branch_ins_id_nm,
+             |                    COUNT(DISTINCT cashier_usr_id) AS non_act_cashier_cnt_year
+             |                FROM
+             |                    hive_cashier_bas_inf
+             |                WHERE
+             |                    to_date(activate_ts) <= '$today_dt'
+             |                AND to_date(activate_ts) >= concat(substring('$today_dt',1,5),'01-01')
+             |                AND usr_st IN ('0')
+             |                GROUP BY
+             |                    cup_branch_ins_id_nm) a23
+             |        ON
+             |            (
+             |                a11.cup_branch_ins_id_nm = a23.cup_branch_ins_id_nm)
+             |        FULL OUTER JOIN
+             |            (
+             |                SELECT
+             |                    cup_branch_ins_id_nm,
+             |                    COUNT(DISTINCT cashier_usr_id) AS cashier_cnt_mth
+             |                FROM
+             |                    hive_cashier_bas_inf
+             |                WHERE
+             |                    reg_dt <= '$today_dt'
+             |                AND reg_dt >= concat(substring('$today_dt',1,8),'01')
+             |                AND usr_st NOT IN ('4',
+             |                                   '9')
+             |                GROUP BY
+             |                    cup_branch_ins_id_nm) a31
+             |        ON
+             |            (
+             |                a11.cup_branch_ins_id_nm = a31.cup_branch_ins_id_nm)
+             |        FULL OUTER JOIN
+             |            (
+             |                SELECT
+             |                    cup_branch_ins_id_nm,
+             |                    COUNT(DISTINCT cashier_usr_id) AS act_cashier_cnt_mth
+             |                FROM
+             |                    hive_cashier_bas_inf
+             |                WHERE
+             |                    to_date(activate_ts) <= '$today_dt'
+             |                AND to_date(activate_ts) >= concat(substring('$today_dt',1,8),'01')
+             |                AND usr_st IN ('1')
+             |                GROUP BY
+             |                    cup_branch_ins_id_nm) a32
+             |        ON
+             |            (
+             |                a11.cup_branch_ins_id_nm = a32.cup_branch_ins_id_nm)
+             |        FULL OUTER JOIN
+             |            (
+             |                SELECT
+             |                    cup_branch_ins_id_nm,
+             |                    COUNT(DISTINCT cashier_usr_id) AS non_act_cashier_cnt_mth
+             |                FROM
+             |                    hive_cashier_bas_inf
+             |                WHERE
+             |                    to_date(activate_ts) <= '$today_dt'
+             |                AND to_date(activate_ts) >= concat(substring('$today_dt',1,8),'01')
+             |                AND usr_st IN ('0')
+             |                GROUP BY
+             |                    cup_branch_ins_id_nm) a33
+             |        ON
+             |            (
+             |                a11.cup_branch_ins_id_nm = a33.cup_branch_ins_id_nm)
+             |        FULL OUTER JOIN
+             |            (
+             |                SELECT
+             |                    b.cup_branch_ins_id_nm,
+             |                    COUNT(DISTINCT a.cashier_usr_id) AS pnt_acct_cashier_cnt
+             |                FROM
+             |                    (
+             |                        SELECT DISTINCT
+             |                            cashier_usr_id
+             |                        FROM
+             |                            hive_cashier_point_acct_oper_dtl
+             |                        WHERE
+             |                            to_date(acct_oper_ts) <= '$today_dt'
+             |                        AND to_date(acct_oper_ts) >= concat(substring('$today_dt',1,8),'01'))a
+             |                INNER JOIN
+             |                    (
+             |                        SELECT
+             |                            cup_branch_ins_id_nm,
+             |                            cashier_usr_id
+             |                        FROM
+             |                            hive_cashier_bas_inf
+             |                        WHERE
+             |                            reg_dt<= '$today_dt'
+             |                        AND usr_st NOT IN ('4',
+             |                                           '9') )b
+             |                ON
+             |                    a.cashier_usr_id=b.cashier_usr_id
+             |                GROUP BY
+             |                    b. cup_branch_ins_id_nm) a4
+             |        ON
+             |            (
+             |                a11.cup_branch_ins_id_nm = a4.cup_branch_ins_id_nm)
+             |        FULL OUTER JOIN
+             |            (
+             |                SELECT
+             |                    b.cup_branch_ins_id_nm,
+             |                    COUNT(DISTINCT b.cashier_usr_id) AS reward_cashier_cnt_tot
+             |                FROM
+             |                    (
+             |                        SELECT
+             |                            mobile
+             |                        FROM
+             |                            hive_cdhd_cashier_maktg_reward_dtl
+             |                        WHERE
+             |                            to_date(settle_dt) <= '$today_dt'
+             |                        AND rec_st='2'
+             |                        AND activity_tp='004'
+             |                        GROUP BY
+             |                            mobile ) a
+             |                INNER JOIN
+             |                    hive_cashier_bas_inf b
+             |                ON
+             |                    a.mobile=b.mobile
+             |                GROUP BY
+             |                    b.cup_branch_ins_id_nm) a5
+             |        ON
+             |            (
+             |                a11.cup_branch_ins_id_nm = a5.cup_branch_ins_id_nm)
+             |        FULL OUTER JOIN
+             |            (
+             |                SELECT
+             |                    b.cup_branch_ins_id_nm,
+             |                    COUNT(DISTINCT b.cashier_usr_id) reward_cdhd_cashier_cnt_tot
+             |                FROM
+             |                    (
+             |                        SELECT
+             |                            mobile
+             |                        FROM
+             |                            hive_cdhd_cashier_maktg_reward_dtl
+             |                        WHERE
+             |                            to_date(settle_dt) <= '$today_dt'
+             |                        AND rec_st='2'
+             |                        AND activity_tp='004'
+             |                        GROUP BY
+             |                            mobile ) a
+             |                INNER JOIN
+             |                    hive_cashier_bas_inf b
+             |                ON
+             |                    a.mobile=b.mobile
+             |                INNER JOIN
+             |                    hive_pri_acct_inf c
+             |                ON
+             |                    a.mobile=c.mobile
+             |                WHERE
+             |                    c.usr_st='1'
+             |                GROUP BY
+             |                    b.cup_branch_ins_id_nm) a6
+             |        ON
+             |            (
+             |                a11.cup_branch_ins_id_nm = a6.cup_branch_ins_id_nm)
+             |        FULL OUTER JOIN
+             |            (
+             |                SELECT
+             |                    b.cup_branch_ins_id_nm,
+             |                    COUNT(DISTINCT b.cashier_usr_id) AS sign_cashier_cnt_dly
+             |                FROM
+             |                    (
+             |                        SELECT
+             |                            pri_acct_no
+             |                        FROM
+             |                            hive_signer_log
+             |                        WHERE
+             |                            concat_ws('-',SUBSTR(cashier_trans_tm,1,4),SUBSTR(cashier_trans_tm,5,2)
+             |                            ,SUBSTR (cashier_trans_tm,7,2)) = '$today_dt'
+             |                        GROUP BY
+             |                            pri_acct_no ) a
+             |                INNER JOIN
+             |                    (
+             |                        SELECT
+             |                            cup_branch_ins_id_nm,
+             |                            cashier_usr_id,
+             |                            bind_card_no
+             |                        FROM
+             |                            hive_cashier_bas_inf
+             |                        WHERE
+             |                            reg_dt <= '$today_dt'
+             |                        AND usr_st NOT IN ('4',
+             |                                           '9') ) b
+             |                ON
+             |                    a.pri_acct_no=b.bind_card_no
+             |                GROUP BY
+             |                    b.cup_branch_ins_id_nm) a7
+             |        ON
+             |            (
+             |                a11.cup_branch_ins_id_nm = a7.cup_branch_ins_id_nm)
+             |        FULL OUTER JOIN
+             |            (
+             |                SELECT
+             |                    cup_branch_ins_id_nm,
+             |                    COUNT(DISTINCT cashier_usr_id) AS cashier_cnt_dly
+             |                FROM
+             |                    hive_cashier_bas_inf
+             |                WHERE
+             |                    reg_dt = '$today_dt'
+             |                AND usr_st NOT IN ('4',
+             |                                   '9')
+             |                GROUP BY
+             |                    cup_branch_ins_id_nm) a81
+             |        ON
+             |            (
+             |                a11.cup_branch_ins_id_nm = a81.cup_branch_ins_id_nm)
+             |        FULL OUTER JOIN
+             |            (
+             |                SELECT
+             |                    cup_branch_ins_id_nm,
+             |                    COUNT(DISTINCT cashier_usr_id) AS act_cashier_cnt_dly
+             |                FROM
+             |                    hive_cashier_bas_inf
+             |                WHERE
+             |                    to_date(activate_ts) = '$today_dt'
+             |                AND usr_st IN ('1')
+             |                GROUP BY
+             |                    cup_branch_ins_id_nm) a82
+             |        ON
+             |            (
+             |                a11.cup_branch_ins_id_nm = a82.cup_branch_ins_id_nm)
+             |        FULL OUTER JOIN
+             |            (
+             |                SELECT
+             |                    cup_branch_ins_id_nm,
+             |                    COUNT(DISTINCT cashier_usr_id) AS non_act_cashier_cnt_dly
+             |                FROM
+             |                    hive_cashier_bas_inf
+             |                WHERE
+             |                    to_date(activate_ts) = '$today_dt'
+             |                AND usr_st IN ('0')
+             |                GROUP BY
+             |                    cup_branch_ins_id_nm) a83
+             |        ON
+             |            (
+             |                a11.cup_branch_ins_id_nm = a83.cup_branch_ins_id_nm)) t
+             |WHERE
+             |    t.cup_branch_ins_id_nm IS NOT NULL
+             |GROUP BY
+             |    t.cup_branch_ins_id_nm,
+             |    t.report_dt
              |
       """.stripMargin)
         println(s"###JOB_DM_87------$today_dt results:"+results.count())
