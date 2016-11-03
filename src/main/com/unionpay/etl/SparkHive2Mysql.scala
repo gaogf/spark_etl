@@ -2875,7 +2875,7 @@ object SparkHive2Mysql {
       for(i <- 0 to interval){
         val results=sqlContext.sql(
           s"""
-             select
+             |select
              |    a11.cup_branch_ins_id_nm                                      as cup_branch_ins_id_nm,
              |    '$today_dt'                                                   as report_dt,
              |    a11.cashier_cnt_tot                                           as cashier_cnt_tot,
@@ -3049,8 +3049,8 @@ object SparkHive2Mysql {
              |                from
              |                    hive_cashier_point_acct_oper_dtl
              |                where
-             |                    acct_oper_ts <= '$today_dt'
-             |                and acct_oper_ts>= concat(substring('$today_dt',1,8),'01'))a
+             |                    to_date(acct_oper_ts) <= '$today_dt'
+             |                and to_date(acct_oper_ts) >= concat(substring('$today_dt',1,8),'01'))a
              |        inner join
              |            (
              |                select
@@ -3080,7 +3080,7 @@ object SparkHive2Mysql {
              |                from
              |                    hive_cdhd_cashier_maktg_reward_dtl
              |                where
-             |                    settle_dt<= '$today_dt'
+             |                    to_date(settle_dt) <= '$today_dt'
              |                and rec_st='2'
              |                and activity_tp='004'
              |                group by
@@ -3101,12 +3101,12 @@ object SparkHive2Mysql {
              |            count(distinct b.cashier_usr_id) reward_cdhd_cashier_cnt_tot
              |        from
              |            (
-             |                select distinct
+             |                select
              |                    mobile
              |                from
              |                    hive_cdhd_cashier_maktg_reward_dtl
              |                where
-             |                    settle_dt<= '$today_dt'
+             |                    to_date(settle_dt) <= '$today_dt'
              |                and rec_st='2'
              |                and activity_tp='004'
              |                group by mobile ) a
@@ -3137,7 +3137,7 @@ object SparkHive2Mysql {
              |                from
              |                    hive_signer_log
              |                where
-             |                    substr(cashier_trans_tm,1,8)= '$today_dt'
+             |                    concat_ws('-',substr(cashier_trans_tm,1,4),substr(cashier_trans_tm,5,2),substr(cashier_trans_tm,7,2)) = '$today_dt'
              |                group by
              |                    pri_acct_no ) a
              |        inner join
@@ -3166,7 +3166,7 @@ object SparkHive2Mysql {
              |        from
              |            hive_cashier_bas_inf
              |        where
-             |            reg_dt= '$today_dt'
+             |            reg_dt = '$today_dt'
              |        and usr_st not in ('4','9')
              |        group by
              |            cup_branch_ins_id_nm) a81
@@ -3201,8 +3201,10 @@ object SparkHive2Mysql {
              |        group by
              |            cup_branch_ins_id_nm) a83
              |on
-             |    (
-             |        a11.cup_branch_ins_id_nm = a83.cup_branch_ins_id_nm)
+             |(a11.cup_branch_ins_id_nm = a83.cup_branch_ins_id_nm)
+             |
+             |
+             |
              |
       """.stripMargin)
         println(s"###JOB_DM_87------$today_dt results:"+results.count())
