@@ -90,6 +90,7 @@ object SparkDB22Hive {
       case "JOB_HV_38"  => JOB_HV_38  //CODE BY TZQ
       case "JOB_HV_72"  => JOB_HV_72  //CODE BY TZQ
       case "JOB_HV_73"  => JOB_HV_73  //CODE BY TZQ
+      case "JOB_HV_74"  => JOB_HV_74  //CODE BY TZQ
 
       case _ => println("Please input JobName")
     }
@@ -3955,6 +3956,70 @@ object SparkDB22Hive {
       results.registerTempTable("spark_db2_viw_chmgm_bill_sub_order_detail_inf")
       sqlContext.sql("truncate table hive_bill_sub_order_detail_inf")
       sqlContext.sql("insert into table hive_bill_sub_order_detail_inf select * from spark_db2_viw_chmgm_bill_sub_order_detail_inf")
+    }else{
+      println("加载的视图：viw_chmgm_bill_sub_order_detail_inf 中无数据！")
+    }
+  }
+
+
+
+  /**
+    * hive-job-74 2016-11-3
+    * hive_ticket_bill_acct_adj_task  ->  tbl_chmgm_ticket_bill_acct_adj_task
+    *
+    * @author tzq
+    * @param sqlContext
+    */
+  def JOB_HV_74(implicit sqlContext: HiveContext) = {
+    println("###JOB_HV_74(hive_ticket_bill_acct_adj_task  ->  tbl_chmgm_ticket_bill_acct_adj_task)")
+    sqlContext.sql(s"use $hive_dbname")
+    val df = sqlContext.jdbc_mgmdb_DF(s"$schemas_mgmdb.tbl_chmgm_ticket_bill_acct_adj_task")
+    df.registerTempTable("db2_tbl_chmgm_ticket_bill_acct_adj_task")
+    val results = sqlContext.sql(
+      """
+        |select
+        |task_id,
+        |trim(task_tp),
+        |trim(usr_tp),
+        |adj_ticket_bill,
+        |usr_id,
+        |trim(bill_id),
+        |trim(proc_usr_id),
+        |crt_ts,
+        |trim(aud_usr_id),
+        |aud_ts,
+        |aud_idea,
+        |trim(current_st),
+        |file_path,
+        |file_nm,
+        |result_file_path,
+        |result_file_nm,
+        |remark,
+        |ver_no,
+        |trim(chk_usr_id),
+        |chk_ts,
+        |chk_idea,
+        |trim(cup_branch_ins_id_cd),
+        |trim(adj_rsn_cd),
+        |rec_upd_ts,
+        |rec_crt_ts,
+        |trim(card_no),
+        |trim(rec_crt_usr_id),
+        |trim(acc_resp_cd),
+        |acc_err_msg,
+        |trim(entry_ins_id_cd),
+        |entry_ins_cn_nm
+        |
+        |from
+        |db2_tbl_chmgm_ticket_bill_acct_adj_task
+        |
+      """.stripMargin
+    )
+    println("JOB_HV_74------>results:"+results.count())
+    if(!Option(results).isEmpty){
+      results.registerTempTable("spark_db2_tbl_chmgm_ticket_bill_acct_adj_task")
+      sqlContext.sql("truncate table hive_ticket_bill_acct_adj_task")
+      sqlContext.sql("insert into table hive_ticket_bill_acct_adj_task select * from spark_db2_tbl_chmgm_ticket_bill_acct_adj_task")
     }else{
       println("加载的视图：viw_chmgm_bill_sub_order_detail_inf 中无数据！")
     }
