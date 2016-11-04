@@ -2876,23 +2876,24 @@ object SparkHive2Mysql {
         val results=sqlContext.sql(
           s"""
              |SELECT
-             |    t.cup_branch_ins_id_nm,
-             |    t.report_dt,
-             |    SUM(t.cashier_cnt_tot),
-             |    SUM(t.act_cashier_cnt_tot),
-             |    SUM(t.non_act_cashier_cnt_tot),
-             |    SUM(t.cashier_cnt_year),
-             |    SUM(t.act_cashier_cnt_year),
-             |    SUM(t.non_act_cashier_cnt_year),
-             |    SUM(t.cashier_cnt_mth),
-             |    SUM(t.act_cashier_cnt_mth),
-             |    SUM(t.non_act_cashier_cnt_mth),
-             |    SUM(t.pnt_acct_cashier_cnt_tot),
-             |    SUM(t.reward_cashier_cnt_tot),
-             |    SUM(t.reward_cdhd_cashier_cnt_tot),
-             |    SUM(t.cashier_cnt_dly),
-             |    SUM(t.act_cashier_cnt_dly),
-             |    SUM(t.non_act_cashier_cnt_dly)
+             |    t.cup_branch_ins_id_nm as cup_branch_ins_id_nm,
+             |    t.report_dt as report_dt,
+             |    SUM(t.cashier_cnt_tot) as cashier_cnt_tot,
+             |    SUM(t.act_cashier_cnt_tot) as act_cashier_cnt_tot,
+             |    SUM(t.non_act_cashier_cnt_tot) as non_act_cashier_cnt_tot,
+             |    SUM(t.cashier_cnt_year) as cashier_cnt_year,
+             |    SUM(t.act_cashier_cnt_year) as act_cashier_cnt_year,
+             |    SUM(t.non_act_cashier_cnt_year)as non_act_cashier_cnt_year,
+             |    SUM(t.cashier_cnt_mth) as cashier_cnt_mth,
+             |    SUM(t.act_cashier_cnt_mth) as act_cashier_cnt_mth,
+             |    SUM(t.non_act_cashier_cnt_mth) as non_act_cashier_cnt_mth,
+             |    SUM(t.pnt_acct_cashier_cnt_tot) as pnt_acct_cashier_cnt_tot,
+             |    SUM(t.reward_cashier_cnt_tot) as reward_cashier_cnt_tot,
+             |    SUM(t.reward_cdhd_cashier_cnt_tot) as reward_cdhd_cashier_cnt_tot,
+             |    sum(t.sign_cashier_cnt_dly) as sign_cashier_cnt_dly,
+             |    SUM(t.cashier_cnt_dly) as cashier_cnt_dly,
+             |    SUM(t.act_cashier_cnt_dly) as act_cashier_cnt_dly,
+             |    SUM(t.non_act_cashier_cnt_dly) as non_act_cashier_cnt_dly
              |FROM
              |    (
              |        SELECT
