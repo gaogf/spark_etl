@@ -86,6 +86,11 @@ object Create_Hive_Tables {
 //    hive_prize_lvl
 //    hive_store_term_relation
 //    hive_term_inf
+//    hive_ach_order_inf
+//    hive_bill_order_aux_inf
+//    hive_bill_sub_order_detail_inf
+//    hive_ticket_bill_acct_adj_task
+
 
     println("=======Create all tables on the hive successfully=======")
 
@@ -3464,6 +3469,7 @@ object Create_Hive_Tables {
     println("=======Create hive_bill_sub_order_detail_inf successfully ! =======")
 
   }
+
   def hive_ticket_bill_acct_adj_task (implicit sqlContext: HiveContext) = {
     println("=======Create Table hive_ticket_bill_acct_adj_task for JOB_HV_74 by TZQ =======")
     sqlContext.sql(s"use $hive_dbname")
