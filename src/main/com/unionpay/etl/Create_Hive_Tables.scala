@@ -3306,4 +3306,212 @@ object Create_Hive_Tables {
 
   }
 
+  def hive_ach_order_inf (implicit sqlContext: HiveContext) = {
+    println("=======Create Table hive_ach_order_inf for JOB_HV_71 by TZQ =======")
+    sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql(
+      s"""
+        |create table if not exists $hive_dbname.hive_ach_order_inf(
+        |order_id             string ,
+        |sys_no               string ,
+        |mchnt_version        string ,
+        |encoding             string ,
+        |sign_method          string ,
+        |mchnt_trans_tp       string ,
+        |biz_tp               string ,
+        |pay_method           string ,
+        |trans_tp             string ,
+        |buss_chnl            string ,
+        |mchnt_front_url      string ,
+        |mchnt_back_url       string ,
+        |acq_ins_id_cd        string ,
+        |mchnt_cd             string ,
+        |mchnt_tp             string ,
+        |mchnt_nm             string ,
+        |sub_mchnt_cd         string ,
+        |sub_mchnt_nm         string ,
+        |mchnt_order_id       string ,
+        |trans_tm             string ,
+        |trans_dt             timestamp,
+        |sys_tm               string ,
+        |pay_timeout          string ,
+        |trans_at             string ,
+        |trans_curr_cd        string ,
+        |kz_at                string ,
+        |kz_curr_cd           string ,
+        |conv_dt              string ,
+        |deduct_at            string ,
+        |discount_info        string ,
+        |upoint_at            string ,
+        |top_info             string ,
+        |refund_at            string ,
+        |iss_ins_id_cd        string ,
+        |iss_head             string ,
+        |pri_acct_no          string ,
+        |card_attr            string ,
+        |usr_id               string ,
+        |phone_no             string ,
+        |trans_ip             string ,
+        |trans_st             string ,
+        |trans_no             string ,
+        |trans_idx            string ,
+        |sys_tra_no           string ,
+        |order_desc           string ,
+        |order_detail         string ,
+        |proc_sys             string ,
+        |proc_st              string ,
+        |trans_source         string ,
+        |resp_cd              string ,
+        |other_usr            string ,
+        |initial_pay          string ,
+        |to_ts                string ,
+        |rec_crt_ts           string ,
+        |rec_upd_ts           string
+        |)
+        |row format delimited fields terminated by '!|'
+        |stored as parquet
+      """.stripMargin)
+
+    println("=======Create hive_ach_order_inf successfully ! =======")
+
+  }
+
+  def hive_bill_order_aux_inf (implicit sqlContext: HiveContext) = {
+    println("=======Create Table hive_bill_order_aux_inf for JOB_HV_72 by TZQ =======")
+    sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql(
+      s"""
+        |create table if not exists $hive_dbname.hive_bill_order_aux_inf(
+        |bill_order_id            string ,
+        |mchnt_cd                 string ,
+        |mchnt_nm                 string ,
+        |sub_mchnt_cd             string ,
+        |cdhd_usr_id              string ,
+        |sub_mchnt_nm             string ,
+        |related_usr_id           bigint ,
+        |cups_trace_number        string ,
+        |trans_tm                 string ,
+        |trans_dt                 string ,
+        |orig_trans_seq           string ,
+        |trans_seq                string ,
+        |mobile_order_id          string ,
+        |acp_order_id             string ,
+        |delivery_prov_cd         string ,
+        |delivery_city_cd         string ,
+        |delivery_district_cd     string ,
+        |delivery_zip_cd          string ,
+        |delivery_address         string ,
+        |receiver_nm              string ,
+        |receiver_mobile          string ,
+        |delivery_time_desc       string ,
+        |invoice_desc             string ,
+        |trans_at                 bigint ,
+        |refund_at                bigint ,
+        |order_st                 string ,
+        |order_crt_ts             timestamp,
+        |order_timeout_ts         timestamp,
+        |card_no                  string,
+        |order_chnl               string,
+        |order_ip                 string,
+        |device_inf               string,
+        |remark                   string,
+        |rec_crt_ts               timestamp,
+        |crt_cdhd_usr_id          string ,
+        |rec_upd_ts               timestamp,
+        |upd_cdhd_usr_id          string
+        |
+        |)
+        |row format delimited fields terminated by '!|'
+        |stored as parquet
+      """.stripMargin)
+
+    println("=======Create hive_bill_order_aux_inf successfully ! =======")
+
+  }
+
+  def hive_bill_sub_order_detail_inf (implicit sqlContext: HiveContext) = {
+    println("=======Create Table hive_bill_sub_order_detail_inf for JOB_HV_73 by TZQ =======")
+    sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql(
+      s"""
+         |create table if not exists $hive_dbname.hive_bill_sub_order_detail_inf(
+         |bill_sub_order_id   bigint,
+         |bill_order_id       string,
+         |mchnt_cd            string,
+         |mchnt_nm            string,
+         |sub_mchnt_cd        string,
+         |sub_mchnt_nm        string,
+         |bill_id             string,
+         |bill_price          bigint,
+         |trans_seq           string,
+         |refund_reason       string,
+         |order_st            string,
+         |rec_crt_ts          timestamp ,
+         |crt_cdhd_usr_id     string ,
+         |rec_upd_ts          timestamp ,
+         |upd_cdhd_usr_id     string,
+         |order_timeout_ts    timestamp,
+         |trans_dt            string,
+         |related_usr_id      bigint,
+         |trans_process       string,
+         |response_code       string,
+         |response_msg        string
+         |)
+         |row format delimited fields terminated by '!|'
+         |stored as parquet
+      """.stripMargin)
+
+    println("=======Create hive_bill_sub_order_detail_inf successfully ! =======")
+
+  }
+  def hive_ticket_bill_acct_adj_task (implicit sqlContext: HiveContext) = {
+    println("=======Create Table hive_ticket_bill_acct_adj_task for JOB_HV_74 by TZQ =======")
+    sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql(
+      s"""
+         |create table if not exists $hive_dbname.hive_ticket_bill_acct_adj_task(
+         |task_id                 int ,
+         |task_tp                 string,
+         |usr_tp                  string,
+         |adj_ticket_bill         int ,
+         |usr_id                  string,
+         |bill_id                 string,
+         |proc_usr_id             string,
+         |crt_ts                  timestamp,
+         |aud_usr_id              string ,
+         |aud_ts                  timestamp,
+         |aud_idea                string,
+         |current_st              string,
+         |file_path               string,
+         |file_nm                 string,
+         |result_file_path        string,
+         |result_file_nm          string,
+         |remark                  string,
+         |ver_no                  int   ,
+         |chk_usr_id              string,
+         |chk_ts                  timestamp,
+         |chk_idea                string ,
+         |cup_branch_ins_id_cd    string,
+         |adj_rsn_cd              string,
+         |rec_upd_ts              timestamp,
+         |rec_crt_ts              timestamp,
+         |card_no                 string ,
+         |rec_crt_usr_id          string ,
+         |acc_resp_cd             string ,
+         |acc_err_msg             string ,
+         |entry_ins_id_cd         string ,
+         |entry_ins_cn_nm         string
+         |
+         |)
+         |row format delimited fields terminated by '!|'
+         |stored as parquet
+      """.stripMargin)
+
+    println("=======Create hive_ticket_bill_acct_adj_task successfully ! =======")
+
+  }
+
+
+
+
 }
