@@ -22,6 +22,7 @@ object SparkUPH2H {
   //指定HIVE数据库名
   private lazy val hive_dbname =ConfigurationManager.getProperty(Constants.HIVE_DBNAME)
   private  lazy  val dateFormatter=DateTimeFormat.forPattern("yyyy-MM-dd")
+  private  lazy  val dateFormat_2=DateTimeFormat.forPattern("yyyyMMdd")
 
   def main(args: Array[String]): Unit = {
     val conf = new SparkConf().setAppName("SparkUPH2H")
@@ -35,24 +36,24 @@ object SparkUPH2H {
 
     println(s"####当前JOB的执行日期为：$end_dt####")
 
-    JOB_HV_50(sqlContext,"2016-04-13","2016-04-13")
 
-//    val jobName = if(args.length>0) args(0) else None
-//    println(s"#### 当前执行JobName为： $jobName ####")
-//    jobName match {
-//      /**
-//        * 每日模板job
-//        */
-//      case "JOB_HV_39"  => JOB_HV_39(sqlContext,end_dt) //CODE BY YX
-//      case "JOB_HV_41"  => JOB_HV_41(sqlContext,start_dt,end_dt) //CODE BY YX
-//      case "JOB_HV_49"  => JOB_HV_49 //CODE BY YX
-//      case "JOB_HV_52"  => JOB_HV_52(sqlContext,end_dt) //CODE BY YX
-//
-//      /**
-//        * 指标套表job
-//        */
-//
-//    }
+    val jobName = if(args.length>0) args(0) else None
+    println(s"#### 当前执行JobName为： $jobName ####")
+    jobName match {
+      /**
+        * 每日模板job
+        */
+      case "JOB_HV_39"  => JOB_HV_39(sqlContext,end_dt) //CODE BY YX
+      case "JOB_HV_41"  => JOB_HV_41(sqlContext,start_dt,end_dt) //CODE BY XTP
+      case "JOB_HV_49"  => JOB_HV_49 //CODE BY XTP
+      case "JOB_HV_50"  =>  JOB_HV_50(sqlContext,start_dt,end_dt) //CODE BY XTP
+      case "JOB_HV_52"  => JOB_HV_52(sqlContext,end_dt) //CODE BY YX
+
+      /**
+        * 指标套表job
+        */
+
+    }
 
     sc.stop()
   }
@@ -96,7 +97,9 @@ object SparkUPH2H {
       val days = Days.daysBetween(start, end).getDays
       val dateStrs = for (day <- 0 to days) {
         val currentDay = (start.plusDays(day).toString(dateFormatter))
-        val df = sqlContext.read.parquet(s"$up_namenode/$up_hivedataroot/hive_cups_trans/part_settle_dt=$currentDay")
+        val currentDay_ft = (start.plusDays(day).toString(dateFormat_2))
+        println(currentDay_ft)
+        val df = sqlContext.read.parquet(s"$up_namenode/$up_hivedataroot/incident/ods/hive_cups_trans/part_settle_dt=$currentDay")
         println(s"###### read $up_namenode/ successful ######")
         df.registerTempTable("spark_hive_cups_trans")
 
@@ -104,7 +107,7 @@ object SparkUPH2H {
         sqlContext.sql(s"use $hive_dbname")
         sqlContext.sql(s"alter table hive_cups_trans drop partition (part_settle_dt='$currentDay')")
         println(s"alter table hive_cups_trans drop partition (part_settle_dt='$currentDay') successfully!")
-        sqlContext.sql(s"insert into hive_cups_trans partition (part_settle_dt='$currentDay') select * from spark_hive_cups_trans htempa where htempa.part_settle_dt = '$currentDay'")
+        sqlContext.sql(s"insert into hive_cups_trans partition (part_settle_dt='$currentDay') select * from spark_hive_cups_trans htempa where htempa.hp_settle_dt='$currentDay_ft'")
         println(s"insert into hive_cups_trans partition (part_settle_dt='$currentDay') successfully!")
       }
     }
@@ -151,7 +154,7 @@ object SparkUPH2H {
       val dateStrs = for (day <- 0 to days) {
         val currentDay = (start.plusDays(day).toString(dateFormatter))
         println("######JOB_HV_50######")
-        val df = sqlContext.read.parquet(s"$up_namenode/$up_hivedataroot/hive_org_tdapp_keyvalue/part_updays=$currentDay")
+        val df = sqlContext.read.parquet(s"$up_namenode/$up_hivedataroot/incident/td/hive_org_tdapp_keyvalue/part_updays=$currentDay")
         println(s"###### read $up_namenode/ successful ######")
         df.registerTempTable("spark_hive_org_tdapp_keyvalue")
 
@@ -172,15 +175,14 @@ object SparkUPH2H {
           import scala.collection.mutable.ListBuffer
           var result = ListBuffer[String]()
           for(element <- list){
-            val fmt1 = DateTimeFormat.forPattern("yyyyMMdd")
-            val fmt2 = DateTimeFormat.forPattern("yyyy-MM-dd")
-            val dt = DateTime.parse(element,fmt1)
-            val days = fmt2.print(dt)
+            val dt = DateTime.parse(element,dateFormat_2)
+            val days = element
+            val days_fmt = dateFormatter.print(dt)
             sqlContext.sql(s"use $hive_dbname")
-            sqlContext.sql(s"alter table hive_org_tdapp_keyvalue drop partition (part_daytime='$days',part_updays='$currentDay')")
-            println(s"alter table hive_org_tdapp_keyvalue drop partition (part_daytime='$days',part_updays='$currentDay') successfully!")
-            sqlContext.sql(s"insert into hive_org_tdapp_keyvalue partition (part_daytime='$days',part_updays='$currentDay') select * from spark_hive_org_tdapp_keyvalue htempa where htempa.daytime='$dt'")
-            println(s"insert into hive_org_tdapp_keyvalue partition (part_daytime='$days',part_updays='$currentDay') successfully!")
+            sqlContext.sql(s"alter table hive_org_tdapp_keyvalue drop partition (part_daytime='$days_fmt',part_updays='$currentDay')")
+            println(s"alter table hive_org_tdapp_keyvalue drop partition (part_daytime='$days_fmt',part_updays='$currentDay') successfully!")
+            sqlContext.sql(s"insert into hive_org_tdapp_keyvalue partition (part_daytime='$days_fmt',part_updays='$currentDay') select * from spark_hive_org_tdapp_keyvalue htempa where htempa.daytime='$days'")
+            println(s"insert into hive_org_tdapp_keyvalue partition (part_daytime='$days_fmt',part_updays='$currentDay') successfully!")
             result += element+1
           }
           result.toList
