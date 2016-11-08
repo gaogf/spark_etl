@@ -19,7 +19,8 @@ object SparkDB22Hive {
   private lazy val hive_dbname =ConfigurationManager.getProperty(Constants.HIVE_DBNAME)
   private lazy val schemas_accdb =ConfigurationManager.getProperty(Constants.SCHEMAS_ACCDB)
   private lazy val schemas_mgmdb =ConfigurationManager.getProperty(Constants.SCHEMAS_MGMDB)
-
+  private lazy val start_dt = "2016-09-08"
+  private lazy val end_dt = "2016-09-09"
  def main(args: Array[String]) {
 
     val conf = new SparkConf().setAppName("SparkDB22Hive")
@@ -29,7 +30,6 @@ object SparkDB22Hive {
 
     //从数据库中获取当前JOB的执行起始和结束日期
     val rowParams=UPSQL_TIMEPARAMS_JDBC.readTimeParams(sqlContext)
-
     val start_dt=DateUtils.getYesterdayByJob(rowParams.getString(0))//获取开始日期：start_dt-1
     val end_dt=rowParams.getString(1)//结束日期
     val interval=DateUtils.getIntervalDays(start_dt,end_dt).toInt
@@ -86,6 +86,8 @@ object SparkDB22Hive {
       case "JOB_HV_26"  => JOB_HV_26  //CODE BY TZQ
       case "JOB_HV_27"  => JOB_HV_27(sqlContext,start_dt,end_dt)  //CODE BY XTP
       case "JOB_HV_31"  => JOB_HV_31(sqlContext,start_dt,end_dt)  //CODE BY XTP
+      case "JOB_HV_34"  => JOB_HV_34  //CODE BY XTP
+      case "JOB_HV_35"  => JOB_HV_35  //CODE BY XTP
       case "JOB_HV_37"  => JOB_HV_37  //CODE BY TZQ
       case "JOB_HV_38"  => JOB_HV_38  //CODE BY TZQ
       case "JOB_HV_72"  => JOB_HV_72  //CODE BY TZQ
@@ -153,6 +155,7 @@ object SparkDB22Hive {
   /**
     * hive-job-03/08-19
     * tbl_chacc_cdhd_pri_acct_inf -> hive_pri_acct_inf
+    *
     * @author winslow yang
     * @param sqlContext
     * @param start_dt
@@ -586,6 +589,7 @@ object SparkDB22Hive {
     * JOB_HV_8/10-14
     * HIVE_STORE_TERM_RELATION->TBL_CHMGM_STORE_TERM_RELATION
     * Code by Xue
+    *
     * @param sqlContext
     * @param start_dt
     * @param end_dt
@@ -706,6 +710,7 @@ object SparkDB22Hive {
   /**
     * JOB_HV_9/08-23
     * hive_preferential_mchnt_inf->tbl_chmgm_preferential_mchnt_inf
+    *
     * @author tzq
     * @param sqlContext
     * @return
@@ -1503,6 +1508,7 @@ object SparkDB22Hive {
   /**
     * hive-job-18 2016-08-26
     * viw_chmgm_trans_his -> hive_download_trans
+    *
     * @author winslow yang
     * @param sqlContext
     * @param start_dt
@@ -2068,6 +2074,7 @@ object SparkDB22Hive {
     * JOB_HV_28/10-14
     * hive_online_point_trans->viw_chacc_online_point_trans_inf
     * Code by Xue
+    *
     * @param sqlContext
     * @param start_dt
     * @param end_dt
@@ -2194,6 +2201,7 @@ object SparkDB22Hive {
     * JOB_HV_29/10-14
     * hive_offline_point_trans->tbl_chacc_cdhd_point_addup_dtl
     * Code by Xue
+    *
     * @param sqlContext
     * @param start_dt
     * @param end_dt
@@ -2367,6 +2375,7 @@ object SparkDB22Hive {
   /**
     * hive-job-30 2016-08-22
     * viw_chacc_code_pay_tran_dtl -> hive_passive_code_pay_trans
+    *
     * @author yangxue
     * @param sqlContext
     * @param start_dt
@@ -2456,6 +2465,7 @@ object SparkDB22Hive {
     * JOB_HV_31/10-14
     * HIVE_BILL_ORDER_TRANS->VIW_CHMGM_BILL_ORDER_AUX_INF
     * Code by Xue
+    *
     * @param sqlContext
     * @param start_dt
     * @param end_dt
@@ -2589,6 +2599,7 @@ object SparkDB22Hive {
     * JOB_HV_32/10-14
     * hive_prize_discount_result->tbl_umsvc_prize_discount_result
     * Code by Xue
+    *
     * @param sqlContext
     * @param start_dt
     * @param end_dt
@@ -2729,6 +2740,7 @@ object SparkDB22Hive {
     * JOB_HV_33/10-19
     * hive_bill_sub_order_trans->VIW_CHMGM_BILL_SUB_ORDER_DETAIL_INF
     * Code by Xue
+    *
     * @param start_dt
     * @param end_dt
     * @param sqlContext
@@ -2798,6 +2810,112 @@ object SparkDB22Hive {
 
     PartitionFun_JOB_HV_33(start_dt, end_dt)
   }
+
+  /**
+    * hive-job-36 2016-08-26
+    * TBL_CHACC_CDHD_BILL_ACCT_INF -> HIVE_BUSS_DIST
+    *
+    * @author Xue
+    * @param sqlContext
+    */
+  def JOB_HV_34(implicit sqlContext: HiveContext) = {
+    println("###JOB_HV_34(TBL_CHMGM_CHARA_ACCT_DEF_TMP -> HIVE_BUSS_DIST)")
+    sqlContext.sql(s"use $hive_dbname")
+    val df = sqlContext.jdbc_mgmdb_DF(s"$schemas_mgmdb.TBL_CHMGM_CHARA_ACCT_DEF_TMP")
+    df.registerTempTable("TBL_CHMGM_CHARA_ACCT_DEF_TMP")
+    val results = sqlContext.sql(
+      """
+        |SELECT
+        |ta.REC_ID as REC_ID,
+        |trim(ta.CHARA_ACCT_TP) as CHARA_ACCT_TP,
+        |trim(ta.CHARA_ACCT_ATTR) as CHARA_ACCT_ATTR,
+        |ta.CHARA_ACCT_DESC as CHARA_ACCT_DESC,
+        |trim(ta.ENTRY_GRP_CD) as ENTRY_GRP_CD,
+        |trim(ta.ENTRY_BLKBILL_IN) as ENTRY_BLKBILL_IN,
+        |trim(ta.OUTPUT_GRP_CD)  as OUTPUT_GRP_CD,
+        |trim(ta.OUTPUT_BLKBILL_IN) as OUTPUT_BLKBILL_IN,
+        |trim(ta.CHARA_ACCT_ST) as CHARA_ACCT_ST,
+        |trim(ta.AUD_USR_ID) as AUD_USR_ID,
+        |ta.AUD_IDEA as AUD_IDEA,
+        |ta.AUD_TS as AUD_TS,
+        |trim(ta.AUD_IN) as AUD_IN,
+        |trim(ta.OPER_ACTION) as OPER_ACTION,
+        |ta.REC_CRT_TS as REC_CRT_TS,
+        |ta.REC_UPD_TS as REC_UPD_TS,
+        |trim(ta.REC_CRT_USR_ID) as REC_CRT_USR_ID,
+        |trim(ta.REC_UPD_USR_ID) as REC_UPD_USR_ID,
+        |ta.VER_NO as VER_NO,
+        |trim(ta.CHARA_ACCT_NM) as CHARA_ACCT_NM,
+        |ta.CH_INS_ID_CD as CH_INS_ID_CD,
+        |trim(ta.UM_INS_TP) as UM_INS_TP,
+        |ta.INS_NM  as INS_NM,
+        |trim(ta.OPER_IN) as OPER_IN,
+        |ta.EVENT_ID as EVENT_ID,
+        |trim(ta.SYNC_ST) as SYNC_ST,
+        |ta.CUP_BRANCH_INS_ID_CD as CUP_BRANCH_INS_ID_CD,
+        |ta.SCENE_USAGE_IN as SCENE_USAGE_IN
+        |FROM TBL_CHMGM_CHARA_ACCT_DEF_TMP ta
+      """.stripMargin
+    )
+
+    println("JOB_HV_34------>results:"+results.count())
+    if(!Option(results).isEmpty){
+      results.registerTempTable("spark_hive_buss_dist")
+      sqlContext.sql("truncate table hive_buss_dist")
+      sqlContext.sql("insert into table hive_buss_dist select * from spark_hive_buss_dist")
+      println("###JOB_HV_36(insert into table hive_buss_dist successful) ")
+    }else{
+      println("加载的表TBL_CHACC_CDHD_BILL_ACCT_INF中无数据！")
+    }
+  }
+
+
+  /**
+    * hive-job-36 2016-08-26
+    * TBL_CHACC_CDHD_BILL_ACCT_INF -> HIVE_CDHD_BILL_ACCT_INF
+    *
+    * @author Xue
+    * @param sqlContext
+    */
+  def JOB_HV_35(implicit sqlContext: HiveContext) = {
+    println("###JOB_HV_35(TBL_CHACC_CDHD_BILL_ACCT_INF -> HIVE_CDHD_BILL_ACCT_INF)")
+    sqlContext.sql(s"use $hive_dbname")
+    val df = sqlContext.jdbc_accdb_DF(s"$schemas_accdb.TBL_CHACC_CDHD_BILL_ACCT_INF")
+    df.registerTempTable("TBL_CHACC_CDHD_BILL_ACCT_INF")
+    val results = sqlContext.sql(
+      """
+        |select
+        |ta.SEQ_ID as SEQ_ID,
+        |trim(ta.CDHD_USR_ID) as CDHD_USR_ID,
+        |trim(ta.CDHD_FK) as CDHD_FK,
+        |trim(ta.BILL_ID) as BILL_ID,
+        |trim(ta.BILL_BAT_NO) as BILL_BAT_NO,
+        |trim(ta.BILL_TP) as BILL_TP,
+        |ta.MEM_NM as MEM_NM,
+        |ta.BILL_NUM as BILL_NUM,
+        |ta.USAGE_NUM as USAGE_NUM,
+        |trim(ta.ACCT_ST) as ACCT_ST,
+        |ta.REC_CRT_TS as REC_CRT_TS,
+        |ta.REC_UPD_TS as REC_UPD_TS,
+        |ta.VER_NO as VER_NO,
+        |trim(ta.BILL_RELATED_CARD_NO) as BILL_RELATED_CARD_NO,
+        |trim(ta.SCENE_ID) as SCENE_ID,
+        |ta.FREEZE_BILL_NUM  as FREEZE_BILL_NUM
+        |from TBL_CHACC_CDHD_BILL_ACCT_INF ta
+      """.stripMargin
+    )
+
+    println("JOB_HV_35------>results:"+results.count())
+    if(!Option(results).isEmpty){
+      results.registerTempTable("spark_hive_cdhd_bill_acct_inf")
+      sqlContext.sql("truncate table hive_cdhd_bill_acct_inf")
+      sqlContext.sql("insert into table hive_cdhd_bill_acct_inf select * from spark_hive_cdhd_bill_acct_inf")
+      println("###JOB_HV_35(insert into table hive_cdhd_bill_acct_inf successful) ")
+    }else{
+      println("加载的表TBL_CHACC_CDHD_BILL_ACCT_INF中无数据！")
+    }
+  }
+
 
   /**
     * hive-job-36 2016-08-26
