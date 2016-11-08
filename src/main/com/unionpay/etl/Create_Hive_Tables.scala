@@ -24,9 +24,9 @@ object Create_Hive_Tables {
 
 //    仅初始化使用，默认关闭
 
-    hive_ct        //参数表
-    hive_life      //参数表
-    hive_city_card //参数表
+//    hive_ct        //参数表
+//    hive_life      //参数表
+//    hive_city_card //参数表
 //    hive_acc_trans
 //    hive_achis_trans
 //    hive_active_card_acq_branch_mon
@@ -38,7 +38,7 @@ object Create_Hive_Tables {
 //    hive_mchnt_para
 //    hive_passive_code_pay_trans
 //    hive_pri_acct_inf
-    hive_province_card  //参数表
+//    hive_province_card  //参数表
 //    hive_switch_point_trans
 //    hive_ucbiz_cdhd_bas_inf
 //    hive_access_bas_inf
