@@ -90,7 +90,9 @@ object Create_Hive_Tables {
 //    hive_bill_order_aux_inf
 //    hive_bill_sub_order_detail_inf
 //    hive_ticket_bill_acct_adj_task
-
+//    hive_search_trans
+//    hive_buss_dist
+//    hive_cdhd_bill_acct_inf
 
     println("=======Create all tables on the hive successfully=======")
 
@@ -3583,7 +3585,211 @@ object Create_Hive_Tables {
 
   }
 
+  def hive_search_trans (implicit sqlContext: HiveContext) = {
+    println("=======Create Table hive_search_trans for JOB_HV_27 by XTP =======")
+    sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql(
+      s"""
+         |create table if not exists $hive_dbname.hive_search_trans
+         |(
+         |tfr_dt_tm	string,
+         |sys_tra_no	string,
+         |acpt_ins_id_cd	string,
+         |fwd_ins_id_cd	string,
+         |pri_key1	string,
+         |fwd_chnl_head	string,
+         |chswt_plat_seq	bigint,
+         |trans_tm	string,
+         |trans_dt	timestamp,
+         |cswt_settle_dt	timestamp,
+         |internal_trans_tp	string,
+         |settle_trans_id	string,
+         |trans_tp	string,
+         |cups_settle_dt	string,
+         |msg_tp	string,
+         |pri_acct_no	string,
+         |card_bin	string,
+         |proc_cd	string,
+         |req_trans_at	int,
+         |resp_trans_at	int,
+         |trans_curr_cd	string,
+         |trans_tot_at	int,
+         |iss_ins_id_cd	string,
+         |launch_trans_tm	string,
+         |launch_trans_dt	string,
+         |mchnt_tp	string,
+         |pos_entry_md_cd	string,
+         |card_seq_id	string,
+         |pos_cond_cd	string,
+         |pos_pin_capture_cd	string,
+         |retri_ref_no	string,
+         |term_id	string,
+         |mchnt_cd	string,
+         |card_accptr_nm_loc	string,
+         |sec_related_ctrl_inf	string,
+         |orig_data_elemts	string,
+         |rcv_ins_id_cd	string,
+         |fwd_proc_in	string,
+         |rcv_proc_in	string,
+         |proj_tp	string,
+         |usr_id	string,
+         |conv_usr_id	string,
+         |trans_st	string,
+         |inq_dtl_req	string,
+         |inq_dtl_resp	string,
+         |iss_ins_resv	string,
+         |ic_flds	string,
+         |cups_def_fld	string,
+         |id_no	string,
+         |cups_resv	string,
+         |acpt_ins_resv	string,
+         |rout_ins_id_cd	string,
+         |sub_rout_ins_id_cd	string,
+         |recv_access_resp_cd	string,
+         |chswt_resp_cd	string,
+         |chswt_err_cd	string,
+         |resv_fld1	string,
+         |resv_fld2	string,
+         |to_ts	timestamp,
+         |rec_upd_ts	timestamp,
+         |rec_crt_ts	timestamp,
+         |settle_at	int,
+         |external_amt	int,
+         |discount_at	int,
+         |card_pay_at	int,
+         |right_purchase_at	int,
+         |recv_second_resp_cd	string,
+         |req_acpt_ins_resv	string,
+         |log_id	string,
+         |conv_acct_no	string,
+         |inner_pro_ind	string,
+         |acct_proc_in	string,
+         |order_id	string,
+         |seq_id	bigint,
+         |oper_module	string,
+         |um_trans_id	string,
+         |cdhd_fk	string,
+         |bill_id	string,
+         |bill_tp	string,
+         |bill_bat_no	string,
+         |bill_inf	string,
+         |card_no	string,
+         |trans_at	int,
+         |settle_curr_cd	string,
+         |card_accptr_local_tm	string,
+         |card_accptr_local_dt	string,
+         |expire_dt	string,
+         |msg_settle_dt	timestamp,
+         |auth_id_resp_cd	string,
+         |resp_cd	string,
+         |notify_st	string,
+         |addn_private_data	string,
+         |udf_fld	string,
+         |addn_at	string,
+         |acct_id_1	string,
+         |acct_id_2	string,
+         |resv_fld	string,
+         |cdhd_auth_inf	string,
+         |recncl_in	string,
+         |match_in	string,
+         |trans_proc_start_ts	timestamp,
+         |trans_proc_end_ts	timestamp,
+         |sys_det_cd	string,
+         |sys_err_cd	string,
+         |dtl_inq_data	string
+         |)
+         |partitioned by(part_settle_dt string)
+         |row format delimited fields terminated by '!|'
+         |stored as parquet
+         |location '/user/ch_datas/upw_hive/incident/trans/hive_search_trans'
+         |;
+      """.stripMargin)
+
+    println("=======Create hive_search_trans successfully ! =======")
+
+  }
 
 
+  def hive_buss_dist (implicit sqlContext: HiveContext) = {
+    println("=======Create Table hive_buss_dist for JOB_HV_34 by XTP =======")
+    sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql(
+      s"""
+         |create table if not exists $hive_dbname.hive_buss_dist
+         |(
+         |rec_id                    string          comment '记录编码     ',
+         |chara_acct_tp             string          comment '商圈代码     ',
+         |chara_acct_attr           string          comment '特征账户属性   ',
+         |chara_acct_desc           string          comment '特征账户描述   ',
+         |entry_grp_cd              string          comment '输入组代码    ',
+         |entry_blkbill_in          string          comment '输入黑白名单标识 ',
+         |output_grp_cd             string          comment '输出组代码    ',
+         |output_blkbill_in         string          comment '输出黑白名单标识 ',
+         |chara_acct_st             string          comment '特征账户状态   ',
+         |aud_usr_id                string          comment '审核人编号    ',
+         |aud_idea                  string          comment '审核意见     ',
+         |aud_ts                    timestamp       comment '审核时间     ',
+         |aud_in                    string          comment '审核标识     ',
+         |oper_action               string          comment '操作动作     ',
+         |rec_crt_ts                timestamp       comment '记录创建时间   ',
+         |rec_upd_ts                timestamp       comment '记录修改时间   ',
+         |rec_crt_usr_id            string          comment '记录创建用户标识 ',
+         |rec_upd_usr_id            string          comment '记录修改用户标识 ',
+         |ver_no                    int             comment '版本编号     ',
+         |chara_acct_nm             string          comment '商圈名称     ',
+         |ch_ins_id_cd              string          comment '机构id     ',
+         |um_ins_tp                 string          comment '机构类型     ',
+         |ins_nm                    string          comment '机构名称     ',
+         |oper_in                   string          comment '操作标志     ',
+         |event_id                  int             comment '事件号      ',
+         |sync_st                   string          comment '同步状态     ',
+         |cup_branch_ins_id_cd      string          comment '所属银联分公司代码',
+         |scene_usage_in            int             comment '场景使用标识   '
+         |)
+         |comment '商圈信息表'
+         |row format delimited fields terminated by '!|'
+         |stored as parquet
+         |location '/user/ch_datas/upw_hive/region/hive_buss_dist'
+         |;
+      """.stripMargin)
+
+    println("=======Create hive_buss_dist successfully ! =======")
+
+  }
+
+  def hive_cdhd_bill_acct_inf (implicit sqlContext: HiveContext) = {
+    println("=======Create Table hive_cdhd_bill_acct_inf for JOB_HV_35 by XTP =======")
+    sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql(
+      s"""
+         |create table if not exists $hive_dbname.hive_cdhd_bill_acct_inf
+         |(
+         |SEQ_ID                     BIGINT               comment '序列ID    ',
+         |CDHD_USR_ID                STRING               comment '持卡人用户标识码',
+         |CDHD_FK                    STRING               comment '持卡人外键   ',
+         |BILL_ID                    STRING               comment '票券ID    ',
+         |BILL_BAT_NO                STRING               comment '票券批次号   ',
+         |BILL_TP                    STRING               comment '票券类型    ',
+         |MEM_NM                     STRING               comment '会员姓名    ',
+         |BILL_NUM                   BIGINT               comment '票券数量    ',
+         |USAGE_NUM                  BIGINT               comment '使用次数    ',
+         |ACCT_ST                    STRING               comment '账户状态    ',
+         |REC_CRT_TS                 TIMESTAMP            comment '记录创建时间  ',
+         |REC_UPD_TS                 TIMESTAMP            comment '记录更新时间  ',
+         |VER_NO                     INT                  comment '版本编号    ',
+         |BILL_RELATED_CARD_NO       STRING               comment '票券关联卡号  ',
+         |SCENE_ID                   STRING               comment '场景标识    ',
+         |FREEZE_BILL_NUM            BIGINT               comment '冻结票券数量  '
+         |)
+         |comment '持卡人票券账户表'
+         |row format delimited fields terminated by '!|'
+         |stored as parquet
+         |location '/user/ch_datas/upw_hive/product/bill/hive_cdhd_bill_acct_inf'
+         |;
+      """.stripMargin)
+
+    println("=======Create hive_cdhd_bill_acct_inf successfully ! =======")
+
+  }
 
 }
