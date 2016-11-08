@@ -24,9 +24,9 @@ object Create_Hive_Tables {
 
 //    仅初始化使用，默认关闭
 
-//    hive_ct
-//    hive_life
-//    hive_city_card
+    hive_ct        //参数表
+    hive_life      //参数表
+    hive_city_card //参数表
 //    hive_acc_trans
 //    hive_achis_trans
 //    hive_active_card_acq_branch_mon
@@ -38,7 +38,7 @@ object Create_Hive_Tables {
 //    hive_mchnt_para
 //    hive_passive_code_pay_trans
 //    hive_pri_acct_inf
-//    hive_province_card
+    hive_province_card  //参数表
 //    hive_switch_point_trans
 //    hive_ucbiz_cdhd_bas_inf
 //    hive_access_bas_inf
@@ -46,7 +46,7 @@ object Create_Hive_Tables {
 //    hive_branch_acpt_ins_inf
 //    hive_brand_inf
 //    hive_card_bin
-//    hive_cashier_maktg_reward_dtl
+//    hive_cdhd_cashier_maktg_reward_dtl
 //    hive_cashier_point_acct_oper_dtl
 //    hive_chara_grp_def_bat
 //    hive_cups_trans
@@ -74,7 +74,7 @@ object Create_Hive_Tables {
 //    hive_signer_log
 //    hive_ticket_bill_bas_inf
 //    hive_undefine_store_inf
-//    hive_use_td_d
+//    hive_user_td_d
 //    hive_bill_order_trans
 //    hive_bill_sub_order_trans
 //    hive_mchnt_tp
@@ -231,6 +231,7 @@ object Create_Hive_Tables {
          |partitioned by(part_trans_dt string)
          |row format delimited fields terminated by '!|'
          |stored as parquet
+         |location '/user/ch_datas/upw_hive/incident/trans/hive_acc_trans'
          | """.stripMargin)
 
     println("=======Create hive_acc_trans successfully ! =======")
@@ -425,6 +426,7 @@ object Create_Hive_Tables {
          |partitioned by (part_settle_dt string)
          |row format delimited fields terminated by '!|'
          |stored as parquet
+         |location '/user/ch_datas/upw_hive/incident/ods/hive_achis_trans'
          | """.stripMargin)
 
     println("=======Create hive_achis_trans successfully ! =======")
@@ -451,6 +453,7 @@ object Create_Hive_Tables {
          |partitioned by (part_settle_month string)
          |row format delimited fields terminated by '!|'
          |stored as parquet
+         |location '/user/ch_datas/upw_hive/product/card/hive_active_card_acq_branch_mon'
          | """.stripMargin)
 
     println("=======Create hive_active_card_acq_branch_mon successfully ! =======")
@@ -491,6 +494,7 @@ object Create_Hive_Tables {
          |)
          |row format delimited fields terminated by '!|'
          |stored as parquet
+         |location '/user/ch_datas/upw_hive/relation/hive_card_bind_inf'
          | """.stripMargin)
 
     println("=======Create hive_card_bind_inf successfully ! =======")
@@ -508,6 +512,7 @@ object Create_Hive_Tables {
          |)
          |row format delimited fields terminated by '!|'
          |stored as parquet
+         |location '/user/ch_datas/upw_hive/parameter/hive_city_card'
          | """.stripMargin)
 
     println("=======Create hive_city_card successfully ! =======")
@@ -525,6 +530,7 @@ object Create_Hive_Tables {
          |)
          |row format delimited fields terminated by '!|'
          |stored as parquet
+         |location '/user/ch_datas/upw_hive/parameter/hive_ct'
          | """.stripMargin)
 
     println("=======Create hive_ct successfully ! =======")
@@ -543,6 +549,7 @@ object Create_Hive_Tables {
          |)
          |row format delimited fields terminated by '!|'
          |stored as parquet
+         |location '/user/ch_datas/upw_hive/parameter/hive_life'
          | """.stripMargin)
 
     println("=======Create hive_life successfully ! =======")
@@ -581,6 +588,7 @@ object Create_Hive_Tables {
          |)
          |row format delimited fields terminated by '!|'
          |stored as parquet
+         |location '/user/ch_datas/upw_hive/incident/prize/hive_discount_bas_inf'
          | """.stripMargin)
 
     println("=======Create hive_discount_bas_inf successfully ! =======")
@@ -640,6 +648,7 @@ object Create_Hive_Tables {
          |partitioned by(part_trans_dt string)
          |row format delimited fields terminated by '!|'
          |stored as parquet
+         |location '/user/ch_datas/upw_hive/incident/trans/hive_download_trans'
          | """.stripMargin)
 
     println("=======Create hive_download_trans successfully ! =======")
@@ -657,6 +666,7 @@ object Create_Hive_Tables {
          |)
          |row format delimited fields terminated by '!|'
          |stored as parquet
+         |location '/user/ch_datas/upw_hive/parameter/hive_inf_source_class'
          | """.stripMargin)
 
     println("=======Create hive_inf_source_class successfully ! =======")
@@ -704,6 +714,7 @@ object Create_Hive_Tables {
          |)
          |row format delimited fields terminated by '!|'
          |stored as parquet
+         |location '/user/ch_datas/upw_hive/participant/ins/hive_ins_inf'
          | """.stripMargin)
 
     println("=======Create hive_ins_inf successfully ! =======")
@@ -729,6 +740,7 @@ object Create_Hive_Tables {
          |)
          |row format delimited fields terminated by '!|'
          |stored as parquet
+         |location '/user/ch_datas/upw_hive/parameter/hive_mchnt_para'
          | """.stripMargin)
 
     println("=======Create hive_mchnt_para successfully ! =======")
@@ -776,6 +788,7 @@ object Create_Hive_Tables {
          |partitioned by (part_trans_dt string)
          |row format delimited fields terminated by '!|'
          |stored as parquet
+         |location '/user/ch_datas/upw_hive/incident/trans/hive_passive_code_pay_trans'
          | """.stripMargin)
 
     println("=======Create hive_passive_code_pay_trans successfully ! =======")
@@ -875,6 +888,7 @@ object Create_Hive_Tables {
          |)
          |row format delimited fields terminated by '!|'
          |stored as parquet
+         |location '/user/ch_datas/upw_hive/participant/user/hive_passive_code_pay_trans'
          | """.stripMargin)
 
     println("=======Create hive_pri_acct_inf successfully ! =======")
@@ -887,11 +901,12 @@ object Create_Hive_Tables {
     sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_province_card(
-         |id                      string    ,
+         |id                      string ,
          |name                    string
          |)
          |row format delimited fields terminated by '!|'
          |stored as parquet
+         |location '/user/ch_datas/upw_hive/parameter/hive_province_card'
          | """.stripMargin)
 
     println("=======Create hive_province_card successfully ! =======")
@@ -981,6 +996,7 @@ object Create_Hive_Tables {
          |partitioned by(part_trans_dt string)
          |row format delimited fields terminated by '!|'
          |stored as parquet
+         |location '/user/ch_datas/upw_hive/incident/trans/hive_switch_point_trans'
          | """.stripMargin)
 
     println("=======Create hive_switch_point_trans successfully ! =======")
@@ -1021,6 +1037,7 @@ object Create_Hive_Tables {
          |)
          |row format delimited fields terminated by '!|'
          |stored as parquet
+         |location '/user/ch_datas/upw_hive/participant/user/hive_ucbiz_cdhd_bas_inf'
          | """.stripMargin)
 
     println("=======Create hive_ucbiz_cdhd_bas_inf successfully ! =======")
@@ -1091,6 +1108,7 @@ object Create_Hive_Tables {
          |)
          |row format delimited fields terminated by '!|'
          |stored as parquet
+         |location '/user/ch_datas/upw_hive/participant/ins/hive_access_bas_inf'
          | """.stripMargin)
 
     println("=======Create hive_access_bas_inf successfully ! =======")
@@ -1286,6 +1304,7 @@ object Create_Hive_Tables {
          |partitioned by (part_settle_dt string)
          |row format delimited fields terminated by '!|'
          |stored as parquet
+         |location '/user/ch_datas/upw_hive/incident/trans/hive_active_code_pay_trans'
          | """.stripMargin)
 
     println("=======Create hive_active_code_pay_trans successfully ! =======")
@@ -1304,6 +1323,7 @@ object Create_Hive_Tables {
          |)
          |row format delimited fields terminated by '!|'
          |stored as parquet
+         |location '/user/ch_datas/upw_hive/participant/ins/hive_branch_acpt_ins_inf'
          | """.stripMargin)
 
     println("=======Create hive_branch_acpt_ins_inf successfully ! =======")
@@ -1339,6 +1359,7 @@ object Create_Hive_Tables {
          |)
          |row format delimited fields terminated by '!|'
          |stored as parquet
+         |location '/user/ch_datas/upw_hive/participant/other/hive_brand_inf'
          | """.stripMargin)
 
     println("=======Create hive_brand_inf successfully ! =======")
@@ -1384,18 +1405,19 @@ object Create_Hive_Tables {
          |)
          |row format delimited fields terminated by '!|'
          |stored as parquet
+         |location '/user/ch_datas/upw_hive/product/card/hive_card_bin'
          | """.stripMargin)
 
     println("=======Create hive_card_bin successfully ! =======")
 
   }
 
-  def hive_cashier_maktg_reward_dtl (implicit sqlContext: HiveContext) = {
-    println("=======Create hive_cashier_maktg_reward_dtl=======")
+  def hive_cdhd_cashier_maktg_reward_dtl (implicit sqlContext: HiveContext) = {
+    println("=======Create hive_cdhd_cashier_maktg_reward_dtl=======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
       s"""
-         create table if not exists $hive_dbname.hive_cashier_maktg_reward_dtl(
+         |create table if not exists $hive_dbname.hive_cdhd_cashier_maktg_reward_dtl(
          |seq_id                bigint,
          |trans_tfr_tm          string,
          |sys_tra_no            string,
@@ -1452,9 +1474,10 @@ object Create_Hive_Tables {
          |)
          |row format delimited fields terminated by '!|'
          |stored as parquet
+         |location '/user/ch_datas/upw_hive/parameter/hive_cdhd_cashier_maktg_reward_dtl'
          | """.stripMargin)
 
-    println("=======Create hive_cashier_maktg_reward_dtl successfully ! =======")
+    println("=======Create hive_cdhd_cashier_maktg_reward_dtl successfully ! =======")
 
   }
 
@@ -1474,6 +1497,7 @@ object Create_Hive_Tables {
          |)
          |row format delimited fields terminated by '!|'
          |stored as parquet
+         |location '/user/ch_datas/upw_hive/incident/other/hive_cashier_point_acct_oper_dtl'
          | """.stripMargin)
 
     println("=======Create hive_cashier_point_acct_oper_dtl successfully ! =======")
@@ -1514,6 +1538,7 @@ object Create_Hive_Tables {
          |)
          |row format delimited fields terminated by '!|'
          |stored as parquet
+         |location '/user/ch_datas/upw_hive/agreement/hive_chara_grp_def_bat'
          | """.stripMargin)
 
     println("=======Create hive_chara_grp_def_bat successfully ! =======")
@@ -1726,6 +1751,7 @@ object Create_Hive_Tables {
          |)
          |row format delimited fields terminated by '!|'
          |stored as parquet
+         |location '/user/ch_datas/upw_hive/incident/ods/hive_cups_trans'
          | """.stripMargin)
 
     println("=======Create hive_cups_trans successfully ! =======")
@@ -1758,6 +1784,7 @@ object Create_Hive_Tables {
          |)
          |row format delimited fields terminated by '!|'
          |stored as parquet
+         |location '/user/ch_datas/upw_hive/incident/prize/hive_filter_app_det'
          | """.stripMargin)
 
     println("=======Create hive_filter_app_det successfully ! =======")
@@ -1789,6 +1816,7 @@ object Create_Hive_Tables {
          |)
          |row format delimited fields terminated by '!|'
          |stored as parquet
+         |location '/user/ch_datas/upw_hive/agreement/hive_filter_rule_det'
          | """.stripMargin)
 
     println("=======Create hive_filter_rule_det successfully ! =======")
@@ -1806,6 +1834,7 @@ object Create_Hive_Tables {
          |)
          |row format delimited fields terminated by '!|'
          |stored as parquet
+         |location '/user/ch_datas/upw_hive/parameter/hive_inf_source_dtl'
          | """.stripMargin)
 
     println("=======Create hive_inf_source_dtl successfully ! =======")
@@ -2002,6 +2031,7 @@ object Create_Hive_Tables {
          |partitioned by (part_settle_dt string)
          |row format delimited fields terminated by '!|'
          |stored as parquet
+         |location '/user/ch_datas/upw_hive/incident/trans/hive_life_trans'
          | """.stripMargin)
 
     println("=======Create hive_life_trans successfully ! =======")
@@ -2049,6 +2079,7 @@ object Create_Hive_Tables {
          |)
          |row format delimited fields terminated by '!|'
          |stored as parquet
+         |location '/user/ch_datas/upw_hive/participant/mchnt/hive_mchnt_inf_wallet'
          | """.stripMargin)
 
     println("=======Create hive_mchnt_inf_wallet successfully ! =======")
@@ -2076,6 +2107,7 @@ object Create_Hive_Tables {
          |)
          |row format delimited fields terminated by '!|'
          |stored as parquet
+         |location '/user/ch_datas/upw_hive/parameter/hive_mchnt_tp_grp'
          | """.stripMargin)
 
     println("=======Create hive_mchnt_tp_grp successfully ! =======")
@@ -2115,6 +2147,7 @@ object Create_Hive_Tables {
          |)
          |row format delimited fields terminated by '!|'
          |stored as parquet
+         |location '/user/ch_datas/upw_hive/incident/td/hive_org_tdapp_activitynew'
          | """.stripMargin)
 
     println("=======Create hive_org_tdapp_activitynew successfully ! =======")
@@ -2155,6 +2188,7 @@ object Create_Hive_Tables {
          |)
          |row format delimited fields terminated by '!|'
          |stored as parquet
+         |location '/user/ch_datas/upw_hive/incident/td/hive_org_tdapp_device'
          | """.stripMargin)
 
     println("=======Create hive_org_tdapp_device successfully ! =======")
@@ -2195,6 +2229,7 @@ object Create_Hive_Tables {
          |)
          |row format delimited fields terminated by '!|'
          |stored as parquet
+         |location '/user/ch_datas/upw_hive/incident/td/hive_org_tdapp_devicenew'
          | """.stripMargin)
 
     println("=======Create hive_org_tdapp_devicenew successfully ! =======")
@@ -2234,6 +2269,7 @@ object Create_Hive_Tables {
          |)
          |row format delimited fields terminated by '!|'
          |stored as parquet
+         |location '/user/ch_datas/upw_hive/incident/td/hive_org_tdapp_eventnew'
          | """.stripMargin)
 
     println("=======Create hive_org_tdapp_eventnew successfully ! =======")
@@ -2274,6 +2310,7 @@ object Create_Hive_Tables {
          |)
          |row format delimited fields terminated by '!|'
          |stored as parquet
+         |location '/user/ch_datas/upw_hive/incident/td/hive_org_tdapp_exception'
          | """.stripMargin)
 
     println("=======Create hive_org_tdapp_exception successfully ! =======")
@@ -2314,6 +2351,7 @@ object Create_Hive_Tables {
          |)
          |row format delimited fields terminated by '!|'
          |stored as parquet
+         |location '/user/ch_datas/upw_hive/incident/td/hive_org_tdapp_exceptionnew'
          | """.stripMargin)
 
     println("=======Create hive_org_tdapp_exceptionnew successfully ! =======")
@@ -2350,6 +2388,7 @@ object Create_Hive_Tables {
          |)
          |row format delimited fields terminated by '!|'
          |stored as parquet
+         |location '/user/ch_datas/upw_hive/incident/td/hive_org_tdapp_keyvalue'
          | """.stripMargin)
 
     println("=======Create hive_org_tdapp_keyvalue successfully ! =======")
@@ -2389,6 +2428,7 @@ object Create_Hive_Tables {
          |)
          |row format delimited fields terminated by '!|'
          |stored as parquet
+         |location '/user/ch_datas/upw_hive/incident/td/hive_org_tdapp_newuser'
          | """.stripMargin)
 
     println("=======Create hive_org_tdapp_newuser successfully ! =======")
@@ -2423,6 +2463,7 @@ object Create_Hive_Tables {
          |)
          |row format delimited fields terminated by '!|'
          |stored as parquet
+         |location '/user/ch_datas/upw_hive/incident/td/hive_org_tdapp_tactivity'
          | """.stripMargin)
 
     println("=======Create hive_org_tdapp_tactivity successfully ! =======")
@@ -2456,6 +2497,7 @@ object Create_Hive_Tables {
          |)
          |row format delimited fields terminated by '!|'
          |stored as parquet
+         |location '/user/ch_datas/upw_hive/incident/td/hive_org_tdapp_tappevent'
          | """.stripMargin)
 
     println("=======Create hive_org_tdapp_tappevent successfully ! =======")
@@ -2489,6 +2531,7 @@ object Create_Hive_Tables {
          |)
          |row format delimited fields terminated by '!|'
          |stored as parquet
+         |location '/user/ch_datas/upw_hive/incident/td/hive_org_tdapp_terminate'
          | """.stripMargin)
 
     println("=======Create hive_org_tdapp_terminate successfully ! =======")
@@ -2532,6 +2575,7 @@ object Create_Hive_Tables {
          |)
          |row format delimited fields terminated by '!|'
          |stored as parquet
+         |location '/user/ch_datas/upw_hive/incident/td/hive_org_tdapp_tlaunch'
          | """.stripMargin)
 
     println("=======Create hive_org_tdapp_tlaunch successfully ! =======")
@@ -2571,6 +2615,7 @@ object Create_Hive_Tables {
          |)
          |row format delimited fields terminated by '!|'
          |stored as parquet
+         |location '/user/ch_datas/upw_hive/incident/td/hive_org_tdapp_tlaunchnew'
          | """.stripMargin)
 
     println("=======Create hive_org_tdapp_tlaunchnew successfully ! =======")
@@ -2634,6 +2679,7 @@ object Create_Hive_Tables {
          |)
          |row format delimited fields terminated by '!|'
          |stored as parquet
+         |location '/user/ch_datas/upw_hive/participant/mchnt/hive_preferential_mchnt_inf'
          | """.stripMargin)
 
     println("=======Create hive_preferential_mchnt_inf successfully ! =======")
@@ -2670,6 +2716,7 @@ object Create_Hive_Tables {
          |)
          |row format delimited fields terminated by '!|'
          |stored as parquet
+         |location '/user/ch_datas/upw_hive/incident/prize/hive_prize_bas'
          | """.stripMargin)
 
     println("=======Create hive_prize_bas successfully ! =======")
@@ -2690,6 +2737,7 @@ object Create_Hive_Tables {
          |)
          |row format delimited fields terminated by '!|'
          |stored as parquet
+         |location '/user/ch_datas/upw_hive/incident/other/hive_signer_log'
          | """.stripMargin)
 
     println("=======Create hive_signer_log successfully ! =======")
@@ -2778,6 +2826,7 @@ object Create_Hive_Tables {
          |)
          |row format delimited fields terminated by '!|'
          |stored as parquet
+         |location '/user/ch_datas/upw_hive/product/bill/hive_ticket_bill_bas_inf'
          | """.stripMargin)
 
     println("=======Create hive_ticket_bill_bas_inf successfully ! =======")
@@ -2798,13 +2847,14 @@ object Create_Hive_Tables {
          |)
          |row format delimited fields terminated by '!|'
          |stored as parquet
+         |location '/user/ch_datas/upw_hive/participant/mchnt/hive_undefine_store_inf'
          | """.stripMargin)
 
     println("=======Create hive_undefine_store_inf successfully ! =======")
 
   }
 
-  def hive_use_td_d (implicit sqlContext: HiveContext) = {
+  def hive_user_td_d (implicit sqlContext: HiveContext) = {
     println("=======Create hive_use_td_d=======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
@@ -2819,9 +2869,10 @@ object Create_Hive_Tables {
          |)
          |row format delimited fields terminated by '!|'
          |stored as parquet
+         |location '/user/ch_datas/upw_hive/relation/hive_user_td_d'
          | """.stripMargin)
 
-    println("=======Create hive_use_td_d successfully ! =======")
+    println("=======Create hive_user_td_d successfully ! =======")
 
   }
 
@@ -2874,9 +2925,10 @@ object Create_Hive_Tables {
          |partitioned by(part_trans_dt string)
          |row format delimited fields terminated by '!|'
          |stored as parquet
+         |location '/user/ch_datas/upw_hive/incident/trans/hive_bill_order_trans'
          | """.stripMargin)
 
-    println("=======Create HIVE_BILL_ORDER_TRANS successfully ! =======")
+    println("=======Create hive_bill_order_trans successfully ! =======")
 
   }
 
@@ -2911,9 +2963,10 @@ object Create_Hive_Tables {
          |partitioned by(part_trans_dt string)
          |row format delimited fields terminated by '!|'
          |stored as parquet
+         |location '/user/ch_datas/upw_hive/incident/order/hive_bill_sub_order_trans'
          | """.stripMargin)
 
-    println("=======Create HIVE_BILL_SUB_ORDER_TRANS successfully ! =======")
+    println("=======Create hive_bill_sub_order_trans successfully ! =======")
 
   }
 
@@ -2940,9 +2993,10 @@ object Create_Hive_Tables {
          |)
          |row format delimited fields terminated by '!|'
          |stored as parquet
+         |location '/user/ch_datas/upw_hive/parameter/hive_mchnt_tp'
          | """.stripMargin)
 
-    println("=======Create HIVE_MCHNT_TP successfully ! =======")
+    println("=======Create hive_mchnt_tp successfully ! =======")
 
   }
 
@@ -3024,9 +3078,10 @@ object Create_Hive_Tables {
          |partitioned by(part_trans_dt string)
          |row format delimited fields terminated by '!|'
          |stored as parquet
+         |location '/user/ch_datas/upw_hive/incident/trans/hive_offline_point_trans'
          | """.stripMargin)
 
-    println("=======Create HIVE_OFFLINE_POINT_TRANS successfully ! =======")
+    println("=======Create hive_offline_point_trans successfully ! =======")
 
   }
 
@@ -3074,9 +3129,10 @@ object Create_Hive_Tables {
          |partitioned by(part_trans_dt string)
          |row format delimited fields terminated by '!|'
          |stored as parquet
+         |location '/user/ch_datas/upw_hive/incident/trans/hive_online_point_trans'
          | """.stripMargin)
 
-    println("=======Create HIVE_ONLINE_POINT_TRANS successfully ! =======")
+    println("=======Create hive_online_point_trans successfully ! =======")
 
   }
 
@@ -3121,9 +3177,10 @@ object Create_Hive_Tables {
          |)
          |row format delimited fields terminated by '!|'
          |stored as parquet
+         |location '/user/ch_datas/upw_hive/incident/prize/hive_prize_activity_bas_inf'
          | """.stripMargin)
 
-    println("=======Create HIVE_PRIZE_ACTIVITY_BAS_INF successfully ! =======")
+    println("=======Create hive_prize_activity_bas_inf successfully ! =======")
 
   }
 
@@ -3178,9 +3235,10 @@ object Create_Hive_Tables {
          |partitioned by(part_settle_dt string)
          |row format delimited fields terminated by '!|'
          |stored as parquet
+         |location '/user/ch_datas/upw_hive/incident/prize/hive_prize_discount_result'
          | """.stripMargin)
 
-    println("=======Create HIVE_PRIZE_DISCOUNT_RESULT successfully ! =======")
+    println("=======Create hive_prize_discount_result successfully ! =======")
 
   }
 
@@ -3206,9 +3264,10 @@ object Create_Hive_Tables {
          |)
          |row format delimited fields terminated by '!|'
          |stored as parquet
+         |location '/user/ch_datas/upw_hive/agreement/hive_prize_lvl_add_rule'
          | """.stripMargin)
 
-    println("=======Create HIVE_PRIZE_LVL_ADD_RULE successfully ! =======")
+    println("=======Create hive_prize_lvl_add_rule successfully ! =======")
 
   }
 
@@ -3219,40 +3278,41 @@ object Create_Hive_Tables {
       s"""
          |create table if not exists $hive_dbname.HIVE_PRIZE_LVL
          |(
-         |LOC_ACTIVITY_ID      int,
-         |PRIZE_TP             string,
-         |PRIZE_LVL            int,
-         |PRIZE_ID_LVL         int,
-         |ACTIVITY_PLAT        string,
-         |PRIZE_ID             int,
-         |RUN_ST               string,
-         |SYNC_ST              string,
-         |SYNC_BAT_NO          int,
-         |LVL_PRIZE_NUM        int,
-         |PRIZE_LVL_DESC       string,
-         |REPRIZE_LIMIT        string,
-         |PRIZE_PAY_TP         string,
-         |CYCLE_PRIZE_NUM      int,
-         |CYCLE_SPAN           int,
-         |CYCLE_UNIT           string,
-         |PROGRS_IN            string,
-         |SEG_PRIZE_NUM        int,
-         |MIN_PRIZE_TRANS_AT   bigint,
-         |MAX_PRIZE_TRANS_AT   bigint,
-         |PRIZE_AT             bigint,
-         |OPER_IN              string,
-         |EVENT_ID             int,
-         |REC_ID               int,
-         |REC_UPD_USR_ID       string,
-         |REC_UPD_TS           timestamp,
-         |REC_CRT_TS           timestamp,
-         |VER_NO               int
+         |loc_activity_id      int,
+         |prize_tp             string,
+         |prize_lvl            int,
+         |prize_id_lvl         int,
+         |activity_plat        string,
+         |prize_id             int,
+         |run_st               string,
+         |sync_st              string,
+         |sync_bat_no          int,
+         |lvl_prize_num        int,
+         |prize_lvl_desc       string,
+         |reprize_limit        string,
+         |prize_pay_tp         string,
+         |cycle_prize_num      int,
+         |cycle_span           int,
+         |cycle_unit           string,
+         |progrs_in            string,
+         |seg_prize_num        int,
+         |min_prize_trans_at   bigint,
+         |max_prize_trans_at   bigint,
+         |prize_at             bigint,
+         |oper_in              string,
+         |event_id             int,
+         |rec_id               int,
+         |rec_upd_usr_id       string,
+         |rec_upd_ts           timestamp,
+         |rec_crt_ts           timestamp,
+         |ver_no               int
          |)
          |row format delimited fields terminated by '!|'
          |stored as parquet
+         |location '/user/ch_datas/upw_hive/incident/prize/hive_prize_lvl'
          | """.stripMargin)
 
-    println("=======Create HIVE_PRIZE_LVL successfully ! =======")
+    println("=======Create hive_prize_lvl successfully ! =======")
 
   }
 
@@ -3261,23 +3321,24 @@ object Create_Hive_Tables {
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
       s"""
-         |create table if not exists $hive_dbname.HIVE_STORE_TERM_RELATION(
-         |REC_ID                bigint,
-         |MCHNT_CD              string,
-         |TERM_ID               string,
-         |THIRD_PARTY_INS_FK    int,
-         |REC_UPD_USR_ID        string,
-         |REC_UPD_TS            timestamp,
-         |REC_CRT_USR_ID        string,
-         |REC_CRT_TS            timestamp,
-         |THIRD_PARTY_INS_ID    string,
-         |IS_TRANS_TP           string
+         |create table if not exists $hive_dbname.hive_store_term_relation(
+         |rec_id                bigint,
+         |mchnt_cd              string,
+         |term_id               string,
+         |third_party_ins_fk    int,
+         |rec_upd_usr_id        string,
+         |rec_upd_ts            timestamp,
+         |rec_crt_usr_id        string,
+         |rec_crt_ts            timestamp,
+         |third_party_ins_id    string,
+         |is_trans_tp           string
          |)
          |row format delimited fields terminated by '!|'
          |stored as parquet
+         |location '/user/ch_datas/upw_hive/relation/hive_store_term_relation'
          | """.stripMargin)
 
-    println("=======Create HIVE_STORE_TERM_RELATION successfully ! =======")
+    println("=======Create hive_store_term_relation successfully ! =======")
 
   }
 
@@ -3305,9 +3366,10 @@ object Create_Hive_Tables {
         |)
         |row format delimited fields terminated by '!|'
         |stored as parquet
+        |location '/user/ch_datas/upw_hive/participant/other/hive_term_inf'
       """.stripMargin)
 
-    println("=======Create HIVE_TERM_INF successfully ! =======")
+    println("=======Create hive_term_inf successfully ! =======")
 
   }
 
@@ -3375,6 +3437,7 @@ object Create_Hive_Tables {
         |)
         |row format delimited fields terminated by '!|'
         |stored as parquet
+        |location '/user/ch_datas/upw_hive/incident/order/hive_ach_order_inf'
       """.stripMargin)
 
     println("=======Create hive_ach_order_inf successfully ! =======")
@@ -3428,6 +3491,7 @@ object Create_Hive_Tables {
         |)
         |row format delimited fields terminated by '!|'
         |stored as parquet
+        |location '/user/ch_datas/upw_hive/incident/order/hive_bill_order_aux_inf'
       """.stripMargin)
 
     println("=======Create hive_bill_order_aux_inf successfully ! =======")
@@ -3464,6 +3528,7 @@ object Create_Hive_Tables {
          |)
          |row format delimited fields terminated by '!|'
          |stored as parquet
+         |location '/user/ch_datas/upw_hive/incident/order/hive_bill_sub_order_detail_inf'
       """.stripMargin)
 
     println("=======Create hive_bill_sub_order_detail_inf successfully ! =======")
@@ -3511,6 +3576,7 @@ object Create_Hive_Tables {
          |)
          |row format delimited fields terminated by '!|'
          |stored as parquet
+         |location '/user/ch_datas/upw_hive/incident/other/hive_ticket_bill_acct_adj_task'
       """.stripMargin)
 
     println("=======Create hive_ticket_bill_acct_adj_task successfully ! =======")
