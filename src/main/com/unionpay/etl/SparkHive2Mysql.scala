@@ -2,8 +2,7 @@ package com.unionpay.etl
 
 import com.unionpay.conf.ConfigurationManager
 import com.unionpay.constant.Constants
-import com.unionpay.jdbc.UPSQL_JDBC
-import com.unionpay.jdbc.UPSQL_TIMEPARAMS_JDBC
+import com.unionpay.jdbc.{UPSQL_JDBC, UPSQL_TIMEPARAMS_JDBC}
 import com.unionpay.jdbc.UPSQL_JDBC.DataFrame2Mysql
 import com.unionpay.utils.DateUtils
 import org.apache.spark.sql.hive.HiveContext
@@ -14,6 +13,8 @@ import org.apache.spark.{SparkConf, SparkContext}
 object SparkHive2Mysql {
   //指定HIVE数据库名
   private lazy val hive_dbname =ConfigurationManager.getProperty(Constants.HIVE_DBNAME)
+  private lazy val start_dt ="2016-09-08"
+  private lazy val end_dt="2016-09-09"
 
   def main(args: Array[String]) {
     val conf = new SparkConf().setAppName("SparkHive2Mysql")
@@ -27,45 +28,47 @@ object SparkHive2Mysql {
     val interval=DateUtils.getIntervalDays(start_dt,end_dt).toInt
 
     println(s"####当前JOB的执行日期为：start_dt=$start_dt,end_dt=$end_dt####")
+    JOB_DM_87(sqlContext,start_dt,end_dt,interval)
 
-    val jobName = if(args.length>0) args(0) else None
-    println(s"#### 当前执行JobName为： $jobName ####")
-    jobName match {
-      /**
-        * 每日模板job
-        */
-      case "JOB_DM_1"  => JOB_DM_1(sqlContext,start_dt,end_dt,interval)    //CODE BY YX
-      case "JOB_DM_3"  => JOB_DM_3(sqlContext,start_dt,end_dt,interval)    //CODE BY YX
-      case "JOB_DM_9"  => JOB_DM_9(sqlContext,start_dt,end_dt,interval)    //CODE BY XTP
-      case "JOB_DM_55"  => JOB_DM_55(sqlContext,start_dt,end_dt)   //CODE BY TZQ
-      case "JOB_DM_61"  => JOB_DM_61(sqlContext,start_dt,end_dt,interval)   //CODE BY YX
-      case "JOB_DM_62"  => JOB_DM_62(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ
-      case "JOB_DM_63"  => JOB_DM_63(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP
-      case "JOB_DM_65"  => JOB_DM_65(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP
-      case "JOB_DM_66"  => JOB_DM_66(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ
-      case "JOB_DM_67"  => JOB_DM_67(sqlContext,start_dt,end_dt)   //CODE BY YX
-      case "JOB_DM_68"  => JOB_DM_68(sqlContext,start_dt,end_dt)   //CODE BY YX
-      case "JOB_DM_69"  => JOB_DM_69(sqlContext,start_dt,end_dt)   //CODE BY TZQ
-      case "JOB_DM_70"  => JOB_DM_70(sqlContext,start_dt,end_dt)   //CODE BY TZQ
-      case "JOB_DM_71"  => JOB_DM_71(sqlContext,start_dt,end_dt)   //CODE BY TZQ
-      case "JOB_DM_72"  => JOB_DM_72(sqlContext,start_dt,end_dt)   //CODE BY YX
-      case "JOB_DM_73"  => JOB_DM_73(sqlContext,start_dt,end_dt)   //CODE BY XTP
-      case "JOB_DM_74"  => JOB_DM_74(sqlContext,start_dt,end_dt)   //CODE BY XTP
-      case "JOB_DM_75"  => JOB_DM_75(sqlContext,start_dt,end_dt)   //CODE BY XTP
-      case "JOB_DM_76"  => JOB_DM_76(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ
-      case "JOB_DM_78"  => JOB_DM_78(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP
-      case "JOB_DM_86"  => JOB_DM_86(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP
-      case "JOB_DM_87"  => JOB_DM_87(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ
 
-      /**
-        * 指标套表job
-        */
-      case "JOB_DM_4"  => JOB_DM_4(sqlContext,start_dt,end_dt,interval)    //CODE BY XTP
-      case "JOB_DM_2"  => JOB_DM_2(sqlContext,start_dt,end_dt,interval)    //CODE BY XTP
-      case "JOB_DM_5"  => JOB_DM_5(sqlContext,start_dt,end_dt,interval)    //CODE BY TZQ
-      case "JOB_DM_6"  => JOB_DM_6(sqlContext,start_dt,end_dt,interval)    //CODE BY TZQ
-      case "JOB_DM_54" =>JOB_DM_54(sqlContext,start_dt,end_dt)   //CODE BY XTP 无数据
-    }
+//    val jobName = if(args.length>0) args(0) else None
+//    println(s"#### 当前执行JobName为： $jobName ####")
+//    jobName match {
+//      /**
+//        * 每日模板job
+//        */
+//      case "JOB_DM_1"  => JOB_DM_1(sqlContext,start_dt,end_dt,interval)    //CODE BY YX
+//      case "JOB_DM_3"  => JOB_DM_3(sqlContext,start_dt,end_dt,interval)    //CODE BY YX
+//      case "JOB_DM_9"  => JOB_DM_9(sqlContext,start_dt,end_dt,interval)    //CODE BY XTP
+//      case "JOB_DM_55"  => JOB_DM_55(sqlContext,start_dt,end_dt)   //CODE BY TZQ
+//      case "JOB_DM_61"  => JOB_DM_61(sqlContext,start_dt,end_dt,interval)   //CODE BY YX
+//      case "JOB_DM_62"  => JOB_DM_62(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ
+//      case "JOB_DM_63"  => JOB_DM_63(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP
+//      case "JOB_DM_65"  => JOB_DM_65(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP
+//      case "JOB_DM_66"  => JOB_DM_66(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ
+//      case "JOB_DM_67"  => JOB_DM_67(sqlContext,start_dt,end_dt)   //CODE BY YX
+//      case "JOB_DM_68"  => JOB_DM_68(sqlContext,start_dt,end_dt)   //CODE BY YX
+//      case "JOB_DM_69"  => JOB_DM_69(sqlContext,start_dt,end_dt)   //CODE BY TZQ
+//      case "JOB_DM_70"  => JOB_DM_70(sqlContext,start_dt,end_dt)   //CODE BY TZQ
+//      case "JOB_DM_71"  => JOB_DM_71(sqlContext,start_dt,end_dt)   //CODE BY TZQ
+//      case "JOB_DM_72"  => JOB_DM_72(sqlContext,start_dt,end_dt)   //CODE BY YX
+//      case "JOB_DM_73"  => JOB_DM_73(sqlContext,start_dt,end_dt)   //CODE BY XTP
+//      case "JOB_DM_74"  => JOB_DM_74(sqlContext,start_dt,end_dt)   //CODE BY XTP
+//      case "JOB_DM_75"  => JOB_DM_75(sqlContext,start_dt,end_dt)   //CODE BY XTP
+//      case "JOB_DM_76"  => JOB_DM_76(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ
+//      case "JOB_DM_78"  => JOB_DM_78(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP
+//      case "JOB_DM_86"  => JOB_DM_86(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP
+//      case "JOB_DM_87"  => JOB_DM_87(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ
+//
+//      /**
+//        * 指标套表job
+//        */
+//      case "JOB_DM_4"  => JOB_DM_4(sqlContext,start_dt,end_dt,interval)    //CODE BY XTP
+//      case "JOB_DM_2"  => JOB_DM_2(sqlContext,start_dt,end_dt,interval)    //CODE BY XTP
+//      case "JOB_DM_5"  => JOB_DM_5(sqlContext,start_dt,end_dt,interval)    //CODE BY TZQ
+//      case "JOB_DM_6"  => JOB_DM_6(sqlContext,start_dt,end_dt,interval)    //CODE BY TZQ
+//      case "JOB_DM_54" =>JOB_DM_54(sqlContext,start_dt,end_dt)   //CODE BY XTP 无数据
+//    }
 
     sc.stop()
 
@@ -762,40 +765,39 @@ object SparkHive2Mysql {
         val results = sqlContext.sql(
           s"""
              |SELECT
-             |a.gb_region_nm as BRANCH_AREA,
+             |(case when a.gb_region_nm is null then nvl(b.cup_branch_ins_id_nm,c.gb_region_nm) else  nvl(a.gb_region_nm,'其它') end) as BRANCH_AREA,
              |'$today_dt' as report_dt,
-             |a.tpre   as   STORE_TPRE_ADD_NUM  ,
-             |a.years  as   STORE_YEAR_ADD_NUM  ,
-             |a.total  as   STORE_TOTLE_ADD_NUM ,
-             |b.tpre   as   ACTIVE_TPRE_ADD_NUM ,
-             |b.years  as   ACTIVE_YEAR_ADD_NUM ,
-             |b.total  as   ACTIVE_TOTLE_ADD_NUM,
-             |c.tpre   as   COUPON_TPRE_ADD_NUM ,
-             |c.years  as   COUPON_YEAR_ADD_NUM ,
-             |c.total  as   COUPON_TOTLE_ADD_NUM
+             |sum(a.tpre)   as   STORE_TPRE_ADD_NUM  ,
+             |sum(a.years)  as   STORE_YEAR_ADD_NUM  ,
+             |sum(a.total)  as   STORE_TOTLE_ADD_NUM ,
+             |sum(b.tpre)   as   ACTIVE_TPRE_ADD_NUM ,
+             |sum(b.years)  as   ACTIVE_YEAR_ADD_NUM ,
+             |sum(b.total)  as   ACTIVE_TOTLE_ADD_NUM,
+             |sum(c.tpre)   as   COUPON_TPRE_ADD_NUM ,
+             |sum(c.years)  as   COUPON_YEAR_ADD_NUM ,
+             |sum(c.total)  as   COUPON_TOTLE_ADD_NUM
              |FROM
              |(
              |select
              |tempe.PROV_DIVISION_CD as gb_region_nm,
-             |count(distinct(case when to_date(tempe.rec_crt_ts)='$today_dt'  then 1 end)) as tpre,
-             |count(distinct(case when to_date(tempe.rec_crt_ts)>=trunc('$today_dt','YYYY') and to_date(tempe.rec_crt_ts)<='$today_dt' then  1 end)) as years,
-             |count(distinct(case when to_date(tempe.rec_crt_ts)<='$today_dt' then 1 end)) as total
+             |count(case when to_date(tempe.rec_crt_ts)='$today_dt'  then 1 end) as tpre,
+             |count(case when to_date(tempe.rec_crt_ts)>=trunc('$today_dt','YYYY') and to_date(tempe.rec_crt_ts)<='$today_dt' then  1 end) as years,
+             |count(case when to_date(tempe.rec_crt_ts)<='$today_dt' then 1 end) as total
              |from
              |(
-             |select distinct  PROV_DIVISION_CD,rec_crt_ts
+             |select distinct  PROV_DIVISION_CD,rec_crt_ts,mchnt_prov, mchnt_city_cd, mchnt_county_cd, mchnt_addr
              |from HIVE_PREFERENTIAL_MCHNT_INF
              |where  mchnt_st='2' and mchnt_nm not like '%验证%' and mchnt_nm not like '%测试%' and  brand_id<>68988
              |union all
-             |select PROV_DIVISION_CD, rec_crt_ts
+             |select PROV_DIVISION_CD, rec_crt_ts,mchnt_prov, mchnt_city_cd, mchnt_county_cd, mchnt_addr
              |from HIVE_PREFERENTIAL_MCHNT_INF
              |where mchnt_st='2' and mchnt_nm not like '%验证%' and mchnt_nm not like '%测试%' and brand_id=68988
              |)  tempe
              |group by  tempe.PROV_DIVISION_CD
              |) a
              |
-             |left join
-             |(
-             |select
+             |full outer join
+             |(select
              |tempb.PROV_DIVISION_CD as cup_branch_ins_id_nm,
              |sum(case when to_date(tempb.trans_dt)='$today_dt'  then tempb.cnt end) as tpre,
              |sum(case when to_date(tempb.trans_dt)>=trunc('$today_dt','YYYY') and to_date(tempb.trans_dt)<='$today_dt' then  tempb.cnt end) as years,
@@ -809,7 +811,7 @@ object SparkHive2Mysql {
              |t1.trans_dt,
              |count(*) as cnt
              |from (
-             |select mchnt.PROV_DIVISION_CD , a.trans_dt
+             |select distinct mchnt.PROV_DIVISION_CD , mchnt_prov,mchnt_city_cd, mchnt_county_cd, mchnt_addr , a.trans_dt
              |from (
              |select distinct card_accptr_cd,card_accptr_term_id,trans_dt
              |from HIVE_ACC_TRANS
@@ -831,7 +833,7 @@ object SparkHive2Mysql {
              |t2.trans_dt,
              |count(*) as cnt
              |from (
-             |select mcf.PROV_DIVISION_CD, a.trans_dt
+             |select distinct mcf.PROV_DIVISION_CD, a.card_accptr_cd,a.card_accptr_term_id, a.trans_dt
              |from (
              |select distinct card_accptr_cd,card_accptr_term_id, trans_dt
              |from HIVE_ACC_TRANS
@@ -840,7 +842,7 @@ object SparkHive2Mysql {
              |) a
              |left join HIVE_STORE_TERM_RELATION b
              |on a.card_accptr_cd=b.mchnt_cd and a.card_accptr_term_id=b.term_id
-             |inner join HIVE_PREFERENTIAL_MCHNT_INF mcf
+             |left join HIVE_PREFERENTIAL_MCHNT_INF mcf
              |on a.card_accptr_cd=mcf.MCHNT_CD
              |where b.THIRD_PARTY_INS_ID is null
              |) t2
@@ -853,7 +855,7 @@ object SparkHive2Mysql {
              |count(distinct dis.term_id) as cnt
              |from
              |(select CUP_BRANCH_INS_ID_NM,term_id,settle_dt
-             |from HIVE_PRIZE_DISCOUNT_RESULT where trans_id='S22') dis
+             |from HIVE_PRIZE_DISCOUNT_RESULT ) dis
              |left join
              |(select term_id from HIVE_STORE_TERM_RELATION ) rt
              |on dis.term_id=rt.term_id
@@ -866,7 +868,7 @@ object SparkHive2Mysql {
              |group by tempb.PROV_DIVISION_CD) b
              |on a.gb_region_nm=b.cup_branch_ins_id_nm
              |
-             |left join
+             |full  outer join
              |(
              |select
              |tempd.gb_region_nm as gb_region_nm,
@@ -877,6 +879,8 @@ object SparkHive2Mysql {
              |WHERE substr(tempd.OPEN_BUSS_BMP,1,2) in (10,11)
              |GROUP BY tempd.gb_region_nm) c
              |on a.gb_region_nm=c.gb_region_nm
+             |group by (case when a.gb_region_nm is null then nvl(b.cup_branch_ins_id_nm,c.gb_region_nm) else  nvl(a.gb_region_nm,'其它') end)
+             |
              | """.stripMargin)
         println(s"###JOB_DM_9------$today_dt results:"+results.count())
         if(!Option(results).isEmpty){
@@ -1318,10 +1322,10 @@ object SparkHive2Mysql {
              |      bill_nm not like '%test%'         and
              |      bill_id <>'Z00000000020415'       and
              |      bill_id<>'Z00000000020878'        and
-             |      cup_branch_ins_id_cd<> ''         and
+             |      length(trim(cup_branch_ins_id_cd))<>0         and
              |      dwn_total_num<>0                  and
              |      dwn_num>=0                        and
-             |      length(trim(translate(trim(bill_nm),'','-0123456789')))<>0
+             |      length(trim(translate(trim(bill_nm),'-0123456789','')))<>0
              |      ) tempa
              |      group by tempa.CUP_BRANCH_INS_ID_NM
              |	  ) tempe
@@ -2798,7 +2802,7 @@ object SparkHive2Mysql {
              |FROM
              |(
              |SELECT
-             |A.PHONE_LOCATION,
+             |NVL(A.PHONE_LOCATION,A.PHONE_LOCATION) AS PHONE_LOCATION,
              |COUNT(distinct (CASE WHEN to_date(A.rec_upd_ts) > to_date(A.rec_crt_ts) THEN A.cdhd_usr_id END)) AS STOCK_NUM,
              |COUNT(distinct (CASE WHEN to_date(A.rec_upd_ts) = to_date(A.rec_crt_ts) THEN A.cdhd_usr_id END)) AS TODAY_NUM,
              |B.TOTAL_NUM AS TOTAL_NUM
@@ -2815,7 +2819,7 @@ object SparkHive2Mysql {
              |and to_date(rec_upd_ts)<='$today_dt'
              |and (usr_st='1' or (usr_st='2' and note='BDYX_FREEZE')) and  realnm_in='01'
              |) A
-             |LEFT JOIN
+             |FULL OUTER JOIN
              |(
              |SELECT
              |tempa.PHONE_LOCATION AS PHONE_LOCATION,
@@ -2827,14 +2831,14 @@ object SparkHive2Mysql {
              |PHONE_LOCATION
              |FROM
              |HIVE_PRI_ACCT_INF
-             |where  to_date(rec_upd_ts)<'$today_dt' and
+             |where  to_date(rec_upd_ts)<='$today_dt' and
              |(usr_st='1' or (usr_st='2' and note='BDYX_FREEZE'))
              |and  realnm_in='01'
              |)tempa
              |GROUP BY tempa.PHONE_LOCATION
              |) B
              |ON A.PHONE_LOCATION=B.PHONE_LOCATION
-             |GROUP BY A.PHONE_LOCATION,B.TOTAL_NUM
+             |GROUP BY NVL(A.PHONE_LOCATION,A.PHONE_LOCATION),B.TOTAL_NUM
              |)tempb
              | """.stripMargin)
         println(s"###JOB_DM_86------$today_dt results:"+results.count())
