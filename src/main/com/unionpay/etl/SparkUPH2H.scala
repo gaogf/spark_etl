@@ -69,7 +69,7 @@ object SparkUPH2H {
     println("######JOB_HV_39######")
 
     val today_dt = end_dt
-    val df = sqlContext.read.parquet(s"$up_namenode/$up_hivedataroot/hive_achis_trans/part_settle_dt=$today_dt")
+    val df = sqlContext.read.parquet(s"$up_namenode/$up_hivedataroot/incident/ods/hive_achis_trans/part_settle_dt=$today_dt")
     println(s"###### read $up_namenode/ successful ######")
     df.registerTempTable("spark_hive_achis_trans")
 
@@ -126,7 +126,7 @@ object SparkUPH2H {
 
     println("######JOB_HV_49######")
 
-    val df = sqlContext.read.parquet(s"$up_namenode/$up_hivedataroot/hive_ucbiz_cdhd_bas_inf")
+    val df = sqlContext.read.parquet(s"$up_namenode/$up_hivedataroot/participant/user/hive_ucbiz_cdhd_bas_inf")
     println(s"###### read $up_namenode successful ######")
     df.registerTempTable("spark_ucbiz_cdhd_bas_inf")
 
@@ -201,7 +201,7 @@ object SparkUPH2H {
 
     println("######JOB_HV_52######")
     val part_dt = end_dt.substring(0,7)
-    val df = sqlContext.read.parquet(s"$up_namenode/$up_hivedataroot/hive_active_card_acq_branch_mon/part_settle_month=$part_dt")
+    val df = sqlContext.read.parquet(s"$up_namenode/$up_hivedataroot/product/card/hive_active_card_acq_branch_mon/part_settle_month=$part_dt")
     println(s"###### read $up_namenode/ successful ######")
     df.registerTempTable("spark_active_card_acq_branch_mon")
 

@@ -93,7 +93,10 @@ object SparkDB22Hive {
       case "JOB_HV_72"  => JOB_HV_72  //CODE BY TZQ
       case "JOB_HV_73"  => JOB_HV_73  //CODE BY TZQ
 
-      case _ => println("Please input JobName")
+      /**
+        * 无法匹配输入的job名称
+        */
+      case _ => println("Please input Correct JobName")
     }
 
     sc.stop()
@@ -1752,7 +1755,7 @@ object SparkDB22Hive {
   /**
     * hive-job-24 2016-09-18
     * tbl_chmgm_mchnt_para -> hive_mchnt_para
-    *
+    * hive-job-20的初始化job,仅初始化数据时运行一次。
     * @author winslow yang
     * @param sqlContext
     * @return
