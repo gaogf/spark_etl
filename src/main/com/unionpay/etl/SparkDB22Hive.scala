@@ -29,76 +29,73 @@ object SparkDB22Hive {
     implicit val sqlContext = new HiveContext(sc)
 
     //从数据库中获取当前JOB的执行起始和结束日期
-    val rowParams=UPSQL_TIMEPARAMS_JDBC.readTimeParams(sqlContext)
-    val start_dt=DateUtils.getYesterdayByJob(rowParams.getString(0))//获取开始日期：start_dt-1
-    val end_dt=rowParams.getString(1)//结束日期
-    val interval=DateUtils.getIntervalDays(start_dt,end_dt).toInt
+//    val rowParams=UPSQL_TIMEPARAMS_JDBC.readTimeParams(sqlContext)
+//    val start_dt=DateUtils.getYesterdayByJob(rowParams.getString(0))//获取开始日期：start_dt-1
+//    val end_dt=rowParams.getString(1)//结束日期
+//    val interval=DateUtils.getIntervalDays(start_dt,end_dt).toInt
 
     println(s"####当前JOB的执行日期为：start_dt=$start_dt,end_dt=$end_dt####")
+   JOB_HV_76
 
-
-    val jobName = if(args.length>0) args(0) else None
-    println(s"#### 当前执行JobName为： $jobName ####")
-    jobName match {
-      /**
-        * 每日模板job
-        */
-      case "JOB_HV_1"  => JOB_HV_1   //CODE BY YX
-      case "JOB_HV_3"  => JOB_HV_3(sqlContext,start_dt,end_dt)   //CODE BY YX
-      case "JOB_HV_4"  => JOB_HV_4(sqlContext,start_dt,end_dt)   //CODE BY XTP
-      case "JOB_HV_9"  => JOB_HV_9   //CODE BY TZQ
-      case "JOB_HV_10"  => JOB_HV_10  //CODE BY TZQ
-      case "JOB_HV_11"  => JOB_HV_11  //CODE BY TZQ
-      case "JOB_HV_12"  => JOB_HV_12  //CODE BY TZQ
-      case "JOB_HV_13"  => JOB_HV_13  //CODE BY TZQ
-      case "JOB_HV_14"  => JOB_HV_14  //CODE BY TZQ
-      case "JOB_HV_16"  => JOB_HV_16  //CODE BY TZQ
-      case "JOB_HV_18"  => JOB_HV_18(sqlContext,start_dt,end_dt)  //CODE BY YX
-      case "JOB_HV_19"  => JOB_HV_19  //CODE BY YX
-      case "JOB_HV_28"  => JOB_HV_28(sqlContext,start_dt,end_dt)  //CODE BY XTP
-      case "JOB_HV_29"  => JOB_HV_29(sqlContext,start_dt,end_dt)  //CODE BY XTP
-      case "JOB_HV_30"  => JOB_HV_30(sqlContext,start_dt,end_dt)  //CODE BY YX
-      case "JOB_HV_32"  => JOB_HV_32(sqlContext,start_dt,end_dt)  //CODE BY XTP
-      case "JOB_HV_33"  => JOB_HV_33(sqlContext,start_dt,end_dt)  //CODE BY XTP
-      case "JOB_HV_36"  => JOB_HV_36  //CODE BY YX
-      case "JOB_HV_43"  => JOB_HV_43(sqlContext,start_dt,end_dt)  //CODE BY YX
-      case "JOB_HV_44"  => JOB_HV_44  //CODE BY TZQ
-      case "JOB_HV_45"  => JOB_HV_45  //CODE BY YX
-      case "JOB_HV_46"  => JOB_HV_46  //CODE BY XTP
-      case "JOB_HV_47"  => JOB_HV_47  //CODE BY XTP
-      case "JOB_HV_48"  => JOB_HV_48  //CODE BY TZQ
-      case "JOB_HV_54"  => JOB_HV_54  //CODE BY TZQ
-      case "JOB_HV_67"  => JOB_HV_67  //CODE BY TZQ
-      case "JOB_HV_68"  => JOB_HV_68  //CODE BY TZQ
-      case "JOB_HV_69"  => JOB_HV_69  //CODE BY XTP
-      case "JOB_HV_70"  => JOB_HV_70  //CODE BY YX
-
-
-      /**
-        * 指标套表job
-        */
-      case "JOB_HV_8"  => JOB_HV_8(sqlContext,start_dt,end_dt)   //CODE BY XTP
-      case "JOB_HV_15"  => JOB_HV_15  //CODE BY TZQ  //测试出错，未解决
-      case "JOB_HV_20_INI_I" => JOB_HV_20_INI_I // CODE BY YX
-      //case "JOB_HV_20"  => JOB_HV_20  //CODE BY YX
-      case "JOB_HV_23"  => JOB_HV_23  //CODE BY TZQ
-      case "JOB_HV_24"  => JOB_HV_24  //CODE BY YX
-      case "JOB_HV_25"  => JOB_HV_25  //CODE BY XTP
-      case "JOB_HV_26"  => JOB_HV_26  //CODE BY TZQ
-      case "JOB_HV_27"  => JOB_HV_27(sqlContext,start_dt,end_dt)  //CODE BY XTP
-      case "JOB_HV_31"  => JOB_HV_31(sqlContext,start_dt,end_dt)  //CODE BY XTP
-      case "JOB_HV_34"  => JOB_HV_34  //CODE BY XTP
-      case "JOB_HV_35"  => JOB_HV_35  //CODE BY XTP
-      case "JOB_HV_37"  => JOB_HV_37  //CODE BY TZQ
-      case "JOB_HV_38"  => JOB_HV_38  //CODE BY TZQ
-      case "JOB_HV_72"  => JOB_HV_72  //CODE BY TZQ
-      case "JOB_HV_73"  => JOB_HV_73  //CODE BY TZQ
-
-      /**
-        * 无法匹配输入的job名称
-        */
-      case _ => println("Please input Correct JobName")
-    }
+//    val jobName = if(args.length>0) args(0) else None
+//    println(s"#### 当前执行JobName为： $jobName ####")
+//    jobName match {
+//      /**
+//        * 每日模板job
+//        */
+//      case "JOB_HV_1"  => JOB_HV_1   //CODE BY YX
+//      case "JOB_HV_3"  => JOB_HV_3(sqlContext,start_dt,end_dt)   //CODE BY YX
+//      case "JOB_HV_4"  => JOB_HV_4(sqlContext,start_dt,end_dt)   //CODE BY XTP
+//      case "JOB_HV_9"  => JOB_HV_9   //CODE BY TZQ
+//      case "JOB_HV_10"  => JOB_HV_10  //CODE BY TZQ
+//      case "JOB_HV_11"  => JOB_HV_11  //CODE BY TZQ
+//      case "JOB_HV_12"  => JOB_HV_12  //CODE BY TZQ
+//      case "JOB_HV_13"  => JOB_HV_13  //CODE BY TZQ
+//      case "JOB_HV_14"  => JOB_HV_14  //CODE BY TZQ
+//      case "JOB_HV_16"  => JOB_HV_16  //CODE BY TZQ
+//      case "JOB_HV_18"  => JOB_HV_18(sqlContext,start_dt,end_dt)  //CODE BY YX
+//      case "JOB_HV_19"  => JOB_HV_19  //CODE BY YX
+////      case "JOB_HV_20"  => JOB_HV_20  //CODE BY YX
+//      case "JOB_HV_28"  => JOB_HV_28(sqlContext,start_dt,end_dt)  //CODE BY XTP
+//      case "JOB_HV_29"  => JOB_HV_29(sqlContext,start_dt,end_dt)  //CODE BY XTP
+//      case "JOB_HV_30"  => JOB_HV_30(sqlContext,start_dt,end_dt)  //CODE BY YX
+//      case "JOB_HV_32"  => JOB_HV_32(sqlContext,start_dt,end_dt)  //CODE BY XTP
+//      case "JOB_HV_33"  => JOB_HV_33(sqlContext,start_dt,end_dt)  //CODE BY XTP
+//      case "JOB_HV_36"  => JOB_HV_36  //CODE BY YX
+//      case "JOB_HV_43"  => JOB_HV_43(sqlContext,start_dt,end_dt)  //CODE BY YX
+//      case "JOB_HV_44"  => JOB_HV_44  //CODE BY TZQ
+//      case "JOB_HV_45"  => JOB_HV_45  //CODE BY YX
+//      case "JOB_HV_46"  => JOB_HV_46  //CODE BY XTP
+//      case "JOB_HV_47"  => JOB_HV_47  //CODE BY XTP
+//      case "JOB_HV_48"  => JOB_HV_48  //CODE BY TZQ
+//      case "JOB_HV_54"  => JOB_HV_54  //CODE BY TZQ
+//      case "JOB_HV_67"  => JOB_HV_67  //CODE BY TZQ
+//      case "JOB_HV_68"  => JOB_HV_68  //CODE BY TZQ
+//      case "JOB_HV_69"  => JOB_HV_69  //CODE BY XTP
+//      case "JOB_HV_70"  => JOB_HV_70  //CODE BY YX
+//
+//
+//      /**
+//        * 指标套表job
+//        */
+//      case "JOB_HV_8"  => JOB_HV_8(sqlContext,start_dt,end_dt)   //CODE BY XTP
+//      case "JOB_HV_15"  => JOB_HV_15  //CODE BY TZQ  //测试出错，未解决
+//      case "JOB_HV_23"  => JOB_HV_23  //CODE BY TZQ
+//      case "JOB_HV_24"  => JOB_HV_24  //CODE BY YX
+//      case "JOB_HV_25"  => JOB_HV_25  //CODE BY XTP
+//      case "JOB_HV_26"  => JOB_HV_26  //CODE BY TZQ
+//      case "JOB_HV_27"  => JOB_HV_27(sqlContext,start_dt,end_dt)  //CODE BY XTP
+//      case "JOB_HV_31"  => JOB_HV_31(sqlContext,start_dt,end_dt)  //CODE BY XTP
+//      case "JOB_HV_34"  => JOB_HV_34  //CODE BY XTP
+//      case "JOB_HV_35"  => JOB_HV_35  //CODE BY XTP
+//      case "JOB_HV_37"  => JOB_HV_37  //CODE BY TZQ
+//      case "JOB_HV_38"  => JOB_HV_38  //CODE BY TZQ
+//      case "JOB_HV_72"  => JOB_HV_72  //CODE BY TZQ
+//      case "JOB_HV_73"  => JOB_HV_73  //CODE BY TZQ
+//      case "JOB_HV_75"  => JOB_HV_75  //CODE BY XTP
+//
+//      case _ => println("Please input JobName")
+//    }
 
     sc.stop()
   }
@@ -1699,68 +1696,6 @@ object SparkDB22Hive {
 
 
   /**
-    * hive-job-20-ini-1 2016年10月31日
-    * tbl_chmgm_term_inf -> hive_term_inf
-    *
-    * @author winslow yang
-    * @para sqlContext
-    * */
-  def JOB_HV_20_INI_I(implicit sqlContext: HiveContext) = {
-    println("####JOB_HV_20_INI_I(tbl_chmgm_term_inf -> hive_term_inf)")
-
-    val df = sqlContext.jdbc_mgmdb_DF(s"$schemas_mgmdb.TBL_CHMGM_TERM_INF")
-    df.registerTempTable("spark_tbl_chmgm_term_inf")
-
-    val results = sqlContext.sql(
-      s"""
-          |select
-          |mchnt_cd,
-          |term_id,
-          |term_tp,
-          |term_st,
-          |case
-          |when substr(open_dt,1,4) between '0001' and '9999' and
-          |     substr(open_dt,5,2) between '01' and '12' and
-          |     substr(open_dt,7,2) between '01' and substr(last_day(concat_ws('-',substr(open_dt,1,4),substr(open_dt,5,2),substr(7,2))),9,2)
-          |then concat_ws('-',substr(open_dt,1,4),substr(open_dt,5,2),substr(open_dt,7,2))
-          |else null
-          |end as open_dt,
-          |case
-          |when substr(close_dt,1,4) between '0001' and '9999' and
-          |     substr(close_dt,5,2) between '01' and '12' and
-          |     substr(close_dt,7,2) between '01' and substr(last_day(concat_ws('-',substr(close_dt,1,4),substr(close_dt,5,2),substr(close_dt,7,2))),9,2)
-          |then concat_ws('-',substr(close_dt,1,4),substr(close_dt,5,2),substr(close_dt,7,2))
-          |else null
-          |end as close_dt,
-          |bank_cd,
-          |rec_st,
-          |last_oper_in,
-          |event_id,
-          |rec_id,
-          |rec_upd_usr_id,
-          |rec_upd_ts,
-          |rec_crt_ts,
-          |'0' as is_trans_at_tp
-          |from
-          |spark_tbl_chmgm_term_inf
-    """.stripMargin)
-    println("####JOB_HV_20_INI_I------>results: " + results.count())
-
-    if(!Option(results).isEmpty){
-      results.registerTempTable("spark_hive_term_inf")
-      sqlContext.sql(s"use $hive_dbname")
-      sqlContext.sql("truncate table hive_term_inf")
-      println("#### truncate table hive_term_inf successful ####")
-      sqlContext.sql(s"insert into table hive_term_inf select * from spark_hive_term_inf")
-      println("#### insert into table hive_term_inf successful ####")
-    } else {
-      println("#### 加载的表TBL_CHMGM_TERM_INF中无数据 ####")
-    }
-
-  }
-
-
-  /**
     * hive-job-23  2016年10月9日
     * hive_brand_inf-->TBL_CHMGM_BRAND_INF
     *
@@ -1818,7 +1753,7 @@ object SparkDB22Hive {
   /**
     * hive-job-24 2016-09-18
     * tbl_chmgm_mchnt_para -> hive_mchnt_para
-    * hive-job-20的初始化job,仅初始化数据时运行一次。
+    *
     * @author winslow yang
     * @param sqlContext
     * @return
@@ -4141,6 +4076,139 @@ object SparkDB22Hive {
       sqlContext.sql("insert into table hive_bill_sub_order_detail_inf select * from spark_db2_viw_chmgm_bill_sub_order_detail_inf")
     }else{
       println("加载的视图：viw_chmgm_bill_sub_order_detail_inf 中无数据！")
+    }
+  }
+
+
+  /**
+    * JOB_HV_75/11-9
+    * hive_access_static_inf->tbl_chmgm_access_static_inf
+    * Code by Xue
+    *
+    * @param sqlContext
+    */
+  def JOB_HV_75 (implicit sqlContext: HiveContext) = {
+    val df2_1 = sqlContext.jdbc_mgmdb_DF(s"$schemas_mgmdb.tbl_chmgm_access_static_inf ")
+    df2_1.registerTempTable("tbl_chmgm_access_static_inf")
+
+    val results = sqlContext.sql(
+      s"""
+         |select
+         |trim(ta.access_ins_id_cd) as access_ins_id_cd      ,
+         |trim(ta.access_ins_abbr_cd) as access_ins_abbr_cd  ,
+         |ta.access_ins_nm as access_ins_nm                  ,
+         |trim(ta.access_sys_cd) as access_sys_cd            ,
+         |trim(ta.access_ins_tp) as access_ins_tp            ,
+         |trim(ta.access_bitmap) as access_bitmap            ,
+         |trim(ta.trans_rcv_priv_bmp) as trans_rcv_priv_bmp  ,
+         |trim(ta.trans_snd_priv_bmp) as trans_snd_priv_bmp  ,
+         |trim(ta.enc_key_index) as enc_key_index            ,
+         |trim(ta.mac_algo) as mac_algo                      ,
+         |trim(ta.mak_len) as mak_len                        ,
+         |trim(ta.pin_algo) as pin_algo                      ,
+         |trim(ta.pik_len) as pik_len                        ,
+         |trim(ta.enc_rsa_key_seq) as enc_rsa_key_seq        ,
+         |trim(ta.rsa_enc_key_len) as rsa_enc_key_len        ,
+         |ta.resv_fld as resv_fld                            ,
+         |ta.mchnt_lvl as mchnt_lvl                          ,
+         |trim(ta.valid_in) as valid_in                      ,
+         |ta.event_id as event_id                            ,
+         |trim(ta.oper_in) as oper_in                        ,
+         |ta.rec_id as rec_id                                ,
+         |trim(ta.rec_upd_usr_id) as rec_upd_usr_id          ,
+         |ta.rec_crt_ts as rec_crt_ts                        ,
+         |ta.rec_upd_ts as rec_upd_ts
+         |
+         |from tbl_chmgm_access_static_inf ta
+         |
+         | """.stripMargin)
+
+
+    println("JOB_HV_75------>results:"+results.count())
+    if(!Option(results).isEmpty){
+      results.registerTempTable("spark_hive_access_static_inf")
+      sqlContext.sql(s"use $hive_dbname")
+      sqlContext.sql("truncate table  hive_access_static_inf")
+      sqlContext.sql("insert into table hive_access_static_inf select * from spark_hive_access_static_inf")
+    }else{
+      println("加载的表spark_hive_access_static_inf中无数据！")
+    }
+  }
+
+
+  /**
+    * JOB_HV_76/11-9
+    * hive_region_cd->tbl_chmgm_region_cd
+    * Code by Xue
+    *
+    * @param sqlContext
+    */
+  def JOB_HV_76 (implicit sqlContext: HiveContext) = {
+    val df2_1 = sqlContext.jdbc_mgmdb_DF(s"$schemas_mgmdb.tbl_chmgm_region_cd ")
+    df2_1.registerTempTable("tbl_chmgm_region_cd")
+
+    val results = sqlContext.sql(
+      s"""
+         select
+         |trim(ta.region_cd) as region_cd                          ,
+         |ta.region_cn_nm as region_cn_nm                          ,
+         |trim(ta.region_en_nm) as region_en_nm                    ,
+         |trim(ta.prov_region_cd) as prov_region_cd                ,
+         |trim(ta.city_region_cd) as city_region_cd                ,
+         |trim(ta.cntry_region_cd) as cntry_region_cd              ,
+         |trim(ta.region_lvl) as region_lvl                        ,
+         |trim(ta.oper_in) as oper_in                              ,
+         |ta.event_id as event_id                                  ,
+         |ta.rec_id as rec_id                                      ,
+         |trim(ta.rec_upd_usr_id) as rec_upd_usr_id                ,
+         |ta.rec_upd_ts as rec_upd_ts                              ,
+         |ta.rec_crt_ts as rec_crt_ts                              ,
+         |case when ta.prov_region_cd like '10%' then '北京'
+         |	 when ta.prov_region_cd like '11%' then '天津'
+         |	 when ta.prov_region_cd like '12%' then '河北'
+         |	 when ta.prov_region_cd like '16%' then '山西'
+         |	 when ta.prov_region_cd like '19%' then '内蒙古'
+         |	 when ta.prov_region_cd like '22%' then '辽宁'
+         |	 when ta.prov_region_cd like '24%' then '吉林'
+         |	 when ta.prov_region_cd like '26%' then '黑龙江'
+         |	 when ta.prov_region_cd like '29%' then '上海'
+         |	 when ta.prov_region_cd like '30%' then '江苏'
+         |	 when ta.prov_region_cd like '33%' then '浙江'
+         |	 when ta.prov_region_cd like '36%' then '安徽'
+         |	 when ta.prov_region_cd like '39%' then '福建'
+         |	 when ta.prov_region_cd like '42%' then '江西'
+         |	 when ta.prov_region_cd like '45%' then '山东'
+         |	 when ta.prov_region_cd like '49%' then '河南'
+         |	 when ta.prov_region_cd like '52%' then '湖北'
+         |	 when ta.prov_region_cd like '55%' then '湖南'
+         |	 when ta.prov_region_cd like '58%' then '广东'
+         |	 when ta.prov_region_cd like '61%' then '广西'
+         |	 when ta.prov_region_cd like '64%' then '海南'
+         |	 when ta.prov_region_cd like '65%' then '四川'
+         |	 when ta.prov_region_cd like '69%' then '重庆'
+         |	 when ta.prov_region_cd like '70%' then '贵州'
+         |	 when ta.prov_region_cd like '73%' then '云南'
+         |	 when ta.prov_region_cd like '77%' then '西藏'
+         |	 when ta.prov_region_cd like '79%' then '陕西'
+         |	 when ta.prov_region_cd like '82%' then '甘肃'
+         |	 when ta.prov_region_cd like '85%' then '青海'
+         |	 when ta.prov_region_cd like '87%' then '宁夏'
+         |	 when ta.prov_region_cd like '88%' then '新疆'
+         |end as cup_branch_ins_id_nm
+         |
+         |from tbl_chmgm_region_cd ta
+         |
+         | """.stripMargin)
+
+
+    println("JOB_HV_76------>results:"+results.count())
+    if(!Option(results).isEmpty){
+      results.registerTempTable("spark_hive_region_cd")
+      sqlContext.sql(s"use $hive_dbname")
+      sqlContext.sql("truncate table  hive_region_cd")
+      sqlContext.sql("insert into table hive_region_cd select * from spark_hive_region_cd")
+    }else{
+      println("加载的表spark_hive_region_cd中无数据！")
     }
   }
 

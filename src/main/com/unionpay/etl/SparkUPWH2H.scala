@@ -4,8 +4,8 @@ import com.unionpay.conf.ConfigurationManager
 import com.unionpay.constant.Constants
 import com.unionpay.jdbc.UPSQL_TIMEPARAMS_JDBC
 import com.unionpay.utils.DateUtils
-import org.apache.spark.{SparkConf, SparkContext}
 import org.apache.spark.sql.hive.HiveContext
+import org.apache.spark.{SparkConf, SparkContext}
 
 /**
   * 作业：抽取钱包Hive数据到钱包Hive数据仓库
@@ -13,6 +13,7 @@ import org.apache.spark.sql.hive.HiveContext
 object SparkUPWH2H {
   //指定HIVE数据库名
   private lazy val hive_dbname =ConfigurationManager.getProperty(Constants.HIVE_DBNAME)
+
 
   def main(args: Array[String]): Unit = {
     val conf = new SparkConf().setAppName("SparkUPWH2H")

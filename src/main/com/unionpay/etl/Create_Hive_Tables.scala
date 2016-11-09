@@ -94,6 +94,7 @@ object Create_Hive_Tables {
 //    hive_buss_dist
 //    hive_cdhd_bill_acct_inf
 
+
     println("=======Create all tables on the hive successfully=======")
 
     sc.stop()
