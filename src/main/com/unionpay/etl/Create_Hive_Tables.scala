@@ -3796,7 +3796,7 @@ object Create_Hive_Tables {
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
       s"""
-         create table if not exists upw_hive.hive_cashier_bas_inf(
+         create table if not exists $hive_dbname.hive_cashier_bas_inf(
          |cashier_usr_id	string            ,
          |reg_dt	timestamp                 ,
          |usr_nm	string                    ,
