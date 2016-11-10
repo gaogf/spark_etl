@@ -24,75 +24,75 @@ object Create_Hive_Tables {
 
 //    仅初始化使用，默认关闭
 
-//    hive_ct        //参数表
-//    hive_life      //参数表
-//    hive_city_card //参数表
-//    hive_acc_trans
-//    hive_achis_trans
-//    hive_active_card_acq_branch_mon
-//    hive_card_bind_inf
-//    hive_discount_bas_inf
-//    hive_download_trans
-//    hive_inf_source_class
-//    hive_ins_inf
-//    hive_mchnt_para
-//    hive_passive_code_pay_trans
-//    hive_pri_acct_inf
-//    hive_province_card  //参数表
-//    hive_switch_point_trans
-//    hive_ucbiz_cdhd_bas_inf
-//    hive_access_bas_inf
-//    hive_active_code_pay_trans
-//    hive_branch_acpt_ins_inf
-//    hive_brand_inf
-//    hive_card_bin
-//    hive_cdhd_cashier_maktg_reward_dtl
-//    hive_cashier_point_acct_oper_dtl
-//    hive_chara_grp_def_bat
-//    hive_cups_trans
-//    hive_filter_app_det
-//    hive_filter_rule_det
-//    hive_inf_source_dtl
-//    hive_life_trans
-//    hive_mchnt_inf_wallet
-//    hive_mchnt_tp_grp
-//    hive_org_tdapp_activitynew
-//    hive_org_tdapp_device
-//    hive_org_tdapp_devicenew
-//    hive_org_tdapp_eventnew
-//    hive_org_tdapp_exception
-//    hive_org_tdapp_exceptionnew
-//    hive_org_tdapp_keyvalue
-//    hive_org_tdapp_newuser
-//    hive_org_tdapp_tactivity
-//    hive_org_tdapp_tappevent
-//    hive_org_tdapp_terminate
-//    hive_org_tdapp_tlaunch
-//    hive_org_tdapp_tlaunchnew
-//    hive_preferential_mchnt_inf
-//    hive_prize_bas
-//    hive_signer_log
-//    hive_ticket_bill_bas_inf
-//    hive_undefine_store_inf
-//    hive_user_td_d
-//    hive_bill_order_trans
-//    hive_bill_sub_order_trans
-//    hive_mchnt_tp
-//    hive_offline_point_trans
-//    hive_online_point_trans
-//    hive_prize_activity_bas_inf
-//    hive_prize_discount_result
-//    hive_prize_lvl_add_rule
-//    hive_prize_lvl
-//    hive_store_term_relation
-//    hive_term_inf
-//    hive_ach_order_inf
-//    hive_bill_order_aux_inf
-//    hive_bill_sub_order_detail_inf
-//    hive_ticket_bill_acct_adj_task
-//    hive_search_trans
-//    hive_buss_dist
-//    hive_cdhd_bill_acct_inf
+    hive_ct        //参数表
+    hive_life      //参数表
+    hive_city_card //参数表
+    hive_acc_trans
+    hive_achis_trans
+    hive_active_card_acq_branch_mon
+    hive_card_bind_inf
+    hive_discount_bas_inf
+    hive_download_trans
+    hive_inf_source_class
+    hive_ins_inf
+    hive_mchnt_para
+    hive_passive_code_pay_trans
+    hive_pri_acct_inf
+    hive_province_card  //参数表
+    hive_switch_point_trans
+    hive_ucbiz_cdhd_bas_inf
+    hive_access_bas_inf
+    hive_active_code_pay_trans
+    hive_branch_acpt_ins_inf
+    hive_brand_inf
+    hive_card_bin
+    hive_cdhd_cashier_maktg_reward_dtl
+    hive_cashier_point_acct_oper_dtl
+    hive_chara_grp_def_bat
+    hive_cups_trans
+    hive_filter_app_det
+    hive_filter_rule_det
+    hive_inf_source_dtl
+    hive_life_trans
+    hive_mchnt_inf_wallet
+    hive_mchnt_tp_grp
+    hive_org_tdapp_activitynew
+    hive_org_tdapp_device
+    hive_org_tdapp_devicenew
+    hive_org_tdapp_eventnew
+    hive_org_tdapp_exception
+    hive_org_tdapp_exceptionnew
+    hive_org_tdapp_keyvalue
+    hive_org_tdapp_newuser
+    hive_org_tdapp_tactivity
+    hive_org_tdapp_tappevent
+    hive_org_tdapp_terminate
+    hive_org_tdapp_tlaunch
+    hive_org_tdapp_tlaunchnew
+    hive_preferential_mchnt_inf
+    hive_prize_bas
+    hive_signer_log
+    hive_ticket_bill_bas_inf
+    hive_undefine_store_inf
+    hive_user_td_d
+    hive_bill_order_trans
+    hive_bill_sub_order_trans
+    hive_mchnt_tp
+    hive_offline_point_trans
+    hive_online_point_trans
+    hive_prize_activity_bas_inf
+    hive_prize_discount_result
+    hive_prize_lvl_add_rule
+    hive_prize_lvl
+    hive_store_term_relation
+    hive_term_inf
+    hive_ach_order_inf
+    hive_bill_order_aux_inf
+    hive_bill_sub_order_detail_inf
+    hive_ticket_bill_acct_adj_task
+    hive_search_trans
+    hive_buss_dist
+    hive_cdhd_bill_acct_inf
 
 
     println("=======Create all tables on the hive successfully=======")
@@ -514,7 +514,7 @@ object Create_Hive_Tables {
          |name                    string
          |)
          |row format delimited fields terminated by '!|'
-         |stored as parquet
+         |stored as textfile
          |location '/user/ch_datas/upw_hive/parameter/hive_city_card'
          | """.stripMargin)
 
@@ -528,11 +528,11 @@ object Create_Hive_Tables {
     sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_ct(
-         |id                      string    ,
+         |id                      string ,
          |name                    string
          |)
          |row format delimited fields terminated by '!|'
-         |stored as parquet
+         |stored as textfile
          |location '/user/ch_datas/upw_hive/parameter/hive_ct'
          | """.stripMargin)
 
@@ -551,7 +551,7 @@ object Create_Hive_Tables {
          |BUSS_TP_NM                   string
          |)
          |row format delimited fields terminated by '!|'
-         |stored as parquet
+         |stored as textfile
          |location '/user/ch_datas/upw_hive/parameter/hive_life'
          | """.stripMargin)
 
@@ -908,7 +908,7 @@ object Create_Hive_Tables {
          |name                    string
          |)
          |row format delimited fields terminated by '!|'
-         |stored as parquet
+         |stored as textfile
          |location '/user/ch_datas/upw_hive/parameter/hive_province_card'
          | """.stripMargin)
 
@@ -3703,7 +3703,6 @@ object Create_Hive_Tables {
          |row format delimited fields terminated by '!|'
          |stored as parquet
          |location '/user/ch_datas/upw_hive/incident/trans/hive_search_trans'
-         |;
       """.stripMargin)
 
     println("=======Create hive_search_trans successfully ! =======")
@@ -3751,7 +3750,6 @@ object Create_Hive_Tables {
          |row format delimited fields terminated by '!|'
          |stored as parquet
          |location '/user/ch_datas/upw_hive/region/hive_buss_dist'
-         |;
       """.stripMargin)
 
     println("=======Create hive_buss_dist successfully ! =======")
@@ -3786,7 +3784,6 @@ object Create_Hive_Tables {
          |row format delimited fields terminated by '!|'
          |stored as parquet
          |location '/user/ch_datas/upw_hive/product/bill/hive_cdhd_bill_acct_inf'
-         |;
       """.stripMargin)
 
     println("=======Create hive_cdhd_bill_acct_inf successfully ! =======")
