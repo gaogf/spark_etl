@@ -513,7 +513,7 @@ object Create_Hive_Tables {
          |name                    string
          |)
          |row format delimited fields terminated by '!|'
-         |stored as parquet
+         |stored as textfile
          |location '/user/ch_datas/upw_hive/parameter/hive_city_card'
          | """.stripMargin)
 
@@ -527,11 +527,11 @@ object Create_Hive_Tables {
     sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_ct(
-         |id                      string    ,
+         |id                      string ,
          |name                    string
          |)
          |row format delimited fields terminated by '!|'
-         |stored as parquet
+         |stored as textfile
          |location '/user/ch_datas/upw_hive/parameter/hive_ct'
          | """.stripMargin)
 
@@ -550,7 +550,7 @@ object Create_Hive_Tables {
          |BUSS_TP_NM                   string
          |)
          |row format delimited fields terminated by '!|'
-         |stored as parquet
+         |stored as textfile
          |location '/user/ch_datas/upw_hive/parameter/hive_life'
          | """.stripMargin)
 
@@ -907,7 +907,7 @@ object Create_Hive_Tables {
          |name                    string
          |)
          |row format delimited fields terminated by '!|'
-         |stored as parquet
+         |stored as textfile
          |location '/user/ch_datas/upw_hive/parameter/hive_province_card'
          | """.stripMargin)
 
