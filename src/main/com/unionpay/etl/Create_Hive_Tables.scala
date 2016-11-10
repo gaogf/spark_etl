@@ -3790,4 +3790,61 @@ object Create_Hive_Tables {
 
   }
 
+
+  def hive_cashier_bas_inf (implicit sqlContext: HiveContext) = {
+    println("=======Create Table hive_cashier_bas_inf for JOB_HV_54 by XTP =======")
+    sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql(
+      s"""
+         create table if not exists upw_hive.hive_cashier_bas_inf(
+         |cashier_usr_id	string            ,
+         |reg_dt	timestamp                 ,
+         |usr_nm	string                    ,
+         |real_nm	string                    ,
+         |real_nm_st	string                ,
+         |certif_id	string                ,
+         |certif_vfy_st	string            ,
+         |bind_card_no	string            ,
+         |card_auth_st	string            ,
+         |bind_card_ts	timestamp         ,
+         |mobile	string                    ,
+         |mobile_vfy_st	string            ,
+         |email_addr	string                ,
+         |email_vfy_st	string            ,
+         |mchnt_cd	string                ,
+         |mchnt_nm	string                ,
+         |gb_region_cd	string            ,
+         |comm_addr	string                ,
+         |zip_cd	string                    ,
+         |industry_id	string                ,
+         |hobby	string                    ,
+         |cashier_lvl	string                ,
+         |login_greeting	string            ,
+         |pwd_cue_ques	string            ,
+         |pwd_cue_answ	string            ,
+         |usr_st	string                    ,
+         |inf_source	string                ,
+         |cup_branch_ins_id_nm	string    ,
+         |rec_crt_ts	timestamp             ,
+         |rec_upd_ts	timestamp             ,
+         |mobile_new	string                ,
+         |email_addr_new	string            ,
+         |activate_ts	timestamp             ,
+         |activate_pwd	string            ,
+         |region_cd	string                ,
+         |last_sign_in_ts	timestamp         ,
+         |ver_no	int                       ,
+         |birth_dt	string                ,
+         |sex	string                        ,
+         |master_in	string
+         |)
+         |row format delimited fields terminated by '!|'
+         |stored as parquet
+         |location '/user/ch_datas/upw_hive/participant/ins/hive_cashier_bas_inf'
+      """.stripMargin)
+
+    println("=======Create hive_cashier_bas_inf successfully ! =======")
+
+  }
+
 }
