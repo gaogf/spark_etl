@@ -92,6 +92,7 @@ object SparkDB22Hive {
       case "JOB_HV_72"  => JOB_HV_72  //CODE BY TZQ
       case "JOB_HV_73"  => JOB_HV_73  //CODE BY TZQ
       case "JOB_HV_75"  => JOB_HV_75  //CODE BY XTP
+      case "JOB_HV_76"  => JOB_HV_76  //CODE BY XTP
 
       case _ => println("Please input JobName")
     }
@@ -4148,7 +4149,7 @@ object SparkDB22Hive {
 
     val results = sqlContext.sql(
       s"""
-         select
+         |select
          |trim(ta.region_cd) as region_cd                          ,
          |ta.region_cn_nm as region_cn_nm                          ,
          |trim(ta.region_en_nm) as region_en_nm                    ,
@@ -4193,6 +4194,43 @@ object SparkDB22Hive {
          |	 when ta.prov_region_cd like '85%' then '青海'
          |	 when ta.prov_region_cd like '87%' then '宁夏'
          |	 when ta.prov_region_cd like '88%' then '新疆'
+         |end as td_cup_branch_ins_id_nm,
+         |case when ta.city_region_cd = '3930' then '厦门'
+         |     when ta.city_region_cd = '2220' then '大连'
+         |     when ta.city_region_cd = '5840' then '深圳'
+         |     when ta.city_region_cd = '4520' then '青岛'
+         |     when ta.city_region_cd = '3320' then '宁波'
+         |     when ta.prov_region_cd like '10%' then '北京'
+         |     when ta.prov_region_cd like '11%' then '天津'
+         |     when ta.prov_region_cd like '12%' then '河北'
+         |     when ta.prov_region_cd like '16%' then '山西'
+         |     when ta.prov_region_cd like '19%' then '内蒙古'
+         |     when ta.prov_region_cd like '22%' then '辽宁'
+         |     when ta.prov_region_cd like '24%' then '吉林'
+         |     when ta.prov_region_cd like '26%' then '黑龙江'
+         |     when ta.prov_region_cd like '29%' then '上海'
+         |     when ta.prov_region_cd like '30%' then '江苏'
+         |     when ta.prov_region_cd like '33%' then '浙江'
+         |     when ta.prov_region_cd like '36%' then '安徽'
+         |     when ta.prov_region_cd like '39%' then '福建'
+         |     when ta.prov_region_cd like '42%' then '江西'
+         |     when ta.prov_region_cd like '45%' then '山东'
+         |     when ta.prov_region_cd like '49%' then '河南'
+         |     when ta.prov_region_cd like '52%' then '湖北'
+         |     when ta.prov_region_cd like '55%' then '湖南'
+         |     when ta.prov_region_cd like '58%' then '广东'
+         |     when ta.prov_region_cd like '61%' then '广西'
+         |     when ta.prov_region_cd like '64%' then '海南'
+         |     when ta.prov_region_cd like '65%' then '四川'
+         |     when ta.prov_region_cd like '69%' then '重庆'
+         |     when ta.prov_region_cd like '70%' then '贵州'
+         |     when ta.prov_region_cd like '73%' then '云南'
+         |     when ta.prov_region_cd like '77%' then '西藏'
+         |     when ta.prov_region_cd like '79%' then '陕西'
+         |     when ta.prov_region_cd like '82%' then '甘肃'
+         |     when ta.prov_region_cd like '85%' then '青海'
+         |     when ta.prov_region_cd like '87%' then '宁夏'
+         |     when ta.prov_region_cd like '88%' then '新疆'
          |end as cup_branch_ins_id_nm
          |
          |from tbl_chmgm_region_cd ta
