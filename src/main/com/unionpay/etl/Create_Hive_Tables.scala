@@ -94,6 +94,8 @@ object Create_Hive_Tables {
     hive_buss_dist
     hive_cdhd_bill_acct_inf
     hive_cashier_bas_inf
+    hive_access_static_inf
+    hive_region_cd
 
 
     println("=======Create all tables on the hive successfully=======")
@@ -3845,6 +3847,79 @@ object Create_Hive_Tables {
       """.stripMargin)
 
     println("=======Create hive_cashier_bas_inf successfully ! =======")
+
+  }
+
+  def hive_access_static_inf (implicit sqlContext: HiveContext) = {
+    println("=======Create Table hive_access_static_inf for JOB_HV_75 by XTP =======")
+    sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql(
+      s"""
+         |create table if not exists $hive_dbname.hive_access_static_inf
+         |(
+         |access_ins_id_cd	string   ,
+         |access_ins_abbr_cd	string   ,
+         |access_ins_nm	string       ,
+         |access_sys_cd	string       ,
+         |access_ins_tp	string       ,
+         |access_bitmap	string       ,
+         |trans_rcv_priv_bmp	string   ,
+         |trans_snd_priv_bmp	string   ,
+         |enc_key_index	string       ,
+         |mac_algo	string           ,
+         |mak_len	string               ,
+         |pin_algo	string           ,
+         |pik_len	string               ,
+         |enc_rsa_key_seq	string       ,
+         |rsa_enc_key_len	string       ,
+         |resv_fld	string           ,
+         |mchnt_lvl	int              ,
+         |valid_in	string           ,
+         |event_id	int              ,
+         |oper_in	string               ,
+         |rec_id	int                  ,
+         |rec_upd_usr_id	string       ,
+         |rec_crt_ts	timestamp        ,
+         |rec_upd_ts	timestamp
+         |)
+         |row format delimited fields terminated by '!|'
+         |stored as parquet
+         |location '/user/ch_datas/upw_hive/participant/ins/hive_access_static_inf'
+      """.stripMargin)
+
+    println("=======Create hive_access_static_inf successfully ! =======")
+
+  }
+
+  def hive_region_cd (implicit sqlContext: HiveContext) = {
+    println("=======Create Table hive_region_cd for JOB_HV_76 by XTP =======")
+    sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql(
+      s"""
+         |create table if not exists $hive_dbname.hive_region_cd
+         |(
+         |region_cd	string                ,
+         |region_cn_nm	string            ,
+         |region_en_nm	string            ,
+         |prov_region_cd	string            ,
+         |city_region_cd	string            ,
+         |cntry_region_cd	string            ,
+         |region_lvl	string                ,
+         |oper_in	string                    ,
+         |event_id	int                   ,
+         |rec_id	int                       ,
+         |rec_upd_usr_id	string            ,
+         |rec_upd_ts	timestamp             ,
+         |rec_crt_ts	timestamp             ,
+         |td_cup_branch_ins_id_nm	string    ,
+         |cup_branch_ins_id_nm	string
+         |)
+         |row format delimited fields terminated by '!|'
+         |stored as parquet
+         |location '/user/ch_datas/upw_hive/region/hive_region_cd'
+      """.stripMargin)
+
+    println("=======Create hive_region_cd successfully ! =======")
 
   }
 
