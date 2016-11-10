@@ -28,7 +28,6 @@ object SparkHive2Mysql {
     val interval=DateUtils.getIntervalDays(start_dt,end_dt).toInt
 
     println(s"####当前JOB的执行日期为：start_dt=$start_dt,end_dt=$end_dt####")
-    JOB_DM_87(sqlContext,start_dt,end_dt,interval)
 
 
     val jobName = if(args.length>0) args(0) else None
@@ -2676,7 +2675,6 @@ object SparkHive2Mysql {
              |from
              |(
              |select
-             |distinct(bind_card_no),
              |to_date(bind_ts) as bind_dt,
              |substr(trim(bind_card_no),1,8) as card_bin
              |from HIVE_CARD_BIND_INF where card_bind_st='0'
