@@ -19,8 +19,7 @@ object SparkDB22Hive {
   private lazy val hive_dbname =ConfigurationManager.getProperty(Constants.HIVE_DBNAME)
   private lazy val schemas_accdb =ConfigurationManager.getProperty(Constants.SCHEMAS_ACCDB)
   private lazy val schemas_mgmdb =ConfigurationManager.getProperty(Constants.SCHEMAS_MGMDB)
-  private lazy val start_dt = "2016-09-08"
-  private lazy val end_dt = "2016-09-09"
+
  def main(args: Array[String]) {
 
     val conf = new SparkConf().setAppName("SparkDB22Hive")
@@ -29,10 +28,10 @@ object SparkDB22Hive {
     implicit val sqlContext = new HiveContext(sc)
 
     //从数据库中获取当前JOB的执行起始和结束日期
-//    val rowParams=UPSQL_TIMEPARAMS_JDBC.readTimeParams(sqlContext)
-//    val start_dt=DateUtils.getYesterdayByJob(rowParams.getString(0))//获取开始日期：start_dt-1
-//    val end_dt=rowParams.getString(1)//结束日期
-//    val interval=DateUtils.getIntervalDays(start_dt,end_dt).toInt
+    val rowParams=UPSQL_TIMEPARAMS_JDBC.readTimeParams(sqlContext)
+    val start_dt=DateUtils.getYesterdayByJob(rowParams.getString(0))//获取开始日期：start_dt-1
+    val end_dt=rowParams.getString(1)//结束日期
+    val interval=DateUtils.getIntervalDays(start_dt,end_dt).toInt
 
     println(s"####当前JOB的执行日期为：start_dt=$start_dt,end_dt=$end_dt####")
 

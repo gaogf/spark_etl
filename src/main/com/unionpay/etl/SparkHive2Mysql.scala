@@ -13,8 +13,6 @@ import org.apache.spark.{SparkConf, SparkContext}
 object SparkHive2Mysql {
   //指定HIVE数据库名
   private lazy val hive_dbname =ConfigurationManager.getProperty(Constants.HIVE_DBNAME)
-  private lazy val start_dt ="2016-09-08"
-  private lazy val end_dt="2016-09-09"
 
   def main(args: Array[String]) {
     val conf = new SparkConf().setAppName("SparkHive2Mysql")
