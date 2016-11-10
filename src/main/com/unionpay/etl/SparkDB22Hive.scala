@@ -96,7 +96,7 @@ object SparkDB22Hive {
 //
 //      case _ => println("Please input JobName")
 //    }
-   sc.textfile();
+   sc.textfile(); //yangxue error submit
 
     sc.stop()
   }
