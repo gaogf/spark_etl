@@ -93,6 +93,7 @@ object Create_Hive_Tables {
     hive_search_trans
     hive_buss_dist
     hive_cdhd_bill_acct_inf
+    hive_cashier_bas_inf
 
 
     println("=======Create all tables on the hive successfully=======")
