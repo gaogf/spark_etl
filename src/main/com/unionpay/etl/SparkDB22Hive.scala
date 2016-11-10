@@ -35,67 +35,67 @@ object SparkDB22Hive {
 //    val interval=DateUtils.getIntervalDays(start_dt,end_dt).toInt
 
     println(s"####当前JOB的执行日期为：start_dt=$start_dt,end_dt=$end_dt####")
-   JOB_HV_76
 
-//    val jobName = if(args.length>0) args(0) else None
-//    println(s"#### 当前执行JobName为： $jobName ####")
-//    jobName match {
-//      /**
-//        * 每日模板job
-//        */
-//      case "JOB_HV_1"  => JOB_HV_1   //CODE BY YX
-//      case "JOB_HV_3"  => JOB_HV_3(sqlContext,start_dt,end_dt)   //CODE BY YX
-//      case "JOB_HV_4"  => JOB_HV_4(sqlContext,start_dt,end_dt)   //CODE BY XTP
-//      case "JOB_HV_9"  => JOB_HV_9   //CODE BY TZQ
-//      case "JOB_HV_10"  => JOB_HV_10  //CODE BY TZQ
-//      case "JOB_HV_11"  => JOB_HV_11  //CODE BY TZQ
-//      case "JOB_HV_12"  => JOB_HV_12  //CODE BY TZQ
-//      case "JOB_HV_13"  => JOB_HV_13  //CODE BY TZQ
-//      case "JOB_HV_14"  => JOB_HV_14  //CODE BY TZQ
-//      case "JOB_HV_16"  => JOB_HV_16  //CODE BY TZQ
-//      case "JOB_HV_18"  => JOB_HV_18(sqlContext,start_dt,end_dt)  //CODE BY YX
-//      case "JOB_HV_19"  => JOB_HV_19  //CODE BY YX
-////      case "JOB_HV_20"  => JOB_HV_20  //CODE BY YX
-//      case "JOB_HV_28"  => JOB_HV_28(sqlContext,start_dt,end_dt)  //CODE BY XTP
-//      case "JOB_HV_29"  => JOB_HV_29(sqlContext,start_dt,end_dt)  //CODE BY XTP
-//      case "JOB_HV_30"  => JOB_HV_30(sqlContext,start_dt,end_dt)  //CODE BY YX
-//      case "JOB_HV_32"  => JOB_HV_32(sqlContext,start_dt,end_dt)  //CODE BY XTP
-//      case "JOB_HV_33"  => JOB_HV_33(sqlContext,start_dt,end_dt)  //CODE BY XTP
-//      case "JOB_HV_36"  => JOB_HV_36  //CODE BY YX
-//      case "JOB_HV_43"  => JOB_HV_43(sqlContext,start_dt,end_dt)  //CODE BY YX
-//      case "JOB_HV_44"  => JOB_HV_44  //CODE BY TZQ
-//      case "JOB_HV_45"  => JOB_HV_45  //CODE BY YX
-//      case "JOB_HV_46"  => JOB_HV_46  //CODE BY XTP
-//      case "JOB_HV_47"  => JOB_HV_47  //CODE BY XTP
-//      case "JOB_HV_48"  => JOB_HV_48  //CODE BY TZQ
-//      case "JOB_HV_54"  => JOB_HV_54  //CODE BY TZQ
-//      case "JOB_HV_67"  => JOB_HV_67  //CODE BY TZQ
-//      case "JOB_HV_68"  => JOB_HV_68  //CODE BY TZQ
-//      case "JOB_HV_69"  => JOB_HV_69  //CODE BY XTP
-//      case "JOB_HV_70"  => JOB_HV_70  //CODE BY YX
-//
-//
-//      /**
-//        * 指标套表job
-//        */
-//      case "JOB_HV_8"  => JOB_HV_8(sqlContext,start_dt,end_dt)   //CODE BY XTP
-//      case "JOB_HV_15"  => JOB_HV_15  //CODE BY TZQ  //测试出错，未解决
-//      case "JOB_HV_23"  => JOB_HV_23  //CODE BY TZQ
-//      case "JOB_HV_24"  => JOB_HV_24  //CODE BY YX
-//      case "JOB_HV_25"  => JOB_HV_25  //CODE BY XTP
-//      case "JOB_HV_26"  => JOB_HV_26  //CODE BY TZQ
-//      case "JOB_HV_27"  => JOB_HV_27(sqlContext,start_dt,end_dt)  //CODE BY XTP
-//      case "JOB_HV_31"  => JOB_HV_31(sqlContext,start_dt,end_dt)  //CODE BY XTP
-//      case "JOB_HV_34"  => JOB_HV_34  //CODE BY XTP
-//      case "JOB_HV_35"  => JOB_HV_35  //CODE BY XTP
-//      case "JOB_HV_37"  => JOB_HV_37  //CODE BY TZQ
-//      case "JOB_HV_38"  => JOB_HV_38  //CODE BY TZQ
-//      case "JOB_HV_72"  => JOB_HV_72  //CODE BY TZQ
-//      case "JOB_HV_73"  => JOB_HV_73  //CODE BY TZQ
-//      case "JOB_HV_75"  => JOB_HV_75  //CODE BY XTP
-//
-//      case _ => println("Please input JobName")
-//    }
+
+    val jobName = if(args.length>0) args(0) else None
+    println(s"#### 当前执行JobName为： $jobName ####")
+    jobName match {
+      /**
+        * 每日模板job
+        */
+      case "JOB_HV_1"  => JOB_HV_1   //CODE BY YX
+      case "JOB_HV_3"  => JOB_HV_3(sqlContext,start_dt,end_dt)   //CODE BY YX
+      case "JOB_HV_4"  => JOB_HV_4(sqlContext,start_dt,end_dt)   //CODE BY XTP
+      case "JOB_HV_9"  => JOB_HV_9   //CODE BY TZQ
+      case "JOB_HV_10"  => JOB_HV_10  //CODE BY TZQ
+      case "JOB_HV_11"  => JOB_HV_11  //CODE BY TZQ
+      case "JOB_HV_12"  => JOB_HV_12  //CODE BY TZQ
+      case "JOB_HV_13"  => JOB_HV_13  //CODE BY TZQ
+      case "JOB_HV_14"  => JOB_HV_14  //CODE BY TZQ
+      case "JOB_HV_16"  => JOB_HV_16  //CODE BY TZQ
+      case "JOB_HV_18"  => JOB_HV_18(sqlContext,start_dt,end_dt)  //CODE BY YX
+      case "JOB_HV_19"  => JOB_HV_19  //CODE BY YX
+//      case "JOB_HV_20"  => JOB_HV_20  //CODE BY YX
+      case "JOB_HV_28"  => JOB_HV_28(sqlContext,start_dt,end_dt)  //CODE BY XTP
+      case "JOB_HV_29"  => JOB_HV_29(sqlContext,start_dt,end_dt)  //CODE BY XTP
+      case "JOB_HV_30"  => JOB_HV_30(sqlContext,start_dt,end_dt)  //CODE BY YX
+      case "JOB_HV_32"  => JOB_HV_32(sqlContext,start_dt,end_dt)  //CODE BY XTP
+      case "JOB_HV_33"  => JOB_HV_33(sqlContext,start_dt,end_dt)  //CODE BY XTP
+      case "JOB_HV_36"  => JOB_HV_36  //CODE BY YX
+      case "JOB_HV_43"  => JOB_HV_43(sqlContext,start_dt,end_dt)  //CODE BY YX
+      case "JOB_HV_44"  => JOB_HV_44  //CODE BY TZQ
+      case "JOB_HV_45"  => JOB_HV_45  //CODE BY YX
+      case "JOB_HV_46"  => JOB_HV_46  //CODE BY XTP
+      case "JOB_HV_47"  => JOB_HV_47  //CODE BY XTP
+      case "JOB_HV_48"  => JOB_HV_48  //CODE BY TZQ
+      case "JOB_HV_54"  => JOB_HV_54  //CODE BY TZQ
+      case "JOB_HV_67"  => JOB_HV_67  //CODE BY TZQ
+      case "JOB_HV_68"  => JOB_HV_68  //CODE BY TZQ
+      case "JOB_HV_69"  => JOB_HV_69  //CODE BY XTP
+      case "JOB_HV_70"  => JOB_HV_70  //CODE BY YX
+
+
+      /**
+        * 指标套表job
+        */
+      case "JOB_HV_8"  => JOB_HV_8(sqlContext,start_dt,end_dt)   //CODE BY XTP
+      case "JOB_HV_15"  => JOB_HV_15  //CODE BY TZQ  //测试出错，未解决
+      case "JOB_HV_23"  => JOB_HV_23  //CODE BY TZQ
+      case "JOB_HV_24"  => JOB_HV_24  //CODE BY YX
+      case "JOB_HV_25"  => JOB_HV_25  //CODE BY XTP
+      case "JOB_HV_26"  => JOB_HV_26  //CODE BY TZQ
+      case "JOB_HV_27"  => JOB_HV_27(sqlContext,start_dt,end_dt)  //CODE BY XTP
+      case "JOB_HV_31"  => JOB_HV_31(sqlContext,start_dt,end_dt)  //CODE BY XTP
+      case "JOB_HV_34"  => JOB_HV_34  //CODE BY XTP
+      case "JOB_HV_35"  => JOB_HV_35  //CODE BY XTP
+      case "JOB_HV_37"  => JOB_HV_37  //CODE BY TZQ
+      case "JOB_HV_38"  => JOB_HV_38  //CODE BY TZQ
+      case "JOB_HV_72"  => JOB_HV_72  //CODE BY TZQ
+      case "JOB_HV_73"  => JOB_HV_73  //CODE BY TZQ
+      case "JOB_HV_75"  => JOB_HV_75  //CODE BY XTP
+
+      case _ => println("Please input JobName")
+    }
 
     sc.stop()
   }
