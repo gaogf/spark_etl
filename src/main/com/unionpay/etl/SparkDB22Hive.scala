@@ -54,7 +54,6 @@ object SparkDB22Hive {
       case "JOB_HV_16"  => JOB_HV_16  //CODE BY TZQ
       case "JOB_HV_18"  => JOB_HV_18(sqlContext,start_dt,end_dt)  //CODE BY YX
       case "JOB_HV_19"  => JOB_HV_19  //CODE BY YX
-//      case "JOB_HV_20"  => JOB_HV_20  //CODE BY YX
       case "JOB_HV_28"  => JOB_HV_28(sqlContext,start_dt,end_dt)  //CODE BY XTP
       case "JOB_HV_29"  => JOB_HV_29(sqlContext,start_dt,end_dt)  //CODE BY XTP
       case "JOB_HV_30"  => JOB_HV_30(sqlContext,start_dt,end_dt)  //CODE BY YX
@@ -79,6 +78,8 @@ object SparkDB22Hive {
         */
       case "JOB_HV_8"  => JOB_HV_8(sqlContext,start_dt,end_dt)   //CODE BY XTP
       case "JOB_HV_15"  => JOB_HV_15  //CODE BY TZQ  //测试出错，未解决
+      case "JOB_HV_20_INI_I"  => JOB_HV_20_INI_I  //CODE BY YX
+      //case "JOB_HV_20"  => JOB_HV_20  //CODE BY YX
       case "JOB_HV_23"  => JOB_HV_23  //CODE BY TZQ
       case "JOB_HV_24"  => JOB_HV_24  //CODE BY YX
       case "JOB_HV_25"  => JOB_HV_25  //CODE BY XTP
@@ -1691,6 +1692,67 @@ object SparkDB22Hive {
       sqlContext.sql("insert into table hive_ins_inf select * from spark_ins_inf")
     }else{
       println("加载的表HIVE_INS_INF中无数据！")
+    }
+  }
+
+
+  /**
+    * hive-job-20-ini-1 2016年10月31日
+    * tbl_chmgm_term_inf -> hive_term_inf
+    *
+    * @author winslow yang
+    * @para sqlContext
+    * */
+  def JOB_HV_20_INI_I(implicit sqlContext: HiveContext) = {
+    println("####JOB_HV_20_INI_I(tbl_chmgm_term_inf -> hive_term_inf)")
+
+    val df = sqlContext.jdbc_mgmdb_DF(s"$schemas_mgmdb.TBL_CHMGM_TERM_INF")
+    df.registerTempTable("spark_tbl_chmgm_term_inf")
+
+    val results = sqlContext.sql(
+      s"""
+          |select
+          |mchnt_cd,
+          |term_id,
+          |term_tp,
+          |term_st,
+          |case
+          |when substr(open_dt,1,4) between '0001' and '9999' and
+          |     substr(open_dt,5,2) between '01' and '12' and
+          |     substr(open_dt,7,2) between '01' and substr(last_day(concat_ws('-',substr(open_dt,1,4),substr(open_dt,5,2),substr(7,2))),9,2)
+          |then concat_ws('-',substr(open_dt,1,4),substr(open_dt,5,2),substr(open_dt,7,2))
+          |else null
+          |end as open_dt,
+          |case
+          |when substr(close_dt,1,4) between '0001' and '9999' and
+          |     substr(close_dt,5,2) between '01' and '12' and
+          |     substr(close_dt,7,2) between '01' and substr(last_day(concat_ws('-',substr(close_dt,1,4),substr(close_dt,5,2),substr(close_dt,7,2))),9,2)
+          |then concat_ws('-',substr(close_dt,1,4),substr(close_dt,5,2),substr(close_dt,7,2))
+          |else null
+          |end as close_dt,
+          |bank_cd,
+          |rec_st,
+          |last_oper_in,
+          |event_id,
+          |rec_id,
+          |rec_upd_usr_id,
+          |rec_upd_ts,
+          |rec_crt_ts,
+          |'0' as is_trans_at_tp
+          |from
+          |spark_tbl_chmgm_term_inf
+  """.stripMargin)
+    println("####JOB_HV_20_INI_I------>results: " + results.count())
+
+    if(!Option(results).isEmpty){
+      results.registerTempTable("spark_hive_term_inf")
+      sqlContext.sql(s"use $hive_dbname")
+      sqlContext.sql("truncate table hive_term_inf")
+      println("#### truncate table hive_term_inf successful ####")
+      sqlContext.sql(s"insert into table hive_term_inf select * from spark_hive_term_inf")
+      println("#### insert into table hive_term_inf successful ####")
+    } else {
+      println("#### 加载的表TBL_CHMGM_TERM_INF中无数据 ####")
     }
   }
 
