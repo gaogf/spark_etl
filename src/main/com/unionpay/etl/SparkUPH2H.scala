@@ -45,7 +45,7 @@ object SparkUPH2H {
         */
       case "JOB_HV_39"  => JOB_HV_39(sqlContext,end_dt) //CODE BY YX
       case "JOB_HV_41"  => JOB_HV_41(sqlContext,start_dt,end_dt) //CODE BY XTP
-      case "JOB_HV_49"  => JOB_HV_49 //CODE BY XTP
+      case "JOB_HV_49"  => JOB_HV_49 //CODE BY YX
       case "JOB_HV_50"  =>  JOB_HV_50(sqlContext,start_dt,end_dt) //CODE BY XTP
       case "JOB_HV_52"  => JOB_HV_52(sqlContext,end_dt) //CODE BY YX
 
