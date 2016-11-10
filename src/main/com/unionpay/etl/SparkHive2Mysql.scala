@@ -764,7 +764,9 @@ object SparkHive2Mysql {
         val results = sqlContext.sql(
           s"""
              |SELECT
-             |(case when a.gb_region_nm is null then nvl(b.cup_branch_ins_id_nm,c.gb_region_nm) else  nvl(a.gb_region_nm,'其它') end) as BRANCH_AREA,
+             |(case when nvl(a.gb_region_nm,b.cup_branch_ins_id_nm) is not null then nvl(a.gb_region_nm,b.cup_branch_ins_id_nm)
+             |	  when nvl(a.gb_region_nm,c.gb_region_nm) is not null then nvl(a.gb_region_nm,c.gb_region_nm)
+             |	  when nvl(b.cup_branch_ins_id_nm,c.gb_region_nm) is not null then nvl(b.cup_branch_ins_id_nm,c.gb_region_nm)  else  '其它' end) as BRANCH_AREA,
              |'$today_dt' as report_dt,
              |sum(a.tpre)   as   STORE_TPRE_ADD_NUM  ,
              |sum(a.years)  as   STORE_YEAR_ADD_NUM  ,
@@ -878,7 +880,10 @@ object SparkHive2Mysql {
              |WHERE substr(tempd.OPEN_BUSS_BMP,1,2) in (10,11)
              |GROUP BY tempd.gb_region_nm) c
              |on a.gb_region_nm=c.gb_region_nm
-             |group by (case when a.gb_region_nm is null then nvl(b.cup_branch_ins_id_nm,c.gb_region_nm) else  nvl(a.gb_region_nm,'其它') end)
+             |group by
+             |(case when nvl(a.gb_region_nm,b.cup_branch_ins_id_nm) is not null then nvl(a.gb_region_nm,b.cup_branch_ins_id_nm)
+             |	  when nvl(a.gb_region_nm,c.gb_region_nm) is not null then nvl(a.gb_region_nm,c.gb_region_nm)
+             |	  when nvl(b.cup_branch_ins_id_nm,c.gb_region_nm) is not null then nvl(b.cup_branch_ins_id_nm,c.gb_region_nm)  else  '其它' end)
              |
              | """.stripMargin)
         println(s"###JOB_DM_9------$today_dt results:"+results.count())
