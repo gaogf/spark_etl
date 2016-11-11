@@ -834,15 +834,18 @@ object SparkHive2Mysql {
              |from (
              |select distinct mcf.PROV_DIVISION_CD, a.card_accptr_cd,a.card_accptr_term_id, a.trans_dt
              |from (
-             |select distinct card_accptr_cd,card_accptr_term_id, trans_dt
+             |select distinct card_accptr_cd,card_accptr_term_id, trans_dt,acpt_ins_id_cd
              |from HIVE_ACC_TRANS
              |where UM_TRANS_ID in ('AC02000065','AC02000063') and
              |buss_tp in ('02','04','05','06') and sys_det_cd='S'
              |) a
              |left join HIVE_STORE_TERM_RELATION b
              |on a.card_accptr_cd=b.mchnt_cd and a.card_accptr_term_id=b.term_id
-             |left join HIVE_PREFERENTIAL_MCHNT_INF mcf
-             |on a.card_accptr_cd=mcf.MCHNT_CD
+             |left join  (select distinct ins_id_cd,CUP_BRANCH_INS_ID_NM as PROV_DIVISION_CD from HIVE_INS_INF where length(trim(cup_branch_ins_id_cd))<>0
+             |union all
+             |select distinct ins_id_cd, cup_branch_ins_id_nm as PROV_DIVISION_CD from HIVE_ACONL_INS_BAS where length(trim(cup_branch_ins_id_cd))<>0  )mcf
+             |on a.acpt_ins_id_cd=concat('000',mcf.ins_id_cd)
+             |
              |where b.THIRD_PARTY_INS_ID is null
              |) t2
              |group by t2.PROV_DIVISION_CD,t2.trans_dt
@@ -3290,7 +3293,7 @@ object SparkHive2Mysql {
              |                FROM
              |                    hive_cashier_bas_inf
              |                WHERE
-             |                    reg_dt<= '$today_dt'
+             |                    to_date(reg_dt)<= '$today_dt'
              |                AND usr_st NOT IN ('4',
              |                                   '9')
              |                GROUP BY
@@ -3333,8 +3336,8 @@ object SparkHive2Mysql {
              |                FROM
              |                    hive_cashier_bas_inf
              |                WHERE
-             |                    reg_dt <= '$today_dt'
-             |                AND reg_dt >= concat(substring('$today_dt',1,5),'01-01')
+             |                    to_date(reg_dt) <= '$today_dt'
+             |                AND to_date(reg_dt) >= concat(substring('$today_dt',1,5),'01-01')
              |                AND usr_st NOT IN ('4',
              |                                   '9')
              |                GROUP BY
@@ -3382,8 +3385,8 @@ object SparkHive2Mysql {
              |                FROM
              |                    hive_cashier_bas_inf
              |                WHERE
-             |                    reg_dt <= '$today_dt'
-             |                AND reg_dt >= concat(substring('$today_dt',1,8),'01')
+             |                    to_date(reg_dt) <= '$today_dt'
+             |                AND to_date(reg_dt) >= concat(substring('$today_dt',1,8),'01')
              |                AND usr_st NOT IN ('4',
              |                                   '9')
              |                GROUP BY
@@ -3445,7 +3448,7 @@ object SparkHive2Mysql {
              |                        FROM
              |                            hive_cashier_bas_inf
              |                        WHERE
-             |                            reg_dt<= '$today_dt'
+             |                            to_date(reg_dt)<= '$today_dt'
              |                        AND usr_st NOT IN ('4',
              |                                           '9') )b
              |                ON
@@ -3538,7 +3541,7 @@ object SparkHive2Mysql {
              |                        FROM
              |                            hive_cashier_bas_inf
              |                        WHERE
-             |                            reg_dt <= '$today_dt'
+             |                            to_date(reg_dt) <= '$today_dt'
              |                        AND usr_st NOT IN ('4',
              |                                           '9') ) b
              |                ON
@@ -3556,7 +3559,7 @@ object SparkHive2Mysql {
              |                FROM
              |                    hive_cashier_bas_inf
              |                WHERE
-             |                    reg_dt = '$today_dt'
+             |                    to_date(reg_dt) = '$today_dt'
              |                AND usr_st NOT IN ('4',
              |                                   '9')
              |                GROUP BY
@@ -3599,7 +3602,6 @@ object SparkHive2Mysql {
              |GROUP BY
              |    t.cup_branch_ins_id_nm,
              |    t.report_dt
-             |
       """.stripMargin)
         println(s"###JOB_DM_87------$today_dt results:"+results.count())
         if(!Option(results).isEmpty){

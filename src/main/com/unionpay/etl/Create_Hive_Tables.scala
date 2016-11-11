@@ -96,6 +96,7 @@ object Create_Hive_Tables {
     hive_cashier_bas_inf
     hive_access_static_inf
     hive_region_cd
+    hive_aconl_ins_bas
 
 
     println("=======Create all tables on the hive successfully=======")
@@ -3920,6 +3921,43 @@ object Create_Hive_Tables {
       """.stripMargin)
 
     println("=======Create hive_region_cd successfully ! =======")
+
+  }
+
+  def hive_aconl_ins_bas (implicit sqlContext: HiveContext) = {
+    println("=======Create Table hive_region_cd for JOB_HV_79 by XTP =======")
+    sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql(
+      s"""
+         |create table if not exists $hive_dbname.hive_aconl_ins_bas
+         |    (
+         |      ins_id_cd              string  ,
+         |      ins_cata               string  ,
+         |      ins_tp                 string  ,
+         |      hdqrs_ins_id_cd        string  ,
+         |      cup_branch_ins_id_cd   string  ,
+         |      region_cd              string  ,
+         |      area_cd                string  ,
+         |      ins_cn_nm              string  ,
+         |      ins_cn_abbr            string  ,
+         |      ins_en_nm              string  ,
+         |      ins_en_abbr            string  ,
+         |      rec_st                 string  ,
+         |      rec_upd_ts             timestamp  ,
+         |      rec_crt_ts             timestamp  ,
+         |      comments               string  ,
+         |      oper_in                string  ,
+         |      event_id               int  ,
+         |      rec_id                 int  ,
+         |      rec_upd_usr_id         string ,
+         |	  cup_branch_ins_id_nm   string
+         |    )
+         |row format delimited fields terminated by '!|'
+         |stored as parquet
+         |location '/user/ch_datas/upw_hive/participant/ins/hive_aconl_ins_bas'
+      """.stripMargin)
+
+    println("=======Create hive_aconl_ins_bas successfully ! =======")
 
   }
 
