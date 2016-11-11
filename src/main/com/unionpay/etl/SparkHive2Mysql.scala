@@ -3439,7 +3439,7 @@ object SparkHive2Mysql {
              |                            hive_cashier_point_acct_oper_dtl
              |                        WHERE
              |                            to_date(acct_oper_ts) <= '$today_dt'
-             |                        AND to_date(acct_oper_ts) >= concat(substring('$today_dt',1,8),'01'))a
+             |                        AND to_date(acct_oper_ts) >= trunc('$today_dt','YYYY') )a
              |                INNER JOIN
              |                    (
              |                        SELECT
