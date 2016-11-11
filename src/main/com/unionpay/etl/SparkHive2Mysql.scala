@@ -65,6 +65,7 @@ object SparkHive2Mysql {
       case "JOB_DM_5"  => JOB_DM_5(sqlContext,start_dt,end_dt,interval)    //CODE BY TZQ
       case "JOB_DM_6"  => JOB_DM_6(sqlContext,start_dt,end_dt,interval)    //CODE BY TZQ
       case "JOB_DM_54" =>JOB_DM_54(sqlContext,start_dt,end_dt)   //CODE BY XTP 无数据
+      case "JOB_DM_10" =>JOB_DM_10(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ
     }
 
     sc.stop()

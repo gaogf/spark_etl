@@ -1455,7 +1455,7 @@ object SparkDB22Hive {
         |when gb_region_cd like '63%' then '青海'
         |when gb_region_cd like '64%' then '宁夏'
         |when gb_region_cd like '65%' then '新疆'
-        |else '其他' end  as gb_region_nm,
+        |else '其它' end  as gb_region_nm,
         |
         |trim(acq_ins_id_cd) as acq_ins_id_cd,
         |trim(oper_in) as oper_in,
