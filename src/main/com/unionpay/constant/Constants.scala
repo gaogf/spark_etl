@@ -22,14 +22,23 @@ object Constants {
   val UPSQL_PARAMS_TABLE="upsql.params.table"
 
   //Db2 connection
-  val DB2_USER="db2.user"
-  val DB2_PASSWORD ="db2.password"
+  val DB2_USER_SWT="db2.user.swt"
+  val DB2_USER_ACC="db2.user.acc"
+  val DB2_USER_MGM="db2.user.mgm"
+
+  val DB2_PASSWORD_SWT ="db2.password.swt"
+  val DB2_PASSWORD_ACC ="db2.password.acc"
+  val DB2_PASSWORD_MGM ="db2.password.mgm"
+
+  val DB2_URL_SWTDB="db2.url_swtdb"
   val DB2_URL_ACCDB="db2.url_accdb"
   val DB2_URL_MGMDB="db2.url_mgmdb"
+
   val DB2_DRIVER="db2.driver"
+
+  val SCHEMAS_SWTDB="db2.swtdb_schemas_name"
   val SCHEMAS_ACCDB="db2.accdb_schemas_name"
   val SCHEMAS_MGMDB="db2.mgmdb_schemas_name"
-
 
   //Hive Database_name
   val HIVE_DBNAME = "hive.dbname"
