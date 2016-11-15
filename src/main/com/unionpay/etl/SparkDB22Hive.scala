@@ -649,7 +649,7 @@ object SparkDB22Hive {
         |) B
         |ON A.MCHNT_CD = B.CARD_ACCPTR_CD AND A.TERM_ID = B.CARD_ACCPTR_TERM_ID
         |) tempa
-        |where LENGTH(TRIM(tempa.CARD_ACCPTR_CD))=0 AND LENGTH(TRIM(tempa.CARD_ACCPTR_TERM_ID))=0
+        |where tempa.CARD_ACCPTR_CD is null AND tempa.CARD_ACCPTR_TERM_ID is null
         |
         |UNION ALL
         |
@@ -691,7 +691,7 @@ object SparkDB22Hive {
         |) B
         |ON A.MCHNT_CD = B.CARD_ACCPTR_CD AND A.TERM_ID = B.CARD_ACCPTR_TERM_ID
         |) tempb
-        |where LENGTH(TRIM(tempb.CARD_ACCPTR_CD))<>0 AND LENGTH(TRIM(tempb.CARD_ACCPTR_TERM_ID))<>0
+        |where tempb.CARD_ACCPTR_CD is not null  AND tempb.CARD_ACCPTR_TERM_ID is not null
         | """.stripMargin)
     results.registerTempTable("spark_tbl_chmgm_store_term_relation")
 
@@ -701,7 +701,7 @@ object SparkDB22Hive {
       results.registerTempTable("spark_tbl_chmgm_store_term_relation")
       sqlContext.sql(s"use $hive_dbname")
       sqlContext.sql("truncate table  HIVE_STORE_TERM_RELATION")
-      sqlContext.sql("insert into table HIVE_STORE_TERM_RELATION select * from spark_tbl_chmgm_preferential_mchnt_inf")
+      sqlContext.sql("insert into table HIVE_STORE_TERM_RELATION select * from spark_tbl_chmgm_store_term_relation")
     }else{
       println("加载的表spark_tbl_chmgm_store_term_relation中无数据！")
     }

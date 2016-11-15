@@ -762,10 +762,8 @@ object SparkHive2Mysql {
       for(i <- 0 to interval){
         val results = sqlContext.sql(
           s"""
-             |SELECT
-             |(case when nvl(a.gb_region_nm,b.cup_branch_ins_id_nm) is not null then nvl(a.gb_region_nm,b.cup_branch_ins_id_nm)
-             |	  when nvl(a.gb_region_nm,c.gb_region_nm) is not null then nvl(a.gb_region_nm,c.gb_region_nm)
-             |	  when nvl(b.cup_branch_ins_id_nm,c.gb_region_nm) is not null then nvl(b.cup_branch_ins_id_nm,c.gb_region_nm)  else  '其它' end) as BRANCH_AREA,
+             |select
+             |case when a.gb_region_nm is null then nvl(b.cup_branch_ins_id_nm,nvl(c.gb_region_nm,'其它')) else a.gb_region_nm end as BRANCH_AREA,
              |'$today_dt' as report_dt,
              |sum(a.tpre)   as   STORE_TPRE_ADD_NUM  ,
              |sum(a.years)  as   STORE_YEAR_ADD_NUM  ,
@@ -785,11 +783,11 @@ object SparkHive2Mysql {
              |count(case when to_date(tempe.rec_crt_ts)<='$today_dt' then 1 end) as total
              |from
              |(
-             |select distinct  PROV_DIVISION_CD,rec_crt_ts,mchnt_prov, mchnt_city_cd, mchnt_county_cd, mchnt_addr
+             |select distinct  PROV_DIVISION_CD,to_date(rec_crt_ts) as rec_crt_ts,mchnt_prov, mchnt_city_cd, mchnt_county_cd, mchnt_addr
              |from HIVE_PREFERENTIAL_MCHNT_INF
              |where  mchnt_st='2' and mchnt_nm not like '%验证%' and mchnt_nm not like '%测试%' and  brand_id<>68988
              |union all
-             |select PROV_DIVISION_CD, rec_crt_ts,mchnt_prov, mchnt_city_cd, mchnt_county_cd, mchnt_addr
+             |select PROV_DIVISION_CD, to_date(rec_crt_ts) as rec_crt_ts,mchnt_prov, mchnt_city_cd, mchnt_county_cd, mchnt_addr
              |from HIVE_PREFERENTIAL_MCHNT_INF
              |where mchnt_st='2' and mchnt_nm not like '%验证%' and mchnt_nm not like '%测试%' and brand_id=68988
              |)  tempe
@@ -883,10 +881,7 @@ object SparkHive2Mysql {
              |GROUP BY tempd.gb_region_nm) c
              |on a.gb_region_nm=c.gb_region_nm
              |group by
-             |(case when nvl(a.gb_region_nm,b.cup_branch_ins_id_nm) is not null then nvl(a.gb_region_nm,b.cup_branch_ins_id_nm)
-             |	  when nvl(a.gb_region_nm,c.gb_region_nm) is not null then nvl(a.gb_region_nm,c.gb_region_nm)
-             |	  when nvl(b.cup_branch_ins_id_nm,c.gb_region_nm) is not null then nvl(b.cup_branch_ins_id_nm,c.gb_region_nm)  else  '其它' end)
-             |
+             |case when a.gb_region_nm is null then nvl(b.cup_branch_ins_id_nm,nvl(c.gb_region_nm,'其它')) else a.gb_region_nm end
              | """.stripMargin)
         println(s"###JOB_DM_9------$today_dt results:"+results.count())
         if(!Option(results).isEmpty){
@@ -902,6 +897,7 @@ object SparkHive2Mysql {
   /**
     * JOB_DM_10/11-7
     * DM_STORE_DIRECT_CONTACT_TRAN
+    *
     * @author TZQ
     * @param sqlContext
     * @return
@@ -1006,6 +1002,7 @@ object SparkHive2Mysql {
   /**
     * JOB_DM_11/11-7
     * DM_DEVELOPMENT_ORG_CLASS
+    *
     * @param sqlContext
     * @param start_dt
     * @param end_dt
