@@ -802,14 +802,14 @@ object SparkHive2Mysql {
              |sum(case when to_date(tempb.trans_dt)<='$today_dt'  then  tempb.cnt end) as total
              |from
              |(
-             |select tp.PROV_DIVISION_CD ,tp.trans_dt, sum(cnt) as cnt
+             |select nvl(tp.PROV_DIVISION_CD,'总公司') as PROV_DIVISION_CD,tp.trans_dt, sum(cnt) as cnt
              |from(
              |select
              |t1.PROV_DIVISION_CD,
              |t1.trans_dt,
              |count(*) as cnt
              |from (
-             |select distinct mchnt.PROV_DIVISION_CD , mchnt_prov,mchnt_city_cd, mchnt_county_cd, mchnt_addr , a.trans_dt
+             |select distinct mchnt.PROV_DIVISION_CD , mchnt_prov,mchnt_city_cd, mchnt_addr , a.trans_dt
              |from (
              |select distinct card_accptr_cd,card_accptr_term_id,trans_dt
              |from HIVE_ACC_TRANS

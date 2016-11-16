@@ -45,6 +45,7 @@ object SparkDB22Hive {
       case "JOB_HV_1"  => JOB_HV_1   //CODE BY YX
       case "JOB_HV_3"  => JOB_HV_3(sqlContext,start_dt,end_dt)   //CODE BY YX
       case "JOB_HV_4"  => JOB_HV_4(sqlContext,start_dt,end_dt)   //CODE BY XTP
+      case "JOB_HV_8"  => JOB_HV_8(sqlContext,start_dt,end_dt)   //CODE BY XTP
       case "JOB_HV_9"  => JOB_HV_9   //CODE BY TZQ
       case "JOB_HV_10"  => JOB_HV_10  //CODE BY TZQ
       case "JOB_HV_11"  => JOB_HV_11  //CODE BY TZQ
@@ -76,7 +77,6 @@ object SparkDB22Hive {
       /**
         * 指标套表job
         */
-      case "JOB_HV_8"  => JOB_HV_8(sqlContext,start_dt,end_dt)   //CODE BY XTP
       case "JOB_HV_15"  => JOB_HV_15  //CODE BY TZQ  //测试出错，未解决
       case "JOB_HV_20_INI_I"  => JOB_HV_20_INI_I  //CODE BY YX
       //case "JOB_HV_20"  => JOB_HV_20  //CODE BY YX
@@ -4347,42 +4347,42 @@ object SparkDB22Hive {
         |ta.event_id as event_id ,
         |ta.rec_id as rec_id ,
         |trim(ta.rec_upd_usr_id) as rec_upd_usr_id ,
-        |case when ta.cup_branch_ins_id_cd='00011000' then '北京'
-        |when ta.cup_branch_ins_id_cd='00011100' then '天津'
-        |when ta.cup_branch_ins_id_cd='00011200' then '河北'
-        |when ta.cup_branch_ins_id_cd='00011600' then '山西'
-        |when ta.cup_branch_ins_id_cd='00011900' then '内蒙古'
-        |when ta.cup_branch_ins_id_cd='00012210' then '辽宁'
-        |when ta.cup_branch_ins_id_cd='00012220' then '大连'
-        |when ta.cup_branch_ins_id_cd='00012400' then '吉林'
-        |when ta.cup_branch_ins_id_cd='00012600' then '黑龙江'
-        |when ta.cup_branch_ins_id_cd='00012900' then '上海'
-        |when ta.cup_branch_ins_id_cd='00013000' then '江苏'
-        |when ta.cup_branch_ins_id_cd='00013310' then '浙江'
-        |when ta.cup_branch_ins_id_cd='00013320' then '宁波'
-        |when ta.cup_branch_ins_id_cd='00013600' then '安徽'
-        |when ta.cup_branch_ins_id_cd='00013900' then '福建'
-        |when ta.cup_branch_ins_id_cd='00013930' then '厦门'
-        |when ta.cup_branch_ins_id_cd='00014200' then '江西'
-        |when ta.cup_branch_ins_id_cd='00014500' then '山东'
-        |when ta.cup_branch_ins_id_cd='00014520' then '青岛'
-        |when ta.cup_branch_ins_id_cd='00014900' then '河南'
-        |when ta.cup_branch_ins_id_cd='00015210' then '湖北'
-        |when ta.cup_branch_ins_id_cd='00015500' then '湖南'
-        |when ta.cup_branch_ins_id_cd='00015800' then '广东'
-        |when ta.cup_branch_ins_id_cd='00015840' then '深圳'
-        |when ta.cup_branch_ins_id_cd='00016100' then '广西'
-        |when ta.cup_branch_ins_id_cd='00016400' then '海南'
-        |when ta.cup_branch_ins_id_cd='00016500' then '四川'
-        |when ta.cup_branch_ins_id_cd='00016530' then '重庆'
-        |when ta.cup_branch_ins_id_cd='00017000' then '贵州'
-        |when ta.cup_branch_ins_id_cd='00017310' then '云南'
-        |when ta.cup_branch_ins_id_cd='00017700' then '西藏'
-        |when ta.cup_branch_ins_id_cd='00017900' then '陕西'
-        |when ta.cup_branch_ins_id_cd='00018200' then '甘肃'
-        |when ta.cup_branch_ins_id_cd='00018500' then '青海'
-        |when ta.cup_branch_ins_id_cd='00018700' then '宁夏'
-        |when ta.cup_branch_ins_id_cd='00018800' then '新疆'
+        |case when trim(ta.cup_branch_ins_id_cd)='00011000' then '北京'
+        |when trim(ta.cup_branch_ins_id_cd)='00011100' then '天津'
+        |when trim(ta.cup_branch_ins_id_cd)='00011200' then '河北'
+        |when trim(ta.cup_branch_ins_id_cd)='00011600' then '山西'
+        |when trim(ta.cup_branch_ins_id_cd)='00011900' then '内蒙古'
+        |when trim(ta.cup_branch_ins_id_cd)='00012210' then '辽宁'
+        |when trim(ta.cup_branch_ins_id_cd)='00012220' then '大连'
+        |when trim(ta.cup_branch_ins_id_cd)='00012400' then '吉林'
+        |when trim(ta.cup_branch_ins_id_cd)='00012600' then '黑龙江'
+        |when trim(ta.cup_branch_ins_id_cd)='00012900' then '上海'
+        |when trim(ta.cup_branch_ins_id_cd)='00013000' then '江苏'
+        |when trim(ta.cup_branch_ins_id_cd)='00013310' then '浙江'
+        |when trim(ta.cup_branch_ins_id_cd)='00013320' then '宁波'
+        |when trim(ta.cup_branch_ins_id_cd)='00013600' then '安徽'
+        |when trim(ta.cup_branch_ins_id_cd)='00013900' then '福建'
+        |when trim(ta.cup_branch_ins_id_cd)='00013930' then '厦门'
+        |when trim(ta.cup_branch_ins_id_cd)='00014200' then '江西'
+        |when trim(ta.cup_branch_ins_id_cd)='00014500' then '山东'
+        |when trim(ta.cup_branch_ins_id_cd)='00014520' then '青岛'
+        |when trim(ta.cup_branch_ins_id_cd)='00014900' then '河南'
+        |when trim(ta.cup_branch_ins_id_cd)='00015210' then '湖北'
+        |when trim(ta.cup_branch_ins_id_cd)='00015500' then '湖南'
+        |when trim(ta.cup_branch_ins_id_cd)='00015800' then '广东'
+        |when trim(ta.cup_branch_ins_id_cd)='00015840' then '深圳'
+        |when trim(ta.cup_branch_ins_id_cd)='00016100' then '广西'
+        |when trim(ta.cup_branch_ins_id_cd)='00016400' then '海南'
+        |when trim(ta.cup_branch_ins_id_cd)='00016500' then '四川'
+        |when trim(ta.cup_branch_ins_id_cd)='00016530' then '重庆'
+        |when trim(ta.cup_branch_ins_id_cd)='00017000' then '贵州'
+        |when trim(ta.cup_branch_ins_id_cd)='00017310' then '云南'
+        |when trim(ta.cup_branch_ins_id_cd)='00017700' then '西藏'
+        |when trim(ta.cup_branch_ins_id_cd)='00017900' then '陕西'
+        |when trim(ta.cup_branch_ins_id_cd)='00018200' then '甘肃'
+        |when trim(ta.cup_branch_ins_id_cd)='00018500' then '青海'
+        |when trim(ta.cup_branch_ins_id_cd)='00018700' then '宁夏'
+        |when trim(ta.cup_branch_ins_id_cd)='00018800' then '新疆'
         |else '总公司' end as cup_branch_ins_id_nm
         |from tbl_aconl_ins_bas ta
         |
