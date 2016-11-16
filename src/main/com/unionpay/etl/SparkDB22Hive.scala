@@ -22,10 +22,22 @@ object SparkDB22Hive {
 
  def main(args: Array[String]) {
 
-    val conf = new SparkConf().setAppName("SparkDB22Hive")
+    val conf = new SparkConf()
+        .setAppName("SparkDB22Hive")
+        .setLogLevel("ERROR")
+        .set("spark.serializer","org.apache.spark.serializer.KryoSerializer")
+        .set("spark.Kryoserializer.buffer.max","1024m")
+        .set("spark.yarn.driver.memoryOverhead","1024")
+        .set("spark.yarn.executor.memoryOverhead","2000")
+        .set("spark.newwork.buffer.timeout","300s")
+        .set("spark.executor.heartbeatInterval","30s")
+        .set("spark.driver.extraJavaOptions","-XX:+UseG1GC -XX:+UseCompressedOops")
+        .set("spark.executor.extraJavaOptions","-XX:+UseG1GC -XX:+UseCompressedOops")
+
+
     val sc = new SparkContext(conf)
-    sc.setLogLevel("ERROR")
     implicit val sqlContext = new HiveContext(sc)
+    sqlContext.setConf("spark.sql.shuffle.partitions",100)
 
     //从数据库中获取当前JOB的执行起始和结束日期
     val rowParams=UPSQL_TIMEPARAMS_JDBC.readTimeParams(sqlContext)
