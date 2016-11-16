@@ -315,6 +315,8 @@ object SparkDB22Hive {
          |	hive_ucbiz_cdhd_bas_inf t5 on trim(t1.cdhd_usr_id) = trim(t5.usr_id)
        """.stripMargin)
 
+    println("###JOB_HV_3------>results:"+results.count())
+
     if(!Option(results).isEmpty){
       results.registerTempTable("spark_pri_acct_inf")
       sqlContext.sql(s"use $hive_dbname")
@@ -1570,6 +1572,8 @@ object SparkDB22Hive {
       """.stripMargin)
     results.registerTempTable("spark_trans_his")
 
+    println("###JOB_HV_18------>results:"+results.count())
+
     def InsertPart_JOB_HV_18(start_dt: String, end_dt: String)  {
       var sdf: SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd")
       val start = LocalDate.parse(start_dt, dateFormatter)
@@ -2498,6 +2502,8 @@ object SparkDB22Hive {
     )
     results.registerTempTable("spark_code_pay_tran_dtl")
 
+    println("###JOB_HV_30------>results:"+results.count())
+
     def InsertPart_JOB_HV_30(start_dt: String, end_dt: String)  {
       var sdf: SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd")
       val start = LocalDate.parse(start_dt, dateFormatter)
@@ -3285,6 +3291,8 @@ object SparkDB22Hive {
       """.stripMargin
     )
     results.registerTempTable("spark_swt_log")
+
+    println("###JOB_HV_43------>results:"+results.count())
 
     def InsertPart_JOB_HV_43 (start_dt: String, end_dt: String)  {
       var sdf: SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd")
