@@ -5,10 +5,10 @@ import java.util.Properties
 
 import com.unionpay.conf.ConfigurationManager
 import com.unionpay.constant.Constants
+import org.apache.spark.SparkContext
 import org.apache.spark.sql.hive.HiveContext
 import org.apache.spark.sql.types.{StringType, StructField, StructType}
-import org.apache.spark.sql.{ Row, SQLContext, SaveMode}
-import org.apache.spark.{ SparkContext}
+import org.apache.spark.sql.{Row, SaveMode}
 
 /**
   * 获取时间调度的参数start_dt 和end_dt
@@ -29,7 +29,6 @@ object UPSQL_TIMEPARAMS_JDBC {
   /**
     * 根据表名来取时间参数
     * @param sqlContext
-    * @param tableName
     * @return
     */
   def readTimeParams(sqlContext:HiveContext):Row={
@@ -38,7 +37,6 @@ object UPSQL_TIMEPARAMS_JDBC {
 
   /**
     * 根据表名来取时间参数
-    * @param tableName 表名
     * @return
     */
   def getTimeParams(): ResultSet ={

@@ -66,6 +66,7 @@ object SparkHive2Mysql {
       case "JOB_DM_6"  => JOB_DM_6(sqlContext,start_dt,end_dt,interval)    //CODE BY TZQ
       case "JOB_DM_54" =>JOB_DM_54(sqlContext,start_dt,end_dt)   //CODE BY XTP 无数据
       case "JOB_DM_10" =>JOB_DM_10(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ
+      case "JOB_DM_11" =>JOB_DM_11(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ
     }
 
     sc.stop()
@@ -903,7 +904,7 @@ object SparkHive2Mysql {
     * @return
     */
   def JOB_DM_10 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String,interval:Int) = {
-    println("###JOB_DM_10")
+    println("###JOB_DM_10###")
     UPSQL_JDBC.delete(s"DM_STORE_DIRECT_CONTACT_TRAN","REPORT_DT",start_dt,end_dt)
     var today_dt=start_dt
     if(interval>0 ){
@@ -1009,7 +1010,7 @@ object SparkHive2Mysql {
     * @param interval
     */
   def JOB_DM_11 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String,interval:Int) = {
-    println("###JOB_DM_11")
+    println("###JOB_DM_11###")
     UPSQL_JDBC.delete(s"DM_DEVELOPMENT_ORG_CLASS","REPORT_DT",start_dt,end_dt)
     var today_dt=start_dt
     if(interval>0 ){
@@ -1018,124 +1019,123 @@ object SparkHive2Mysql {
         val results = sqlContext.sql(
           s"""
              |select
-             |a.extend_ins_id_cd_class,
-             |'$today_dt' as data,
-             |c.extend_ins_tpre ,
-             |c.extend_ins_years,
-             |c.extend_ins_total,
-             |a.brand_tpre ,
-             |a.brand_years,
-             |a.brand_total,
-             |a.store_tpre ,
-             |a.store_years,
-             |a.store_total,
-             |b.active_store_tpre,
-             |b.active_store_years,
-             |b.active_store_total,
-             |b.tran_store_tpre,
-             |b.tran_store_years,
-             |b.tran_store_total,
-             |
+             |(case when a.extend_ins_id_cd_class is null then nvl(b.extend_ins_id_cd_class,c.extend_ins_id_cd_class) else  nvl(a.extend_ins_id_cd_class,'其它') end) as ORG_CLASS,
+             |'$today_dt'              as    REPORT_DT         ,
+             |sum(c.extend_ins_tpre)    as    EXTEND_INS_TPRE   ,
+             |sum(c.extend_ins_years)   as    EXTEND_INS_YEARS  ,
+             |sum(c.extend_ins_total)   as    EXTEND_INS_TOTAL  ,
+             |sum(a.brand_tpre)         as    BRAND_TPRE        ,
+             |sum(a.brand_years)        as    BRAND_YEARS       ,
+             |sum(a.brand_total)        as    BRAND_TOTAL       ,
+             |sum(a.store_tpre )        as    STORE_TPRE        ,
+             |sum(a.store_years)        as    STORE_YEARS       ,
+             |sum(a.store_total)        as    STORE_TOTAL       ,
+             |sum(b.active_store_tpre)  as    ACTIVE_STORE_TPRE ,
+             |sum(b.active_store_years) as    ACTIVE_STORE_YEARS,
+             |sum(b.active_store_total) as    ACTIVE_STORE_TOTAL,
+             |sum(b.tran_store_tpre)    as    TRAN_STORE_TPRE   ,
+             |sum(b.tran_store_years)   as    TRAN_STORE_YEARS  ,
+             |sum(b.tran_store_total)   as    TRAN_STORE_TOTAL
              |from
-             | (select extend_ins_id_cd_class,
-             |     sum(case when to_date(brand_ts)='$today_dt' and to_date(pre_ts)='$today_dt' then sto_num end) as store_tpre,
-             |     sum(case when to_date(brand_ts)>=trunc(to_date(brand_ts),"YYYY") and to_date(brand_ts)<='$today_dt' and to_date(pre_ts)>=trunc(to_date(pre_ts),"YYYY") and to_date(pre_ts)<='$today_dt' then  sto_num end) as store_years,
-             |     sum(case when to_date(brand_ts)<='$today_dt' and to_date(pre_ts)='$today_dt' then sto_num end) as store_total,
-             |     sum(case when to_date(brand_ts)='$today_dt' and to_date(pre_ts)='$today_dt' then brand_num end) as brand_tpre,
-             |     sum(case when to_date(brand_ts)>=trunc(to_date(brand_ts),"YYYY") and to_date(brand_ts)<='$today_dt' and to_date(pre_ts)>= trunc(to_date(pre_ts),"YYYY") and to_date(pre_ts)<='$today_dt' then  brand_num end) as brand_years,
-             |     sum(case when to_date(brand_ts)<='$today_dt' and to_date(pre_ts)='$today_dt' then brand_num end) as brand_total
-             | from
-             |  ( select
-             |   (case
-             |   when substr(EXTEND_INS_ID_CD,1,4) between '0100' and '0599' then '银行'
-             |   when substr(EXTEND_INS_ID_CD,1,4) between '1400' and '1699'  or (substr(EXTEND_INS_ID_CD,1,4) between '4800' and '4999' and substr(EXTEND_INS_ID_CD,1,4)<>'4802') then '非金机构'
-             |   when substr(EXTEND_INS_ID_CD,1,4) = '4802' then '银商收单'
-             |   when substr(EXTEND_INS_ID_CD,1,4) in ('4990','4991','8804') or substr(EXTEND_INS_ID_CD,1,1) in ('c','C') then '第三方机构'
-             |   else EXTEND_INS_ID_CD end  ) as extend_ins_id_cd_class,sto_num,brand_num,brand_ts ,pre_ts
-             |   from
-             |    (select bas.EXTEND_INS_ID_CD,count(distinct pre.mchnt_cd) as sto_num,count(distinct pre.brand_id) as brand_num ,brand.rec_crt_ts as brand_ts ,pre.rec_crt_ts as pre_ts
-             |    from TBL_CHMGM_ACCESS_BAS_INF bas
-             |    left join TBL_CHMGM_PREFERENTIAL_MCHNT_INF pre
-             |    on bas.ch_ins_id_cd=pre.mchnt_cd
-             |    left join TBL_CHMGM_BRAND_INF brand on brand.brand_id=pre.brand_id
-             |    where
-             |    substr(bas.EXTEND_INS_ID_CD,1,4) not between '0000' and '0099'
-             |    and extend_ins_id_cd<>''
-             |    and pre.mchnt_st='2' and
-             |    pre.rec_crt_ts>='2015-01-01-00.00.00.000000'
-             |    and brand.rec_crt_ts>='2015-01-01-00.00.00.000000'
-             |    group by bas.EXTEND_INS_ID_CD,brand.rec_crt_ts,pre.rec_crt_ts)
-             |  ) group by extend_ins_id_cd_class ) a
+             |(select extend_ins_id_cd_class,
+             |sum(case when to_date(brand_ts)='$today_dt' and to_date(pre_ts)='$today_dt' then sto_num end) as store_tpre,
+             |sum(case when to_date(brand_ts)>=trunc('$today_dt','YYYY') and to_date(brand_ts)<='$today_dt' and to_date(pre_ts)>=trunc('$today_dt','YYYY') and to_date(pre_ts)<='$today_dt' then sto_num end) as store_years,
+             |sum(case when to_date(brand_ts)<='$today_dt' and to_date(pre_ts)='$today_dt' then sto_num end) as store_total,
+             |sum(case when to_date(brand_ts)='$today_dt' and to_date(pre_ts)='$today_dt' then brand_num end) as brand_tpre,
+             |sum(case when to_date(brand_ts)>=trunc('$today_dt','YYYY') and to_date(brand_ts)<='$today_dt' and to_date(pre_ts)>=trunc('$today_dt','YYYY') and to_date(pre_ts)<='$today_dt' then brand_num end) as brand_years,
+             |sum(case when to_date(brand_ts)<='$today_dt' and to_date(pre_ts)='$today_dt' then brand_num end) as brand_total
+             |from
+             |( select
+             |(case
+             |when substr(t0.EXTEND_INS_ID_CD,1,4)>='0100' and substr(t0.EXTEND_INS_ID_CD,1,4)<='0599' then '银行'
+             |when substr(t0.EXTEND_INS_ID_CD,1,4)>='1400' and substr(t0.EXTEND_INS_ID_CD,1,4)<='1699' or (substr(t0.EXTEND_INS_ID_CD,1,4)>='4800' and substr(t0.EXTEND_INS_ID_CD,1,4)<='4999' and substr(t0.EXTEND_INS_ID_CD,1,4)<>'4802') then '非金机构'
+             |when substr(t0.EXTEND_INS_ID_CD,1,4) = '4802' then '银商收单'
+             |when substr(t0.EXTEND_INS_ID_CD,1,4) in ('4990','4991','8804') or substr(t0.EXTEND_INS_ID_CD,1,1) in ('c','C') then '第三方机构'
+             |else t0.EXTEND_INS_ID_CD end ) as extend_ins_id_cd_class,
+             |t0.sto_num,t0.brand_num,t0.brand_ts ,t0.pre_ts
+             |from
+             |(select bas.EXTEND_INS_ID_CD,count(distinct pre.mchnt_cd) as sto_num,count(distinct pre.brand_id) as brand_num ,brand.rec_crt_ts as brand_ts ,pre.rec_crt_ts as pre_ts
+             |from HIVE_ACCESS_BAS_INF bas
+             |left join HIVE_PREFERENTIAL_MCHNT_INF pre
+             |on bas.ch_ins_id_cd=pre.mchnt_cd
+             |left join HIVE_BRAND_INF brand on brand.brand_id=pre.brand_id
+             |where
+             |( substr(bas.EXTEND_INS_ID_CD,1,4) <'0000' or substr(bas.EXTEND_INS_ID_CD,1,4) >'0099' )
+             |and extend_ins_id_cd<>''
+             |and pre.mchnt_st='2' and
+             |pre.rec_crt_ts>='2015-01-01-00.00.00.000000'
+             |and brand.rec_crt_ts>='2015-01-01-00.00.00.000000'
+             |group by bas.EXTEND_INS_ID_CD,brand.rec_crt_ts,pre.rec_crt_ts) t0
+             |) tmp group by extend_ins_id_cd_class ) a
              |
-             |left join
+             |full outer join
              |
-             |(
-             |  select extend_ins_id_cd_class,
-             |   sum(case when to_date(rec_crt_ts)='$today_dt' and to_date(trans_dt)='$today_dt' then NumOfTransSto end) as active_store_tpre,
-             |     sum(case when to_date(rec_crt_ts)>=trunc(to_date(rec_crt_ts),"YYYY") and to_date(rec_crt_ts)<='$today_dt' and to_date(trans_dt)>=trunc(to_date(trans_dt),"YYYY") and to_date(trans_dt)<='$today_dt' then  NumOfTransSto end) as active_store_years,
-             |     sum(case when to_date(rec_crt_ts)<='$today_dt' and to_date(trans_dt)='$today_dt' then NumOfTransSto end) as active_store_total
-             |
-             |    sum(case when to_date(rec_crt_ts)='$today_dt' and to_date(trans_dt)='$today_dt' then NumOfTrans end) as tran_store_tpre,
-             |     sum(case when to_date(rec_crt_ts)>=trunc(to_date(rec_crt_ts),"YYYY") and to_date(rec_crt_ts)<='$today_dt' and to_date(trans_dt)>=trunc(to_date(trans_dt),"YYYY") and to_date(trans_dt)<='$today_dt' then  NumOfTrans end) as tran_store_years,
-             |     sum(case when to_date(rec_crt_ts)<='$today_dt' and to_date(trans_dt)='$today_dt' then NumOfTrans end) as tran_store_total
-             | from
-             |  (
-             |   select
-             |   (case
-             |   when substr(bas.EXTEND_INS_ID_CD,1,4) between '0100' and '0599' then '银行'
-             |   when substr(bas.EXTEND_INS_ID_CD,1,4) between '1400' and '1699'  or (substr(bas.EXTEND_INS_ID_CD,1,4) between '4800' and '4999' and substr(bas.EXTEND_INS_ID_CD,1,4)<>'4802') then '非金机构'
-             |   when substr(bas.EXTEND_INS_ID_CD,1,4) = '4802' then '银商收单'
-             |   when substr(bas.EXTEND_INS_ID_CD,1,4) in ('4990','4991','8804') or substr(bas.EXTEND_INS_ID_CD,1,1) in ('c','C') then '拓展机构'
-             |   else bas.EXTEND_INS_ID_CD end  ) as extend_ins_id_cd_class,bas.EXTEND_INS_ID_CD,EXTEND_INS_NM,count(*)  as NumOfTrans,
-             |   count(distinct sto.THIRD_PARTY_INS_ID) as NumOfTransSto,pre.rec_crt_ts,dtl.trans_dt
-             |   from TBL_CHMGM_ACCESS_BAS_INF bas
-             |   left join TBL_CHMGM_PREFERENTIAL_MCHNT_INF pre
-             |   on bas.ch_ins_id_cd=pre.mchnt_cd
-             |   inner join TBL_CHMGM_STORE_TERM_RELATION sto
-             |   on sto.THIRD_PARTY_INS_ID=pre.mchnt_cd
-             |   inner join VIW_CHMGM_ACC_TRANS_HIS_DTL dtl
-             |   on dtl.CARD_ACCPTR_CD=sto.mchnt_cd and sto.term_id=dtl.CARD_ACCPTR_TERM_ID
-             |   where
-             |   substr(bas.EXTEND_INS_ID_CD,1,4) not between '0000' and '0099'
-             |   and extend_ins_id_cd<>''
-             |   and pre.mchnt_st='2' and
-             |   pre.rec_crt_ts>='2015-01-01-00.00.00.000000'
-             |   and pre.mchnt_st='2' and dtl.TRANS_DT>='20150101'
-             |   group by bas.EXTEND_INS_ID_CD,EXTEND_INS_NM
-             |  )
-             |  group by extend_ins_id_cd_class) b
+             |(select extend_ins_id_cd_class,
+             |sum(case when to_date(brand_ts)='$today_dt' and to_date(pre_ts)='$today_dt' then sto_num end) as active_store_tpre,
+             |sum(case when to_date(brand_ts)>=trunc('$today_dt','YYYY') and to_date(brand_ts)<='$today_dt' and to_date(pre_ts)>=trunc('$today_dt','YYYY') and to_date(pre_ts)<='$today_dt' then sto_num end) as active_store_years,
+             |sum(case when to_date(brand_ts)<='$today_dt' and to_date(pre_ts)<='$today_dt' then sto_num end) as active_store_total,
+             |sum(case when to_date(brand_ts)='$today_dt' and to_date(pre_ts)='$today_dt' then brand_num end) as tran_store_tpre,
+             |sum(case when to_date(brand_ts)>=trunc('$today_dt','YYYY') and to_date(brand_ts)<='$today_dt' and to_date(pre_ts)>=trunc('$today_dt','YYYY') and to_date(pre_ts)<='$today_dt' then brand_num end) as tran_store_years,
+             |sum(case when to_date(brand_ts)<='$today_dt' and to_date(pre_ts)<='$today_dt' then brand_num end) as tran_store_total
+             |from
+             |( select
+             |(case
+             |when substr(t1.EXTEND_INS_ID_CD,1,4) >= '0100' and substr(t1.EXTEND_INS_ID_CD,1,4) <='0599' then '银行'
+             |when substr(t1.EXTEND_INS_ID_CD,1,4) >= '1400' and substr(t1.EXTEND_INS_ID_CD,1,4) <= '1699' or (substr(t1.EXTEND_INS_ID_CD,1,4) >= '4800' and substr(t1.EXTEND_INS_ID_CD,1,4) <='4999' and substr(t1.EXTEND_INS_ID_CD,1,4)<>'4802') then '非金机构'
+             |when substr(t1.EXTEND_INS_ID_CD,1,4) = '4802' then '银商收单'
+             |when substr(t1.EXTEND_INS_ID_CD,1,4) in ('4990','4991','8804') or substr(t1.EXTEND_INS_ID_CD,1,1) in ('c','C') then '第三方机构'
+             |else t1.EXTEND_INS_ID_CD end ) as extend_ins_id_cd_class,
+             |t1.sto_num,t1.brand_num,t1.brand_ts ,t1.pre_ts
+             |from
+             |(select
+             |bas.EXTEND_INS_ID_CD,
+             |count(distinct pre.mchnt_cd) as sto_num,
+             |count(distinct pre.brand_id) as brand_num ,
+             |brand.rec_crt_ts as brand_ts ,
+             |pre.rec_crt_ts as pre_ts
+             |from HIVE_ACCESS_BAS_INF bas
+             |left join HIVE_PREFERENTIAL_MCHNT_INF pre
+             |on bas.ch_ins_id_cd=pre.mchnt_cd
+             |left join HIVE_BRAND_INF brand
+             |on brand.brand_id=pre.brand_id
+             |where
+             |( substr(bas.EXTEND_INS_ID_CD,1,4) <'0000' or substr(bas.EXTEND_INS_ID_CD,1,4) >'0099' )
+             |and length(trim(extend_ins_id_cd))<>0
+             |and pre.mchnt_st='2'
+             |group by bas.EXTEND_INS_ID_CD,brand.rec_crt_ts,pre.rec_crt_ts) t1
+             |) tmp1 group by extend_ins_id_cd_class ) b
              |on a.extend_ins_id_cd_class=b.extend_ins_id_cd_class
-             |left join
-             | (
-             | select extend_ins_id_cd_class,
-             |    count(case when to_date(ENTRY_TS)='$today_dt' then extend_ins_id_cd_class end) as extend_ins_tpre,
-             |     count(case when to_date(ENTRY_TS)>=trunc(to_date(ENTRY_TS),"YYYY") and to_date(ENTRY_TS)<='$today_dt' then  extend_ins_id_cd_class end) as extend_ins_years,
-             |     count(case when to_date(ENTRY_TS)<='$today_dt' then extend_ins_id_cd_class end) as extend_ins_total
-             | from (
-             |   select
-             |   (case
-             |   when substr(EXTEND_INS_ID_CD,1,4) between '0100' and '0599' then '银行'
-             |   when substr(EXTEND_INS_ID_CD,1,4) between '1400' and '1699'  or (substr(EXTEND_INS_ID_CD,1,4) between '4800' and '4999' and substr(EXTEND_INS_ID_CD,1,4)<>'4802') then '非金机构'
-             |   when substr(EXTEND_INS_ID_CD,1,4) = '4802' then '银商收单'
-             |   when substr(EXTEND_INS_ID_CD,1,4) in ('4990','4991','8804') or substr(EXTEND_INS_ID_CD,1,1) in ('c','C') then '拓展机构'
-             |   else EXTEND_INS_ID_CD end  ) as extend_ins_id_cd_class,EXTEND_INS_ID_CD,min(ENTRY_TS)  as ENTRY_TS
-             |   from TBL_CHMGM_ACCESS_BAS_INF
-             |   group by (case
-             |   when substr(EXTEND_INS_ID_CD,1,4) between '0100' and '0599' then '银行'
-             |   when substr(EXTEND_INS_ID_CD,1,4) between '1400' and '1699'  or (substr(EXTEND_INS_ID_CD,1,4) between '4800' and '4999' and substr(EXTEND_INS_ID_CD,1,4)<>'4802') then '非金机构'
-             |   when substr(EXTEND_INS_ID_CD,1,4) = '4802' then '银商收单'
-             |   when substr(EXTEND_INS_ID_CD,1,4) in ('4990','4991','8804') or substr(EXTEND_INS_ID_CD,1,1) in ('c','C') then '拓展机构'
-             |   else EXTEND_INS_ID_CD end  ),EXTEND_INS_ID_CD
-             |   having min(ENTRY_TS) >='2015-01-01-00.00.00.000000'
-             |  )
-             | group by extend_ins_id_cd_class) c
-             | on a.extend_ins_id_cd_class=c.extend_ins_id_cd_class
-             |
+             |full outer join
+             |(
+             |select extend_ins_id_cd_class,
+             |count(case when to_date(ENTRY_TS)='$today_dt' then extend_ins_id_cd_class end) as extend_ins_tpre,
+             |count(case when to_date(ENTRY_TS)>=trunc('$today_dt','YYYY') and to_date(ENTRY_TS)<='$today_dt' then extend_ins_id_cd_class end) as extend_ins_years,
+             |count(case when to_date(ENTRY_TS)<='$today_dt' then extend_ins_id_cd_class end) as extend_ins_total
+             |from (
+             |select
+             |(case
+             |when substr(EXTEND_INS_ID_CD,1,4) >= '0100' and substr(EXTEND_INS_ID_CD,1,4) <='0599' then '银行'
+             |when substr(EXTEND_INS_ID_CD,1,4) >= '1400' and substr(EXTEND_INS_ID_CD,1,4) <= '1699' or (substr(EXTEND_INS_ID_CD,1,4) >= '4800' and substr(EXTEND_INS_ID_CD,1,4) <='4999' and substr(EXTEND_INS_ID_CD,1,4)<>'4802') then '非金机构'
+             |when substr(EXTEND_INS_ID_CD,1,4) = '4802' then '银商收单'
+             |when substr(EXTEND_INS_ID_CD,1,4) in ('4990','4991','8804') or substr(EXTEND_INS_ID_CD,1,1) in ('c','C') then '第三方机构'
+             |else EXTEND_INS_ID_CD end ) as extend_ins_id_cd_class,EXTEND_INS_ID_CD,min(ENTRY_TS) as ENTRY_TS
+             |from HIVE_ACCESS_BAS_INF
+             |group by (case
+             |when substr(EXTEND_INS_ID_CD,1,4) >= '0100' and substr(EXTEND_INS_ID_CD,1,4) <='0599' then '银行'
+             |when substr(EXTEND_INS_ID_CD,1,4) >= '1400' and substr(EXTEND_INS_ID_CD,1,4) <= '1699' or (substr(EXTEND_INS_ID_CD,1,4) >= '4800' and substr(EXTEND_INS_ID_CD,1,4) <='4999' and substr(EXTEND_INS_ID_CD,1,4)<>'4802') then '非金机构'
+             |when substr(EXTEND_INS_ID_CD,1,4) = '4802' then '银商收单'
+             |when substr(EXTEND_INS_ID_CD,1,4) in ('4990','4991','8804') or substr(EXTEND_INS_ID_CD,1,1) in ('c','C') then '第三方机构'
+             |else EXTEND_INS_ID_CD end ),EXTEND_INS_ID_CD
+             |having min(ENTRY_TS) >='2015-01-01-00.00.00.000000'
+             |) tmp3
+             |group by extend_ins_id_cd_class) c
+             |on a.extend_ins_id_cd_class=c.extend_ins_id_cd_class
+             |group by (case when a.extend_ins_id_cd_class is null then nvl(b.extend_ins_id_cd_class,c.extend_ins_id_cd_class) else  nvl(a.extend_ins_id_cd_class,'其它') end)
              |
              | """.stripMargin)
         println(s"###JOB_DM_10------$today_dt results:"+results.count())
         if(!Option(results).isEmpty){
-          results.save2Mysql("DM_STORE_DOMAIN_BRANCH_COMPANY")
+          results.save2Mysql("dm_development_org_class")
         }else{
           println("指定的时间范围无数据插入！")
         }
