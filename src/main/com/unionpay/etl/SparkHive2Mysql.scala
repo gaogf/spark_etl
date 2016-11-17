@@ -1143,7 +1143,7 @@ object SparkHive2Mysql {
              |group by (case when a.extend_ins_id_cd_class is null then nvl(b.extend_ins_id_cd_class,c.extend_ins_id_cd_class) else  nvl(a.extend_ins_id_cd_class,'其它') end)
              |
              | """.stripMargin)
-        println(s"###JOB_DM_10------$today_dt results:"+results.count())
+        println(s"###JOB_DM_11------$today_dt results:"+results.count())
         if(!Option(results).isEmpty){
           results.save2Mysql("dm_development_org_class")
         }else{
