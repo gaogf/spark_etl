@@ -1,7 +1,7 @@
 package com.unionpay.utils
 
 import java.text.SimpleDateFormat
-import java.util.Calendar
+import java.util.{Calendar, Date}
 
 /**
   * 日期工具类
@@ -66,15 +66,13 @@ object DateUtils {
    }
 
   /**
-    * MAIN TEST FOR DATEUTILS FUNCTION
-    * @param args
+    * 获取当前系统时间，格式为：yyyy-MM-dd HH:mm:ss
+    * @return
     */
-  def main(args: Array[String]): Unit = {
-    val start_dt="2016-09-08"
-    val end_dt="2016-09-09"
-    println(getYesterday())
-    println(getYesterdayByJob(start_dt))
-    println(getIntervalDays(start_dt,end_dt))
-    println(addOneDay(end_dt))
+  def getCurrentSystemTime():String={
+    val now:Date = new Date()
+    val dateFormat:SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+    dateFormat.format( now )
   }
+
 }
