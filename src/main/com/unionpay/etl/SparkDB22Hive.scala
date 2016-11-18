@@ -34,7 +34,7 @@ object SparkDB22Hive {
         .set("spark.executor.extraJavaOptions","-XX:+UseG1GC -XX:+UseCompressedOops")
 
     val sc = new SparkContext(conf)
-   sc.setLogLevel("ERROR")
+    sc.setLogLevel("ERROR")
     implicit val sqlContext = new HiveContext(sc)
 
 
@@ -160,12 +160,14 @@ object SparkDB22Hive {
       sqlContext.sql(s"use $hive_dbname")
       sqlContext.sql("truncate table hive_card_bind_inf")
       sqlContext.sql("insert into table hive_card_bind_inf select * from spark_card_bind_inf")
+      println("insert into table hive_card_bind_inf successfully")
       val usedTime = System.currentTimeMillis() - currntTime
       val ss:Int =((System.currentTimeMillis() - currntTime)/1000).toInt
       val MM:Int = ss/60
       val hh:Int = MM/60
       val dd:Int = hh/24
-      println("运行 JOB_HV_1 花费 "+dd+"天, 精确的时间是:"+hh+"时"+MM+"分"+ss+"秒 , 合计："+usedTime+"毫秒")
+      println("运行 JOB_HV_1 花费 :"+dd+"天"+(hh-dd*24)+"时"+(MM-hh*60)+"分"+(ss-MM*60)+"秒 , 合计："+usedTime+"毫秒")
+
     }else{
       println("加载的表tbl_chmgm_preferential_mchnt_inf中无数据！")
     }
@@ -347,7 +349,8 @@ object SparkDB22Hive {
       val MM:Int = ss/60
       val hh:Int = MM/60
       val dd:Int = hh/24
-      println("运行 JOB_HV_3 花费 "+dd+"天, 精确的时间是:"+hh+"时"+MM+"分"+ss+"秒 , 合计："+usedTime+"毫秒")
+      println("运行 JOB_HV_3 花费 :"+dd+"天"+(hh-dd*24)+"时"+(MM-hh*60)+"分"+(ss-MM*60)+"秒 , 合计："+usedTime+"毫秒")
+
     }else{
       println("加载的表hive_pri_acct_inf中无数据！")
     }
@@ -614,7 +617,8 @@ object SparkDB22Hive {
         val MM:Int = ss/60
         val hh:Int = MM/60
         val dd:Int = hh/24
-        println("运行插入分区花费 "+dd+"天, 精确的时间是:"+hh+"时"+MM+"分"+ss+"秒 , 合计："+usedInsertofTime+"毫秒")
+        println("运行插入分区花费的时间是:"+dd+"天"+(hh-dd*24)+"时"+(MM-hh*60)+"分"+(ss-MM*60)+"秒 , 合计："+usedInsertofTime+"毫秒")
+
       }
     }
 
@@ -624,7 +628,8 @@ object SparkDB22Hive {
     val MM:Int = ss/60
     val hh:Int = MM/60
     val dd:Int = hh/24
-    println("运行 JOB_HV_4 花费 "+dd+"天, 精确的时间是:"+hh+"时"+MM+"分"+ss+"秒 , 合计："+usedTime+"毫秒")
+    println("运行 JOB_HV_4 花费 :"+dd+"天"+(hh-dd*24)+"时"+(MM-hh*60)+"分"+(ss-MM*60)+"秒 , 合计："+usedTime+"毫秒")
+
   }
 
 
@@ -744,12 +749,13 @@ object SparkDB22Hive {
       sqlContext.sql(s"use $hive_dbname")
       sqlContext.sql("truncate table  HIVE_STORE_TERM_RELATION")
       sqlContext.sql("insert into table HIVE_STORE_TERM_RELATION select * from spark_tbl_chmgm_store_term_relation")
+      println("insert into table HIVE_STORE_TERM_RELATION successfully!")
       val usedTime = System.currentTimeMillis() - currntTime
       val ss:Int =((System.currentTimeMillis() - currntTime)/1000).toInt
       val MM:Int = ss/60
       val hh:Int = MM/60
       val dd:Int = hh/24
-      println("运行 JOB_HV_8 花费 "+dd+"天, 精确的时间是:"+hh+"时"+MM+"分"+ss+"秒 , 合计："+usedTime+"毫秒")
+      println("运行 JOB_HV_8 花费 :"+dd+"天"+(hh-dd*24)+"时"+(MM-hh*60)+"分"+(ss-MM*60)+"秒 , 合计："+usedTime+"毫秒")
 
     }else{
       println("加载的表spark_tbl_chmgm_store_term_relation中无数据！")
@@ -871,12 +877,13 @@ object SparkDB22Hive {
       sqlContext.sql(s"use $hive_dbname")
       sqlContext.sql("truncate table  hive_preferential_mchnt_inf")
       sqlContext.sql("insert into table hive_preferential_mchnt_inf select * from spark_tbl_chmgm_preferential_mchnt_inf")
+      println("insert into table hive_preferential_mchnt_inf successfully!")
       val usedTime = System.currentTimeMillis() - currntTime
       val ss:Int =((System.currentTimeMillis() - currntTime)/1000).toInt
       val MM:Int = ss/60
       val hh:Int = MM/60
       val dd:Int = hh/24
-      println("运行 JOB_HV_9 花费 "+dd+"天, 精确的时间是:"+hh+"时"+MM+"分"+ss+"秒 , 合计："+usedTime+"毫秒")
+      println("运行 JOB_HV_9 花费 :"+dd+"天"+(hh-dd*24)+"时"+(MM-hh*60)+"分"+(ss-MM*60)+"秒 , 合计："+usedTime+"毫秒")
 
     }else{
       println("加载的表tbl_chmgm_preferential_mchnt_inf中无数据！")
@@ -1004,12 +1011,13 @@ object SparkDB22Hive {
       sqlContext.sql(s"use $hive_dbname")
       sqlContext.sql("truncate table  hive_access_bas_inf")
       sqlContext.sql("insert into table hive_access_bas_inf select * from spark_tbl_chmgm_access_bas_inf")
+      println("insert into table hive_access_bas_inf successfully!")
       val usedTime = System.currentTimeMillis() - currntTime
       val ss:Int =((System.currentTimeMillis() - currntTime)/1000).toInt
       val MM:Int = ss/60
       val hh:Int = MM/60
       val dd:Int = hh/24
-      println("运行 JOB_HV_10 花费 "+dd+"天, 精确的时间是:"+hh+"时"+MM+"分"+ss+"秒 , 合计："+usedTime+"毫秒")
+      println("运行 JOB_HV_10 花费 :"+dd+"天"+(hh-dd*24)+"时"+(MM-hh*60)+"分"+(ss-MM*60)+"秒 , 合计："+usedTime+"毫秒")
 
     }else{
       println("加载的表tbl_chmgm_access_bas_inf中无数据！")
@@ -1172,12 +1180,13 @@ object SparkDB22Hive {
       sqlContext.sql(s"use $hive_dbname")
       sqlContext.sql("truncate table  hive_ticket_bill_bas_inf")
       sqlContext.sql("insert into table hive_ticket_bill_bas_inf select * from spark_db2_tbl_chacc_ticket_bill_bas_inf")
+      println("insert into table hive_ticket_bill_bas_inf successfully!")
       val usedTime = System.currentTimeMillis() - currntTime
       val ss:Int =((System.currentTimeMillis() - currntTime)/1000).toInt
       val MM:Int = ss/60
       val hh:Int = MM/60
       val dd:Int = hh/24
-      println("运行 JOB_HV_11 花费 "+dd+"天, 精确的时间是:"+hh+"时"+MM+"分"+ss+"秒 , 合计："+usedTime+"毫秒")
+      println("运行 JOB_HV_11 花费 :"+dd+"天"+(hh-dd*24)+"时"+(MM-hh*60)+"分"+(ss-MM*60)+"秒 , 合计："+usedTime+"毫秒")
 
     }else{
       println("加载的表TBL_CHMGM_TICKET_BILL_BAS_INF中无数据！")
@@ -1237,12 +1246,13 @@ object SparkDB22Hive {
       sqlContext.sql(s"use $hive_dbname")
       sqlContext.sql("truncate table  hive_chara_grp_def_bat")
       sqlContext.sql("insert into table hive_chara_grp_def_bat select * from spark_tbl_chmgm_chara_grp_def_bat")
+      println("insert into table hive_chara_grp_def_bat successfully!")
       val usedTime = System.currentTimeMillis() - currntTime
       val ss:Int =((System.currentTimeMillis() - currntTime)/1000).toInt
       val MM:Int = ss/60
       val hh:Int = MM/60
       val dd:Int = hh/24
-      println("运行 JOB_HV_12 花费 "+dd+"天, 精确的时间是:"+hh+"时"+MM+"分"+ss+"秒 , 合计："+usedTime+"毫秒")
+      println("运行 JOB_HV_12 花费 :"+dd+"天"+(hh-dd*24)+"时"+(MM-hh*60)+"分"+(ss-MM*60)+"秒 , 合计："+usedTime+"毫秒")
 
     }else{
       println("加载的表tbl_chmgm_chara_grp_def_bat中无数据！")
@@ -1317,12 +1327,13 @@ object SparkDB22Hive {
       sqlContext.sql(s"use $hive_dbname")
       sqlContext.sql("truncate table  hive_card_bin")
       sqlContext.sql("insert into table hive_card_bin select * from spark_db2_tbl_chmgm_card_bin")
+      println("insert into table hive_card_bin successfully!")
       val usedTime = System.currentTimeMillis() - currntTime
       val ss:Int =((System.currentTimeMillis() - currntTime)/1000).toInt
       val MM:Int = ss/60
       val hh:Int = MM/60
       val dd:Int = hh/24
-      println("运行 JOB_HV_13 花费 "+dd+"天, 精确的时间是:"+hh+"时"+MM+"分"+ss+"秒 , 合计："+usedTime+"毫秒")
+      println("运行 JOB_HV_13 花费 :"+dd+"天"+(hh-dd*24)+"时"+(MM-hh*60)+"分"+(ss-MM*60)+"秒 , 合计："+usedTime+"毫秒")
 
     }else{
       println("加载的表TBL_CHMGM_CARD_BIN中无数据！")
@@ -1359,12 +1370,13 @@ object SparkDB22Hive {
       sqlContext.sql(s"use $hive_dbname")
       sqlContext.sql("truncate table  hive_inf_source_dtl")
       sqlContext.sql("insert into table hive_inf_source_dtl select * from spark_db2_tbl_inf_source_dtl")
+      println("insert into table hive_inf_source_dtl successfully!")
       val usedTime = System.currentTimeMillis() - currntTime
       val ss:Int =((System.currentTimeMillis() - currntTime)/1000).toInt
       val MM:Int = ss/60
       val hh:Int = MM/60
       val dd:Int = hh/24
-      println("运行 JOB_HV_14 花费 "+dd+"天, 精确的时间是:"+hh+"时"+MM+"分"+ss+"秒 , 合计："+usedTime+"毫秒")
+      println("运行 JOB_HV_14 花费 :"+dd+"天"+(hh-dd*24)+"时"+(MM-hh*60)+"分"+(ss-MM*60)+"秒 , 合计："+usedTime+"毫秒")
 
     }else{
       println("加载的表TBL_INF_SOURCE_DTL中无数据！")
@@ -1433,12 +1445,13 @@ object SparkDB22Hive {
       results.registerTempTable("hive_undefine_store_inf_temp")
       sqlContext.sql("truncate table  hive_undefine_store_inf")
       sqlContext.sql("insert into table hive_undefine_store_inf select * from hive_undefine_store_inf_temp")
+      println("insert into table hive_undefine_store_inf successfully!")
       val usedTime = System.currentTimeMillis() - currntTime
       val ss:Int =((System.currentTimeMillis() - currntTime)/1000).toInt
       val MM:Int = ss/60
       val hh:Int = MM/60
       val dd:Int = hh/24
-      println("运行 JOB_HV_ 花费 "+dd+"天, 精确的时间是:"+hh+"时"+MM+"分"+ss+"秒 , 合计："+usedTime+"毫秒")
+      println("运行 JOB_HV_15 花费 :"+dd+"天"+(hh-dd*24)+"时"+(MM-hh*60)+"分"+(ss-MM*60)+"秒 , 合计："+usedTime+"毫秒")
 
     }else{
       println("没有数据插入到指定表hive_undefine_store_inf ！")
@@ -1607,12 +1620,13 @@ object SparkDB22Hive {
       sqlContext.sql(s"use $hive_dbname")
       sqlContext.sql("truncate table  hive_mchnt_inf_wallet")
       sqlContext.sql("insert into table hive_mchnt_inf_wallet select * from spark_tbl_chmgm_mchnt_inf")
+      println("insert into table hive_mchnt_inf_wallet successfully!")
       val usedTime = System.currentTimeMillis() - currntTime
       val ss:Int =((System.currentTimeMillis() - currntTime)/1000).toInt
       val MM:Int = ss/60
       val hh:Int = MM/60
       val dd:Int = hh/24
-      println("运行 JOB_HV_16 花费 "+dd+"天, 精确的时间是:"+hh+"时"+MM+"分"+ss+"秒 , 合计："+usedTime+"毫秒")
+      println("运行 JOB_HV_16 花费 :"+dd+"天"+(hh-dd*24)+"时"+(MM-hh*60)+"分"+(ss-MM*60)+"秒 , 合计："+usedTime+"毫秒")
 
     }else{
       println("指定表hive_mchnt_inf_wallet无数据插入！")
@@ -1714,7 +1728,8 @@ object SparkDB22Hive {
         val MM:Int = ss/60
         val hh:Int = MM/60
         val dd:Int = hh/24
-        println("运行插入分区花费 "+dd+"天, 精确的时间是:"+hh+"时"+MM+"分"+ss+"秒 , 合计："+usedInsertofTime+"毫秒")
+        println("运行插入分区花费的时间是:"+dd+"天"+(hh-dd*24)+"时"+(MM-hh*60)+"分"+(ss-MM*60)+"秒 , 合计："+usedInsertofTime+"毫秒")
+
       }
     }
 
@@ -1724,7 +1739,7 @@ object SparkDB22Hive {
     val MM:Int = ss/60
     val hh:Int = MM/60
     val dd:Int = hh/24
-    println("运行 JOB_HV_18 花费 "+dd+"天, 精确的时间是:"+hh+"时"+MM+"分"+ss+"秒 , 合计："+usedTime+"毫秒")
+    println("运行 JOB_HV_18 花费 :"+dd+"天"+(hh-dd*24)+"时"+(MM-hh*60)+"分"+(ss-MM*60)+"秒 , 合计："+usedTime+"毫秒")
 
   }
 
@@ -1824,12 +1839,13 @@ object SparkDB22Hive {
       results.registerTempTable("spark_ins_inf")
       sqlContext.sql("truncate table hive_ins_inf")
       sqlContext.sql("insert into table hive_ins_inf select * from spark_ins_inf")
+      println("insert into table hive_ins_inf successfully!")
       val usedTime = System.currentTimeMillis() - currntTime
       val ss:Int =((System.currentTimeMillis() - currntTime)/1000).toInt
       val MM:Int = ss/60
       val hh:Int = MM/60
       val dd:Int = hh/24
-      println("运行 JOB_HV_ 花费 "+dd+"天, 精确的时间是:"+hh+"时"+MM+"分"+ss+"秒 , 合计："+usedTime+"毫秒")
+      println("运行 JOB_HV_19 花费 :"+dd+"天"+(hh-dd*24)+"时"+(MM-hh*60)+"分"+(ss-MM*60)+"秒 , 合计："+usedTime+"毫秒")
 
     }else{
       println("加载的表HIVE_INS_INF中无数据！")
@@ -1845,6 +1861,8 @@ object SparkDB22Hive {
     * @para sqlContext
     * */
   def JOB_HV_20_INI_I(implicit sqlContext: HiveContext) = {
+    val currntTime =System.currentTimeMillis()
+
     println("####JOB_HV_20_INI_I(tbl_chmgm_term_inf -> hive_term_inf)")
 
     val df = sqlContext.jdbc_mgmdb_DF(s"$schemas_mgmdb.TBL_CHMGM_TERM_INF")
@@ -1892,7 +1910,13 @@ object SparkDB22Hive {
       println("#### truncate table hive_term_inf successful ####")
       sqlContext.sql(s"insert into table hive_term_inf select * from spark_hive_term_inf")
       println("#### insert into table hive_term_inf successful ####")
-      println("####Complete Time: "+DateUtils.getCurrentSystemTime())
+      val usedTime = System.currentTimeMillis() - currntTime
+      val ss:Int =((System.currentTimeMillis() - currntTime)/1000).toInt
+      val MM:Int = ss/60
+      val hh:Int = MM/60
+      val dd:Int = hh/24
+      println("运行 JOB_HV_ 花费 :"+dd+"天"+(hh-dd*24)+"时"+(MM-hh*60)+"分"+(ss-MM*60)+"秒 , 合计："+usedTime+"毫秒")
+
     } else {
       println("#### 加载的表TBL_CHMGM_TERM_INF中无数据 ####")
     }
@@ -1908,6 +1932,8 @@ object SparkDB22Hive {
     * @return
     */
   def JOB_HV_23(implicit sqlContext: HiveContext) = {
+    val currntTime =System.currentTimeMillis()
+
     println("###JOB_HV_23(hive_brand_inf->tbl_chmgm_brand_inf)")
 
     val df = sqlContext.jdbc_mgmdb_DF(s"$schemas_mgmdb.TBL_CHMGM_BRAND_INF")
@@ -1946,7 +1972,14 @@ object SparkDB22Hive {
       sqlContext.sql(s"use $hive_dbname")
       sqlContext.sql("truncate table  hive_brand_inf")
       sqlContext.sql("insert into table hive_brand_inf select * from spark_db2_tbl_chmgm_brand_inf")
-      println("####Complete Time: "+DateUtils.getCurrentSystemTime())
+      println("insert into table hive_brand_inf successfully!")
+      val usedTime = System.currentTimeMillis() - currntTime
+      val ss:Int =((System.currentTimeMillis() - currntTime)/1000).toInt
+      val MM:Int = ss/60
+      val hh:Int = MM/60
+      val dd:Int = hh/24
+      println("运行 JOB_HV_23 花费 :"+dd+"天"+(hh-dd*24)+"时"+(MM-hh*60)+"分"+(ss-MM*60)+"秒 , 合计："+usedTime+"毫秒")
+
     }else{
       println("加载的表TBL_CHMGM_BRAND_INF中无数据！")
     }
@@ -1963,6 +1996,8 @@ object SparkDB22Hive {
     * @return
     */
   def JOB_HV_24(implicit sqlContext: HiveContext) = {
+    val currntTime =System.currentTimeMillis()
+
     println("###JOB_HV_24(tbl_chmgm_mchnt_para -> hive_mchnt_para)")
 
     sqlContext.sql(s"use $hive_dbname")
@@ -1991,7 +2026,14 @@ object SparkDB22Hive {
       results.registerTempTable("spark_mchnt_para")
       sqlContext.sql("truncate table hive_mchnt_para")
       sqlContext.sql("insert into table hive_mchnt_para select * from spark_mchnt_para")
-      println("####Complete Time: "+DateUtils.getCurrentSystemTime())
+      println("insert into table hive_mchnt_para successfully!")
+      val usedTime = System.currentTimeMillis() - currntTime
+      val ss:Int =((System.currentTimeMillis() - currntTime)/1000).toInt
+      val MM:Int = ss/60
+      val hh:Int = MM/60
+      val dd:Int = hh/24
+      println("运行 JOB_HV_ 花费 :"+dd+"天"+(hh-dd*24)+"时"+(MM-hh*60)+"分"+(ss-MM*60)+"秒 , 合计："+usedTime+"毫秒")
+
     }else{
       println("加载的表tbl_chmgm_mchnt_para中无数据！")
     }
@@ -2007,6 +2049,8 @@ object SparkDB22Hive {
     * @return
     */
   def JOB_HV_25 (implicit sqlContext: HiveContext) = {
+    val currntTime =System.currentTimeMillis()
+
     val df2_1 = sqlContext.jdbc_mgmdb_DF(s"$schemas_mgmdb.tbl_mcmgm_mchnt_tp")
     println("分区数为:" + {
       df2_1.rdd.getNumPartitions
@@ -2043,7 +2087,14 @@ object SparkDB22Hive {
       sqlContext.sql(s"use $hive_dbname")
       sqlContext.sql("truncate table  HIVE_MCHNT_TP")
       sqlContext.sql("insert into table HIVE_MCHNT_TP select * from spark_hive_mchnt_tp")
-      println("####Complete Time: "+DateUtils.getCurrentSystemTime())
+      println("insert into table HIVE_MCHNT_TP successfully!")
+      val usedTime = System.currentTimeMillis() - currntTime
+      val ss:Int =((System.currentTimeMillis() - currntTime)/1000).toInt
+      val MM:Int = ss/60
+      val hh:Int = MM/60
+      val dd:Int = hh/24
+      println("运行 JOB_HV_25 花费 :"+dd+"天"+(hh-dd*24)+"时"+(MM-hh*60)+"分"+(ss-MM*60)+"秒 , 合计："+usedTime+"毫秒")
+
     }else{
       println("加载的表spark_hive_mchnt_tp中无数据！")
     }
@@ -2058,6 +2109,8 @@ object SparkDB22Hive {
     * @return
     */
   def JOB_HV_26(implicit sqlContext: HiveContext) = {
+    val currntTime =System.currentTimeMillis()
+
     println("###JOB_HV_26(hive_mchnt_tp_grp-->tbl_mcmgm_mchnt_tp_grp)")
     val df = sqlContext.jdbc_mgmdb_DF(s"$schemas_mgmdb.TBL_MCMGM_MCHNT_TP_GRP")
     df.registerTempTable("db2_tbl_mcmgm_mchnt_tp_grp")
@@ -2088,7 +2141,14 @@ object SparkDB22Hive {
       sqlContext.sql(s"use $hive_dbname")
       sqlContext.sql("truncate table  hive_mchnt_tp_grp")
       sqlContext.sql("insert into table hive_mchnt_tp_grp select * from spark_db2_tbl_mcmgm_mchnt_tp_grp")
-      println("####Complete Time: "+DateUtils.getCurrentSystemTime())
+      println("insert into table hive_mchnt_tp_grp successfully!")
+      val usedTime = System.currentTimeMillis() - currntTime
+      val ss:Int =((System.currentTimeMillis() - currntTime)/1000).toInt
+      val MM:Int = ss/60
+      val hh:Int = MM/60
+      val dd:Int = hh/24
+      println("运行 JOB_HV_26 花费 :"+dd+"天"+(hh-dd*24)+"时"+(MM-hh*60)+"分"+(ss-MM*60)+"秒 , 合计："+usedTime+"毫秒")
+
     }else{
       println("加载的表TBL_MCMGM_MCHNT_TP_GRP中无数据！")
     }
@@ -2106,6 +2166,8 @@ object SparkDB22Hive {
     * @param end_dt
     */
   def JOB_HV_27 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
+    val currntTime =System.currentTimeMillis()
+
     val df2_1 = sqlContext.jdbc_accdb_DF(s"$schemas_accdb.VIW_CHACC_ACC_TRANS_LOG")
     df2_1.registerTempTable("VIW_CHACC_ACC_TRANS_LOG")
 
@@ -2261,6 +2323,8 @@ object SparkDB22Hive {
       val end = LocalDate.parse(end_dt, dateFormatter)
       val days = Days.daysBetween(start, end).getDays
       val dateStrs = for (day <- 0 to days) {
+        val insertofTime = System.currentTimeMillis()
+
         val currentDay = (start.plusDays(day).toString(dateFormatter))
         println(s"=========插入'$currentDay'分区的数据=========")
         sqlContext.sql(s"use $hive_dbname")
@@ -2268,11 +2332,24 @@ object SparkDB22Hive {
         println(s"alter table hive_search_trans drop partition (part_settle_dt='$currentDay') successfully!")
         sqlContext.sql(s"insert into hive_search_trans partition (part_settle_dt='$currentDay') select * from spark_hive_search_trans htempa where htempa.MSG_SETTLE_DT = '$currentDay'")
         println(s"insert into hive_search_trans partition (part_settle_dt='$currentDay') successfully!")
+        val usedInsertofTime = System.currentTimeMillis() - insertofTime
+        val ss:Int =((System.currentTimeMillis() - insertofTime)/1000).toInt
+        val MM:Int = ss/60
+        val hh:Int = MM/60
+        val dd:Int = hh/24
+        println("运行插入分区花费的时间是:"+dd+"天"+(hh-dd*24)+"时"+(MM-hh*60)+"分"+(ss-MM*60)+"秒 , 合计："+usedInsertofTime+"毫秒")
+
       }
     }
 
     PartitionFun_JOB_HV_27 (start_dt,end_dt)
-    println("####Complete Time: "+DateUtils.getCurrentSystemTime())
+    val usedTime = System.currentTimeMillis() - currntTime
+    val ss:Int =((System.currentTimeMillis() - currntTime)/1000).toInt
+    val MM:Int = ss/60
+    val hh:Int = MM/60
+    val dd:Int = hh/24
+    println("运行 JOB_HV_27 花费 :"+dd+"天"+(hh-dd*24)+"时"+(MM-hh*60)+"分"+(ss-MM*60)+"秒 , 合计："+usedTime+"毫秒")
+
   }
 
 
@@ -2286,6 +2363,7 @@ object SparkDB22Hive {
     * @param end_dt
     */
   def JOB_HV_28 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
+    val currntTime =System.currentTimeMillis()
     val df2_1 = sqlContext.jdbc_accdb_DF(s"$schemas_accdb.viw_chacc_online_point_trans_inf")
     df2_1.registerTempTable("viw_chacc_online_point_trans_inf")
 
@@ -2390,6 +2468,7 @@ object SparkDB22Hive {
       val end = LocalDate.parse(end_dt, dateFormatter)
       val days = Days.daysBetween(start, end).getDays
       val dateStrs = for (day <- 0 to days) {
+        val insertofTime = System.currentTimeMillis()
         val currentDay = (start.plusDays(day).toString(dateFormatter))
         println(s"=========插入'$currentDay'分区的数据=========")
         sqlContext.sql(s"use $hive_dbname")
@@ -2397,12 +2476,23 @@ object SparkDB22Hive {
         println(s"alter table hive_online_point_trans drop partition (part_trans_dt='$currentDay') successfully!")
         sqlContext.sql(s"insert into hive_online_point_trans partition (part_trans_dt='$currentDay') select * from spark_hive_online_point_trans htempa where htempa.trans_dt = '$currentDay'")
         println(s"insert into hive_online_point_trans partition (part_trans_dt='$currentDay') successfully!")
-
+        val usedInsertofTime = System.currentTimeMillis() - insertofTime
+        val ss:Int =((System.currentTimeMillis() - insertofTime)/1000).toInt
+        val MM:Int = ss/60
+        val hh:Int = MM/60
+        val dd:Int = hh/24
+        println("运行插入分区花费的时间是:"+dd+"天"+(hh-dd*24)+"时"+(MM-hh*60)+"分"+(ss-MM*60)+"秒 , 合计："+usedInsertofTime+"毫秒")
       }
     }
 
     PartitionFun_JOB_HV_28 (start_dt,end_dt)
-    println("####Complete Time: "+DateUtils.getCurrentSystemTime())
+    val usedTime = System.currentTimeMillis() - currntTime
+    val ss:Int =((System.currentTimeMillis() - currntTime)/1000).toInt
+    val MM:Int = ss/60
+    val hh:Int = MM/60
+    val dd:Int = hh/24
+    println("运行 JOB_HV_28 花费 :"+dd+"天"+(hh-dd*24)+"时"+(MM-hh*60)+"分"+(ss-MM*60)+"秒 , 合计："+usedTime+"毫秒")
+
   }
 
   /**
@@ -2415,6 +2505,7 @@ object SparkDB22Hive {
     * @param end_dt
     */
   def JOB_HV_29 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
+    val currntTime =System.currentTimeMillis()
     val df2_1 = sqlContext.jdbc_accdb_DF(s"$schemas_accdb.tbl_chacc_cdhd_point_addup_dtl")
     df2_1.registerTempTable("tbl_chacc_cdhd_point_addup_dtl")
 
@@ -2565,6 +2656,8 @@ object SparkDB22Hive {
       val end = LocalDate.parse(end_dt, dateFormatter)
       val days = Days.daysBetween(start, end).getDays
       val dateStrs = for (day <- 0 to days) {
+        val insertofTime = System.currentTimeMillis()
+
         val currentDay = (start.plusDays(day).toString(dateFormatter))
         println(s"=========插入'$currentDay'分区的数据=========")
         sqlContext.sql(s"use $hive_dbname")
@@ -2572,11 +2665,23 @@ object SparkDB22Hive {
         println(s"alter table hive_offline_point_trans drop partition (part_trans_dt='$currentDay') successfully!")
         sqlContext.sql(s"insert into hive_offline_point_trans partition (part_trans_dt='$currentDay') select * from spark_hive_offline_point_trans htempa where htempa.trans_dt= '$currentDay'")
         println(s"insert into hive_offline_point_trans partition (part_trans_dt='$currentDay') successfully!")
+        val usedInsertofTime = System.currentTimeMillis() - insertofTime
+        val ss:Int =((System.currentTimeMillis() - insertofTime)/1000).toInt
+        val MM:Int = ss/60
+        val hh:Int = MM/60
+        val dd:Int = hh/24
+        println("运行插入分区花费的时间是:"+dd+"天"+(hh-dd*24)+"时"+(MM-hh*60)+"分"+(ss-MM*60)+"秒 , 合计："+usedInsertofTime+"毫秒")
       }
     }
 
     PartitionFun_JOB_HV_29 (start_dt,end_dt)
-    println("####Complete Time: "+DateUtils.getCurrentSystemTime())
+    val usedTime = System.currentTimeMillis() - currntTime
+    val ss:Int =((System.currentTimeMillis() - currntTime)/1000).toInt
+    val MM:Int = ss/60
+    val hh:Int = MM/60
+    val dd:Int = hh/24
+    println("运行 JOB_HV_29 花费 :"+dd+"天"+(hh-dd*24)+"时"+(MM-hh*60)+"分"+(ss-MM*60)+"秒 , 合计："+usedTime+"毫秒")
+
   }
 
 
@@ -2590,6 +2695,8 @@ object SparkDB22Hive {
     * @param end_dt
     */
   def JOB_HV_30(implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
+    val currntTime =System.currentTimeMillis()
+
     println("###JOB_HV_30(viw_chacc_code_pay_tran_dtl -> hive_passive_code_pay_trans)")
     sqlContext.sql(s"use $hive_dbname")
     val df = sqlContext.jdbc_accdb_DF(s"$schemas_accdb.VIW_CHACC_CODE_PAY_TRAN_DTL")
@@ -2651,6 +2758,7 @@ object SparkDB22Hive {
       val end = LocalDate.parse(end_dt, dateFormatter)
       val days = Days.daysBetween(start, end).getDays
       val dateStrs = for (day <- 0 to days) {
+        val insertofTime = System.currentTimeMillis()
         val currentDay = (start.plusDays(day).toString(dateFormatter))
         println(s"=========插入'$currentDay'分区的数据=========")
 
@@ -2664,11 +2772,24 @@ object SparkDB22Hive {
              |select * from spark_code_pay_tran_dtl where trans_dt = '$currentDay'
            """.stripMargin)
         println(s"insert into hive_passive_code_pay_trans partition (part_trans_dt='$currentDay') successfully!")
+        val usedInsertofTime = System.currentTimeMillis() - insertofTime
+        val ss:Int =((System.currentTimeMillis() - insertofTime)/1000).toInt
+        val MM:Int = ss/60
+        val hh:Int = MM/60
+        val dd:Int = hh/24
+        println("运行插入分区花费的时间是:"+dd+"天"+(hh-dd*24)+"时"+(MM-hh*60)+"分"+(ss-MM*60)+"秒 , 合计："+usedInsertofTime+"毫秒")
+
       }
     }
 
     InsertPart_JOB_HV_30 (start_dt,end_dt)
-    println("####Complete Time: "+DateUtils.getCurrentSystemTime())
+    val usedTime = System.currentTimeMillis() - currntTime
+    val ss:Int =((System.currentTimeMillis() - currntTime)/1000).toInt
+    val MM:Int = ss/60
+    val hh:Int = MM/60
+    val dd:Int = hh/24
+    println("运行 JOB_HV_30 花费 :"+dd+"天"+(hh-dd*24)+"时"+(MM-hh*60)+"分"+(ss-MM*60)+"秒 , 合计："+usedTime+"毫秒")
+
   }
 
   /**
@@ -2681,6 +2802,8 @@ object SparkDB22Hive {
     * @param end_dt
     */
   def JOB_HV_31 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
+    val currntTime =System.currentTimeMillis()
+
     val df2_1 = sqlContext.jdbc_mgmdb_DF(s"$schemas_mgmdb.VIW_CHMGM_BILL_ORDER_AUX_INF")
     df2_1.registerTempTable("VIW_CHMGM_BILL_ORDER_AUX_INF")
 
@@ -2789,6 +2912,8 @@ object SparkDB22Hive {
       val end = LocalDate.parse(end_dt, dateFormatter)
       val days = Days.daysBetween(start, end).getDays
       val dateStrs = for (day <- 0 to days) {
+        val insertofTime = System.currentTimeMillis()
+
         val currentDay = (start.plusDays(day).toString(dateFormatter))
         println(s"=========插入'$currentDay'分区的数据=========")
         sqlContext.sql(s"use $hive_dbname")
@@ -2798,11 +2923,24 @@ object SparkDB22Hive {
         println(s"alter table HIVE_BILL_ORDER_TRANS add partition (part_trans_dt='$currentDay') successfully!")
         sqlContext.sql(s"insert into HIVE_BILL_ORDER_TRANS partition (part_trans_dt='$currentDay') select * from spark_hive_bill_order_trans htempa where htempa.trans_dt = '$currentDay'")
         println(s"insert into HIVE_BILL_ORDER_TRANS partition (part_trans_dt='$currentDay') successfully!")
+        val usedInsertofTime = System.currentTimeMillis() - insertofTime
+        val ss:Int =((System.currentTimeMillis() - insertofTime)/1000).toInt
+        val MM:Int = ss/60
+        val hh:Int = MM/60
+        val dd:Int = hh/24
+        println("运行插入分区花费的时间是:"+dd+"天"+(hh-dd*24)+"时"+(MM-hh*60)+"分"+(ss-MM*60)+"秒 , 合计："+usedInsertofTime+"毫秒")
+
       }
     }
 
     PartitionFun_JOB_HV_31 (start_dt,end_dt)
-    println("####Complete Time: "+DateUtils.getCurrentSystemTime())
+    val usedTime = System.currentTimeMillis() - currntTime
+    val ss:Int =((System.currentTimeMillis() - currntTime)/1000).toInt
+    val MM:Int = ss/60
+    val hh:Int = MM/60
+    val dd:Int = hh/24
+    println("运行 JOB_HV_31 花费 :"+dd+"天"+(hh-dd*24)+"时"+(MM-hh*60)+"分"+(ss-MM*60)+"秒 , 合计："+usedTime+"毫秒")
+
   }
 
   /**
@@ -2816,6 +2954,8 @@ object SparkDB22Hive {
     * @return
     */
   def JOB_HV_32 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
+    val currntTime =System.currentTimeMillis()
+
     val df2_1 = sqlContext.jdbc_mgmdb_DF(s"$schemas_mgmdb.tbl_umsvc_prize_discount_result")
     df2_1.registerTempTable("tbl_umsvc_prize_discount_result")
 
@@ -2933,6 +3073,8 @@ object SparkDB22Hive {
       val end = LocalDate.parse(end_dt, dateFormatter)
       val days = Days.daysBetween(start, end).getDays
       val dateStrs = for (day <- 0 to days) {
+        val insertofTime = System.currentTimeMillis()
+
         val currentDay = (start.plusDays(day).toString(dateFormatter))
         println(s"=========插入'$currentDay'分区的数据=========")
         sqlContext.sql(s"use $hive_dbname")
@@ -2940,11 +3082,23 @@ object SparkDB22Hive {
         println(s"alter table hive_prize_discount_result drop partition (part_settle_dt='$currentDay') successfully!")
         sqlContext.sql(s"insert into hive_prize_discount_result partition (part_settle_dt='$currentDay') select * from spark_hive_prize_discount_result htempa where htempa.settle_dt = '$currentDay'")
         println(s"insert into hive_prize_discount_result partition (part_settle_dt='$currentDay') successfully!")
+        val usedInsertofTime = System.currentTimeMillis() - insertofTime
+        val ss:Int =((System.currentTimeMillis() - insertofTime)/1000).toInt
+        val MM:Int = ss/60
+        val hh:Int = MM/60
+        val dd:Int = hh/24
+        println("运行插入分区花费的时间是:"+dd+"天"+(hh-dd*24)+"时"+(MM-hh*60)+"分"+(ss-MM*60)+"秒 , 合计："+usedInsertofTime+"毫秒")
       }
     }
 
     PartitionFun_JOB_HV_32 (start_dt, end_dt)
-    println("####Complete Time: "+DateUtils.getCurrentSystemTime())
+    val usedTime = System.currentTimeMillis() - currntTime
+    val ss:Int =((System.currentTimeMillis() - currntTime)/1000).toInt
+    val MM:Int = ss/60
+    val hh:Int = MM/60
+    val dd:Int = hh/24
+    println("运行 JOB_HV_32 花费 :"+dd+"天"+(hh-dd*24)+"时"+(MM-hh*60)+"分"+(ss-MM*60)+"秒 , 合计："+usedTime+"毫秒")
+
   }
 
   /**
@@ -2958,6 +3112,8 @@ object SparkDB22Hive {
     * @return
     */
   def JOB_HV_33(implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
+    val currntTime =System.currentTimeMillis()
+
     val df2_1 = sqlContext.jdbc_mgmdb_DF(s"$schemas_mgmdb.VIW_CHMGM_BILL_SUB_ORDER_DETAIL_INF")
     df2_1.registerTempTable("VIW_CHMGM_BILL_SUB_ORDER_DETAIL_INF")
 
@@ -3009,6 +3165,8 @@ object SparkDB22Hive {
       val end = LocalDate.parse(end_dt, dateFormatter)
       val days = Days.daysBetween(start, end).getDays
       val dateStrs = for (day <- 0 to days) {
+        val insertofTime = System.currentTimeMillis()
+
         val currentDay = (start.plusDays(day).toString(dateFormatter))
         println(s"=========插入'$currentDay'分区的数据=========")
         sqlContext.sql(s"use $hive_dbname")
@@ -3016,11 +3174,24 @@ object SparkDB22Hive {
         println(s"alter table hive_bill_sub_order_trans drop partition (part_trans_dt='$currentDay') successfully!")
         sqlContext.sql(s"insert into hive_bill_sub_order_trans partition (part_trans_dt='$currentDay') select * from spark_hive_bill_sub_order_trans htempa where htempa.trans_dt = '$currentDay'")
         println(s"insert into hive_bill_sub_order_trans partition (part_trans_dt='$currentDay') successfully!")
+        val usedInsertofTime = System.currentTimeMillis() - insertofTime
+        val ss:Int =((System.currentTimeMillis() - insertofTime)/1000).toInt
+        val MM:Int = ss/60
+        val hh:Int = MM/60
+        val dd:Int = hh/24
+        println("运行插入分区花费的时间是:"+dd+"天"+(hh-dd*24)+"时"+(MM-hh*60)+"分"+(ss-MM*60)+"秒 , 合计："+usedInsertofTime+"毫秒")
+
       }
     }
 
     PartitionFun_JOB_HV_33(start_dt, end_dt)
-    println("####Complete Time: "+DateUtils.getCurrentSystemTime())
+    val usedTime = System.currentTimeMillis() - currntTime
+    val ss:Int =((System.currentTimeMillis() - currntTime)/1000).toInt
+    val MM:Int = ss/60
+    val hh:Int = MM/60
+    val dd:Int = hh/24
+    println("运行 JOB_HV_33 花费 :"+dd+"天"+(hh-dd*24)+"时"+(MM-hh*60)+"分"+(ss-MM*60)+"秒 , 合计："+usedTime+"毫秒")
+
   }
 
   /**
@@ -3031,6 +3202,8 @@ object SparkDB22Hive {
     * @param sqlContext
     */
   def JOB_HV_34(implicit sqlContext: HiveContext) = {
+    val currntTime =System.currentTimeMillis()
+
     println("###JOB_HV_34(TBL_CHMGM_CHARA_ACCT_DEF_TMP -> HIVE_BUSS_DIST)")
     sqlContext.sql(s"use $hive_dbname")
     val df = sqlContext.jdbc_mgmdb_DF(s"$schemas_mgmdb.TBL_CHMGM_CHARA_ACCT_DEF_TMP")
@@ -3076,7 +3249,13 @@ object SparkDB22Hive {
       sqlContext.sql("truncate table hive_buss_dist")
       sqlContext.sql("insert into table hive_buss_dist select * from spark_hive_buss_dist")
       println("###JOB_HV_36(insert into table hive_buss_dist successful) ")
-      println("####Complete Time: "+DateUtils.getCurrentSystemTime())
+      val usedTime = System.currentTimeMillis() - currntTime
+      val ss:Int =((System.currentTimeMillis() - currntTime)/1000).toInt
+      val MM:Int = ss/60
+      val hh:Int = MM/60
+      val dd:Int = hh/24
+      println("运行 JOB_HV_34 花费 :"+dd+"天"+(hh-dd*24)+"时"+(MM-hh*60)+"分"+(ss-MM*60)+"秒 , 合计："+usedTime+"毫秒")
+
     }else{
       println("加载的表TBL_CHACC_CDHD_BILL_ACCT_INF中无数据！")
     }
@@ -3091,6 +3270,8 @@ object SparkDB22Hive {
     * @param sqlContext
     */
   def JOB_HV_35(implicit sqlContext: HiveContext) = {
+    val currntTime =System.currentTimeMillis()
+
     println("###JOB_HV_35(TBL_CHACC_CDHD_BILL_ACCT_INF -> HIVE_CDHD_BILL_ACCT_INF)")
     sqlContext.sql(s"use $hive_dbname")
     val df = sqlContext.jdbc_accdb_DF(s"$schemas_accdb.TBL_CHACC_CDHD_BILL_ACCT_INF")
@@ -3124,7 +3305,13 @@ object SparkDB22Hive {
       sqlContext.sql("truncate table hive_cdhd_bill_acct_inf")
       sqlContext.sql("insert into table hive_cdhd_bill_acct_inf select * from spark_hive_cdhd_bill_acct_inf")
       println("###JOB_HV_35(insert into table hive_cdhd_bill_acct_inf successful) ")
-      println("####Complete Time: "+DateUtils.getCurrentSystemTime())
+      val usedTime = System.currentTimeMillis() - currntTime
+      val ss:Int =((System.currentTimeMillis() - currntTime)/1000).toInt
+      val MM:Int = ss/60
+      val hh:Int = MM/60
+      val dd:Int = hh/24
+      println("运行 JOB_HV_35 花费 :"+dd+"天"+(hh-dd*24)+"时"+(MM-hh*60)+"分"+(ss-MM*60)+"秒 , 合计："+usedTime+"毫秒")
+
     }else{
       println("加载的表TBL_CHACC_CDHD_BILL_ACCT_INF中无数据！")
     }
@@ -3139,6 +3326,8 @@ object SparkDB22Hive {
     * @param sqlContext
     */
   def JOB_HV_36(implicit sqlContext: HiveContext) = {
+    val currntTime =System.currentTimeMillis()
+
     println("###JOB_HV_36(tbl_umsvc_discount_bas_inf -> hive_discount_bas_inf)")
     sqlContext.sql(s"use $hive_dbname")
     val df = sqlContext.jdbc_mgmdb_DF(s"$schemas_mgmdb.TBL_UMSVC_DISCOUNT_BAS_INF")
@@ -3219,7 +3408,13 @@ object SparkDB22Hive {
       sqlContext.sql("truncate table hive_discount_bas_inf")
       sqlContext.sql("insert into table hive_discount_bas_inf select * from spark_dis_bas_inf")
       println("###JOB_HV_36(insert into table hive_discount_bas_inf successful) ")
-      println("####Complete Time: "+DateUtils.getCurrentSystemTime())
+      val usedTime = System.currentTimeMillis() - currntTime
+      val ss:Int =((System.currentTimeMillis() - currntTime)/1000).toInt
+      val MM:Int = ss/60
+      val hh:Int = MM/60
+      val dd:Int = hh/24
+      println("运行 JOB_HV_36 花费 :"+dd+"天"+(hh-dd*24)+"时"+(MM-hh*60)+"分"+(ss-MM*60)+"秒 , 合计："+usedTime+"毫秒")
+
     }else{
       println("加载的表tbl_umsvc_discount_bas_inf中无数据！")
     }
@@ -3234,6 +3429,8 @@ object SparkDB22Hive {
     * @return
     */
   def JOB_HV_37(implicit sqlContext: HiveContext) = {
+    val currntTime =System.currentTimeMillis()
+
     println("###JOB_HV_37(hive_filter_app_det-->tbl_umsvc_filter_app_det)")
     val df = sqlContext.jdbc_mgmdb_DF(s"$schemas_mgmdb.TBL_UMSVC_FILTER_APP_DET")
     df.registerTempTable("db2_tbl_umsvc_filter_app_det")
@@ -3267,7 +3464,12 @@ object SparkDB22Hive {
       sqlContext.sql(s"use $hive_dbname")
       sqlContext.sql("truncate table  hive_filter_app_det")
       sqlContext.sql("insert into table hive_filter_app_det select * from spark_db2_tbl_umsvc_filter_app_det")
-      println("####Complete Time: "+DateUtils.getCurrentSystemTime())
+      val usedTime = System.currentTimeMillis() - currntTime
+      val ss:Int =((System.currentTimeMillis() - currntTime)/1000).toInt
+      val MM:Int = ss/60
+      val hh:Int = MM/60
+      val dd:Int = hh/24
+      println("运行 JOB_HV_37 花费 :"+dd+"天"+(hh-dd*24)+"时"+(MM-hh*60)+"分"+(ss-MM*60)+"秒 , 合计："+usedTime+"毫秒")
     }else{
       println("加载的表TBL_UMSVC_FILTER_APP_DET中无数据！")
     }
@@ -3284,6 +3486,8 @@ object SparkDB22Hive {
     * @return
     */
   def JOB_HV_38(implicit sqlContext: HiveContext) = {
+    val currntTime =System.currentTimeMillis()
+
     println("###JOB_HV_38(hive_filter_rule_det-->tbl_umsvc_filter_rule_det)")
     val df = sqlContext.jdbc_mgmdb_DF(s"$schemas_mgmdb.TBL_UMSVC_FILTER_RULE_DET")
     df.registerTempTable("db2_tbl_umsvc_filter_rule_det")
@@ -3318,7 +3522,13 @@ object SparkDB22Hive {
       sqlContext.sql(s"use $hive_dbname")
       sqlContext.sql("truncate table  hive_filter_rule_det")
       sqlContext.sql("insert into table hive_filter_rule_det select * from db2_tbl_umsvc_filter_rule_det")
-      println("####Complete Time: "+DateUtils.getCurrentSystemTime())
+      val usedTime = System.currentTimeMillis() - currntTime
+      val ss:Int =((System.currentTimeMillis() - currntTime)/1000).toInt
+      val MM:Int = ss/60
+      val hh:Int = MM/60
+      val dd:Int = hh/24
+      println("运行 JOB_HV_38 花费 :"+dd+"天"+(hh-dd*24)+"时"+(MM-hh*60)+"分"+(ss-MM*60)+"秒 , 合计："+usedTime+"毫秒")
+
     }else{
       println("加载的表TBL_UMSVC_FILTER_RULE_DET中无数据！")
     }
@@ -3336,6 +3546,8 @@ object SparkDB22Hive {
     * @param end_dt
     */
   def JOB_HV_43(implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
+    val currntTime =System.currentTimeMillis()
+
     println("###JOB_HV_43(viw_chmgm_swt_log -> hive_switch_point_trans)")
     sqlContext.sql(s"use $hive_dbname")
     val df = sqlContext.jdbc_mgmdb_DF(s"$schemas_mgmdb.VIW_CHMGM_SWT_LOG")
@@ -3446,6 +3658,8 @@ object SparkDB22Hive {
       val end = LocalDate.parse(end_dt, dateFormatter)
       val days = Days.daysBetween(start, end).getDays
       val dateStrs = for (day <- 0 to days) {
+        val insertofTime = System.currentTimeMillis()
+
         val currentDay = (start.plusDays(day).toString(dateFormatter))
         println(s"=========插入'$currentDay'分区的数据=========")
 
@@ -3459,12 +3673,26 @@ object SparkDB22Hive {
              |select * from spark_swt_log where trans_dt = '$currentDay'
            """.stripMargin)
         println(s"insert into hive_switch_point_trans partition (part_trans_dt='$currentDay') successfully!")
+        val usedInsertofTime = System.currentTimeMillis() - insertofTime
+        val ss:Int =((System.currentTimeMillis() - insertofTime)/1000).toInt
+        val MM:Int = ss/60
+        val hh:Int = MM/60
+        val dd:Int = hh/24
+        println("运行插入分区花费的时间是:"+dd+"天"+(hh-dd*24)+"时"+(MM-hh*60)+"分"+(ss-MM*60)+"秒 , 合计："+usedInsertofTime+"毫秒")
+
       }
     }
 
     InsertPart_JOB_HV_43 (start_dt,end_dt)
-    println("####Complete Time: "+DateUtils.getCurrentSystemTime())
+    val usedTime = System.currentTimeMillis() - currntTime
+    val ss:Int =((System.currentTimeMillis() - currntTime)/1000).toInt
+    val MM:Int = ss/60
+    val hh:Int = MM/60
+    val dd:Int = hh/24
+    println("运行 JOB_HV_43 花费 :"+dd+"天"+(hh-dd*24)+"时"+(MM-hh*60)+"分"+(ss-MM*60)+"秒 , 合计："+usedTime+"毫秒")
+
   }
+
   /**
     * hive-job-44/08-22
     * hive_cdhd_cashier_maktg_reward_dtl->viw_chacc_cdhd_cashier_maktg_reward_dtl
@@ -3474,6 +3702,8 @@ object SparkDB22Hive {
     * @return
     */
   def JOB_HV_44(implicit sqlContext: HiveContext) = {
+    val currntTime =System.currentTimeMillis()
+
     println("###JOB_HV_44(viw_chacc_cdhd_cashier_maktg_reward_dtl)")
 
     val df= sqlContext.jdbc_accdb_DF(s"$schemas_accdb.VIW_CHACC_CDHD_CASHIER_MAKTG_REWARD_DTL")
@@ -3592,7 +3822,14 @@ object SparkDB22Hive {
       sqlContext.sql(s"use $hive_dbname")
       sqlContext.sql("truncate table  hive_cdhd_cashier_maktg_reward_dtl")
       sqlContext.sql("insert into table hive_cdhd_cashier_maktg_reward_dtl select * from spark_cdhd_cashier_maktg_reward_dtl")
-      println("####Complete Time: "+DateUtils.getCurrentSystemTime())
+      println("insert into table hive_cdhd_cashier_maktg_reward_dtl successfully!")
+      val usedTime = System.currentTimeMillis() - currntTime
+      val ss:Int =((System.currentTimeMillis() - currntTime)/1000).toInt
+      val MM:Int = ss/60
+      val hh:Int = MM/60
+      val dd:Int = hh/24
+      println("运行 JOB_HV_44 花费 :"+dd+"天"+(hh-dd*24)+"时"+(MM-hh*60)+"分"+(ss-MM*60)+"秒 , 合计："+usedTime+"毫秒")
+
     }else{
       println("加载视图表VIW_CHACC_CDHD_CASHIER_MAKTG_REWARD_DTL中无数据！")
     }
@@ -3608,6 +3845,8 @@ object SparkDB22Hive {
     * @param sqlContext
     * */
   def JOB_HV_45 (implicit sqlContext: HiveContext) = {
+    val currntTime =System.currentTimeMillis()
+
     println("###JOB_HV_45(hive_branch_acpt_ins_inf)")
 
     val df = sqlContext.jdbc_accdb_DF(s"$schemas_accdb.TBL_CUP_BRANCH_ACPT_INS_INF")
@@ -3668,7 +3907,13 @@ object SparkDB22Hive {
       sqlContext.sql("truncate table hive_branch_acpt_ins_inf")
       sqlContext.sql("insert into table hive_branch_acpt_ins_inf select * from spark_hive_branch_acpt_ins_inf")
       println("###JOB_HV_45(insert into hive_branch_acpt_ins_inf successful)")
-      println("####Complete Time: "+DateUtils.getCurrentSystemTime())
+      val usedTime = System.currentTimeMillis() - currntTime
+      val ss:Int =((System.currentTimeMillis() - currntTime)/1000).toInt
+      val MM:Int = ss/60
+      val hh:Int = MM/60
+      val dd:Int = hh/24
+      println("运行 JOB_HV_45 花费 :"+dd+"天"+(hh-dd*24)+"时"+(MM-hh*60)+"分"+(ss-MM*60)+"秒 , 合计："+usedTime+"毫秒")
+
     }else{
       println("加载的表spark_hive_branch_acpt_ins_inf中无数据！")
     }
@@ -3685,6 +3930,8 @@ object SparkDB22Hive {
     */
 
   def JOB_HV_46 (implicit sqlContext: HiveContext) = {
+    val currntTime =System.currentTimeMillis()
+
     val df2_1 = sqlContext.jdbc_mgmdb_DF(s"$schemas_mgmdb.tbl_umsvc_prize_activity_bas_inf")
     df2_1.registerTempTable("tbl_umsvc_prize_activity_bas_inf")
 
@@ -3769,7 +4016,14 @@ object SparkDB22Hive {
       sqlContext.sql(s"use $hive_dbname")
       sqlContext.sql("truncate table  hive_prize_activity_bas_inf")
       sqlContext.sql("insert into table hive_prize_activity_bas_inf select * from spark_hive_prize_activity_bas_inf")
-      println("####Complete Time: "+DateUtils.getCurrentSystemTime())
+      println("insert into table hive_prize_activity_bas_inf successfully!")
+      val usedTime = System.currentTimeMillis() - currntTime
+      val ss:Int =((System.currentTimeMillis() - currntTime)/1000).toInt
+      val MM:Int = ss/60
+      val hh:Int = MM/60
+      val dd:Int = hh/24
+      println("运行 JOB_HV_46 花费 :"+dd+"天"+(hh-dd*24)+"时"+(MM-hh*60)+"分"+(ss-MM*60)+"秒 , 合计："+usedTime+"毫秒")
+
     }else{
       println("加载的表spark_hive_prize_activity_bas_inf中无数据！")
     }
@@ -3785,6 +4039,8 @@ object SparkDB22Hive {
     */
 
   def JOB_HV_47 (implicit sqlContext: HiveContext) = {
+    val currntTime =System.currentTimeMillis()
+
     val df2_1 = sqlContext.jdbc_mgmdb_DF(s"$schemas_mgmdb.tbl_umsvc_prize_lvl_add_rule")
     df2_1.registerTempTable("tbl_umsvc_prize_lvl_add_rule")
     val results = sqlContext.sql(
@@ -3813,7 +4069,14 @@ object SparkDB22Hive {
       sqlContext.sql(s"use $hive_dbname")
       sqlContext.sql("truncate table  hive_prize_lvl_add_rule")
       sqlContext.sql("insert into table hive_prize_lvl_add_rule select * from spark_hive_prize_lvl_add_rule")
-      println("####Complete Time: "+DateUtils.getCurrentSystemTime())
+      println("insert into table hive_prize_lvl_add_rule successfully!")
+      val usedTime = System.currentTimeMillis() - currntTime
+      val ss:Int =((System.currentTimeMillis() - currntTime)/1000).toInt
+      val MM:Int = ss/60
+      val hh:Int = MM/60
+      val dd:Int = hh/24
+      println("运行 JOB_HV_47 花费 :"+dd+"天"+(hh-dd*24)+"时"+(MM-hh*60)+"分"+(ss-MM*60)+"秒 , 合计："+usedTime+"毫秒")
+
     }else{
       println("加载的表spark_hive_prize_lvl_add_rule中无数据！")
     }
@@ -3829,6 +4092,8 @@ object SparkDB22Hive {
     * @return
     */
   def JOB_HV_48(implicit sqlContext: HiveContext) = {
+    val currntTime =System.currentTimeMillis()
+
     println("###JOB_HV_48(hive_prize_bas->tbl_umsvc_prize_bas)")
     val df = sqlContext.jdbc_mgmdb_DF(s"$schemas_mgmdb.TBL_UMSVC_PRIZE_BAS")
 
@@ -3868,7 +4133,14 @@ object SparkDB22Hive {
       sqlContext.sql(s"use $hive_dbname")
       sqlContext.sql("truncate table  hive_prize_bas")
       sqlContext.sql("insert into table hive_prize_bas select * from spark_tbl_umsvc_prize_bas")
-      println("####Complete Time: "+DateUtils.getCurrentSystemTime())
+      println("insert into table hive_prize_bas successfully!")
+      val usedTime = System.currentTimeMillis() - currntTime
+      val ss:Int =((System.currentTimeMillis() - currntTime)/1000).toInt
+      val MM:Int = ss/60
+      val hh:Int = MM/60
+      val dd:Int = hh/24
+      println("运行 JOB_HV_48 花费 :"+dd+"天"+(hh-dd*24)+"时"+(MM-hh*60)+"分"+(ss-MM*60)+"秒 , 合计："+usedTime+"毫秒")
+
     }else{
       println("加载的表TBL_UMSVC_PRIZE_BAS中无数据！")
     }
@@ -3884,6 +4156,8 @@ object SparkDB22Hive {
     * @return
     */
   def JOB_HV_54(implicit sqlContext: HiveContext) = {
+    val currntTime =System.currentTimeMillis()
+
     println("###JOB_HV_54(tbl_chacc_cashier_bas_inf)")
     val df = sqlContext.jdbc_accdb_DF(s"$schemas_accdb.TBL_CHACC_CASHIER_BAS_INF")
 
@@ -3989,7 +4263,14 @@ object SparkDB22Hive {
       sqlContext.sql(s"use $hive_dbname")
       sqlContext.sql("truncate table  hive_cashier_bas_inf")
       sqlContext.sql("insert into table hive_cashier_bas_inf select * from spark_bl_chacc_cashier_bas_inf")
-      println("####Complete Time: "+DateUtils.getCurrentSystemTime())
+      println("insert into table hive_cashier_bas_inf successfully!")
+      val usedTime = System.currentTimeMillis() - currntTime
+      val ss:Int =((System.currentTimeMillis() - currntTime)/1000).toInt
+      val MM:Int = ss/60
+      val hh:Int = MM/60
+      val dd:Int = hh/24
+      println("运行 JOB_HV_54 花费 :"+dd+"天"+(hh-dd*24)+"时"+(MM-hh*60)+"分"+(ss-MM*60)+"秒 , 合计："+usedTime+"毫秒")
+
     }else{
       println("加载的表tbl_chacc_cashier_bas_inf中无数据！")
     }
@@ -4007,6 +4288,8 @@ object SparkDB22Hive {
     * @return
     */
   def JOB_HV_67(implicit sqlContext: HiveContext) = {
+    val currntTime =System.currentTimeMillis()
+
     println("###JOB_HV_67(Hive_signer_log -->tbl_umtxn_signer_log)")
     val df = sqlContext.jdbc_accdb_DF(s"$schemas_accdb.TBL_UMTXN_SIGNER_LOG")
 
@@ -4030,7 +4313,14 @@ object SparkDB22Hive {
       sqlContext.sql(s"use $hive_dbname")
       sqlContext.sql("truncate table  hive_signer_log")
       sqlContext.sql("insert into table hive_signer_log select * from spark_db2_tbl_umtxn_signer_log")
-      println("####Complete Time: "+DateUtils.getCurrentSystemTime())
+      println("insert into table hive_signer_log successfully!")
+      val usedTime = System.currentTimeMillis() - currntTime
+      val ss:Int =((System.currentTimeMillis() - currntTime)/1000).toInt
+      val MM:Int = ss/60
+      val hh:Int = MM/60
+      val dd:Int = hh/24
+      println("运行 JOB_HV_67 花费 :"+dd+"天"+(hh-dd*24)+"时"+(MM-hh*60)+"分"+(ss-MM*60)+"秒 , 合计："+usedTime+"毫秒")
+
     }else{
       println("加载的表tbl_umtxn_signer_log中无数据！")
     }
@@ -4047,6 +4337,8 @@ object SparkDB22Hive {
     * @return
     */
   def JOB_HV_68(implicit sqlContext: HiveContext) = {
+    val currntTime =System.currentTimeMillis()
+
     println("###JOB_HV_68(tbl_umtxn_cashier_point_acct_oper_dtl)")
     val df = sqlContext.jdbc_accdb_DF(s"$schemas_accdb.TBL_UMTXN_CASHIER_POINT_ACCT_OPER_DTL")
     df.registerTempTable("db2_tbl_umtxn_cashier_point_acct_oper_dtl")
@@ -4071,7 +4363,14 @@ object SparkDB22Hive {
       sqlContext.sql(s"use $hive_dbname")
       sqlContext.sql("truncate table  hive_cashier_point_acct_oper_dtl")
       sqlContext.sql("insert into table hive_cashier_point_acct_oper_dtl select * from spark_db2_tbl_umtxn_cashier_point_acct_oper_dtl")
-      println("####Complete Time: "+DateUtils.getCurrentSystemTime())
+      println("insert into table hive_cashier_point_acct_oper_dtl successfully!")
+      val usedTime = System.currentTimeMillis() - currntTime
+      val ss:Int =((System.currentTimeMillis() - currntTime)/1000).toInt
+      val MM:Int = ss/60
+      val hh:Int = MM/60
+      val dd:Int = hh/24
+      println("运行 JOB_HV_68 花费 :"+dd+"天"+(hh-dd*24)+"时"+(MM-hh*60)+"分"+(ss-MM*60)+"秒 , 合计："+usedTime+"毫秒")
+
     }else{
       println("加载的表TBL_UMTXN_CASHIER_POINT_ACCT_OPER_DTL中无数据！")
     }
@@ -4086,6 +4385,8 @@ object SparkDB22Hive {
     * @return
     */
   def JOB_HV_69 (implicit sqlContext: HiveContext) = {
+    val currntTime =System.currentTimeMillis()
+
     val df2_1 = sqlContext.jdbc_mgmdb_DF("ch_mgmdb.tbl_umsvc_prize_lvl")
     df2_1.registerTempTable("tbl_umsvc_prize_lvl")
     val results = sqlContext.sql(
@@ -4127,7 +4428,14 @@ object SparkDB22Hive {
       sqlContext.sql(s"use $hive_dbname")
       sqlContext.sql("truncate table  HIVE_PRIZE_LVL")
       sqlContext.sql("insert into table HIVE_PRIZE_LVL select * from spark_hive_prize_lvl")
-      println("####Complete Time: "+DateUtils.getCurrentSystemTime())
+      println("insert into table HIVE_PRIZE_LVL successfully!")
+      val usedTime = System.currentTimeMillis() - currntTime
+      val ss:Int =((System.currentTimeMillis() - currntTime)/1000).toInt
+      val MM:Int = ss/60
+      val hh:Int = MM/60
+      val dd:Int = hh/24
+      println("运行 JOB_HV_69 花费 :"+dd+"天"+(hh-dd*24)+"时"+(MM-hh*60)+"分"+(ss-MM*60)+"秒 , 合计："+usedTime+"毫秒")
+
     }else{
       println("加载的表spark_hive_prize_lvl中无数据！")
     }
@@ -4142,6 +4450,8 @@ object SparkDB22Hive {
     * @param sqlContext
     */
   def JOB_HV_70(implicit sqlContext: HiveContext) = {
+    val currntTime =System.currentTimeMillis()
+
     println("###JOB_HV_70(tbl_inf_source_class -> hive_inf_source_class)")
     sqlContext.sql(s"use $hive_dbname")
     val df = sqlContext.jdbc_accdb_DF(s"$schemas_accdb.TBL_INF_SOURCE_CLASS")
@@ -4160,7 +4470,14 @@ object SparkDB22Hive {
       results.registerTempTable("spark_inf_source_class")
       sqlContext.sql("truncate table hive_inf_source_class")
       sqlContext.sql("insert into table hive_inf_source_class select * from spark_inf_source_class")
-      println("####Complete Time: "+DateUtils.getCurrentSystemTime())
+      println("insert into table hive_inf_source_class successfully!")
+      val usedTime = System.currentTimeMillis() - currntTime
+      val ss:Int =((System.currentTimeMillis() - currntTime)/1000).toInt
+      val MM:Int = ss/60
+      val hh:Int = MM/60
+      val dd:Int = hh/24
+      println("运行 JOB_HV_70 花费 :"+dd+"天"+(hh-dd*24)+"时"+(MM-hh*60)+"分"+(ss-MM*60)+"秒 , 合计："+usedTime+"毫秒")
+
     }else{
       println("加载的表tbl_inf_source_class中无数据！")
     }
@@ -4175,6 +4492,8 @@ object SparkDB22Hive {
     * @param sqlContext
     */
   def JOB_HV_72(implicit sqlContext: HiveContext) = {
+    val currntTime =System.currentTimeMillis()
+
     println("###JOB_HV_72(hive_bill_order_aux_inf->viw_chmgm_bill_order_aux_inf)")
     sqlContext.sql(s"use $hive_dbname")
     val df = sqlContext.jdbc_mgmdb_DF(s"$schemas_mgmdb.viw_chmgm_bill_order_aux_inf")
@@ -4236,7 +4555,14 @@ object SparkDB22Hive {
       results.registerTempTable("spark_db2_viw_chmgm_bill_order_aux_inf")
       sqlContext.sql("truncate table hive_bill_order_aux_inf")
       sqlContext.sql("insert into table hive_bill_order_aux_inf select * from spark_db2_viw_chmgm_bill_order_aux_inf")
-      println("####Complete Time: "+DateUtils.getCurrentSystemTime())
+      println("insert into table hive_bill_order_aux_inf successfully!")
+      val usedTime = System.currentTimeMillis() - currntTime
+      val ss:Int =((System.currentTimeMillis() - currntTime)/1000).toInt
+      val MM:Int = ss/60
+      val hh:Int = MM/60
+      val dd:Int = hh/24
+      println("运行 JOB_HV_72 花费 :"+dd+"天"+(hh-dd*24)+"时"+(MM-hh*60)+"分"+(ss-MM*60)+"秒 , 合计："+usedTime+"毫秒")
+
     }else{
       println("加载的视图：viw_chmgm_bill_order_aux_inf 中无数据！")
     }
@@ -4250,6 +4576,8 @@ object SparkDB22Hive {
     * @param sqlContext
     */
   def JOB_HV_73(implicit sqlContext: HiveContext) = {
+    val currntTime =System.currentTimeMillis()
+
     println("###JOB_HV_73(hive_bill_sub_order_detail_inf->viw_chmgm_bill_sub_order_detail_inf)")
     sqlContext.sql(s"use $hive_dbname")
     val df = sqlContext.jdbc_mgmdb_DF(s"$schemas_mgmdb.viw_chmgm_bill_sub_order_detail_inf")
@@ -4294,7 +4622,14 @@ object SparkDB22Hive {
       results.registerTempTable("spark_db2_viw_chmgm_bill_sub_order_detail_inf")
       sqlContext.sql("truncate table hive_bill_sub_order_detail_inf")
       sqlContext.sql("insert into table hive_bill_sub_order_detail_inf select * from spark_db2_viw_chmgm_bill_sub_order_detail_inf")
-      println("####Complete Time: "+DateUtils.getCurrentSystemTime())
+      println("insert into table hive_bill_sub_order_detail_inf successfully!")
+      val usedTime = System.currentTimeMillis() - currntTime
+      val ss:Int =((System.currentTimeMillis() - currntTime)/1000).toInt
+      val MM:Int = ss/60
+      val hh:Int = MM/60
+      val dd:Int = hh/24
+      println("运行 JOB_HV_73 花费 :"+dd+"天"+(hh-dd*24)+"时"+(MM-hh*60)+"分"+(ss-MM*60)+"秒 , 合计："+usedTime+"毫秒")
+
     }else{
       println("加载的视图：viw_chmgm_bill_sub_order_detail_inf 中无数据！")
     }
@@ -4309,6 +4644,8 @@ object SparkDB22Hive {
     * @param sqlContext
     */
   def JOB_HV_75 (implicit sqlContext: HiveContext) = {
+    val currntTime =System.currentTimeMillis()
+
     val df2_1 = sqlContext.jdbc_mgmdb_DF(s"$schemas_mgmdb.tbl_chmgm_access_static_inf ")
     df2_1.registerTempTable("tbl_chmgm_access_static_inf")
 
@@ -4351,7 +4688,14 @@ object SparkDB22Hive {
       sqlContext.sql(s"use $hive_dbname")
       sqlContext.sql("truncate table  hive_access_static_inf")
       sqlContext.sql("insert into table hive_access_static_inf select * from spark_hive_access_static_inf")
-      println("####Complete Time: "+DateUtils.getCurrentSystemTime())
+      println("insert into table hive_access_static_inf successfully!")
+      val usedTime = System.currentTimeMillis() - currntTime
+      val ss:Int =((System.currentTimeMillis() - currntTime)/1000).toInt
+      val MM:Int = ss/60
+      val hh:Int = MM/60
+      val dd:Int = hh/24
+      println("运行 JOB_HV_75 花费 :"+dd+"天"+(hh-dd*24)+"时"+(MM-hh*60)+"分"+(ss-MM*60)+"秒 , 合计："+usedTime+"毫秒")
+
     }else{
       println("加载的表spark_hive_access_static_inf中无数据！")
     }
@@ -4366,6 +4710,8 @@ object SparkDB22Hive {
     * @param sqlContext
     */
   def JOB_HV_76 (implicit sqlContext: HiveContext) = {
+    val currntTime =System.currentTimeMillis()
+
     val df2_1 = sqlContext.jdbc_mgmdb_DF(s"$schemas_mgmdb.tbl_chmgm_region_cd ")
     df2_1.registerTempTable("tbl_chmgm_region_cd")
 
@@ -4466,7 +4812,14 @@ object SparkDB22Hive {
       sqlContext.sql(s"use $hive_dbname")
       sqlContext.sql("truncate table  hive_region_cd")
       sqlContext.sql("insert into table hive_region_cd select * from spark_hive_region_cd")
-      println("####Complete Time: "+DateUtils.getCurrentSystemTime())
+      println("insert into table hive_region_cd successfully!")
+      val usedTime = System.currentTimeMillis() - currntTime
+      val ss:Int =((System.currentTimeMillis() - currntTime)/1000).toInt
+      val MM:Int = ss/60
+      val hh:Int = MM/60
+      val dd:Int = hh/24
+      println("运行 JOB_HV_76 花费 :"+dd+"天"+(hh-dd*24)+"时"+(MM-hh*60)+"分"+(ss-MM*60)+"秒 , 合计："+usedTime+"毫秒")
+
     }else{
       println("加载的表spark_hive_region_cd中无数据！")
     }
@@ -4482,6 +4835,8 @@ object SparkDB22Hive {
     * @return
     */
   def JOB_HV_79(implicit sqlContext: HiveContext) = {
+    val currntTime =System.currentTimeMillis()
+
     println("###JOB_HV_79(tbl_aconl_ins_bas)")
     val df = sqlContext.jdbc_mgmdb_DF(s"$schemas_mgmdb.tbl_aconl_ins_bas")
 
@@ -4555,7 +4910,14 @@ object SparkDB22Hive {
       sqlContext.sql(s"use $hive_dbname")
       sqlContext.sql("truncate table  hive_aconl_ins_bas")
       sqlContext.sql("insert into table hive_aconl_ins_bas select * from spark_tbl_aconl_ins_bas")
-      println("####Complete Time: "+DateUtils.getCurrentSystemTime())
+      println("insert into table hive_aconl_ins_bas successfully!")
+      val usedTime = System.currentTimeMillis() - currntTime
+      val ss:Int =((System.currentTimeMillis() - currntTime)/1000).toInt
+      val MM:Int = ss/60
+      val hh:Int = MM/60
+      val dd:Int = hh/24
+      println("运行 JOB_HV_79 花费 :"+dd+"天"+(hh-dd*24)+"时"+(MM-hh*60)+"分"+(ss-MM*60)+"秒 , 合计："+usedTime+"毫秒")
+
     }else{
       println("加载的表spark_tbl_aconl_ins_bas中无数据！")
     }
