@@ -3052,7 +3052,7 @@ object SparkDB22Hive {
          |ta.CLOUD_PAY_IN as CLOUD_PAY_IN,
          |trim(ta.CARD_MEDIA) as CARD_MEDIA
          |
-        |from TBL_UMSVC_PRIZE_DISCOUNT_RESULT ta
+         |from TBL_UMSVC_PRIZE_DISCOUNT_RESULT ta
          |where
          |concat_ws('-',substr(ta.SETTLE_DT,1,4),substr(ta.SETTLE_DT,5,2),substr(ta.SETTLE_DT,7,2))>='$start_dt'
          |and concat_ws('-',substr(ta.SETTLE_DT,1,4),substr(ta.SETTLE_DT,5,2),substr(ta.SETTLE_DT,7,2))<='$end_dt'
@@ -4838,7 +4838,7 @@ object SparkDB22Hive {
     val currntTime =System.currentTimeMillis()
 
     println("###JOB_HV_79(tbl_aconl_ins_bas)")
-    val df = sqlContext.jdbc_mgmdb_DF(s"$schemas_mgmdb.tbl_aconl_ins_bas")
+    val df = sqlContext.jdbc_accdb_DF(s"$schemas_accdb.tbl_aconl_ins_bas")
 
     df.registerTempTable("tbl_aconl_ins_bas")
     val results = sqlContext.sql(
