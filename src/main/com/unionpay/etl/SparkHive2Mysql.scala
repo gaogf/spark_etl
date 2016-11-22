@@ -1391,8 +1391,8 @@ object SparkHive2Mysql {
           s"""
              |select cup_branch_ins_id_nm as branch_nm,
              |'$today_dt' as report_dt,
-             |count(case when to_date(settle_dt)>=trunc('$today_dt','YYYY') and to_date(settle_dt)>='$today_dt' then 1 end) as years_cnt,
-             |sum(case when to_date(settle_dt)>=trunc('$today_dt','YYYY') and  to_date(settle_dt)>='$today_dt' then reward_point_at else 0 end) as years_at,
+             |count(case when to_date(settle_dt)>=trunc('$today_dt','YYYY') and to_date(settle_dt)<='$today_dt' then 1 end) as years_cnt,
+             |sum(case when to_date(settle_dt)>=trunc('$today_dt','YYYY') and  to_date(settle_dt)<='$today_dt' then reward_point_at else 0 end) as years_at,
              |count(case when to_date(settle_dt)='$today_dt' then 1  end)  as today_cnt,
              |sum(case when to_date(settle_dt)='$today_dt' then reward_point_at else 0 end) as today_at
              |from hive_cdhd_cashier_maktg_reward_dtl

@@ -59,16 +59,16 @@ object Create_Hive_Tables {
     hive_org_tdapp_activitynew
 //    hive_org_tdapp_device
     hive_org_tdapp_devicenew
-//    hive_org_tdapp_eventnew
+    hive_org_tdapp_eventnew
 //    hive_org_tdapp_exception
-//    hive_org_tdapp_exceptionnew
+    hive_org_tdapp_exceptionnew
     hive_org_tdapp_keyvalue
 //    hive_org_tdapp_newuser
 //    hive_org_tdapp_tactivity
 //    hive_org_tdapp_tappevent
 //    hive_org_tdapp_terminate
 //    hive_org_tdapp_tlaunch
-//    hive_org_tdapp_tlaunchnew
+    hive_org_tdapp_tlaunchnew
     hive_preferential_mchnt_inf
     hive_prize_bas
     hive_signer_log
@@ -2248,35 +2248,35 @@ object Create_Hive_Tables {
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
       s"""
-         |create table if not exists $hive_dbname.hive_org_tdapp_eventnew(
-         |loguuid						string,
-         |developerid       int   ,
-         |productid         int   ,
-         |platformid        int   ,
-         |partnerid         int   ,
-         |appversion        string,
-         |tduserid          int   ,
-         |mobileid          int   ,
-         |channel           int   ,
-         |os                int   ,
-         |pixel             string,
-         |countryid         int   ,
-         |provinceid        int   ,
-         |isp               int   ,
-         |language          string,
-         |jailbroken        int   ,
-         |cracked           int   ,
-         |starttime_hour    int   ,
-         |starttime_day     int   ,
-         |starttime_week    int   ,
-         |starttime_month   int   ,
-         |starttime_year    int   ,
-         |daytime           string,
-         |updays            string
+         |create table if not exists $hive_dbname.hive_org_tdapp_eventnew
+         |(
+         |loguuid             string   ,
+         |developerid         int      ,
+         |productid           int      ,
+         |platformid          int      ,
+         |partnerid           int      ,
+         |appversion          string   ,
+         |tduserid            int      ,
+         |mobileid            int      ,
+         |channel             int      ,
+         |os                  int      ,
+         |pixel               string   ,
+         |countryid           int      ,
+         |provinceid          int      ,
+         |isp                 int      ,
+         |language            string   ,
+         |jailbroken          int      ,
+         |cracked             int      ,
+         |starttime_hour      int      ,
+         |starttime_day       int      ,
+         |starttime_week      int      ,
+         |starttime_month     int      ,
+         |starttime_year      int
          |)
+         |partitioned by (part_daytime string , part_updays string)
          |row format delimited fields terminated by '!|'
          |stored as parquet
-         |location '/user/ch_hypas/upw_hive/incident/td/hive_org_tdapp_eventnew'
+         |location '/user/ch_datas/upw_hive/incident/td/hive_org_tdapp_eventnew'
          | """.stripMargin)
 
     println("=======Create hive_org_tdapp_eventnew successfully ! =======")
@@ -2329,36 +2329,36 @@ object Create_Hive_Tables {
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
       s"""
-         |create table if not exists $hive_dbname.hive_org_tdapp_exceptionnew(
-         |loguuid					string,
-         |developerid     int   ,
-         |productid       int   ,
-         |platformid      int   ,
-         |partnerid       int   ,
-         |appversion      string,
-         |tduserid        int   ,
-         |mobileid        int   ,
-         |channel         int   ,
-         |os              int   ,
-         |pixel           string,
-         |countryid       int   ,
-         |provinceid      int   ,
-         |isp             int   ,
-         |language        string,
-         |jailbroken      int   ,
-         |cracked         int   ,
-         |starttime_hour  int   ,
-         |starttime_day   int   ,
-         |starttime_week  int   ,
-         |starttime_month int   ,
-         |starttime_year  int   ,
-         |return_status   int   ,
-         |daytime         string,
-         |updays          string
+         |create table if not exists $hive_dbname.hive_org_tdapp_exceptionnew
+         |(
+         |loguuid             string    ,
+         |developerid         int       ,
+         |productid           int       ,
+         |platformid          int       ,
+         |partnerid           int       ,
+         |appversion          string    ,
+         |tduserid            int       ,
+         |mobileid            int       ,
+         |channel             int       ,
+         |os                  int       ,
+         |pixel               string    ,
+         |countryid           int       ,
+         |provinceid          int       ,
+         |isp                 int       ,
+         |language            string    ,
+         |jailbroken          int       ,
+         |cracked             int       ,
+         |starttime_hour      int       ,
+         |starttime_day       int       ,
+         |starttime_week      int       ,
+         |starttime_month     int       ,
+         |starttime_year      int       ,
+         |return_status       int
          |)
+         |partitioned by (part_daytime string , part_updays string)
          |row format delimited fields terminated by '!|'
          |stored as parquet
-         |location '/user/ch_hypas/upw_hive/incident/td/hive_org_tdapp_exceptionnew'
+         |location '/user/ch_datas/upw_hive/incident/td/hive_org_tdapp_exceptionnew'
          | """.stripMargin)
 
     println("=======Create hive_org_tdapp_exceptionnew successfully ! =======")
@@ -2594,35 +2594,35 @@ object Create_Hive_Tables {
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
       s"""
-         |create table if not exists $hive_dbname.hive_org_tdapp_tlaunchnew(
-         |loguuid					string,
-         |developerid     int   ,
-         |productid       int   ,
-         |platformid      int   ,
-         |partnerid       int   ,
-         |appversion      string,
-         |tduserid        int   ,
-         |mobileid        int   ,
-         |channel         int   ,
-         |os              int   ,
-         |pixel           string,
-         |countryid       int   ,
-         |provinceid      int   ,
-         |isp             int   ,
-         |language        string,
-         |jailbroken      int   ,
-         |cracked         int   ,
-         |starttime_hour  int   ,
-         |starttime_day   int   ,
-         |starttime_week  int   ,
-         |starttime_month int   ,
-         |starttime_year  int   ,
-         |daytime         string,
-         |updays          string
+         |create table if not exists $hive_dbname.hive_org_tdapp_tlaunchnew
+         |(
+         |loguuid             string     ,
+         |developerid         int        ,
+         |productid           int        ,
+         |platformid          int        ,
+         |partnerid           int        ,
+         |appversion          string     ,
+         |tduserid            int        ,
+         |mobileid            int        ,
+         |channel             int        ,
+         |os                  int        ,
+         |pixel               string     ,
+         |countryid           int        ,
+         |provinceid          int        ,
+         |isp                 int        ,
+         |language            string     ,
+         |jailbroken          int        ,
+         |cracked             int        ,
+         |starttime_hour      int        ,
+         |starttime_day       int        ,
+         |starttime_week      int        ,
+         |starttime_month     int        ,
+         |starttime_year      int
          |)
+         |partitioned by (part_daytime string , part_updays string)
          |row format delimited fields terminated by '!|'
          |stored as parquet
-         |location '/user/ch_hypas/upw_hive/incident/td/hive_org_tdapp_tlaunchnew'
+         |location '/user/ch_datas/upw_hive/incident/td/hive_org_tdapp_tlaunchnew'
          | """.stripMargin)
 
     println("=======Create hive_org_tdapp_tlaunchnew successfully ! =======")
