@@ -488,6 +488,60 @@ object SparkUPH2H {
 
 
   /**
+    * hive-job-63 2016-11-22
+    * org_tdapp_device to hive_org_tdapp_device
+    * @author Xue
+    * @param sqlContext
+    */
+
+  // Xue create function about partition by date ^_^
+  def JOB_HV_63(implicit sqlContext: HiveContext,start_dt: String, end_dt: String)  {
+
+    var sdf: SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd")
+    val start = LocalDate.parse(start_dt, dateFormatter)
+    val end = LocalDate.parse(end_dt, dateFormatter)
+    val days = Days.daysBetween(start, end).getDays
+    val dateStrs = for (day <- 0 to days) {
+      val currentDay = (start.plusDays(day).toString(dateFormatter))
+      println("######JOB_HV_63######")
+      val df = sqlContext.read.parquet(s"$up_namenode/$up_hivedataroot/incident/td/hive_org_tdapp_device/part_updays=$currentDay")
+      println(s"###### read $up_namenode/ successful ######")
+      df.registerTempTable("spark_hive_org_tdapp_device")
+
+      val daytime:DataFrame = sqlContext.sql(
+        s"""
+           |select distinct
+           |daytime
+           |from spark_hive_org_tdapp_device
+            """.stripMargin
+      )
+      daytime.show(10)
+
+      val time_lsit = daytime.select("daytime").rdd.map(r => r(0).asInstanceOf[String]).collect().toList
+
+      increase_ListBuffer(time_lsit)
+
+      def increase_ListBuffer(list:List[String]) :List[String]={
+        import scala.collection.mutable.ListBuffer
+        var result = ListBuffer[String]()
+        for(element <- list){
+          val dt = DateTime.parse(element,dateFormat_2)
+          val days = element
+          val days_fmt = dateFormatter.print(dt)
+          sqlContext.sql(s"use $hive_dbname")
+          sqlContext.sql(s"alter table hive_org_tdapp_device drop partition (part_daytime='$days_fmt',part_updays='$currentDay')")
+          println(s"alter table hive_org_tdapp_device drop partition (part_daytime='$days_fmt',part_updays='$currentDay') successfully!")
+          sqlContext.sql(s"insert into hive_org_tdapp_device partition (part_daytime='$days_fmt',part_updays='$currentDay') select * from spark_hive_org_tdapp_device htempa where htempa.daytime='$days'")
+          println(s"insert into hive_org_tdapp_device partition (part_daytime='$days_fmt',part_updays='$currentDay') successfully!")
+          result += element+1
+        }
+        result.toList
+      }
+    }
+  }
+
+
+  /**
     * hive-job-71 2016-11-2
     * hive_ach_order_inf -> rtdtrs_dtl_ach_order_inf
     * @author tzq
