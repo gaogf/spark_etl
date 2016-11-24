@@ -91,7 +91,9 @@ object Create_Hive_Tables {
     hive_access_static_inf
     hive_region_cd
     hive_aconl_ins_bas
-
+    hive_org_tdapp_tactivity
+    hive_org_tdapp_tlaunch
+    hive_org_tdapp_terminate
 
     println("=======Create all tables on the hive successfully=======")
 
@@ -2105,8 +2107,7 @@ object Create_Hive_Tables {
          |sync_st                 string ,
          |sync_bat_no             int    ,
          |sync_ts                 timestamp
-         |)
-         |row format delimited fields terminated by '!|'
+         |         |row format delimited fields terminated by '!|'
          |stored as parquet
          |location '/user/ch_hypas/upw_hive/parameter/hive_mchnt_tp_grp'
          | """.stripMargin)
@@ -3719,5 +3720,125 @@ object Create_Hive_Tables {
     println("=======Create hive_aconl_ins_bas successfully ! =======")
 
   }
+
+  def hive_org_tdapp_tactivity (implicit sqlContext: HiveContext) = {
+    println("=======Create hive_org_tdapp_tactivity=======")
+    sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table hive_org_tdapp_tactivity")
+    sqlContext.sql(
+      s"""
+         |create table if not exists $hive_dbname.hive_org_tdapp_tactivity
+         |(
+         |loguuid              string     ,
+         |developerid          int        ,
+         |productid            int        ,
+         |platformid           int        ,
+         |partnerid            int        ,
+         |appversion           string     ,
+         |tduserid             int        ,
+         |refpagenameid        int        ,
+         |pagenameid           int        ,
+         |duration             int        ,
+         |sessionid            string     ,
+         |starttime            bigint     ,
+         |starttime_hour       int        ,
+         |starttime_day        int        ,
+         |starttime_week       int        ,
+         |starttime_month      int        ,
+         |starttime_year       int
+         |)
+         |partitioned by (part_daytime string , part_updays string)
+         |row format delimited fields terminated by '!|'
+         |stored as parquet
+         |location '/user/ch_datas/upw_hive/incident/td/hive_org_tdapp_tactivity'
+         |
+         | """.stripMargin)
+
+    println("=======Create hive_org_tdapp_tactivity successfully ! =======")
+
+  }
+
+  def hive_org_tdapp_tlaunch (implicit sqlContext: HiveContext) = {
+    println("=======Create hive_org_tdapp_tlaunch=======")
+    sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table hive_org_tdapp_tlaunch")
+    sqlContext.sql(
+      s"""
+         |create table if not exists $hive_dbname.hive_org_tdapp_tlaunch(
+         |loguuid						string,
+         |developerid       int   ,
+         |productid         int   ,
+         |platformid        int   ,
+         |partnerid         int   ,
+         |appversion        string,
+         |tduserid          int   ,
+         |mobileid          int   ,
+         |channel           int   ,
+         |os                int   ,
+         |pixel             string,
+         |countryid         int   ,
+         |provinceid        int   ,
+         |isp               int   ,
+         |language          string,
+         |jailbroken        int   ,
+         |cracked           int   ,
+         |sessionid         string,
+         |session_duration  int   ,
+         |interval_level    int   ,
+         |starttime         bigint,
+         |starttime_hour    int   ,
+         |starttime_day     int   ,
+         |starttime_week    int   ,
+         |starttime_month   int   ,
+         |starttime_year    int
+         |
+         |)
+         |partitioned by (part_daytime string,part_updays string)
+         |row format delimited fields terminated by '!|'
+         |stored as parquet
+         |location '/user/ch_datas/upw_hive/incident/td/hive_org_tdapp_tlaunch'
+         |
+         | """.stripMargin)
+
+    println("=======Create hive_org_tdapp_tlaunch successfully ! =======")
+
+  }
+
+  def hive_org_tdapp_terminate (implicit sqlContext: HiveContext) = {
+    println("=======Create hive_org_tdapp_terminate=======")
+    sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_org_tdapp_terminate")
+    sqlContext.sql(
+      s"""
+         |create table if not exists upw_hive.hive_org_tdapp_terminate(
+         |loguuid          string,
+         |developerid      int   ,
+         |productid        int   ,
+         |platformid       int   ,
+         |partnerid        int   ,
+         |appversion       string,
+         |devid            string,
+         |sessionid        string,
+         |session_duration int   ,
+         |usetime_level    int   ,
+         |starttime        bigint,
+         |starttime_hour   int   ,
+         |starttime_day    int   ,
+         |starttime_week   int   ,
+         |starttime_month  int   ,
+         |starttime_year   int
+         |)
+         |partitioned by (part_daytime string,part_updays string)
+         |row format delimited fields terminated by '!|'
+         |stored as parquet
+         |location '/user/ch_datas/upw_hive/incident/td/hive_org_tdapp_terminate'
+         |
+         | """.stripMargin)
+
+    println("=======Create hive_org_tdapp_terminate successfully ! =======")
+
+  }
+
+
 
 }
