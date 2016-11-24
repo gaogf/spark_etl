@@ -31,8 +31,9 @@ object SparkUPH2H {
     implicit val sqlContext = new HiveContext(sc)
 
     val rowParams=UPSQL_TIMEPARAMS_JDBC.readTimeParams(sqlContext)
-    val start_dt=DateUtils.getYesterdayByJob(rowParams.getString(0))//获取开始日期：start_dt-1
+    val start_dt=DateUtils.getYesterdayByJob(rowParams.getString(0))  //获取开始日期：start_dt-1
     val end_dt=rowParams.getString(1)//结束日期(未减一处理)
+
 
     println(s"####当前JOB的执行日期为：$end_dt####")
 
@@ -48,6 +49,9 @@ object SparkUPH2H {
       case "JOB_HV_49"  => JOB_HV_49 //CODE BY YX
       case "JOB_HV_50"  =>  JOB_HV_50(sqlContext,start_dt,end_dt) //CODE BY XTP
       case "JOB_HV_52"  => JOB_HV_52(sqlContext,end_dt) //CODE BY YX
+      case "JOB_HV_55"  =>  JOB_HV_55(sqlContext,start_dt,end_dt) //CODE BY TZQ
+      case "JOB_HV_56"  =>  JOB_HV_56(sqlContext,start_dt,end_dt) //CODE BY TZQ
+      case "JOB_HV_57"  =>  JOB_HV_57(sqlContext,start_dt,end_dt) //CODE BY TZQ
       case "JOB_HV_58"  =>  JOB_HV_58(sqlContext,start_dt,end_dt) //CODE BY XTP
       case "JOB_HV_59"  =>  JOB_HV_59(sqlContext,start_dt,end_dt) //CODE BY XTP
       case "JOB_HV_60"  =>  JOB_HV_60(sqlContext,start_dt,end_dt) //CODE BY XTP
@@ -216,6 +220,157 @@ object SparkUPH2H {
          |select * from spark_active_card_acq_branch_mon
        """.stripMargin)
     println("#### insert into table(hive_active_card_acq_branch_mon) success ####")
+
+  }
+
+
+
+  /**
+    * hive-job-55 2016-11-15
+    * org_tdapp_tactivity to  hive_org_tdapp_tactivity
+    * @author tzq
+    * @param sqlContext
+    */
+  def JOB_HV_55(implicit sqlContext: HiveContext,start_dt: String,end_dt:String) = {
+    val start = LocalDate.parse(start_dt, dateFormatter)
+    val end = LocalDate.parse(end_dt, dateFormatter)
+    val days = Days.daysBetween(start, end).getDays
+    for (day <- 0 to days) {
+      val currentDay = (start.plusDays(day).toString(dateFormatter))
+      println("######JOB_HV_55######")
+      val df = sqlContext.read.parquet(s"$up_namenode/$up_hivedataroot/incident/td/hive_org_tdapp_tactivity/part_updays=$currentDay")
+      println(s"###### read $up_namenode/ successful ######")
+      df.registerTempTable("spark_hive_org_tdapp_tactivity")
+
+      val daytime:DataFrame = sqlContext.sql(
+        s"""
+           |select distinct
+           |daytime
+           |from spark_hive_org_tdapp_tactivity
+            """.stripMargin
+      )
+      val times = daytime.select("daytime").rdd.map(r => r(0).asInstanceOf[String]).collect().toList
+
+      increase_ListBuffer(times)
+
+      def increase_ListBuffer(list:List[String]) {
+
+        for(element <- list){
+          val dt = DateTime.parse(element,dateFormat_2)
+          val days = element
+          val days_fmt = dateFormatter.print(dt)
+
+          sqlContext.sql(s"use $hive_dbname")
+          sqlContext.sql(s"alter table hive_org_tdapp_tactivity drop partition (part_daytime='$days_fmt',part_updays='$currentDay')")
+          println(s"alter table hive_org_tdapp_tactivity drop partition (part_daytime='$days_fmt',part_updays='$currentDay') successfully!")
+
+          sqlContext.sql(s"insert into hive_org_tdapp_tactivity partition (part_daytime='$days_fmt',part_updays='$currentDay') select * from spark_hive_org_tdapp_tactivity hott where hott.daytime='$days'")
+          println(s"insert into hive_org_tdapp_tactivity partition (part_daytime='$days_fmt',part_updays='$currentDay') successfully!")
+
+        }
+
+      }
+    }
+
+  }
+
+  /**
+    * hive-job-56 2016-11-24
+    * org_tdapp_tlaunch to  hive_org_tdapp_tlaunch
+    * @author tzq
+    * @param sqlContext
+    */
+  def JOB_HV_56(implicit sqlContext: HiveContext,start_dt: String,end_dt:String) = {
+    val start = LocalDate.parse(start_dt, dateFormatter)
+    val end = LocalDate.parse(end_dt, dateFormatter)
+    val days = Days.daysBetween(start, end).getDays
+     for (day <- 0 to days) {
+      val currentDay = (start.plusDays(day).toString(dateFormatter))
+      println("######JOB_HV_56######")
+      val df = sqlContext.read.parquet(s"$up_namenode/$up_hivedataroot/incident/td/hive_org_tdapp_tlaunch/part_updays=$currentDay")
+      println(s"###### read $up_namenode/ successful ######")
+      df.registerTempTable("spark_hive_org_tdapp_tlaunch")
+
+      val daytime:DataFrame = sqlContext.sql(
+        s"""
+           |select distinct
+           |daytime
+           |from spark_hive_org_tdapp_tlaunch
+            """.stripMargin
+      )
+      val times = daytime.select("daytime").rdd.map(r => r(0).asInstanceOf[String]).collect().toList
+
+      increase_ListBuffer(times)
+
+      def increase_ListBuffer(list:List[String]) {
+
+        for(element <- list){
+          val dt = DateTime.parse(element,dateFormat_2)
+          val days = element
+          val days_fmt = dateFormatter.print(dt)
+
+          sqlContext.sql(s"use $hive_dbname")
+          sqlContext.sql(s"alter table hive_org_tdapp_tlaunch drop partition (part_daytime='$days_fmt',part_updays='$currentDay')")
+          println(s"alter table hive_org_tdapp_tlaunch drop partition (part_daytime='$days_fmt',part_updays='$currentDay') successfully!")
+
+          sqlContext.sql(s"insert into hive_org_tdapp_tlaunch partition (part_daytime='$days_fmt',part_updays='$currentDay') select * from spark_hive_org_tdapp_tlaunch hott where hott.daytime='$days'")
+          println(s"insert into hive_org_tdapp_tlaunch partition (part_daytime='$days_fmt',part_updays='$currentDay') successfully!")
+
+        }
+
+      }
+    }
+
+  }
+
+
+
+  /**
+    * hive-job-57   2016-11-24
+    * org_tdapp_terminate to  hive_org_tdapp_terminate
+    * @author tzq
+    * @param sqlContext
+    */
+  def JOB_HV_57(implicit sqlContext: HiveContext,start_dt: String,end_dt:String) = {
+    val start = LocalDate.parse(start_dt, dateFormatter)
+    val end = LocalDate.parse(end_dt, dateFormatter)
+    val days = Days.daysBetween(start, end).getDays
+    for (day <- 0 to days) {
+      val currentDay = (start.plusDays(day).toString(dateFormatter))
+      println("######JOB_HV_57######")
+      val df = sqlContext.read.parquet(s"$up_namenode/$up_hivedataroot/incident/td/hive_org_tdapp_terminate/part_updays=$currentDay")
+      println(s"###### read $up_namenode/ successful ######")
+      df.registerTempTable("spark_hive_org_tdapp_terminate")
+
+      val daytime:DataFrame = sqlContext.sql(
+        s"""
+           |select distinct
+           |daytime
+           |from spark_hive_org_tdapp_terminate
+            """.stripMargin
+      )
+      val times = daytime.select("daytime").rdd.map(r => r(0).asInstanceOf[String]).collect().toList
+
+      increase_ListBuffer(times)
+
+      def increase_ListBuffer(list:List[String]) {
+
+        for(element <- list){
+          val dt = DateTime.parse(element,dateFormat_2)
+          val days = element
+          val days_fmt = dateFormatter.print(dt)
+
+          sqlContext.sql(s"use $hive_dbname")
+          sqlContext.sql(s"alter table hive_org_tdapp_terminate drop partition (part_daytime='$days_fmt',part_updays='$currentDay')")
+          println(s"alter table hive_org_tdapp_terminate drop partition (part_daytime='$days_fmt',part_updays='$currentDay') successfully!")
+
+          sqlContext.sql(s"insert into hive_org_tdapp_terminate partition (part_daytime='$days_fmt',part_updays='$currentDay') select * from spark_hive_org_tdapp_terminate hott where hott.daytime='$days'")
+          println(s"insert into hive_org_tdapp_terminate partition (part_daytime='$days_fmt',part_updays='$currentDay') successfully!")
+
+        }
+
+      }
+    }
 
   }
 
