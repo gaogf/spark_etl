@@ -548,18 +548,11 @@ object SparkDB22Hive {
          |NULL as acct_proc_in,
          |NULL as order_id
          |
-         |from (select * from viw_chacc_acc_trans_dtl where
-         |concat_ws('-',substr(trans_dt,1,4),substr(trans_dt,5,2),substr(trans_dt,7,2))>='$start_dt'
-         |and concat_ws('-',substr(trans_dt,1,4),substr(trans_dt,5,2),substr(trans_dt,7,2))<='$end_dt'
-         |and um_trans_id<>'AC02202000') ta
+         |from (select * from viw_chacc_acc_trans_dtl where um_trans_id<>'AC02202000') ta
          |left join  (select * from viw_chacc_acc_trans_log
-         |where concat_ws('-',substr(msg_settle_dt,1,4),substr(msg_settle_dt,5,2),substr(msg_settle_dt,7,2))>='$start_dt'
-         |and concat_ws('-',substr(msg_settle_dt,1,4),substr(msg_settle_dt,5,2),substr(msg_settle_dt,7,2))<='$end_dt'
-         |and um_trans_id<>'AC02202000') tb
+         |where um_trans_id<>'AC02202000') tb
          |on trim(ta.trans_tfr_tm)=trim(tb.trans_tfr_tm) and trim(ta.sys_tra_no)=trim(tb.sys_tra_no) and trim(ta.acpt_ins_id_cd)=trim(tb.acpt_ins_id_cd) and trim(ta.fwd_ins_id_cd)=trim(tb.fwd_ins_id_cd)
-         |left join  ( select * from viw_chmgm_swt_log where
-         |concat_ws('-',substr(trans_dt,1,4),substr(trans_dt,5,2),substr(trans_dt,7,2))>='$start_dt'
-         |and concat_ws('-',substr(trans_dt,1,4),substr(trans_dt,5,2),substr(trans_dt,7,2))<='$end_dt') tc
+         |left join  ( select * from viw_chmgm_swt_log ) tc
          |on trim(ta.trans_tfr_tm)=trim(tc.tfr_dt_tm)  and  trim(ta.sys_tra_no)=trim(tc.sys_tra_no) and trim(ta.acpt_ins_id_cd)=trim(tc.acpt_ins_id_cd) and trim(ta.fwd_ins_id_cd)=trim(tc.msg_fwd_ins_id_cd)
          |left join
          |(
@@ -578,12 +571,8 @@ object SparkDB22Hive {
          |tempa.fwd_ins_id_cd as fwd_ins_id_cd,
          |tempa.trans_proc_start_ts as trans_proc_start_ts,
          |row_number() over (order by tempa.trans_proc_start_ts) rank
-         |from (select * from viw_chacc_acc_trans_dtl
-         |where concat_ws('-',substr(trans_dt,1,4),substr(trans_dt,5,2),substr(trans_dt,7,2))>='$start_dt'
-         |and concat_ws('-',substr(trans_dt,1,4),substr(trans_dt,5,2),substr(trans_dt,7,2))<='$end_dt') tempa,
-         |(select * from viw_chacc_acc_trans_log
-         |where concat_ws('-',substr(msg_settle_dt,1,4),substr(msg_settle_dt,5,2),substr(msg_settle_dt,7,2))>='$start_dt'
-         |and concat_ws('-',substr(msg_settle_dt,1,4),substr(msg_settle_dt,5,2),substr(msg_settle_dt,7,2))<='$end_dt') tempb
+         |from (select * from viw_chacc_acc_trans_dtl) tempa,
+         |(select * from viw_chacc_acc_trans_log) tempb
          |where tempa.um_trans_id='AC02202000' and tempb.um_trans_id='AC02202000'
          |group by tempa.trans_tfr_tm,tempa.sys_tra_no,tempa.acpt_ins_id_cd,tempa.fwd_ins_id_cd,tempa.trans_proc_start_ts) tempc
          |group by tempc.trans_tfr_tm,tempc.sys_tra_no,tempc.acpt_ins_id_cd,tempc.fwd_ins_id_cd
@@ -650,7 +639,7 @@ object SparkDB22Hive {
     */
   def JOB_HV_8 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String) =  {
     val currntTime =System.currentTimeMillis()
-    val df2_1 = sqlContext.jdbc_mgmdb_DF(s"$schemas_mgmdb.TBL_CHMGM_STORE_TERM_RELATION")
+    val df2_1 = sqlContext.readDB2_MGM(s"$schemas_mgmdb.TBL_CHMGM_STORE_TERM_RELATION")
     println("分区数为:" + {
       df2_1.rdd.getNumPartitions
     })
@@ -2170,10 +2159,13 @@ object SparkDB22Hive {
   def JOB_HV_27 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
     val currntTime =System.currentTimeMillis()
 
-    val df2_1 = sqlContext.jdbc_accdb_DF(s"$schemas_accdb.VIW_CHACC_ACC_TRANS_LOG")
+    val start_day = start_dt.replace("-","")
+    val end_day = start_dt.replace("-","")
+
+    val df2_1 = sqlContext.readDB2_ACC_4para(s"$schemas_accdb.VIW_CHACC_ACC_TRANS_LOG","trans_dt",s"$start_day",s"$end_day")
     df2_1.registerTempTable("VIW_CHACC_ACC_TRANS_LOG")
 
-    val df2_2 = sqlContext.jdbc_mgmdb_DF(s"$schemas_mgmdb.VIW_CHMGM_SWT_LOG")
+    val df2_2 = sqlContext.readDB2_MGM_4para(s"$schemas_mgmdb.VIW_CHMGM_SWT_LOG","MSG_SETTLE_DT",s"$start_day",s"$end_day")
     df2_2.registerTempTable("VIW_CHMGM_SWT_LOG")
 
 
@@ -2301,10 +2293,8 @@ object SparkDB22Hive {
          |trim(A.SYS_ERR_CD) as SYS_ERR_CD,
          |A.DTL_INQ_DATA as DTL_INQ_DATA
          |FROM
-         |(select * from VIW_CHACC_ACC_TRANS_LOG where UM_TRANS_ID='AC02003065' and concat_ws('-',substr(trim(MSG_SETTLE_DT),1,4),substr(trim(MSG_SETTLE_DT),5,2),substr(trim(MSG_SETTLE_DT),7,2))>='$start_dt'
-         |and concat_ws('-',substr(trim(MSG_SETTLE_DT),1,4),substr(trim(MSG_SETTLE_DT),5,2),substr(trim(MSG_SETTLE_DT),7,2))<='$end_dt') A
-         |FULL JOIN (SELECT * FROM VIW_CHMGM_SWT_LOG  WHERE SETTLE_TRANS_ID='S38' and concat_ws('-',substr(TRANS_DT,1,4),substr(TRANS_DT,5,2),substr(TRANS_DT,7,2))>='$start_dt'
-         |and concat_ws('-',substr(TRANS_DT,1,4),substr(TRANS_DT,5,2),substr(TRANS_DT,7,2))<='$end_dt') B
+         |(select * from VIW_CHACC_ACC_TRANS_LOG where UM_TRANS_ID='AC02003065' ) A
+         |FULL JOIN (SELECT * FROM VIW_CHMGM_SWT_LOG  WHERE SETTLE_TRANS_ID='S38') B
          |on A.TRANS_TFR_TM=B.TFR_DT_TM and A.SYS_TRA_NO=B.SYS_TRA_NO and A.ACPT_INS_ID_CD=B.ACPT_INS_ID_CD and A.FWD_INS_ID_CD=B.MSG_FWD_INS_ID_CD
          |
          | """.stripMargin)
@@ -2366,7 +2356,10 @@ object SparkDB22Hive {
     */
   def JOB_HV_28 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
     val currntTime =System.currentTimeMillis()
-    val df2_1 = sqlContext.jdbc_accdb_DF(s"$schemas_accdb.viw_chacc_online_point_trans_inf")
+    val start_day = start_dt.replace("-","")
+    val end_day = start_dt.replace("-","")
+
+    val df2_1 = sqlContext.readDB2_ACC_4para(s"$schemas_accdb.viw_chacc_online_point_trans_inf","trans_dt",s"$start_day",s"$end_day")
     df2_1.registerTempTable("viw_chacc_online_point_trans_inf")
 
     val results = sqlContext.sql(
@@ -2452,8 +2445,6 @@ object SparkDB22Hive {
          |
          |from viw_chacc_online_point_trans_inf ta
          |where  ta.trans_tp in ('03','09','11','18','28')
-         |and concat_ws('-',substr(ta.trans_dt,1,4),substr(ta.trans_dt,5,2),substr(ta.trans_dt,7,2))>='$start_dt'
-         |and concat_ws('-',substr(ta.trans_dt,1,4),substr(ta.trans_dt,5,2),substr(ta.trans_dt,7,2))<='$end_dt'
          | """.stripMargin)
 
 
@@ -2508,7 +2499,11 @@ object SparkDB22Hive {
     */
   def JOB_HV_29 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
     val currntTime =System.currentTimeMillis()
-    val df2_1 = sqlContext.jdbc_accdb_DF(s"$schemas_accdb.tbl_chacc_cdhd_point_addup_dtl")
+
+    val start_day = start_dt.replace("-","")
+    val end_day = start_dt.replace("-","")
+
+    val df2_1 = sqlContext.readDB2_ACC_4para(s"$schemas_accdb.tbl_chacc_cdhd_point_addup_dtl","trans_dt",s"$start_day",s"$end_day")
     df2_1.registerTempTable("tbl_chacc_cdhd_point_addup_dtl")
 
     val results = sqlContext.sql(
@@ -2638,10 +2633,8 @@ object SparkDB22Hive {
          |trim(ta.give_limit_in) as give_limit_in,
          |trim(ta.retri_ref_no) as retri_ref_no
          |
-          |from tbl_chacc_cdhd_point_addup_dtl ta
+         |from tbl_chacc_cdhd_point_addup_dtl ta
          |where ta.um_trans_id in('AD00000002','AD00000003','AD00000004','AD00000005','AD00000006','AD00000007')
-         |and concat_ws('-',substr(ta.trans_dt,1,4),substr(ta.trans_dt,5,2),substr(ta.trans_dt,7,2))>='$start_dt'
-         |and concat_ws('-',substr(ta.trans_dt,1,4),substr(ta.trans_dt,5,2),substr(ta.trans_dt,7,2))<='$end_dt'
          | """.stripMargin)
 
     println("JOB_HV_29------>results:"+results.count())
@@ -2806,7 +2799,10 @@ object SparkDB22Hive {
   def JOB_HV_31 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
     val currntTime =System.currentTimeMillis()
 
-    val df2_1 = sqlContext.jdbc_mgmdb_DF(s"$schemas_mgmdb.VIW_CHMGM_BILL_ORDER_AUX_INF")
+    val start_day = start_dt.replace("-","")
+    val end_day = start_dt.replace("-","")
+
+    val df2_1 = sqlContext.readDB2_MGM_4para(s"$schemas_mgmdb.VIW_CHMGM_BILL_ORDER_AUX_INF","trans_dt",s"$start_day",s"$end_day")
     df2_1.registerTempTable("VIW_CHMGM_BILL_ORDER_AUX_INF")
 
     val results = sqlContext.sql(
@@ -2894,9 +2890,7 @@ object SparkDB22Hive {
          |ta.REC_UPD_TS as REC_UPD_TS,
          |trim(ta.UPD_CDHD_USR_ID) as UPD_CDHD_USR_ID
          |
-        |from VIW_CHMGM_BILL_ORDER_AUX_INF ta
-         |where concat_ws('-',substr(ta.trans_dt,1,4),substr(ta.trans_dt,5,2),substr(ta.trans_dt,7,2))>='$start_dt'
-         |and concat_ws('-',substr(ta.trans_dt,1,4),substr(ta.trans_dt,5,2),substr(ta.trans_dt,7,2))<='$end_dt'
+         |from VIW_CHMGM_BILL_ORDER_AUX_INF ta
          | """.stripMargin)
 
     println("JOB_HV_31------>results:"+results.count())
@@ -2958,7 +2952,10 @@ object SparkDB22Hive {
   def JOB_HV_32 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
     val currntTime =System.currentTimeMillis()
 
-    val df2_1 = sqlContext.jdbc_mgmdb_DF(s"$schemas_mgmdb.tbl_umsvc_prize_discount_result")
+    val start_day = start_dt.replace("-","")
+    val end_day = start_dt.replace("-","")
+
+    val df2_1 = sqlContext.readDB2_MGM_4para(s"$schemas_mgmdb.tbl_umsvc_prize_discount_result","settle_dt",s"$start_day",s"$end_day")
     df2_1.registerTempTable("tbl_umsvc_prize_discount_result")
 
     val results = sqlContext.sql(
@@ -3055,9 +3052,6 @@ object SparkDB22Hive {
          |trim(ta.CARD_MEDIA) as CARD_MEDIA
          |
          |from TBL_UMSVC_PRIZE_DISCOUNT_RESULT ta
-         |where
-         |concat_ws('-',substr(ta.SETTLE_DT,1,4),substr(ta.SETTLE_DT,5,2),substr(ta.SETTLE_DT,7,2))>='$start_dt'
-         |and concat_ws('-',substr(ta.SETTLE_DT,1,4),substr(ta.SETTLE_DT,5,2),substr(ta.SETTLE_DT,7,2))<='$end_dt'
          | """.stripMargin)
 
     println("JOB_HV_32------>results:"+results.count())
@@ -3116,40 +3110,41 @@ object SparkDB22Hive {
   def JOB_HV_33(implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
     val currntTime =System.currentTimeMillis()
 
-    val df2_1 = sqlContext.jdbc_mgmdb_DF(s"$schemas_mgmdb.VIW_CHMGM_BILL_SUB_ORDER_DETAIL_INF")
+    val start_day = start_dt.replace("-","")
+    val end_day = start_dt.replace("-","")
+
+    val df2_1 = sqlContext.readDB2_MGM_4para(s"$schemas_mgmdb.viw_chmgm_bill_sub_order_detail_inf","trans_dt",s"$start_day",s"$end_day")
     df2_1.registerTempTable("VIW_CHMGM_BILL_SUB_ORDER_DETAIL_INF")
 
     val results = sqlContext.sql(
       s"""
-         |SELECT
-         |ta.BILL_SUB_ORDER_ID as BILL_SUB_ORDER_ID,
-         |trim(ta.BILL_ORDER_ID) as BILL_ORDER_ID,
-         |trim(ta.MCHNT_CD) as MCHNT_CD,
-         |ta.MCHNT_NM as MCHNT_NM,
-         |trim(ta.SUB_MCHNT_CD) as SUB_MCHNT_CD,
-         |ta.SUB_MCHNT_NM as SUB_MCHNT_NM,
-         |trim(ta.BILL_ID) as BILL_ID,
-         |ta.BILL_PRICE as BILL_PRICE,
-         |trim(ta.TRANS_SEQ) as TRANS_SEQ,
-         |ta.REFUND_REASON as TRANS_SEQ,
-         |trim(ta.ORDER_ST) as ORDER_ST,
-         |ta.REC_CRT_TS as REC_CRT_TS,
-         |trim(ta.CRT_CDHD_USR_ID) as CRT_CDHD_USR_ID,
-         |ta.REC_UPD_TS as REC_UPD_TS,
-         |trim(ta.UPD_CDHD_USR_ID) as UPD_CDHD_USR_ID,
-         |ta.ORDER_TIMEOUT_TS as ORDER_TIMEOUT_TS,
+         |select
+         |ta.bill_sub_order_id as bill_sub_order_id,
+         |trim(ta.bill_order_id) as bill_order_id,
+         |trim(ta.mchnt_cd) as mchnt_cd,
+         |ta.mchnt_nm as mchnt_nm,
+         |trim(ta.sub_mchnt_cd) as sub_mchnt_cd,
+         |ta.sub_mchnt_nm as sub_mchnt_nm,
+         |trim(ta.bill_id) as bill_id,
+         |ta.bill_price as bill_price,
+         |trim(ta.trans_seq) as trans_seq,
+         |ta.refund_reason as trans_seq,
+         |trim(ta.order_st) as order_st,
+         |ta.rec_crt_ts as rec_crt_ts,
+         |trim(ta.crt_cdhd_usr_id) as crt_cdhd_usr_id,
+         |ta.rec_upd_ts as rec_upd_ts,
+         |trim(ta.upd_cdhd_usr_id) as upd_cdhd_usr_id,
+         |ta.order_timeout_ts as order_timeout_ts,
          |case when
-         |substr(ta.TRANS_DT,1,4) between '0001' and '9999' and substr(ta.TRANS_DT,5,2) between '01' and '12' and
-         |substr(ta.TRANS_DT,7,2) between '01' and substr(last_day(concat_ws('-',substr(ta.TRANS_DT,1,4),substr(ta.TRANS_DT,5,2),substr(ta.TRANS_DT,7,2))),9,2)
-         |then concat_ws('-',substr(ta.TRANS_DT,1,4),substr(ta.TRANS_DT,5,2),substr(ta.TRANS_DT,7,2))
-         |else null end as TRANS_DT,
-         |ta.RELATED_USR_ID as RELATED_USR_ID,
-         |ta.TRANS_PROCESS as TRANS_PROCESS,
-         |ta.RESPONSE_CODE as RESPONSE_CODE,
-         |ta.RESPONSE_MSG as RESPONSE_MSG
-         |FROM VIW_CHMGM_BILL_SUB_ORDER_DETAIL_INF ta
-         |WHERE  concat_ws('-',substr(ta.TRANS_DT,1,4),substr(ta.TRANS_DT,5,2),substr(ta.TRANS_DT,7,2)) >= '$start_dt'
-         |and concat_ws('-',substr(ta.TRANS_DT,1,4),substr(ta.TRANS_DT,5,2),substr(ta.TRANS_DT,7,2)) <= '$end_dt'
+         |substr(ta.trans_dt,1,4) between '0001' and '9999' and substr(ta.trans_dt,5,2) between '01' and '12' and
+         |substr(ta.trans_dt,7,2) between '01' and substr(last_day(concat_ws('-',substr(ta.trans_dt,1,4),substr(ta.trans_dt,5,2),substr(ta.trans_dt,7,2))),9,2)
+         |then concat_ws('-',substr(ta.trans_dt,1,4),substr(ta.trans_dt,5,2),substr(ta.trans_dt,7,2))
+         |else null end as trans_dt,
+         |ta.related_usr_id as related_usr_id,
+         |ta.trans_process as trans_process,
+         |ta.response_code as response_code,
+         |ta.response_msg as response_msg
+         |from viw_chmgm_bill_sub_order_detail_inf ta
          | """.stripMargin)
 
     println("JOB_HV_33------>results:" + results.count())
@@ -3208,7 +3203,7 @@ object SparkDB22Hive {
 
     println("###JOB_HV_34(TBL_CHMGM_CHARA_ACCT_DEF_TMP -> HIVE_BUSS_DIST)")
     sqlContext.sql(s"use $hive_dbname")
-    val df = sqlContext.jdbc_mgmdb_DF(s"$schemas_mgmdb.TBL_CHMGM_CHARA_ACCT_DEF_TMP")
+    val df = sqlContext.readDB2_MGM(s"$schemas_mgmdb.TBL_CHMGM_CHARA_ACCT_DEF_TMP")
     df.registerTempTable("TBL_CHMGM_CHARA_ACCT_DEF_TMP")
     val results = sqlContext.sql(
       """
@@ -3276,7 +3271,7 @@ object SparkDB22Hive {
 
     println("###JOB_HV_35(TBL_CHACC_CDHD_BILL_ACCT_INF -> HIVE_CDHD_BILL_ACCT_INF)")
     sqlContext.sql(s"use $hive_dbname")
-    val df = sqlContext.jdbc_accdb_DF(s"$schemas_accdb.TBL_CHACC_CDHD_BILL_ACCT_INF")
+    val df = sqlContext.readDB2_ACC(s"$schemas_accdb.TBL_CHACC_CDHD_BILL_ACCT_INF")
     df.registerTempTable("TBL_CHACC_CDHD_BILL_ACCT_INF")
     val results = sqlContext.sql(
       """
@@ -4649,7 +4644,7 @@ object SparkDB22Hive {
   def JOB_HV_75 (implicit sqlContext: HiveContext) = {
     val currntTime =System.currentTimeMillis()
 
-    val df2_1 = sqlContext.jdbc_mgmdb_DF(s"$schemas_mgmdb.tbl_chmgm_access_static_inf ")
+    val df2_1 = sqlContext.readDB2_MGM(s"$schemas_mgmdb.tbl_chmgm_access_static_inf ")
     df2_1.registerTempTable("tbl_chmgm_access_static_inf")
 
     val results = sqlContext.sql(
@@ -4715,7 +4710,7 @@ object SparkDB22Hive {
   def JOB_HV_76 (implicit sqlContext: HiveContext) = {
     val currntTime =System.currentTimeMillis()
 
-    val df2_1 = sqlContext.jdbc_mgmdb_DF(s"$schemas_mgmdb.tbl_chmgm_region_cd ")
+    val df2_1 = sqlContext.readDB2_MGM(s"$schemas_mgmdb.tbl_chmgm_region_cd ")
     df2_1.registerTempTable("tbl_chmgm_region_cd")
 
     val results = sqlContext.sql(
