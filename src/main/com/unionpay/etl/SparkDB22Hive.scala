@@ -1467,10 +1467,10 @@ object SparkDB22Hive {
     val df = sqlContext.readDB2_MGM(s"$schemas_mgmdb.TBL_CHMGM_MCHNT_INF")
     df.registerTempTable("db2_tbl_chmgm_mchnt_inf")
 
-    val df1 = sqlContext.jdbc_mgmdb_DF(s"$schemas_mgmdb.TBL_CHMGM_STORE_TERM_RELATION")
+    val df1 = sqlContext.readDB2_MGM(s"$schemas_mgmdb.TBL_CHMGM_STORE_TERM_RELATION")
     df1.registerTempTable("db2_tbl_chmgm_store_term_relation")
 
-    val df2 = sqlContext.jdbc_mgmdb_DF(s"$schemas_mgmdb.TBL_CHMGM_ACCESS_BAS_INF")
+    val df2 = sqlContext.readDB2_MGM(s"$schemas_mgmdb.TBL_CHMGM_ACCESS_BAS_INF")
     df2.registerTempTable("db2_tbl_chmgm_access_bas_inf")
 
     val results = sqlContext.sql(
