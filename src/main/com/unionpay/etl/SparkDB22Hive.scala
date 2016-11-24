@@ -780,7 +780,7 @@ object SparkDB22Hive {
   def JOB_HV_9(implicit sqlContext: HiveContext) = {
     val currntTime =System.currentTimeMillis()
     println("###JOB_HV_9(hive_preferential_mchnt_inf --->tbl_chmgm_preferential_mchnt_inf)")
-    val df = sqlContext.jdbc_mgmdb_DF(s"$schemas_mgmdb.TBL_CHMGM_PREFERENTIAL_MCHNT_INF")
+    val df = sqlContext.readDB2_ACC(s"$schemas_mgmdb.TBL_CHMGM_PREFERENTIAL_MCHNT_INF")
     df.registerTempTable("db2_tbl_chmgm_preferential_mchnt_inf")
     val results = sqlContext.sql(
       """
@@ -909,7 +909,7 @@ object SparkDB22Hive {
     val currntTime =System.currentTimeMillis()
 
     println("###JOB_HV_10(hive_access_bas_inf->tbl_chmgm_access_bas_inf)")
-    val df = sqlContext.jdbc_mgmdb_DF(s"$schemas_mgmdb.TBL_CHMGM_ACCESS_BAS_INF")
+    val df = sqlContext.readDB2_MGM(s"$schemas_mgmdb.TBL_CHMGM_ACCESS_BAS_INF")
     df.registerTempTable("db2_tbl_chmgm_access_bas_inf")
     val results = sqlContext.sql(
       """
@@ -1042,7 +1042,7 @@ object SparkDB22Hive {
     val currntTime =System.currentTimeMillis()
 
     println("###JOB_HV_11(hive_ticket_bill_bas_inf->tbl_chacc_ticket_bill_bas_inf)")
-    val df = sqlContext.jdbc_accdb_DF(s"$schemas_accdb.TBL_CHACC_TICKET_BILL_BAS_INF")
+    val df = sqlContext.readDB2_ACC(s"$schemas_accdb.TBL_CHACC_TICKET_BILL_BAS_INF")
 
     df.registerTempTable("db2_tbl_chacc_ticket_bill_bas_inf")
     val results = sqlContext.sql(
@@ -1210,7 +1210,7 @@ object SparkDB22Hive {
     val currntTime =System.currentTimeMillis()
 
     println("###JOB_HV_12(hive_chara_grp_def_bat->tbl_chmgm_chara_grp_def_bat)")
-    val df = sqlContext.jdbc_mgmdb_DF(s"$schemas_mgmdb.TBL_CHMGM_CHARA_GRP_DEF_BAT")
+    val df = sqlContext.readDB2_MGM(s"$schemas_mgmdb.TBL_CHMGM_CHARA_GRP_DEF_BAT")
     df.registerTempTable("db2_tbl_chmgm_chara_grp_def_bat")
     val results = sqlContext.sql(
       """
@@ -1278,7 +1278,7 @@ object SparkDB22Hive {
     val currntTime =System.currentTimeMillis()
 
     println("###JOB_HV_13(hive_card_bin->tbl_chmgm_card_bin)")
-    val df = sqlContext.jdbc_mgmdb_DF(s"$schemas_mgmdb.TBL_CHMGM_CARD_BIN")
+    val df = sqlContext.readDB2_MGM(s"$schemas_mgmdb.TBL_CHMGM_CARD_BIN")
 
     df.registerTempTable("db2_tbl_chmgm_card_bin")
     val results = sqlContext.sql(
@@ -1358,7 +1358,7 @@ object SparkDB22Hive {
     val currntTime =System.currentTimeMillis()
 
     println("###JOB_HV_14(hive_inf_source_dtl->tbl_inf_source_dtl)")
-    val df = sqlContext.jdbc_accdb_DF(s"$schemas_accdb.TBL_INF_SOURCE_DTL")
+    val df = sqlContext.readDB2_ACC(s"$schemas_accdb.TBL_INF_SOURCE_DTL")
     df.registerTempTable("db2_tbl_inf_source_dtl")
     val results = sqlContext.sql(
       """
@@ -1475,7 +1475,7 @@ object SparkDB22Hive {
     val currntTime =System.currentTimeMillis()
 
     println("###JOB_HV_16(hive_mchnt_inf_wallet->tbl_chmgm_mchnt_inf/TBL_CHMGM_STORE_TERM_RELATION/TBL_CHMGM_ACCESS_BAS_INF)")
-    val df = sqlContext.jdbc_mgmdb_DF(s"$schemas_mgmdb.TBL_CHMGM_MCHNT_INF")
+    val df = sqlContext.readDB2_MGM(s"$schemas_mgmdb.TBL_CHMGM_MCHNT_INF")
     df.registerTempTable("db2_tbl_chmgm_mchnt_inf")
 
     val df1 = sqlContext.jdbc_mgmdb_DF(s"$schemas_mgmdb.TBL_CHMGM_STORE_TERM_RELATION")
