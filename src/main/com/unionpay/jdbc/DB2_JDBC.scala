@@ -1,6 +1,7 @@
 package com.unionpay.jdbc
 
 import java.sql.DriverManager
+import java.util.Properties
 
 import com.unionpay.conf.ConfigurationManager
 import com.unionpay.constant.Constants
@@ -18,6 +19,7 @@ object DB2_JDBC {
   private lazy val url_accdb: String =ConfigurationManager.getProperty(Constants.DB2_URL_ACCDB)
   private lazy val url_mgmdb: String =ConfigurationManager.getProperty(Constants.DB2_URL_MGMDB)
   private lazy val driver =ConfigurationManager.getProperty(Constants.DB2_DRIVER)
+  private lazy val properties = new Properties()
 
   implicit class ReadDB2_WithUR(sqlContext: SQLContext) {
     def readDB2_ACC(table: String): DataFrame = {
