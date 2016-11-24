@@ -19,6 +19,36 @@ object DB2_JDBC {
   private lazy val url_mgmdb: String =ConfigurationManager.getProperty(Constants.DB2_URL_MGMDB)
   private lazy val driver =ConfigurationManager.getProperty(Constants.DB2_DRIVER)
 
+  implicit class ReadDB2_WithUR(sqlContext: SQLContext) {
+    def readDB2_ACC(table: String): DataFrame = {
+      properties.put("user", user_acc)
+      properties.put("password", password_acc)
+      properties.put("driver", driver)
+      sqlContext.read.jdbc(url_accdb, s"$table with ur --", properties)
+    }
+
+    def readDB2_MGM(table: String): DataFrame = {
+      properties.put("user", user_mgm)
+      properties.put("password", password_mgm)
+      properties.put("driver", driver)
+      sqlContext.read.jdbc(url_mgmdb, s"$table with ur --", properties)
+    }
+
+    def readDB2_ACC_4para(table: String, field: String, start_dt: String, end_dt: String): DataFrame = {
+      properties.put("user", user_acc)
+      properties.put("password", password_acc)
+      properties.put("driver", driver)
+      sqlContext.read.jdbc(url_accdb, s"$table where $field >= '$start_dt' and $field <= '$end_dt' with ur --", properties)
+    }
+
+    def readDB2_MGM_4para(table: String, field: String, start_dt: String, end_dt: String): DataFrame = {
+      properties.put("user", user_mgm)
+      properties.put("password", password_mgm)
+      properties.put("driver", driver)
+      sqlContext.read.jdbc(url_mgmdb, s"$table where $field >= '$start_dt' and $field <= '$end_dt' with ur --", properties)
+    }
+  }
+
   implicit class ReadDB2(sqlContext: SQLContext) {
     def jdbc_accdb_DF(table: String, numPartitions: Int = 1): DataFrame = {
       val map = Map(
@@ -41,4 +71,5 @@ object DB2_JDBC {
       sqlContext.read.format("jdbc").options(map).load()
     }
   }
+
 }
