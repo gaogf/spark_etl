@@ -52,6 +52,10 @@ object SparkUPH2H {
       case "JOB_HV_59"  =>  JOB_HV_59(sqlContext,start_dt,end_dt) //CODE BY XTP
       case "JOB_HV_60"  =>  JOB_HV_60(sqlContext,start_dt,end_dt) //CODE BY XTP
       case "JOB_HV_61"  =>  JOB_HV_61(sqlContext,start_dt,end_dt) //CODE BY XTP
+      case "JOB_HV_62"  =>  JOB_HV_62(sqlContext,start_dt,end_dt) //CODE BY XTP
+      case "JOB_HV_63"  =>  JOB_HV_63(sqlContext,start_dt,end_dt) //CODE BY XTP
+      case "JOB_HV_64"  =>  JOB_HV_64(sqlContext,start_dt,end_dt) //CODE BY XTP
+      case "JOB_HV_65"  =>  JOB_HV_65(sqlContext,start_dt,end_dt) //CODE BY XTP
       /**
         * 指标套表job
         */
@@ -533,6 +537,113 @@ object SparkUPH2H {
           println(s"alter table hive_org_tdapp_device drop partition (part_daytime='$days_fmt',part_updays='$currentDay') successfully!")
           sqlContext.sql(s"insert into hive_org_tdapp_device partition (part_daytime='$days_fmt',part_updays='$currentDay') select * from spark_hive_org_tdapp_device htempa where htempa.daytime='$days'")
           println(s"insert into hive_org_tdapp_device partition (part_daytime='$days_fmt',part_updays='$currentDay') successfully!")
+          result += element+1
+        }
+        result.toList
+      }
+    }
+  }
+
+
+  /**
+    * hive-job-64 2016-11-25
+    * org_tdapp_exception to hive_org_tdapp_exception
+    * @author Xue
+    * @param sqlContext
+    */
+
+  // Xue create function about partition by date ^_^
+  def JOB_HV_64(implicit sqlContext: HiveContext,start_dt: String, end_dt: String)  {
+
+    var sdf: SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd")
+    val start = LocalDate.parse(start_dt, dateFormatter)
+    val end = LocalDate.parse(end_dt, dateFormatter)
+    val days = Days.daysBetween(start, end).getDays
+    val dateStrs = for (day <- 0 to days) {
+      val currentDay = (start.plusDays(day).toString(dateFormatter))
+      println("######JOB_HV_64######")
+      val df = sqlContext.read.parquet(s"$up_namenode/$up_hivedataroot/incident/td/hive_org_tdapp_exception/part_updays=$currentDay")
+      println(s"###### read $up_namenode/ successful ######")
+      df.registerTempTable("spark_hive_org_tdapp_exception")
+
+      val daytime:DataFrame = sqlContext.sql(
+        s"""
+           |select distinct
+           |daytime
+           |from spark_hive_org_tdapp_exception
+            """.stripMargin
+      )
+      daytime.show(10)
+
+      val time_lsit = daytime.select("daytime").rdd.map(r => r(0).asInstanceOf[String]).collect().toList
+
+      increase_ListBuffer(time_lsit)
+
+      def increase_ListBuffer(list:List[String]) :List[String]={
+        import scala.collection.mutable.ListBuffer
+        var result = ListBuffer[String]()
+        for(element <- list){
+          val dt = DateTime.parse(element,dateFormat_2)
+          val days = element
+          val days_fmt = dateFormatter.print(dt)
+          sqlContext.sql(s"use $hive_dbname")
+          sqlContext.sql(s"alter table hive_org_tdapp_exception drop partition (part_daytime='$days_fmt',part_updays='$currentDay')")
+          println(s"alter table hive_org_tdapp_exception drop partition (part_daytime='$days_fmt',part_updays='$currentDay') successfully!")
+          sqlContext.sql(s"insert into hive_org_tdapp_exception partition (part_daytime='$days_fmt',part_updays='$currentDay') select * from spark_hive_org_tdapp_exception htempa where htempa.daytime='$days'")
+          println(s"insert into hive_org_tdapp_exception partition (part_daytime='$days_fmt',part_updays='$currentDay') successfully!")
+          result += element+1
+        }
+        result.toList
+      }
+    }
+  }
+
+
+  /**
+    * hive-job-65 2016-11-25
+    * org_tdapp_newuser to hive_org_tdapp_newuser
+    * @author Xue
+    * @param sqlContext
+    */
+  // Xue create function about partition by date ^_^
+  def JOB_HV_65(implicit sqlContext: HiveContext,start_dt: String, end_dt: String)  {
+
+    var sdf: SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd")
+    val start = LocalDate.parse(start_dt, dateFormatter)
+    val end = LocalDate.parse(end_dt, dateFormatter)
+    val days = Days.daysBetween(start, end).getDays
+    val dateStrs = for (day <- 0 to days) {
+      val currentDay = (start.plusDays(day).toString(dateFormatter))
+      println("######JOB_HV_65######")
+      val df = sqlContext.read.parquet(s"$up_namenode/$up_hivedataroot/incident/td/hive_org_tdapp_newuser/part_updays=$currentDay")
+      println(s"###### read $up_namenode/ successful ######")
+      df.registerTempTable("spark_hive_org_tdapp_newuser")
+
+      val daytime:DataFrame = sqlContext.sql(
+        s"""
+           |select distinct
+           |daytime
+           |from spark_hive_org_tdapp_newuser
+            """.stripMargin
+      )
+      daytime.show(10)
+
+      val time_lsit = daytime.select("daytime").rdd.map(r => r(0).asInstanceOf[String]).collect().toList
+
+      increase_ListBuffer(time_lsit)
+
+      def increase_ListBuffer(list:List[String]) :List[String]={
+        import scala.collection.mutable.ListBuffer
+        var result = ListBuffer[String]()
+        for(element <- list){
+          val dt = DateTime.parse(element,dateFormat_2)
+          val days = element
+          val days_fmt = dateFormatter.print(dt)
+          sqlContext.sql(s"use $hive_dbname")
+          sqlContext.sql(s"alter table hive_org_tdapp_newuser drop partition (part_daytime='$days_fmt',part_updays='$currentDay')")
+          println(s"alter table hive_org_tdapp_newuser drop partition (part_daytime='$days_fmt',part_updays='$currentDay') successfully!")
+          sqlContext.sql(s"insert into hive_org_tdapp_newuser partition (part_daytime='$days_fmt',part_updays='$currentDay') select * from spark_hive_org_tdapp_newuser htempa where htempa.daytime='$days'")
+          println(s"insert into hive_org_tdapp_newuser partition (part_daytime='$days_fmt',part_updays='$currentDay') successfully!")
           result += element+1
         }
         result.toList
