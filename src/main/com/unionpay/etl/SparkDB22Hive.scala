@@ -2463,7 +2463,7 @@ object SparkDB22Hive {
       val dateStrs = for (day <- 0 to days) {
         val insertofTime = System.currentTimeMillis()
         val currentDay = (start.plusDays(day).toString(dateFormatter))
-        println(s"=========插入'$currentDay'分区的数据=========")
+        println(s"=========insert data to partition = '$currentDay'=========")
         sqlContext.sql(s"use $hive_dbname")
         sqlContext.sql(s"alter table hive_online_point_trans drop partition (part_trans_dt='$currentDay')")
         println(s"alter table hive_online_point_trans drop partition (part_trans_dt='$currentDay') successfully!")
@@ -3660,7 +3660,7 @@ object SparkDB22Hive {
         val insertofTime = System.currentTimeMillis()
 
         val currentDay = (start.plusDays(day).toString(dateFormatter))
-        println(s"=========插入'$currentDay'分区的数据=========")
+        println(s"=========insert data to partition= '$currentDay'=========")
 
         sqlContext.sql(s"use $hive_dbname")
         sqlContext.sql(s"alter table hive_switch_point_trans drop partition (part_trans_dt='$currentDay')")
@@ -3677,7 +3677,7 @@ object SparkDB22Hive {
         val MM:Int = ss/60
         val hh:Int = MM/60
         val dd:Int = hh/24
-        println("运行插入分区花费的时间是:"+dd+"天"+(hh-dd*24)+"时"+(MM-hh*60)+"分"+(ss-MM*60)+"秒 , 合计："+usedInsertofTime+"毫秒")
+        println("运行插入当前分区花费的时间是:"+dd+"天"+(hh-dd*24)+"时"+(MM-hh*60)+"分"+(ss-MM*60)+"秒 , 合计："+usedInsertofTime+"毫秒")
 
       }
     }
