@@ -3204,9 +3204,10 @@ object Create_Hive_Tables {
         |rec_crt_ts           string ,
         |rec_upd_ts           string
         |)
+        |partitioned by (part_hp_trans_dt string)
         |row format delimited fields terminated by '!|'
         |stored as parquet
-        |location '/user/ch_hypas/upw_hive/incident/order/hive_ach_order_inf'
+        |location '/user/ch_datas/upw_hive/incident/order/hive_ach_order_inf'
       """.stripMargin)
 
     println("=======Create hive_ach_order_inf successfully ! =======")
@@ -3919,6 +3920,5 @@ object Create_Hive_Tables {
     println("=======Create hive_org_tdapp_newuser successfully ! =======")
 
   }
-
 
 }

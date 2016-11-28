@@ -32,7 +32,7 @@ object SparkUPH2H {
 
     val rowParams=UPSQL_TIMEPARAMS_JDBC.readTimeParams(sqlContext)
     val start_dt=DateUtils.getYesterdayByJob(rowParams.getString(0))  //获取开始日期：start_dt-1
-    val end_dt=rowParams.getString(1)//结束日期(未减一处理)
+    val end_dt=rowParams.getString(1)//结束日期
 
 
     println(s"####当前JOB的执行日期为：$end_dt####")
@@ -60,6 +60,7 @@ object SparkUPH2H {
       case "JOB_HV_63"  =>  JOB_HV_63(sqlContext,start_dt,end_dt) //CODE BY XTP
       case "JOB_HV_64"  =>  JOB_HV_64(sqlContext,start_dt,end_dt) //CODE BY XTP
       case "JOB_HV_65"  =>  JOB_HV_65(sqlContext,start_dt,end_dt) //CODE BY XTP
+      case "JOB_HV_71"  =>  JOB_HV_71(sqlContext,start_dt,end_dt) //CODE BY XTP
       /**
         * 指标套表job
         */
@@ -808,28 +809,49 @@ object SparkUPH2H {
 
 
   /**
-    * hive-job-71 2016-11-2
-    * hive_ach_order_inf -> rtdtrs_dtl_ach_order_inf
+    * hive-job-71 2016-11-28  循环抽取
+    * hive_ach_order_inf -> hbkdb.rtdtrs_dtl_ach_order_inf (测试环境只有这一天：20151109 有数据)
+    *
+    * 测试时间段为:
+    * start_dt="2015-11-09"
+    * end_dt="2015-11-09"
+    *
+    * 数据量：16415条
+    *
     * @author tzq
     * @param sqlContext
     * @param end_dt
+    * @param start_dt
+    * @param interval
     */
-  def JOB_HV_71(implicit sqlContext: HiveContext,end_dt:String) = {
-
+  def JOB_HV_71(implicit sqlContext: HiveContext,start_dt: String,end_dt:String) = {
     println("######JOB_HV_71######")
-    val part_dt = end_dt.substring(0,7)
-    val df = sqlContext.read.parquet(s"$up_namenode/$up_hivedataroot/hive_ach_order_inf/hp_trans_dt=$part_dt")
-    println(s"###### read $up_namenode/ successful ######")
-    df.registerTempTable("spark_hive_ach_order_inf")
-
+    val interval=DateUtils.getIntervalDays(start_dt,end_dt).toInt
+    var part_dt = start_dt
     sqlContext.sql(s"use $hive_dbname")
-    sqlContext.sql(s"alter table hive_ach_order_inf drop partition(hp_trans_dt='$part_dt')")
-    sqlContext.sql(
-      s"""
-         |insert into table hive_ach_order_inf partition(hp_trans_dt='$part_dt')
-         |select * from spark_hive_ach_order_inf
+
+    if(interval>=0){
+      for(i <- 0 to interval){
+        val temp=(part_dt.toString()).replace("-","")//转为yyMMdd
+        val df = sqlContext.read.parquet(s"$up_namenode/$up_hivedataroot/incident/order/hive_ach_order_inf/hp_trans_dt=$temp")
+        println(s"###### read $up_namenode/ at partition= $temp successful ######")
+        df.registerTempTable("spark_hive_ach_order_inf")
+
+        sqlContext.sql(s"use $hive_dbname")
+        sqlContext.sql(s"alter table hive_ach_order_inf drop partition(part_hp_trans_dt='$part_dt')")
+        sqlContext.sql(
+          s"""
+             |insert into table hive_ach_order_inf partition(part_hp_trans_dt='$part_dt')
+             |select * from spark_hive_ach_order_inf
        """.stripMargin)
-    println("#### insert into table(hive_ach_order_inf) success ####")
+        println(s"#### insert into table(hive_ach_order_inf) at partition= $part_dt successful ####")
+
+        //循环抽取：天数加1
+        part_dt=DateUtils.addOneDay(part_dt)//yyyy-MM-dd
+      }
+    }
+
+
 
   }
 
