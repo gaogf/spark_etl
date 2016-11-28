@@ -37,6 +37,7 @@ object SparkUPWH2H {
         */
       case "JOB_HV_40"  => JOB_HV_40(sqlContext,start_dt,end_dt,interval) //CODE BY TZQ
       case "JOB_HV_42"  => JOB_HV_42(sqlContext,start_dt,end_dt,interval) //CODE BY TZQ
+      case "JOB_HV_77"  => JOB_HV_77(sqlContext,start_dt,end_dt,interval) //CODE BY TZQ
 
       /**
         *  指标套表job
@@ -496,6 +497,111 @@ object SparkUPWH2H {
 
         //3.日期加1
 
+        part_dt=DateUtils.addOneDay(part_dt)//yyyy-MM-dd
+      }
+    }
+
+  }
+
+  /**
+    * hive-job-77  数据来源于job71
+    * hive_life_order_inf  ---->  hive_ach_order_inf(part_hp_trans_dt=2015-11-09)
+    *
+    * 测试：以分区part_hp_trans_dt=2015-11-09为例
+    *    val start_dt="2015-11-09"
+    *    val end_dt="2015-11-09"
+    * 结果：正常
+    * @author tzq
+    * @param sqlContext
+    * @param start_dt
+    * @param end_dt
+    * @return
+    */
+  def JOB_HV_77(implicit sqlContext: HiveContext,start_dt:String,end_dt:String,interval:Int) = {
+    println("###JOB_HV_77( hive_life_order_inf  -->  hive_ach_order_inf)")
+    var part_dt = start_dt
+    sqlContext.sql(s"use $hive_dbname")
+    if(interval>=0){
+      for(i <- 0 to interval){
+
+        //1.删除分区
+        sqlContext.sql(s"alter table hive_life_order_inf drop partition (part_hp_trans_dt='$part_dt')")
+
+        //2.插入指定分区数据
+        sqlContext.sql(
+          s"""
+             |insert into hive_life_order_inf partition(part_hp_trans_dt='$part_dt')
+             |select
+             |order_id,
+             |sys_no,
+             |mchnt_version,
+             |encoding,
+             |sign_method,
+             |mchnt_trans_tp,
+             |biz_tp,
+             |pay_method,
+             |trans_tp,
+             |buss_chnl,
+             |mchnt_front_url,
+             |mchnt_back_url,
+             |acq_ins_id_cd,
+             |mchnt_cd,
+             |mchnt_tp,
+             |mchnt_nm,
+             |sub_mchnt_cd,
+             |sub_mchnt_nm,
+             |mchnt_order_id,
+             |trans_tm,
+             |trans_dt,
+             |sys_tm,
+             |pay_timeout,
+             |trans_at,
+             |trans_curr_cd,
+             |kz_at,
+             |kz_curr_cd,
+             |conv_dt,
+             |deduct_at,
+             |discount_info,
+             |upoint_at,
+             |top_info,
+             |refund_at,
+             |iss_ins_id_cd,
+             |iss_head,
+             |pri_acct_no,
+             |card_attr,
+             |usr_id,
+             |phone_no,
+             |trans_ip,
+             |trans_st,
+             |trans_no,
+             |trans_idx,
+             |sys_tra_no,
+             |order_desc,
+             |order_detail,
+             |proc_sys,
+             |proc_st,
+             |trans_source,
+             |resp_cd,
+             |other_usr,
+             |initial_pay,
+             |to_ts,
+             |rec_crt_ts,
+             |rec_upd_ts
+             |from
+             |hive_ach_order_inf
+             |where
+             |part_hp_trans_dt= '$part_dt'
+             |and mchnt_cd in ('048000049000001','048000049000002','048000049000003','048000065130001',
+             |'048000092220001','048000048140002','048000048140003','048000048140004','048000094980001',
+             |'443701049000008','443701094980005','802500049000098','048000049001001','048000049001002',
+             |'048000049001003','048000065131001','048000092221001','048000048141002','048000048141003',
+             |'048000048141004','048000094980001')
+             |
+	      """.stripMargin)
+
+        println(s"insert into hive_life_order_inf at partition $part_dt successful !")
+
+        //3.日期加1
         part_dt=DateUtils.addOneDay(part_dt)//yyyy-MM-dd
       }
     }
