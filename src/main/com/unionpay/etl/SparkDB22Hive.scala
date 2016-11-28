@@ -45,11 +45,11 @@ object SparkDB22Hive {
     val end_dt=rowParams.getString(1)//结束日期
     val interval=DateUtils.getIntervalDays(start_dt,end_dt).toInt
 
-    println(s"####当前JOB的执行日期为：start_dt=$start_dt,end_dt=$end_dt####")
+    println(s"####The current Job start time：start_dt=$start_dt,end_dt=$end_dt####")
 
 
     val jobName = if(args.length>0) args(0) else None
-    println(s"#### 当前执行JobName为： $jobName ####")
+    println(s"#### The current job name is ： $jobName ####")
     jobName match {
       /**
         * 每日模板job
@@ -3644,7 +3644,7 @@ object SparkDB22Hive {
          |from
          |db2_swt_log
          |where
-         |trans_tp in ('S370000000','S380000000') and
+         |trans_tp in ('S370000000','S380000000')
       """.stripMargin
     )
     results.registerTempTable("spark_swt_log")
