@@ -370,7 +370,7 @@ object SparkDB22Hive {
     val currntTime =System.currentTimeMillis()
 
     val start_day = start_dt.replace("-","")
-    val end_day = start_dt.replace("-","")
+    val end_day = end_dt.replace("-","")
 
     val df2_1 = sqlContext.readDB2_ACC_4para(s"$schemas_accdb.viw_chacc_acc_trans_dtl","trans_dt",s"$start_day",s"$end_day")
     df2_1.registerTempTable("viw_chacc_acc_trans_dtl")
@@ -1642,7 +1642,7 @@ object SparkDB22Hive {
     println("###JOB_HV_18(viw_chmgm_trans_his -> hive_download_trans)")
 
     val start_day = start_dt.replace("-","")
-    val end_day = start_dt.replace("-","")
+    val end_day = end_dt.replace("-","")
     val currntTime =System.currentTimeMillis()
 
     val df = sqlContext.readDB2_MGM_4para(s"$schemas_mgmdb.VIW_CHMGM_TRANS_HIS","trans_dt",s"$start_day",s"$end_day")
@@ -2160,7 +2160,7 @@ object SparkDB22Hive {
     val currntTime =System.currentTimeMillis()
 
     val start_day = start_dt.replace("-","")
-    val end_day = start_dt.replace("-","")
+    val end_day = end_dt.replace("-","")
 
     val df2_1 = sqlContext.readDB2_ACC_4para(s"$schemas_accdb.VIW_CHACC_ACC_TRANS_LOG","trans_dt",s"$start_day",s"$end_day")
     df2_1.registerTempTable("VIW_CHACC_ACC_TRANS_LOG")
@@ -2357,7 +2357,7 @@ object SparkDB22Hive {
   def JOB_HV_28 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
     val currntTime =System.currentTimeMillis()
     val start_day = start_dt.replace("-","")
-    val end_day = start_dt.replace("-","")
+    val end_day = end_dt.replace("-","")
 
     val df2_1 = sqlContext.readDB2_ACC_4para(s"$schemas_accdb.viw_chacc_online_point_trans_inf","trans_dt",s"$start_day",s"$end_day")
     df2_1.registerTempTable("viw_chacc_online_point_trans_inf")
@@ -2501,7 +2501,7 @@ object SparkDB22Hive {
     val currntTime =System.currentTimeMillis()
 
     val start_day = start_dt.replace("-","")
-    val end_day = start_dt.replace("-","")
+    val end_day = end_dt.replace("-","")
 
     val df2_1 = sqlContext.readDB2_ACC_4para(s"$schemas_accdb.tbl_chacc_cdhd_point_addup_dtl","trans_dt",s"$start_day",s"$end_day")
     df2_1.registerTempTable("tbl_chacc_cdhd_point_addup_dtl")
@@ -2800,7 +2800,7 @@ object SparkDB22Hive {
     val currntTime =System.currentTimeMillis()
 
     val start_day = start_dt.replace("-","")
-    val end_day = start_dt.replace("-","")
+    val end_day = end_dt.replace("-","")
 
     val df2_1 = sqlContext.readDB2_MGM_4para(s"$schemas_mgmdb.VIW_CHMGM_BILL_ORDER_AUX_INF","trans_dt",s"$start_day",s"$end_day")
     df2_1.registerTempTable("VIW_CHMGM_BILL_ORDER_AUX_INF")
@@ -2953,7 +2953,7 @@ object SparkDB22Hive {
     val currntTime =System.currentTimeMillis()
 
     val start_day = start_dt.replace("-","")
-    val end_day = start_dt.replace("-","")
+    val end_day = end_dt.replace("-","")
 
     val df2_1 = sqlContext.readDB2_MGM_4para(s"$schemas_mgmdb.tbl_umsvc_prize_discount_result","settle_dt",s"$start_day",s"$end_day")
     df2_1.registerTempTable("tbl_umsvc_prize_discount_result")
@@ -3111,7 +3111,7 @@ object SparkDB22Hive {
     val currntTime =System.currentTimeMillis()
 
     val start_day = start_dt.replace("-","")
-    val end_day = start_dt.replace("-","")
+    val end_day = end_dt.replace("-","")
 
     val df2_1 = sqlContext.readDB2_MGM_4para(s"$schemas_mgmdb.viw_chmgm_bill_sub_order_detail_inf","trans_dt",s"$start_day",s"$end_day")
     df2_1.registerTempTable("VIW_CHMGM_BILL_SUB_ORDER_DETAIL_INF")
