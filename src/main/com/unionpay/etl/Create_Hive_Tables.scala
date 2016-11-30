@@ -2151,7 +2151,7 @@ object Create_Hive_Tables {
          |partitioned by (part_daytime string , part_updays string)
          |row format delimited fields terminated by '!|'
          |stored as parquet
-         |location '/user/ch_datas/upw_hive/incident/td/hive_org_tdapp_activitynew'
+         |location '/user/ch_hypas/upw_hive/incident/td/hive_org_tdapp_activitynew'
          | """.stripMargin)
 
     println("=======Create hive_org_tdapp_activitynew successfully ! =======")
@@ -2183,7 +2183,7 @@ object Create_Hive_Tables {
          |partitioned by (part_daytime string , part_updays string)
          |row format delimited fields terminated by '!|'
          |stored as parquet
-         |location '/user/ch_datas/upw_hive/incident/td/hive_org_tdapp_device'
+         |location '/user/ch_hypas/upw_hive/incident/td/hive_org_tdapp_device'
          | """.stripMargin)
 
     println("=======Create hive_org_tdapp_device successfully ! =======")
@@ -2224,7 +2224,7 @@ object Create_Hive_Tables {
          |partitioned by (part_daytime string , part_updays string)
          |row format delimited fields terminated by '!|'
          |stored as parquet
-         |location '/user/ch_datas/upw_hive/incident/td/hive_org_tdapp_devicenew'
+         |location '/user/ch_hypas/upw_hive/incident/td/hive_org_tdapp_devicenew'
          | """.stripMargin)
 
     println("=======Create hive_org_tdapp_devicenew successfully ! =======")
@@ -2264,7 +2264,7 @@ object Create_Hive_Tables {
          |partitioned by (part_daytime string , part_updays string)
          |row format delimited fields terminated by '!|'
          |stored as parquet
-         |location '/user/ch_datas/upw_hive/incident/td/hive_org_tdapp_eventnew'
+         |location '/user/ch_hypas/upw_hive/incident/td/hive_org_tdapp_eventnew'
          | """.stripMargin)
 
     println("=======Create hive_org_tdapp_eventnew successfully ! =======")
@@ -2306,7 +2306,7 @@ object Create_Hive_Tables {
          |partitioned by (part_daytime string , part_updays string)
          |row format delimited fields terminated by '!|'
          |stored as parquet
-         |location '/user/ch_datas/upw_hive/incident/td/hive_org_tdapp_exceptionnew'
+         |location '/user/ch_hypas/upw_hive/incident/td/hive_org_tdapp_exceptionnew'
          | """.stripMargin)
 
     println("=======Create hive_org_tdapp_exceptionnew successfully ! =======")
@@ -2343,7 +2343,7 @@ object Create_Hive_Tables {
          |partitioned by (part_daytime string , part_updays string)
          |row format delimited fields terminated by '!|'
          |stored as parquet
-         |location '/user/ch_datas/upw_hive/incident/td/hive_org_tdapp_keyvalue'
+         |location '/user/ch_hypas/upw_hive/incident/td/hive_org_tdapp_keyvalue'
          | """.stripMargin)
 
     println("=======Create hive_org_tdapp_keyvalue successfully ! =======")
@@ -2384,7 +2384,7 @@ object Create_Hive_Tables {
          |partitioned by (part_daytime string , part_updays string)
          |row format delimited fields terminated by '!|'
          |stored as parquet
-         |location '/user/ch_datas/upw_hive/incident/td/hive_org_tdapp_tlaunchnew'
+         |location '/user/ch_hypas/upw_hive/incident/td/hive_org_tdapp_tlaunchnew'
          | """.stripMargin)
 
     println("=======Create hive_org_tdapp_tlaunchnew successfully ! =======")
@@ -3207,7 +3207,7 @@ object Create_Hive_Tables {
         |partitioned by (part_hp_trans_dt string)
         |row format delimited fields terminated by '!|'
         |stored as parquet
-        |location '/user/ch_datas/upw_hive/incident/order/hive_ach_order_inf'
+        |location '/user/ch_hypas/upw_hive/incident/order/hive_ach_order_inf'
       """.stripMargin)
 
     println("=======Create hive_ach_order_inf successfully ! =======")
@@ -3753,7 +3753,7 @@ object Create_Hive_Tables {
          |partitioned by (part_daytime string , part_updays string)
          |row format delimited fields terminated by '!|'
          |stored as parquet
-         |location '/user/ch_datas/upw_hive/incident/td/hive_org_tdapp_tactivity'
+         |location '/user/ch_hypas/upw_hive/incident/td/hive_org_tdapp_tactivity'
          |
          | """.stripMargin)
 
@@ -3799,7 +3799,7 @@ object Create_Hive_Tables {
          |partitioned by (part_daytime string,part_updays string)
          |row format delimited fields terminated by '!|'
          |stored as parquet
-         |location '/user/ch_datas/upw_hive/incident/td/hive_org_tdapp_tlaunch'
+         |location '/user/ch_hypas/upw_hive/incident/td/hive_org_tdapp_tlaunch'
          |
          | """.stripMargin)
 
@@ -3834,7 +3834,7 @@ object Create_Hive_Tables {
          |partitioned by (part_daytime string,part_updays string)
          |row format delimited fields terminated by '!|'
          |stored as parquet
-         |location '/user/ch_datas/upw_hive/incident/td/hive_org_tdapp_terminate'
+         |location '/user/ch_hypas/upw_hive/incident/td/hive_org_tdapp_terminate'
          |
          | """.stripMargin)
 
@@ -3873,7 +3873,7 @@ object Create_Hive_Tables {
          |partitioned by (part_daytime string , part_updays string)
          |row format delimited fields terminated by '!|'
          |stored as parquet
-         |location '/user/ch_datas/upw_hive/incident/td/hive_org_tdapp_exception'
+         |location '/user/ch_hypas/upw_hive/incident/td/hive_org_tdapp_exception'
          | """.stripMargin)
 
     println("=======Create hive_org_tdapp_exception successfully ! =======")
@@ -3914,7 +3914,7 @@ object Create_Hive_Tables {
          |partitioned by (part_daytime string , part_updays string)
          |row format delimited fields terminated by '!|'
          |stored as parquet
-         |location '/user/ch_datas/upw_hive/incident/td/hive_org_tdapp_newuser'
+         |location '/user/ch_hypas/upw_hive/incident/td/hive_org_tdapp_newuser'
          | """.stripMargin)
 
     println("=======Create hive_org_tdapp_newuser successfully ! =======")
