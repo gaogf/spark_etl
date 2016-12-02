@@ -57,9 +57,6 @@ object SparkDB22Hive {
         */
       case "JOB_HV_1"  => JOB_HV_1   //CODE BY YX
       case "JOB_HV_3"  => JOB_HV_3  //CODE BY YX
-      case "JOB_HV_4_1"  => JOB_HV_4_1(sqlContext,start_dt,end_dt)   //CODE BY XTP
-      case "JOB_HV_4_2"  => JOB_HV_4_2(sqlContext,start_dt,end_dt)   //CODE BY XTP
-      case "JOB_HV_4_3"  => JOB_HV_4_3(sqlContext,start_dt,end_dt)   //CODE BY XTP
       case "JOB_HV_4_transform"  => JOB_HV_4_transform(sqlContext,start_dt,end_dt)   //CODE BY TZQ
       case "JOB_HV_4"  => JOB_HV_4(sqlContext,start_dt,end_dt)   //CODE BY XTP
       case "JOB_HV_8"  => JOB_HV_8(sqlContext,start_dt,end_dt)   //CODE BY XTP
@@ -90,7 +87,9 @@ object SparkDB22Hive {
       case "JOB_HV_69"  => JOB_HV_69  //CODE BY XTP
       case "JOB_HV_70"  => JOB_HV_70  //CODE BY YX
       case "JOB_HV_79"  => JOB_HV_79  //CODE BY XTP
-
+      case "JOB_HV_80"  => JOB_HV_80(sqlContext,start_dt,end_dt)   //CODE BY XTP
+      case "JOB_HV_81"  => JOB_HV_81(sqlContext,start_dt,end_dt)   //CODE BY XTP
+      case "JOB_HV_82"  => JOB_HV_82(sqlContext,start_dt,end_dt)   //CODE BY XTP
 
       /**
         * 指标套表job
@@ -361,304 +360,6 @@ object SparkDB22Hive {
     }else{
       println("加载的表hive_pri_acct_inf中无数据！")
     }
-  }
-
-  /**
-    * JOB_HV_4_Local/11-30
-    * hive_acc_trans->viw_chacc_acc_trans_dtl
-    * Code by Xue
-    *
-    * @param sqlContext
-    * @param start_dt
-    * @param end_dt
-    */
-  def JOB_HV_4_1 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
-    val currntTime =System.currentTimeMillis()
-
-    val start_day = start_dt.replace("-","")
-    val end_day = end_dt.replace("-","")
-    println("#### JOB_HV_4落地增量抽取的时间范围: "+start_day+"--"+end_day)
-
-    val currntTime1 =System.currentTimeMillis()
-    val df2_1 = sqlContext.readDB2_ACC_4para(s"$schemas_accdb.viw_chacc_acc_trans_dtl","trans_dt",s"$start_day",s"$end_day")
-    df2_1.registerTempTable("db2_viw_chacc_acc_trans_dtl")
-    println("###当前抽取的数据条目："+df2_1.count())
-    if(!Option(df2_1).isEmpty){
-      sqlContext.sql(s"use $hive_dbname")
-      sqlContext.sql(
-        s"""
-          |insert overwrite table hive_trans_dtl partition (part_trans_dt)
-          |select
-          |dtl.seq_id                 ,
-          |dtl.cdhd_usr_id            ,
-          |dtl.card_no                ,
-          |dtl.trans_tfr_tm           ,
-          |dtl.sys_tra_no             ,
-          |dtl.acpt_ins_id_cd         ,
-          |dtl.fwd_ins_id_cd          ,
-          |dtl.rcv_ins_id_cd          ,
-          |dtl.oper_module            ,
-          |dtl.trans_dt               ,
-          |dtl.trans_tm               ,
-          |dtl.buss_tp                ,
-          |dtl.um_trans_id            ,
-          |dtl.swt_right_tp           ,
-          |dtl.bill_id                ,
-          |dtl.bill_nm                ,
-          |dtl.chara_acct_tp          ,
-          |dtl.trans_at               ,
-          |dtl.point_at               ,
-          |dtl.mchnt_tp               ,
-          |dtl.resp_cd                ,
-          |dtl.card_accptr_term_id    ,
-          |dtl.card_accptr_cd         ,
-          |dtl.trans_proc_start_ts    ,
-          |dtl.trans_proc_end_ts      ,
-          |dtl.sys_det_cd             ,
-          |dtl.sys_err_cd             ,
-          |dtl.rec_upd_ts             ,
-          |dtl.chara_acct_nm          ,
-          |dtl.void_trans_tfr_tm      ,
-          |dtl.void_sys_tra_no        ,
-          |dtl.void_acpt_ins_id_cd    ,
-          |dtl.void_fwd_ins_id_cd     ,
-          |dtl.rec_crt_ts             ,
-          |dtl.orig_data_elemnt       ,
-          |dtl.discount_at            ,
-          |dtl.bill_item_id           ,
-          |dtl.chnl_inf_index         ,
-          |dtl.bill_num               ,
-          |dtl.addn_discount_at       ,
-          |dtl.pos_entry_md_cd        ,
-          |dtl.udf_fld                ,
-          |dtl.card_accptr_nm_addr    ,
-          |concat_ws('-',substr(dtl.trans_dt,1,4),substr(dtl.trans_dt,5,2),substr(dtl.trans_dt,7,2)) as p_trans_dt
-          |from db2_viw_chacc_acc_trans_dtl dtl
-           """.stripMargin)
-      val usedTime1 = System.currentTimeMillis() - currntTime1
-      val ss:Int =((System.currentTimeMillis() - currntTime1)/1000).toInt
-      val MM:Int = ss/60
-      val hh:Int = MM/60
-      val dd:Int = hh/24
-      println("#### db2_viw_chacc_acc_trans_dtl 落地花费的时间为："+dd+"天"+(hh-dd*24)+"时"+(MM-hh*60)+"分"+(ss-MM*60)+"秒 , 合计："+usedTime1+"毫秒")
-    }else{
-      println("#### db2_viw_chacc_acc_trans_dtl 表中无数据！")
-    }
-
-
-    val usedTime = System.currentTimeMillis() - currntTime
-    val ss:Int =((System.currentTimeMillis() - currntTime)/1000).toInt
-    val MM:Int = ss/60
-    val hh:Int = MM/60
-    val dd:Int = hh/24
-    println("运行 JOB_HV_4_1 花费 :"+dd+"天"+(hh-dd*24)+"时"+(MM-hh*60)+"分"+(ss-MM*60)+"秒 , 合计："+usedTime+"毫秒")
-
-  }
-
-  def JOB_HV_4_2 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
-    val currntTime =System.currentTimeMillis()
-
-    val start_day = start_dt.replace("-","")
-    val end_day = end_dt.replace("-","")
-    println("#### JOB_HV_4_2落地增量抽取的时间范围: "+start_day+"--"+end_day)
-
-    val currntTime2 =System.currentTimeMillis()
-    val df2_2 = sqlContext.readDB2_ACC_4para(s"$schemas_accdb.viw_chacc_acc_trans_log","msg_settle_dt",s"$start_day",s"$end_day")
-    df2_2.registerTempTable("db2_viw_chacc_acc_trans_log")
-    println("###当前抽取的数据条目："+df2_2.count())
-    if(!Option(df2_2).isEmpty){
-      sqlContext.sql(s"use $hive_dbname")
-      sqlContext.sql(
-        s"""
-           |insert overwrite table hive_trans_log partition (part_msg_settle_dt)
-           |select
-           |log.seq_id                   ,
-           |log.trans_tfr_tm             ,
-           |log.sys_tra_no               ,
-           |log.acpt_ins_id_cd           ,
-           |log.fwd_ins_id_cd            ,
-           |log.rcv_ins_id_cd            ,
-           |log.oper_module              ,
-           |log.um_trans_id              ,
-           |log.msg_tp                   ,
-           |log.cdhd_fk                  ,
-           |log.bill_id                  ,
-           |log.bill_tp                  ,
-           |log.bill_bat_no              ,
-           |log.bill_inf                 ,
-           |log.card_no                  ,
-           |log.proc_cd                  ,
-           |log.trans_at                 ,
-           |log.trans_curr_cd            ,
-           |log.settle_at                ,
-           |log.settle_curr_cd           ,
-           |log.card_accptr_local_tm     ,
-           |log.card_accptr_local_dt     ,
-           |log.expire_dt                ,
-           |log.msg_settle_dt            ,
-           |log.mchnt_tp                 ,
-           |log.pos_entry_md_cd          ,
-           |log.pos_cond_cd              ,
-           |log.pos_pin_capture_cd       ,
-           |log.retri_ref_no             ,
-           |log.auth_id_resp_cd          ,
-           |log.resp_cd                  ,
-           |log.notify_st                ,
-           |log.card_accptr_term_id      ,
-           |log.card_accptr_cd           ,
-           |log.card_accptr_nm_addr      ,
-           |log.addn_private_data        ,
-           |log.udf_fld                  ,
-           |log.addn_at                  ,
-           |log.orig_data_elemnt         ,
-           |log.acct_id_1                ,
-           |log.acct_id_2                ,
-           |log.resv_fld                 ,
-           |log.cdhd_auth_inf            ,
-           |log.sys_settle_dt            ,
-           |log.recncl_in                ,
-           |log.match_in                 ,
-           |log.trans_proc_start_ts      ,
-           |log.trans_proc_end_ts        ,
-           |log.sys_det_cd               ,
-           |log.sys_err_cd               ,
-           |log.sec_ctrl_inf             ,
-           |log.card_seq                 ,
-           |log.rec_upd_ts               ,
-           |log.dtl_inq_data             ,
-           |concat_ws('-',substr(log.msg_settle_dt,1,4),substr(log.msg_settle_dt,5,2),substr(log.msg_settle_dt,7,2)) as p_settle_dt
-           |from db2_viw_chacc_acc_trans_log log
-        """.stripMargin)
-      val usedTime2 = System.currentTimeMillis() - currntTime2
-      val ss:Int =((System.currentTimeMillis() - currntTime2)/1000).toInt
-      val MM:Int = ss/60
-      val hh:Int = MM/60
-      val dd:Int = hh/24
-      println("#### db2_viw_chacc_acc_trans_log 落地花费的时间为："+dd+"天"+(hh-dd*24)+"时"+(MM-hh*60)+"分"+(ss-MM*60)+"秒 , 合计："+usedTime2+"毫秒")
-    }else{
-      println("#### db2_viw_chacc_acc_trans_log 表中无数据！")
-    }
-
-
-    val usedTime = System.currentTimeMillis() - currntTime
-    val ss:Int =((System.currentTimeMillis() - currntTime)/1000).toInt
-    val MM:Int = ss/60
-    val hh:Int = MM/60
-    val dd:Int = hh/24
-    println("运行 JOB_HV_4_2 花费 :"+dd+"天"+(hh-dd*24)+"时"+(MM-hh*60)+"分"+(ss-MM*60)+"秒 , 合计："+usedTime+"毫秒")
-
-  }
-
-  def JOB_HV_4_3 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
-    val currntTime =System.currentTimeMillis()
-
-    val start_day = start_dt.replace("-","")
-    val end_day = end_dt.replace("-","")
-    println("#### JOB_HV_4_3落地增量抽取的时间范围: "+start_day+"--"+end_day)
-
-    val currntTime3 =System.currentTimeMillis()
-    val df2_3 =  sqlContext.readDB2_MGM_4para(s"$schemas_mgmdb.viw_chmgm_swt_log","trans_dt",s"$start_day",s"$end_day")
-    df2_3.registerTempTable("db2_viw_chmgm_swt_log")
-    println("###当前抽取的数据条目："+df2_3.count())
-    if(!Option(df2_3).isEmpty){
-      sqlContext.sql(s"use $hive_dbname")
-      sqlContext.sql(
-        s"""
-           |insert overwrite table hive_swt_log partition (part_trans_dt)
-           |select
-           |log.tfr_dt_tm                ,
-           |log.sys_tra_no               ,
-           |log.acpt_ins_id_cd           ,
-           |log.msg_fwd_ins_id_cd        ,
-           |log.pri_key1                 ,
-           |log.fwd_chnl_head            ,
-           |log.chswt_plat_seq           ,
-           |log.trans_tm                 ,
-           |log.trans_dt                 ,
-           |log.cswt_settle_dt           ,
-           |log.internal_trans_tp        ,
-           |log.settle_trans_id          ,
-           |log.trans_tp                 ,
-           |log.cups_settle_dt           ,
-           |log.msg_tp                   ,
-           |log.pri_acct_no              ,
-           |log.card_bin                 ,
-           |log.proc_cd                  ,
-           |log.req_trans_at             ,
-           |log.resp_trans_at            ,
-           |log.trans_curr_cd            ,
-           |log.trans_tot_at             ,
-           |log.iss_ins_id_cd            ,
-           |log.launch_trans_tm          ,
-           |log.launch_trans_dt          ,
-           |log.mchnt_tp                 ,
-           |log.pos_entry_md_cd          ,
-           |log.card_seq_id              ,
-           |log.pos_cond_cd              ,
-           |log.pos_pin_capture_cd       ,
-           |log.retri_ref_no             ,
-           |log.term_id                  ,
-           |log.mchnt_cd                 ,
-           |log.card_accptr_nm_loc       ,
-           |log.sec_related_ctrl_inf     ,
-           |log.orig_data_elemts         ,
-           |log.rcv_ins_id_cd            ,
-           |log.fwd_proc_in              ,
-           |log.rcv_proc_in              ,
-           |log.proj_tp                  ,
-           |log.usr_id                   ,
-           |log.conv_usr_id              ,
-           |log.trans_st                 ,
-           |log.inq_dtl_req              ,
-           |log.inq_dtl_resp             ,
-           |log.iss_ins_resv             ,
-           |log.ic_flds                  ,
-           |log.cups_def_fld             ,
-           |log.id_no                    ,
-           |log.cups_resv                ,
-           |log.acpt_ins_resv            ,
-           |log.rout_ins_id_cd           ,
-           |log.sub_rout_ins_id_cd       ,
-           |log.recv_access_resp_cd      ,
-           |log.chswt_resp_cd            ,
-           |log.chswt_err_cd             ,
-           |log.resv_fld1                ,
-           |log.resv_fld2                ,
-           |log.to_ts                    ,
-           |log.rec_upd_ts               ,
-           |log.rec_crt_ts               ,
-           |log.settle_at                ,
-           |log.external_amt             ,
-           |log.discount_at              ,
-           |log.card_pay_at              ,
-           |log.right_purchase_at        ,
-           |log.recv_second_resp_cd      ,
-           |log.req_acpt_ins_resv        ,
-           |NULL as log_id                   ,
-           |NULL as conv_acct_no             ,
-           |NULL as inner_pro_ind            ,
-           |NULL as acct_proc_in             ,
-           |NULL as order_id                 ,
-           |concat_ws('-',substr(log.trans_dt,1,4),substr(log.trans_dt,5,2),substr(log.trans_dt,7,2)) as p_trans_dt
-           |from db2_viw_chmgm_swt_log log
-        """.stripMargin)
-      val usedTime3 = System.currentTimeMillis() - currntTime3
-      val ss:Int =((System.currentTimeMillis() - currntTime3)/1000).toInt
-      val MM:Int = ss/60
-      val hh:Int = MM/60
-      val dd:Int = hh/24
-      println("#### db2_viw_chmgm_swt_log 落地花费的时间为："+dd+"天"+(hh-dd*24)+"时"+(MM-hh*60)+"分"+(ss-MM*60)+"秒 , 合计："+usedTime3+"毫秒")
-    }else{
-      println("#### db2_viw_chmgm_swt_log 表中无数据！")
-    }
-
-    val usedTime = System.currentTimeMillis() - currntTime
-    val ss:Int =((System.currentTimeMillis() - currntTime)/1000).toInt
-    val MM:Int = ss/60
-    val hh:Int = MM/60
-    val dd:Int = hh/24
-    println("运行 JOB_HV_4_3 花费 :"+dd+"天"+(hh-dd*24)+"时"+(MM-hh*60)+"分"+(ss-MM*60)+"秒 , 合计："+usedTime+"毫秒")
-
   }
 
 
@@ -5436,6 +5137,324 @@ object SparkDB22Hive {
     }
 
   }
+
+
+  /**
+    * JOB_HV_80/11-30
+    * hive_acc_trans->viw_chacc_acc_trans_dtl
+    * Code by Xue
+    *
+    * @param sqlContext
+    * @param start_dt
+    * @param end_dt
+    */
+  def JOB_HV_80 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
+    val currntTime =System.currentTimeMillis()
+
+    val start_day = start_dt.replace("-","")
+    val end_day = end_dt.replace("-","")
+    println("#### JOB_HV_80落地增量抽取的时间范围: "+start_day+"--"+end_day)
+
+    val currntTime1 =System.currentTimeMillis()
+    val df2_1 = sqlContext.readDB2_ACC_4para(s"$schemas_accdb.viw_chacc_acc_trans_dtl","trans_dt",s"$start_day",s"$end_day")
+    df2_1.registerTempTable("db2_viw_chacc_acc_trans_dtl")
+    println("###当前抽取的数据条目："+df2_1.count())
+    if(!Option(df2_1).isEmpty){
+      sqlContext.sql(s"use $hive_dbname")
+      sqlContext.sql(
+        s"""
+           |insert overwrite table hive_trans_dtl partition (part_trans_dt)
+           |select
+           |dtl.seq_id                 ,
+           |dtl.cdhd_usr_id            ,
+           |dtl.card_no                ,
+           |dtl.trans_tfr_tm           ,
+           |dtl.sys_tra_no             ,
+           |dtl.acpt_ins_id_cd         ,
+           |dtl.fwd_ins_id_cd          ,
+           |dtl.rcv_ins_id_cd          ,
+           |dtl.oper_module            ,
+           |dtl.trans_dt               ,
+           |dtl.trans_tm               ,
+           |dtl.buss_tp                ,
+           |dtl.um_trans_id            ,
+           |dtl.swt_right_tp           ,
+           |dtl.bill_id                ,
+           |dtl.bill_nm                ,
+           |dtl.chara_acct_tp          ,
+           |dtl.trans_at               ,
+           |dtl.point_at               ,
+           |dtl.mchnt_tp               ,
+           |dtl.resp_cd                ,
+           |dtl.card_accptr_term_id    ,
+           |dtl.card_accptr_cd         ,
+           |dtl.trans_proc_start_ts    ,
+           |dtl.trans_proc_end_ts      ,
+           |dtl.sys_det_cd             ,
+           |dtl.sys_err_cd             ,
+           |dtl.rec_upd_ts             ,
+           |dtl.chara_acct_nm          ,
+           |dtl.void_trans_tfr_tm      ,
+           |dtl.void_sys_tra_no        ,
+           |dtl.void_acpt_ins_id_cd    ,
+           |dtl.void_fwd_ins_id_cd     ,
+           |dtl.rec_crt_ts             ,
+           |dtl.orig_data_elemnt       ,
+           |dtl.discount_at            ,
+           |dtl.bill_item_id           ,
+           |dtl.chnl_inf_index         ,
+           |dtl.bill_num               ,
+           |dtl.addn_discount_at       ,
+           |dtl.pos_entry_md_cd        ,
+           |dtl.udf_fld                ,
+           |dtl.card_accptr_nm_addr    ,
+           |concat_ws('-',substr(dtl.trans_dt,1,4),substr(dtl.trans_dt,5,2),substr(dtl.trans_dt,7,2)) as p_trans_dt
+           |from db2_viw_chacc_acc_trans_dtl dtl
+           """.stripMargin)
+      val usedTime1 = System.currentTimeMillis() - currntTime1
+      val ss:Int =((System.currentTimeMillis() - currntTime1)/1000).toInt
+      val MM:Int = ss/60
+      val hh:Int = MM/60
+      val dd:Int = hh/24
+      println("#### db2_viw_chacc_acc_trans_dtl 落地花费的时间为："+dd+"天"+(hh-dd*24)+"时"+(MM-hh*60)+"分"+(ss-MM*60)+"秒 , 合计："+usedTime1+"毫秒")
+    }else{
+      println("#### db2_viw_chacc_acc_trans_dtl 表中无数据！")
+    }
+
+
+    val usedTime = System.currentTimeMillis() - currntTime
+    val ss:Int =((System.currentTimeMillis() - currntTime)/1000).toInt
+    val MM:Int = ss/60
+    val hh:Int = MM/60
+    val dd:Int = hh/24
+    println("运行 JOB_HV_4_1 花费 :"+dd+"天"+(hh-dd*24)+"时"+(MM-hh*60)+"分"+(ss-MM*60)+"秒 , 合计："+usedTime+"毫秒")
+
+  }
+
+  /**
+    * JOB_HV_81/11-30
+    * hive_trans_log->viw_chacc_acc_trans_log
+    * Code by Xue
+    *
+    * @param sqlContext
+    * @param start_dt
+    * @param end_dt
+    */
+  def JOB_HV_81 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
+    val currntTime =System.currentTimeMillis()
+
+    val start_day = start_dt.replace("-","")
+    val end_day = end_dt.replace("-","")
+    println("#### JOB_HV_81 落地增量抽取的时间范围: "+start_day+"--"+end_day)
+
+    val currntTime2 =System.currentTimeMillis()
+    val df2_2 = sqlContext.readDB2_ACC_4para(s"$schemas_accdb.viw_chacc_acc_trans_log","msg_settle_dt",s"$start_day",s"$end_day")
+    df2_2.registerTempTable("db2_viw_chacc_acc_trans_log")
+    println("###当前抽取的数据条目："+df2_2.count())
+    if(!Option(df2_2).isEmpty){
+      sqlContext.sql(s"use $hive_dbname")
+      sqlContext.sql(
+        s"""
+           |insert overwrite table hive_trans_log partition (part_msg_settle_dt)
+           |select
+           |log.seq_id                   ,
+           |log.trans_tfr_tm             ,
+           |log.sys_tra_no               ,
+           |log.acpt_ins_id_cd           ,
+           |log.fwd_ins_id_cd            ,
+           |log.rcv_ins_id_cd            ,
+           |log.oper_module              ,
+           |log.um_trans_id              ,
+           |log.msg_tp                   ,
+           |log.cdhd_fk                  ,
+           |log.bill_id                  ,
+           |log.bill_tp                  ,
+           |log.bill_bat_no              ,
+           |log.bill_inf                 ,
+           |log.card_no                  ,
+           |log.proc_cd                  ,
+           |log.trans_at                 ,
+           |log.trans_curr_cd            ,
+           |log.settle_at                ,
+           |log.settle_curr_cd           ,
+           |log.card_accptr_local_tm     ,
+           |log.card_accptr_local_dt     ,
+           |log.expire_dt                ,
+           |log.msg_settle_dt            ,
+           |log.mchnt_tp                 ,
+           |log.pos_entry_md_cd          ,
+           |log.pos_cond_cd              ,
+           |log.pos_pin_capture_cd       ,
+           |log.retri_ref_no             ,
+           |log.auth_id_resp_cd          ,
+           |log.resp_cd                  ,
+           |log.notify_st                ,
+           |log.card_accptr_term_id      ,
+           |log.card_accptr_cd           ,
+           |log.card_accptr_nm_addr      ,
+           |log.addn_private_data        ,
+           |log.udf_fld                  ,
+           |log.addn_at                  ,
+           |log.orig_data_elemnt         ,
+           |log.acct_id_1                ,
+           |log.acct_id_2                ,
+           |log.resv_fld                 ,
+           |log.cdhd_auth_inf            ,
+           |log.sys_settle_dt            ,
+           |log.recncl_in                ,
+           |log.match_in                 ,
+           |log.trans_proc_start_ts      ,
+           |log.trans_proc_end_ts        ,
+           |log.sys_det_cd               ,
+           |log.sys_err_cd               ,
+           |log.sec_ctrl_inf             ,
+           |log.card_seq                 ,
+           |log.rec_upd_ts               ,
+           |log.dtl_inq_data             ,
+           |concat_ws('-',substr(log.msg_settle_dt,1,4),substr(log.msg_settle_dt,5,2),substr(log.msg_settle_dt,7,2)) as p_settle_dt
+           |from db2_viw_chacc_acc_trans_log log
+        """.stripMargin)
+      val usedTime2 = System.currentTimeMillis() - currntTime2
+      val ss:Int =((System.currentTimeMillis() - currntTime2)/1000).toInt
+      val MM:Int = ss/60
+      val hh:Int = MM/60
+      val dd:Int = hh/24
+      println("#### db2_viw_chacc_acc_trans_log 落地花费的时间为："+dd+"天"+(hh-dd*24)+"时"+(MM-hh*60)+"分"+(ss-MM*60)+"秒 , 合计："+usedTime2+"毫秒")
+    }else{
+      println("#### db2_viw_chacc_acc_trans_log 表中无数据！")
+    }
+
+
+    val usedTime = System.currentTimeMillis() - currntTime
+    val ss:Int =((System.currentTimeMillis() - currntTime)/1000).toInt
+    val MM:Int = ss/60
+    val hh:Int = MM/60
+    val dd:Int = hh/24
+    println("运行 JOB_HV_4_2 花费 :"+dd+"天"+(hh-dd*24)+"时"+(MM-hh*60)+"分"+(ss-MM*60)+"秒 , 合计："+usedTime+"毫秒")
+
+  }
+  /**
+    * JOB_HV_82/11-30
+    * hive_swt_log->viw_chmgm_swt_log
+    * Code by Xue
+    *
+    * @param sqlContext
+    * @param start_dt
+    * @param end_dt
+    */
+  def JOB_HV_82 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
+    val currntTime =System.currentTimeMillis()
+
+    val start_day = start_dt.replace("-","")
+    val end_day = end_dt.replace("-","")
+    println("#### JOB_HV_82落地增量抽取的时间范围: "+start_day+"--"+end_day)
+
+    val currntTime3 =System.currentTimeMillis()
+    val df2_3 =  sqlContext.readDB2_MGM_4para(s"$schemas_mgmdb.viw_chmgm_swt_log","trans_dt",s"$start_day",s"$end_day")
+    df2_3.registerTempTable("db2_viw_chmgm_swt_log")
+    println("###当前抽取的数据条目："+df2_3.count())
+    if(!Option(df2_3).isEmpty){
+      sqlContext.sql(s"use $hive_dbname")
+      sqlContext.sql(
+        s"""
+           |insert overwrite table hive_swt_log partition (part_trans_dt)
+           |select
+           |log.tfr_dt_tm                ,
+           |log.sys_tra_no               ,
+           |log.acpt_ins_id_cd           ,
+           |log.msg_fwd_ins_id_cd        ,
+           |log.pri_key1                 ,
+           |log.fwd_chnl_head            ,
+           |log.chswt_plat_seq           ,
+           |log.trans_tm                 ,
+           |log.trans_dt                 ,
+           |log.cswt_settle_dt           ,
+           |log.internal_trans_tp        ,
+           |log.settle_trans_id          ,
+           |log.trans_tp                 ,
+           |log.cups_settle_dt           ,
+           |log.msg_tp                   ,
+           |log.pri_acct_no              ,
+           |log.card_bin                 ,
+           |log.proc_cd                  ,
+           |log.req_trans_at             ,
+           |log.resp_trans_at            ,
+           |log.trans_curr_cd            ,
+           |log.trans_tot_at             ,
+           |log.iss_ins_id_cd            ,
+           |log.launch_trans_tm          ,
+           |log.launch_trans_dt          ,
+           |log.mchnt_tp                 ,
+           |log.pos_entry_md_cd          ,
+           |log.card_seq_id              ,
+           |log.pos_cond_cd              ,
+           |log.pos_pin_capture_cd       ,
+           |log.retri_ref_no             ,
+           |log.term_id                  ,
+           |log.mchnt_cd                 ,
+           |log.card_accptr_nm_loc       ,
+           |log.sec_related_ctrl_inf     ,
+           |log.orig_data_elemts         ,
+           |log.rcv_ins_id_cd            ,
+           |log.fwd_proc_in              ,
+           |log.rcv_proc_in              ,
+           |log.proj_tp                  ,
+           |log.usr_id                   ,
+           |log.conv_usr_id              ,
+           |log.trans_st                 ,
+           |log.inq_dtl_req              ,
+           |log.inq_dtl_resp             ,
+           |log.iss_ins_resv             ,
+           |log.ic_flds                  ,
+           |log.cups_def_fld             ,
+           |log.id_no                    ,
+           |log.cups_resv                ,
+           |log.acpt_ins_resv            ,
+           |log.rout_ins_id_cd           ,
+           |log.sub_rout_ins_id_cd       ,
+           |log.recv_access_resp_cd      ,
+           |log.chswt_resp_cd            ,
+           |log.chswt_err_cd             ,
+           |log.resv_fld1                ,
+           |log.resv_fld2                ,
+           |log.to_ts                    ,
+           |log.rec_upd_ts               ,
+           |log.rec_crt_ts               ,
+           |log.settle_at                ,
+           |log.external_amt             ,
+           |log.discount_at              ,
+           |log.card_pay_at              ,
+           |log.right_purchase_at        ,
+           |log.recv_second_resp_cd      ,
+           |log.req_acpt_ins_resv        ,
+           |NULL as log_id                   ,
+           |NULL as conv_acct_no             ,
+           |NULL as inner_pro_ind            ,
+           |NULL as acct_proc_in             ,
+           |NULL as order_id                 ,
+           |concat_ws('-',substr(log.trans_dt,1,4),substr(log.trans_dt,5,2),substr(log.trans_dt,7,2)) as p_trans_dt
+           |from db2_viw_chmgm_swt_log log
+        """.stripMargin)
+      val usedTime3 = System.currentTimeMillis() - currntTime3
+      val ss:Int =((System.currentTimeMillis() - currntTime3)/1000).toInt
+      val MM:Int = ss/60
+      val hh:Int = MM/60
+      val dd:Int = hh/24
+      println("#### db2_viw_chmgm_swt_log 落地花费的时间为："+dd+"天"+(hh-dd*24)+"时"+(MM-hh*60)+"分"+(ss-MM*60)+"秒 , 合计："+usedTime3+"毫秒")
+    }else{
+      println("#### db2_viw_chmgm_swt_log 表中无数据！")
+    }
+
+    val usedTime = System.currentTimeMillis() - currntTime
+    val ss:Int =((System.currentTimeMillis() - currntTime)/1000).toInt
+    val MM:Int = ss/60
+    val hh:Int = MM/60
+    val dd:Int = hh/24
+    println("运行 JOB_HV_4_3 花费 :"+dd+"天"+(hh-dd*24)+"时"+(MM-hh*60)+"分"+(ss-MM*60)+"秒 , 合计："+usedTime+"毫秒")
+
+  }
+
+
 
 
   /**
