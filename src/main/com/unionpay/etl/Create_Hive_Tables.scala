@@ -12,7 +12,8 @@ import org.apache.spark.{SparkConf, SparkContext}
   */
 object Create_Hive_Tables {
   //指定HIVE数据库名
-  private lazy val hive_dbname =ConfigurationManager.getProperty(Constants.HIVE_DBNAME)
+  private lazy val hive_dbname = ConfigurationManager.getProperty(Constants.HIVE_DBNAME)
+
   def main(args: Array[String]) {
 
     val conf = new SparkConf().setAppName("Create_Hive_Tables")
@@ -22,10 +23,10 @@ object Create_Hive_Tables {
 
     println("=======Create all tables on the hive=======")
 
-//    仅初始化使用，默认关闭
+    //    仅初始化使用，默认关闭
 
-    hive_ct        //参数表
-    hive_life      //参数表
+    hive_ct //参数表
+    hive_life //参数表
     hive_city_card //参数表
     hive_province_card //参数表
     hive_acc_trans
@@ -106,7 +107,7 @@ object Create_Hive_Tables {
 
   }
 
-  def hive_acc_trans (implicit sqlContext: HiveContext) = {
+  def hive_acc_trans(implicit sqlContext: HiveContext) = {
     println("=======Create hive_acc_trans=======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
@@ -246,7 +247,7 @@ object Create_Hive_Tables {
 
   }
 
-  def hive_achis_trans (implicit sqlContext: HiveContext) = {
+  def hive_achis_trans(implicit sqlContext: HiveContext) = {
     println("=======Create hive_achis_trans=======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
@@ -441,7 +442,7 @@ object Create_Hive_Tables {
 
   }
 
-  def hive_active_card_acq_branch_mon (implicit sqlContext: HiveContext) = {
+  def hive_active_card_acq_branch_mon(implicit sqlContext: HiveContext) = {
     println("=======Create hive_active_card_acq_branch_mon=======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
@@ -468,7 +469,7 @@ object Create_Hive_Tables {
 
   }
 
-  def hive_card_bind_inf (implicit sqlContext: HiveContext) = {
+  def hive_card_bind_inf(implicit sqlContext: HiveContext) = {
     println("=======Create hive_card_bind_inf=======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
@@ -509,7 +510,7 @@ object Create_Hive_Tables {
 
   }
 
-  def hive_city_card (implicit sqlContext: HiveContext) = {
+  def hive_city_card(implicit sqlContext: HiveContext) = {
     println("=======Create hive_city_card=======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
@@ -527,7 +528,7 @@ object Create_Hive_Tables {
 
   }
 
-  def hive_ct (implicit sqlContext: HiveContext) = {
+  def hive_ct(implicit sqlContext: HiveContext) = {
     println("=======Create hive_ct=======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
@@ -545,7 +546,7 @@ object Create_Hive_Tables {
 
   }
 
-  def hive_life (implicit sqlContext: HiveContext) = {
+  def hive_life(implicit sqlContext: HiveContext) = {
     println("=======Create hive_life=======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
@@ -564,7 +565,7 @@ object Create_Hive_Tables {
 
   }
 
-  def hive_discount_bas_inf (implicit sqlContext: HiveContext) = {
+  def hive_discount_bas_inf(implicit sqlContext: HiveContext) = {
     println("=======Create hive_discount_bas_inf=======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
@@ -603,7 +604,7 @@ object Create_Hive_Tables {
 
   }
 
-  def hive_download_trans (implicit sqlContext: HiveContext) = {
+  def hive_download_trans(implicit sqlContext: HiveContext) = {
     println("=======Create hive_download_trans=======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
@@ -663,7 +664,7 @@ object Create_Hive_Tables {
 
   }
 
-  def hive_inf_source_class (implicit sqlContext: HiveContext) = {
+  def hive_inf_source_class(implicit sqlContext: HiveContext) = {
     println("=======Create hive_inf_source_class=======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
@@ -681,7 +682,7 @@ object Create_Hive_Tables {
 
   }
 
-  def hive_ins_inf (implicit sqlContext: HiveContext) = {
+  def hive_ins_inf(implicit sqlContext: HiveContext) = {
     println("=======Create hive_ins_inf=======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
@@ -729,7 +730,7 @@ object Create_Hive_Tables {
 
   }
 
-  def hive_mchnt_para (implicit sqlContext: HiveContext) = {
+  def hive_mchnt_para(implicit sqlContext: HiveContext) = {
     println("=======Create hive_mchnt_para=======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
@@ -755,7 +756,7 @@ object Create_Hive_Tables {
 
   }
 
-  def hive_passive_code_pay_trans (implicit sqlContext: HiveContext) = {
+  def hive_passive_code_pay_trans(implicit sqlContext: HiveContext) = {
     println("=======Create hive_passive_code_pay_trans=======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
@@ -803,7 +804,7 @@ object Create_Hive_Tables {
 
   }
 
-  def hive_pri_acct_inf (implicit sqlContext: HiveContext) = {
+  def hive_pri_acct_inf(implicit sqlContext: HiveContext) = {
     println("=======Create hive_pri_acct_inf=======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
@@ -903,7 +904,7 @@ object Create_Hive_Tables {
 
   }
 
-  def hive_province_card (implicit sqlContext: HiveContext) = {
+  def hive_province_card(implicit sqlContext: HiveContext) = {
     println("=======Create hive_province_card=======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
@@ -921,7 +922,7 @@ object Create_Hive_Tables {
 
   }
 
-  def hive_switch_point_trans (implicit sqlContext: HiveContext) = {
+  def hive_switch_point_trans(implicit sqlContext: HiveContext) = {
     println("=======Create hive_switch_point_trans=======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
@@ -1011,7 +1012,7 @@ object Create_Hive_Tables {
 
   }
 
-  def hive_ucbiz_cdhd_bas_inf (implicit sqlContext: HiveContext) = {
+  def hive_ucbiz_cdhd_bas_inf(implicit sqlContext: HiveContext) = {
     println("=======Create hive_ucbiz_cdhd_bas_inf=======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
@@ -1052,7 +1053,7 @@ object Create_Hive_Tables {
 
   }
 
-  def hive_access_bas_inf (implicit sqlContext: HiveContext) = {
+  def hive_access_bas_inf(implicit sqlContext: HiveContext) = {
     println("=======Create hive_access_bas_inf=======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
@@ -1123,7 +1124,7 @@ object Create_Hive_Tables {
 
   }
 
-  def hive_active_code_pay_trans (implicit sqlContext: HiveContext) = {
+  def hive_active_code_pay_trans(implicit sqlContext: HiveContext) = {
     println("=======Create hive_active_code_pay_trans=======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
@@ -1319,7 +1320,7 @@ object Create_Hive_Tables {
 
   }
 
-  def hive_branch_acpt_ins_inf (implicit sqlContext: HiveContext) = {
+  def hive_branch_acpt_ins_inf(implicit sqlContext: HiveContext) = {
     println("=======Create hive_branch_acpt_ins_inf=======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
@@ -1338,7 +1339,7 @@ object Create_Hive_Tables {
 
   }
 
-  def hive_brand_inf (implicit sqlContext: HiveContext) = {
+  def hive_brand_inf(implicit sqlContext: HiveContext) = {
     println("=======Create hive_brand_inf=======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
@@ -1374,7 +1375,7 @@ object Create_Hive_Tables {
 
   }
 
-  def hive_card_bin (implicit sqlContext: HiveContext) = {
+  def hive_card_bin(implicit sqlContext: HiveContext) = {
     println("=======Create hive_card_bin=======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
@@ -1420,7 +1421,7 @@ object Create_Hive_Tables {
 
   }
 
-  def hive_cdhd_cashier_maktg_reward_dtl (implicit sqlContext: HiveContext) = {
+  def hive_cdhd_cashier_maktg_reward_dtl(implicit sqlContext: HiveContext) = {
     println("=======Create hive_cdhd_cashier_maktg_reward_dtl=======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
@@ -1489,7 +1490,7 @@ object Create_Hive_Tables {
 
   }
 
-  def hive_cashier_point_acct_oper_dtl (implicit sqlContext: HiveContext) = {
+  def hive_cashier_point_acct_oper_dtl(implicit sqlContext: HiveContext) = {
     println("=======Create hive_cashier_point_acct_oper_dtl=======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
@@ -1512,7 +1513,7 @@ object Create_Hive_Tables {
 
   }
 
-  def hive_chara_grp_def_bat (implicit sqlContext: HiveContext) = {
+  def hive_chara_grp_def_bat(implicit sqlContext: HiveContext) = {
     println("=======Create hive_chara_grp_def_bat=======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
@@ -1553,7 +1554,7 @@ object Create_Hive_Tables {
 
   }
 
-  def hive_cups_trans (implicit sqlContext: HiveContext) = {
+  def hive_cups_trans(implicit sqlContext: HiveContext) = {
     println("=======Create hive_cups_trans=======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
@@ -1766,7 +1767,7 @@ object Create_Hive_Tables {
 
   }
 
-  def hive_filter_app_det (implicit sqlContext: HiveContext) = {
+  def hive_filter_app_det(implicit sqlContext: HiveContext) = {
     println("=======Create hive_filter_app_det=======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
@@ -1799,7 +1800,7 @@ object Create_Hive_Tables {
 
   }
 
-  def hive_filter_rule_det (implicit sqlContext: HiveContext) = {
+  def hive_filter_rule_det(implicit sqlContext: HiveContext) = {
     println("=======Create hive_filter_rule_det=======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
@@ -1831,7 +1832,7 @@ object Create_Hive_Tables {
 
   }
 
-  def hive_inf_source_dtl (implicit sqlContext: HiveContext) = {
+  def hive_inf_source_dtl(implicit sqlContext: HiveContext) = {
     println("=======Create hive_inf_source_dtl=======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
@@ -1849,7 +1850,7 @@ object Create_Hive_Tables {
 
   }
 
-  def hive_life_trans (implicit sqlContext: HiveContext) = {
+  def hive_life_trans(implicit sqlContext: HiveContext) = {
     println("=======Create hive_life_trans=======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
@@ -2046,7 +2047,7 @@ object Create_Hive_Tables {
 
   }
 
-  def hive_mchnt_inf_wallet (implicit sqlContext: HiveContext) = {
+  def hive_mchnt_inf_wallet(implicit sqlContext: HiveContext) = {
     println("=======Create hive_mchnt_inf_wallet=======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
@@ -2094,7 +2095,7 @@ object Create_Hive_Tables {
 
   }
 
-  def hive_mchnt_tp_grp (implicit sqlContext: HiveContext) = {
+  def hive_mchnt_tp_grp(implicit sqlContext: HiveContext) = {
     println("=======Create hive_mchnt_tp_grp=======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
@@ -2121,7 +2122,7 @@ object Create_Hive_Tables {
 
   }
 
-  def hive_org_tdapp_activitynew (implicit sqlContext: HiveContext) = {
+  def hive_org_tdapp_activitynew(implicit sqlContext: HiveContext) = {
     println("=======Create hive_org_tdapp_activitynew=======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
@@ -2161,7 +2162,7 @@ object Create_Hive_Tables {
 
   }
 
-  def hive_org_tdapp_device (implicit sqlContext: HiveContext) = {
+  def hive_org_tdapp_device(implicit sqlContext: HiveContext) = {
     println("=======Create hive_org_tdapp_device=======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
@@ -2193,7 +2194,7 @@ object Create_Hive_Tables {
 
   }
 
-  def hive_org_tdapp_devicenew (implicit sqlContext: HiveContext) = {
+  def hive_org_tdapp_devicenew(implicit sqlContext: HiveContext) = {
     println("=======Create hive_org_tdapp_devicenew=======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
@@ -2234,7 +2235,7 @@ object Create_Hive_Tables {
 
   }
 
-  def hive_org_tdapp_eventnew (implicit sqlContext: HiveContext) = {
+  def hive_org_tdapp_eventnew(implicit sqlContext: HiveContext) = {
     println("=======Create hive_org_tdapp_eventnew=======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
@@ -2275,7 +2276,7 @@ object Create_Hive_Tables {
   }
 
 
-  def hive_org_tdapp_exceptionnew (implicit sqlContext: HiveContext) = {
+  def hive_org_tdapp_exceptionnew(implicit sqlContext: HiveContext) = {
     println("=======Create hive_org_tdapp_exceptionnew=======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
@@ -2316,7 +2317,7 @@ object Create_Hive_Tables {
 
   }
 
-  def hive_org_tdapp_keyvalue (implicit sqlContext: HiveContext) = {
+  def hive_org_tdapp_keyvalue(implicit sqlContext: HiveContext) = {
     println("=======Create hive_org_tdapp_keyvalue=======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
@@ -2354,7 +2355,7 @@ object Create_Hive_Tables {
   }
 
 
-  def hive_org_tdapp_tlaunchnew (implicit sqlContext: HiveContext) = {
+  def hive_org_tdapp_tlaunchnew(implicit sqlContext: HiveContext) = {
     println("=======Create hive_org_tdapp_tlaunchnew=======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
@@ -2394,7 +2395,7 @@ object Create_Hive_Tables {
 
   }
 
-  def hive_preferential_mchnt_inf (implicit sqlContext: HiveContext) = {
+  def hive_preferential_mchnt_inf(implicit sqlContext: HiveContext) = {
     println("=======Create hive_preferential_mchnt_inf=======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
@@ -2458,7 +2459,7 @@ object Create_Hive_Tables {
 
   }
 
-  def hive_prize_bas (implicit sqlContext: HiveContext) = {
+  def hive_prize_bas(implicit sqlContext: HiveContext) = {
     println("=======Create hive_prize_bas=======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
@@ -2495,7 +2496,7 @@ object Create_Hive_Tables {
 
   }
 
-  def hive_signer_log (implicit sqlContext: HiveContext) = {
+  def hive_signer_log(implicit sqlContext: HiveContext) = {
     println("=======Create hive_signer_log=======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
@@ -2516,7 +2517,7 @@ object Create_Hive_Tables {
 
   }
 
-  def hive_ticket_bill_bas_inf (implicit sqlContext: HiveContext) = {
+  def hive_ticket_bill_bas_inf(implicit sqlContext: HiveContext) = {
     println("=======Create hive_ticket_bill_bas_inf=======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
@@ -2605,7 +2606,7 @@ object Create_Hive_Tables {
 
   }
 
-  def hive_undefine_store_inf (implicit sqlContext: HiveContext) = {
+  def hive_undefine_store_inf(implicit sqlContext: HiveContext) = {
     println("=======Create hive_undefine_store_inf=======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
@@ -2626,7 +2627,7 @@ object Create_Hive_Tables {
 
   }
 
-  def hive_user_td_d (implicit sqlContext: HiveContext) = {
+  def hive_user_td_d(implicit sqlContext: HiveContext) = {
     println("=======Create hive_use_td_d=======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
@@ -2648,7 +2649,7 @@ object Create_Hive_Tables {
 
   }
 
-  def hive_bill_order_trans (implicit sqlContext: HiveContext) = {
+  def hive_bill_order_trans(implicit sqlContext: HiveContext) = {
     println("=======Create HIVE_BILL_ORDER_TRANS=======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
@@ -2704,7 +2705,7 @@ object Create_Hive_Tables {
 
   }
 
-  def hive_bill_sub_order_trans (implicit sqlContext: HiveContext) = {
+  def hive_bill_sub_order_trans(implicit sqlContext: HiveContext) = {
     println("=======Create HIVE_BILL_SUB_ORDER_TRANS=======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
@@ -2742,7 +2743,7 @@ object Create_Hive_Tables {
 
   }
 
-  def hive_mchnt_tp (implicit sqlContext: HiveContext) = {
+  def hive_mchnt_tp(implicit sqlContext: HiveContext) = {
     println("=======Create HIVE_MCHNT_TP=======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
@@ -2772,7 +2773,7 @@ object Create_Hive_Tables {
 
   }
 
-  def hive_offline_point_trans (implicit sqlContext: HiveContext) = {
+  def hive_offline_point_trans(implicit sqlContext: HiveContext) = {
     println("=======Create HIVE_OFFLINE_POINT_TRANS=======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
@@ -2857,7 +2858,7 @@ object Create_Hive_Tables {
 
   }
 
-  def hive_online_point_trans (implicit sqlContext: HiveContext) = {
+  def hive_online_point_trans(implicit sqlContext: HiveContext) = {
     println("=======Create HIVE_ONLINE_POINT_TRANS=======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
@@ -2908,7 +2909,7 @@ object Create_Hive_Tables {
 
   }
 
-  def hive_prize_activity_bas_inf (implicit sqlContext: HiveContext) = {
+  def hive_prize_activity_bas_inf(implicit sqlContext: HiveContext) = {
     println("=======Create HIVE_PRIZE_ACTIVITY_BAS_INF=======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
@@ -2956,7 +2957,7 @@ object Create_Hive_Tables {
 
   }
 
-  def hive_prize_discount_result (implicit sqlContext: HiveContext) = {
+  def hive_prize_discount_result(implicit sqlContext: HiveContext) = {
     println("=======Create HIVE_PRIZE_DISCOUNT_RESULT=======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
@@ -3014,7 +3015,7 @@ object Create_Hive_Tables {
 
   }
 
-  def hive_prize_lvl_add_rule (implicit sqlContext: HiveContext) = {
+  def hive_prize_lvl_add_rule(implicit sqlContext: HiveContext) = {
     println("=======Create HIVE_PRIZE_LVL_ADD_RULE=======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
@@ -3043,7 +3044,7 @@ object Create_Hive_Tables {
 
   }
 
-  def hive_prize_lvl (implicit sqlContext: HiveContext) = {
+  def hive_prize_lvl(implicit sqlContext: HiveContext) = {
     println("=======Create HIVE_PRIZE_LVL=======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
@@ -3088,7 +3089,7 @@ object Create_Hive_Tables {
 
   }
 
-  def hive_store_term_relation (implicit sqlContext: HiveContext) = {
+  def hive_store_term_relation(implicit sqlContext: HiveContext) = {
     println("=======Create HIVE_STORE_TERM_RELATION=======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
@@ -3114,164 +3115,164 @@ object Create_Hive_Tables {
 
   }
 
-  def hive_term_inf (implicit sqlContext: HiveContext) = {
+  def hive_term_inf(implicit sqlContext: HiveContext) = {
     println("=======Create HIVE_TERM_INF=======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
       s"""
-        |create table if not exists $hive_dbname.hive_term_inf(
-        |mchnt_cd        string     ,
-        |term_id         string     ,
-        |term_tp         string     ,
-        |term_st         string     ,
-        |open_dt         timestamp  ,
-        |close_dt        timestamp  ,
-        |bank_cd         string     ,
-        |rec_st          string     ,
-        |last_oper_in    string     ,
-        |event_id        int        ,
-        |rec_id          int        ,
-        |rec_upd_usr_id  string     ,
-        |rec_upd_ts      timestamp  ,
-        |rec_crt_ts      timestamp  ,
-        |is_trans_at_tp  string
-        |)
-        |row format delimited fields terminated by '!|'
-        |stored as parquet
-        |location '/user/ch_hypas/upw_hive/participant/other/hive_term_inf'
+         |create table if not exists $hive_dbname.hive_term_inf(
+         |mchnt_cd        string     ,
+         |term_id         string     ,
+         |term_tp         string     ,
+         |term_st         string     ,
+         |open_dt         timestamp  ,
+         |close_dt        timestamp  ,
+         |bank_cd         string     ,
+         |rec_st          string     ,
+         |last_oper_in    string     ,
+         |event_id        int        ,
+         |rec_id          int        ,
+         |rec_upd_usr_id  string     ,
+         |rec_upd_ts      timestamp  ,
+         |rec_crt_ts      timestamp  ,
+         |is_trans_at_tp  string
+         |)
+         |row format delimited fields terminated by '!|'
+         |stored as parquet
+         |location '/user/ch_hypas/upw_hive/participant/other/hive_term_inf'
       """.stripMargin)
 
     println("=======Create hive_term_inf successfully ! =======")
 
   }
 
-  def hive_ach_order_inf (implicit sqlContext: HiveContext) = {
+  def hive_ach_order_inf(implicit sqlContext: HiveContext) = {
     println("=======Create Table hive_ach_order_inf for JOB_HV_71 by TZQ =======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
       s"""
-        |create table if not exists $hive_dbname.hive_ach_order_inf(
-        |order_id             string ,
-        |sys_no               string ,
-        |mchnt_version        string ,
-        |encoding             string ,
-        |sign_method          string ,
-        |mchnt_trans_tp       string ,
-        |biz_tp               string ,
-        |pay_method           string ,
-        |trans_tp             string ,
-        |buss_chnl            string ,
-        |mchnt_front_url      string ,
-        |mchnt_back_url       string ,
-        |acq_ins_id_cd        string ,
-        |mchnt_cd             string ,
-        |mchnt_tp             string ,
-        |mchnt_nm             string ,
-        |sub_mchnt_cd         string ,
-        |sub_mchnt_nm         string ,
-        |mchnt_order_id       string ,
-        |trans_tm             string ,
-        |trans_dt             timestamp,
-        |sys_tm               string ,
-        |pay_timeout          string ,
-        |trans_at             string ,
-        |trans_curr_cd        string ,
-        |kz_at                string ,
-        |kz_curr_cd           string ,
-        |conv_dt              string ,
-        |deduct_at            string ,
-        |discount_info        string ,
-        |upoint_at            string ,
-        |top_info             string ,
-        |refund_at            string ,
-        |iss_ins_id_cd        string ,
-        |iss_head             string ,
-        |pri_acct_no          string ,
-        |card_attr            string ,
-        |usr_id               string ,
-        |phone_no             string ,
-        |trans_ip             string ,
-        |trans_st             string ,
-        |trans_no             string ,
-        |trans_idx            string ,
-        |sys_tra_no           string ,
-        |order_desc           string ,
-        |order_detail         string ,
-        |proc_sys             string ,
-        |proc_st              string ,
-        |trans_source         string ,
-        |resp_cd              string ,
-        |other_usr            string ,
-        |initial_pay          string ,
-        |to_ts                string ,
-        |rec_crt_ts           string ,
-        |rec_upd_ts           string
-        |)
-        |partitioned by (part_hp_trans_dt string)
-        |row format delimited fields terminated by '!|'
-        |stored as parquet
-        |location '/user/ch_hypas/upw_hive/incident/order/hive_ach_order_inf'
+         |create table if not exists $hive_dbname .hive_ach_order_inf(
+         |order_id             string ,
+         |sys_no               string ,
+         |mchnt_version        string ,
+         |encoding             string ,
+         |sign_method          string ,
+         |mchnt_trans_tp       string ,
+         |biz_tp               string ,
+         |pay_method           string ,
+         |trans_tp             string ,
+         |buss_chnl            string ,
+         |mchnt_front_url      string ,
+         |mchnt_back_url       string ,
+         |acq_ins_id_cd        string ,
+         |mchnt_cd             string ,
+         |mchnt_tp             string ,
+         |mchnt_nm             string ,
+         |sub_mchnt_cd         string ,
+         |sub_mchnt_nm         string ,
+         |mchnt_order_id       string ,
+         |trans_tm             string ,
+         |trans_dt             timestamp,
+         |sys_tm               string ,
+         |pay_timeout          string ,
+         |trans_at             string ,
+         |trans_curr_cd        string ,
+         |kz_at                string ,
+         |kz_curr_cd           string ,
+         |conv_dt              string ,
+         |deduct_at            string ,
+         |discount_info        string ,
+         |upoint_at            string ,
+         |top_info             string ,
+         |refund_at            string ,
+         |iss_ins_id_cd        string ,
+         |iss_head             string ,
+         |pri_acct_no          string ,
+         |card_attr            string ,
+         |usr_id               string ,
+         |phone_no             string ,
+         |trans_ip             string ,
+         |trans_st             string ,
+         |trans_no             string ,
+         |trans_idx            string ,
+         |sys_tra_no           string ,
+         |order_desc           string ,
+         |order_detail         string ,
+         |proc_sys             string ,
+         |proc_st              string ,
+         |trans_source         string ,
+         |resp_cd              string ,
+         |other_usr            string ,
+         |initial_pay          string ,
+         |to_ts                string ,
+         |rec_crt_ts           string ,
+         |rec_upd_ts           string
+         |)
+         |partitioned by (part_hp_trans_dt string)
+         |row format delimited fields terminated by '!|'
+         |stored as parquet
+         |location '/user/ch_hypas/upw_hive/incident/order/hive_ach_order_inf'
       """.stripMargin)
 
     println("=======Create hive_ach_order_inf successfully ! =======")
 
   }
 
-  def hive_bill_order_aux_inf (implicit sqlContext: HiveContext) = {
+  def hive_bill_order_aux_inf(implicit sqlContext: HiveContext) = {
     println("=======Create Table hive_bill_order_aux_inf for JOB_HV_72 by TZQ =======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
       s"""
-        |create table if not exists $hive_dbname.hive_bill_order_aux_inf(
-        |bill_order_id            string ,
-        |mchnt_cd                 string ,
-        |mchnt_nm                 string ,
-        |sub_mchnt_cd             string ,
-        |cdhd_usr_id              string ,
-        |sub_mchnt_nm             string ,
-        |related_usr_id           bigint ,
-        |cups_trace_number        string ,
-        |trans_tm                 string ,
-        |trans_dt                 string ,
-        |orig_trans_seq           string ,
-        |trans_seq                string ,
-        |mobile_order_id          string ,
-        |acp_order_id             string ,
-        |delivery_prov_cd         string ,
-        |delivery_city_cd         string ,
-        |delivery_district_cd     string ,
-        |delivery_zip_cd          string ,
-        |delivery_address         string ,
-        |receiver_nm              string ,
-        |receiver_mobile          string ,
-        |delivery_time_desc       string ,
-        |invoice_desc             string ,
-        |trans_at                 bigint ,
-        |refund_at                bigint ,
-        |order_st                 string ,
-        |order_crt_ts             timestamp,
-        |order_timeout_ts         timestamp,
-        |card_no                  string,
-        |order_chnl               string,
-        |order_ip                 string,
-        |device_inf               string,
-        |remark                   string,
-        |rec_crt_ts               timestamp,
-        |crt_cdhd_usr_id          string ,
-        |rec_upd_ts               timestamp,
-        |upd_cdhd_usr_id          string
-        |
+         |create table if not exists $hive_dbname.hive_bill_order_aux_inf(
+         |bill_order_id            string ,
+         |mchnt_cd                 string ,
+         |mchnt_nm                 string ,
+         |sub_mchnt_cd             string ,
+         |cdhd_usr_id              string ,
+         |sub_mchnt_nm             string ,
+         |related_usr_id           bigint ,
+         |cups_trace_number        string ,
+         |trans_tm                 string ,
+         |trans_dt                 string ,
+         |orig_trans_seq           string ,
+         |trans_seq                string ,
+         |mobile_order_id          string ,
+         |acp_order_id             string ,
+         |delivery_prov_cd         string ,
+         |delivery_city_cd         string ,
+         |delivery_district_cd     string ,
+         |delivery_zip_cd          string ,
+         |delivery_address         string ,
+         |receiver_nm              string ,
+         |receiver_mobile          string ,
+         |delivery_time_desc       string ,
+         |invoice_desc             string ,
+         |trans_at                 bigint ,
+         |refund_at                bigint ,
+         |order_st                 string ,
+         |order_crt_ts             timestamp,
+         |order_timeout_ts         timestamp,
+         |card_no                  string,
+         |order_chnl               string,
+         |order_ip                 string,
+         |device_inf               string,
+         |remark                   string,
+         |rec_crt_ts               timestamp,
+         |crt_cdhd_usr_id          string ,
+         |rec_upd_ts               timestamp,
+         |upd_cdhd_usr_id          string
+         |
         |)
-        |row format delimited fields terminated by '!|'
-        |stored as parquet
-        |location '/user/ch_hypas/upw_hive/incident/order/hive_bill_order_aux_inf'
+         |row format delimited fields terminated by '!|'
+         |stored as parquet
+         |location '/user/ch_hypas/upw_hive/incident/order/hive_bill_order_aux_inf'
       """.stripMargin)
 
     println("=======Create hive_bill_order_aux_inf successfully ! =======")
 
   }
 
-  def hive_bill_sub_order_detail_inf (implicit sqlContext: HiveContext) = {
+  def hive_bill_sub_order_detail_inf(implicit sqlContext: HiveContext) = {
     println("=======Create Table hive_bill_sub_order_detail_inf for JOB_HV_73 by TZQ =======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
@@ -3308,7 +3309,7 @@ object Create_Hive_Tables {
 
   }
 
-  def hive_ticket_bill_acct_adj_task (implicit sqlContext: HiveContext) = {
+  def hive_ticket_bill_acct_adj_task(implicit sqlContext: HiveContext) = {
     println("=======Create Table hive_ticket_bill_acct_adj_task for JOB_HV_74 by TZQ =======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
@@ -3356,7 +3357,7 @@ object Create_Hive_Tables {
 
   }
 
-  def hive_search_trans (implicit sqlContext: HiveContext) = {
+  def hive_search_trans(implicit sqlContext: HiveContext) = {
     println("=======Create Table hive_search_trans for JOB_HV_27 by XTP =======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
@@ -3480,7 +3481,7 @@ object Create_Hive_Tables {
   }
 
 
-  def hive_buss_dist (implicit sqlContext: HiveContext) = {
+  def hive_buss_dist(implicit sqlContext: HiveContext) = {
     println("=======Create Table hive_buss_dist for JOB_HV_34 by XTP =======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
@@ -3526,7 +3527,7 @@ object Create_Hive_Tables {
 
   }
 
-  def hive_cdhd_bill_acct_inf (implicit sqlContext: HiveContext) = {
+  def hive_cdhd_bill_acct_inf(implicit sqlContext: HiveContext) = {
     println("=======Create Table hive_cdhd_bill_acct_inf for JOB_HV_35 by XTP =======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
@@ -3561,7 +3562,7 @@ object Create_Hive_Tables {
   }
 
 
-  def hive_cashier_bas_inf (implicit sqlContext: HiveContext) = {
+  def hive_cashier_bas_inf(implicit sqlContext: HiveContext) = {
     println("=======Create Table hive_cashier_bas_inf for JOB_HV_54 by XTP =======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
@@ -3617,7 +3618,7 @@ object Create_Hive_Tables {
 
   }
 
-  def hive_access_static_inf (implicit sqlContext: HiveContext) = {
+  def hive_access_static_inf(implicit sqlContext: HiveContext) = {
     println("=======Create Table hive_access_static_inf for JOB_HV_75 by XTP =======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
@@ -3658,7 +3659,7 @@ object Create_Hive_Tables {
 
   }
 
-  def hive_region_cd (implicit sqlContext: HiveContext) = {
+  def hive_region_cd(implicit sqlContext: HiveContext) = {
     println("=======Create Table hive_region_cd for JOB_HV_76 by XTP =======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
@@ -3690,7 +3691,7 @@ object Create_Hive_Tables {
 
   }
 
-  def hive_aconl_ins_bas (implicit sqlContext: HiveContext) = {
+  def hive_aconl_ins_bas(implicit sqlContext: HiveContext) = {
     println("=======Create Table hive_region_cd for JOB_HV_79 by XTP =======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
@@ -3727,7 +3728,7 @@ object Create_Hive_Tables {
 
   }
 
-  def hive_org_tdapp_tactivity (implicit sqlContext: HiveContext) = {
+  def hive_org_tdapp_tactivity(implicit sqlContext: HiveContext) = {
     println("=======Create hive_org_tdapp_tactivity=======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql("drop table hive_org_tdapp_tactivity")
@@ -3764,7 +3765,7 @@ object Create_Hive_Tables {
 
   }
 
-  def hive_org_tdapp_tlaunch (implicit sqlContext: HiveContext) = {
+  def hive_org_tdapp_tlaunch(implicit sqlContext: HiveContext) = {
     println("=======Create hive_org_tdapp_tlaunch=======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql("drop table hive_org_tdapp_tlaunch")
@@ -3810,7 +3811,7 @@ object Create_Hive_Tables {
 
   }
 
-  def hive_org_tdapp_terminate (implicit sqlContext: HiveContext) = {
+  def hive_org_tdapp_terminate(implicit sqlContext: HiveContext) = {
     println("=======Create hive_org_tdapp_terminate=======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql("drop table if exists hive_org_tdapp_terminate")
@@ -3845,7 +3846,7 @@ object Create_Hive_Tables {
 
   }
 
-  def hive_org_tdapp_exception (implicit sqlContext: HiveContext) = {
+  def hive_org_tdapp_exception(implicit sqlContext: HiveContext) = {
     println("=======Create hive_org_tdapp_exception=======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql("drop table if exists hive_org_tdapp_exception")
@@ -3883,7 +3884,9 @@ object Create_Hive_Tables {
 
   }
 
-    def hive_org_tdapp_newuser (implicit sqlContext: HiveContext) = {
+  def hive_org_tdapp_newuser(implicit sqlContext: HiveContext
+
+                            ) = {
     println("=======Create hive_org_tdapp_newuser=======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql("drop table if exists hive_org_tdapp_newuser")
@@ -3922,7 +3925,7 @@ object Create_Hive_Tables {
 
 
 
-    def hive_trans_dtl (implicit sqlContext: HiveContext) = {
+    def hive_trans_dtl(implicit sqlContext: HiveContext) = {
       println("=======Create Table:  hive_trans_dtl=======")
       sqlContext.sql(s"use $hive_dbname")
       sqlContext.sql(
@@ -3982,7 +3985,7 @@ object Create_Hive_Tables {
 
     }
 
-    def hive_trans_log (implicit sqlContext: HiveContext) = {
+    def hive_trans_log(implicit sqlContext: HiveContext) = {
       println("=======Create Table: hive_trans_log=======")
       sqlContext.sql(s"use $hive_dbname")
       sqlContext.sql(
@@ -4053,7 +4056,7 @@ object Create_Hive_Tables {
       println("=======Create hive_trans_log successfully ! =======")
 
     }
-    def hive_swt_log (implicit sqlContext: HiveContext) = {
+    def hive_swt_log(implicit sqlContext: HiveContext) = {
       println("=======Create Table: hive_swt_log=======")
       sqlContext.sql(s"use $hive_dbname")
       sqlContext.sql(
@@ -4140,8 +4143,11 @@ object Create_Hive_Tables {
            | """.stripMargin
       )
 
-    println("=======Create hive_swt_log successfully ! =======")
+      println(
+
+        "=======Create hive_swt_log successfully ! =======")
+
+    }
 
   }
-
 }
