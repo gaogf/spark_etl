@@ -100,6 +100,7 @@ object Create_Hive_Tables {
     hive_trans_dtl
     hive_trans_log
     hive_swt_log
+    hive_cdhd_trans_year
 
     println("=======Create all tables on the hive successfully=======")
 
@@ -4146,6 +4147,26 @@ object Create_Hive_Tables {
       )
 
       println("=======Create hive_swt_log successfully ! =======")
+
+    }
+
+    def hive_cdhd_trans_year(implicit sqlContext: HiveContext) = {
+      println("=======Create Table : hive_cdhd_trans_year=======")
+      sqlContext.sql(s"use $hive_dbname")
+      sqlContext.sql(
+        s"""
+           |create table if not exists $hive_dbname.hive_cdhd_trans_year(
+           |cdhd_usr_id  string,
+           |year         string
+           |)
+           |partitioned by (part_year    string)
+           |row format delimited fields terminated by '!|'
+           |stored as parquet
+           |location '/user/ch_hypas/upw_hive/parameter/hive_cdhd_trans_year';
+           | """.stripMargin
+      )
+
+      println("=======Create hive_cdhd_trans_year successfully ! =======")
 
     }
 
