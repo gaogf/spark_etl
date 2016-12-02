@@ -432,7 +432,7 @@ object SparkDB22Hive {
            |pos_entry_md_cd        ,
            |udf_fld                ,
            |card_accptr_nm_addr    ,
-           |trans_dt
+           |concat_ws('-',substr(trans_dt,1,4),substr(trans_dt,5,2),substr(trans_dt,7,2)) as trans_dt
            |from db2_viw_chacc_acc_trans_dtl
         """.stripMargin)
       val usedTime1 = System.currentTimeMillis() - currntTime1
@@ -454,8 +454,6 @@ object SparkDB22Hive {
     println("运行 JOB_HV_4_1 花费 :"+dd+"天"+(hh-dd*24)+"时"+(MM-hh*60)+"分"+(ss-MM*60)+"秒 , 合计："+usedTime+"毫秒")
 
   }
-
-
 
   def JOB_HV_4_2 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
     val currntTime =System.currentTimeMillis()
@@ -528,7 +526,7 @@ object SparkDB22Hive {
            |card_seq                 ,
            |rec_upd_ts               ,
            |dtl_inq_data             ,
-           |msg_settle_dt
+           |concat_ws('-',substr(msg_settle_dt,1,4),substr(msg_settle_dt,5,2),substr(msg_settle_dt,7,2)) as msg_settle_dt
            |from db2_viw_chacc_acc_trans_log
         """.stripMargin)
       val usedTime2 = System.currentTimeMillis() - currntTime2
@@ -641,7 +639,7 @@ object SparkDB22Hive {
            |NULL as inner_pro_ind            ,
            |NULL as acct_proc_in             ,
            |NULL as order_id                 ,
-           |trans_dt
+           |concat_ws('-',substr(trans_dt,1,4),substr(trans_dt,5,2),substr(trans_dt,7,2)) as trans_dt
            |from db2_viw_chmgm_swt_log
         """.stripMargin)
       val usedTime3 = System.currentTimeMillis() - currntTime3
@@ -662,6 +660,8 @@ object SparkDB22Hive {
     println("运行 JOB_HV_4_3 花费 :"+dd+"天"+(hh-dd*24)+"时"+(MM-hh*60)+"分"+(ss-MM*60)+"秒 , 合计："+usedTime+"毫秒")
 
   }
+
+
   /**
     * JOB_HV_4/10-14
     * hive_acc_trans->viw_chacc_acc_trans_dtl
@@ -5454,19 +5454,19 @@ object SparkDB22Hive {
     val end_day = end_dt.replace("-","")
     println("#### JOB_HV_4 Extract data start at: "+start_day+" and end :"+end_day)
     sqlContext.sql("use upw_hive")
-    println("------------>start")
 
-    val df2_1 = sqlContext.sql(s"select * from viw_chacc_acc_trans_dtl where part_trans_dt>='$start_day' and part_trans_dt<='$end_day'")
+
+    val df2_1 = sqlContext.sql(s"select * from hive_trans_dtl where part_trans_dt>='$start_day' and part_trans_dt<='$end_day'")
     df2_1.registerTempTable("viw_chacc_acc_trans_dtl")
     println("viw_chacc_acc_trans_dtl :"+df2_1.count())
 
 
-    val df2_2 = sqlContext.sql(s"select * from viw_chacc_acc_trans_log  where part_msg_settle_dt>='$start_day'  and part_msg_settle_dt <='$end_day'")
+    val df2_2 = sqlContext.sql(s"select * from hive_trans_log  where part_msg_settle_dt>='$start_day'  and part_msg_settle_dt <='$end_day'")
     df2_2.registerTempTable("viw_chacc_acc_trans_log")
     println("viw_chacc_acc_trans_log: "+df2_2.count())
 
 
-    val df2_3 = sqlContext.sql(s"select * from viw_chmgm_swt_log where part_trans_dt>='$start_day' and part_trans_dt<='$end_day'")
+    val df2_3 = sqlContext.sql(s"select * from hive_swt_log where part_trans_dt>='$start_day' and part_trans_dt<='$end_day'")
     df2_3.registerTempTable("viw_chmgm_swt_log")
     println("viw_chmgm_swt_log: "+df2_3.count())
 
@@ -5671,7 +5671,6 @@ object SparkDB22Hive {
          | """.stripMargin)
 
     results.registerTempTable("spark_acc_trans")
-    println("#### JOB_HV_4 registerTempTable--spark_acc_trans 的时间为:"+DateUtils.getCurrentSystemTime())
 
 
     if(!Option(results).isEmpty){
