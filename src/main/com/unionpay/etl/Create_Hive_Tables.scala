@@ -3846,7 +3846,7 @@ object Create_Hive_Tables {
 
   }
 
-  def hive_org_tdapp_exception(implicit sqlContext: HiveContext) = {
+   def hive_org_tdapp_exception(implicit sqlContext: HiveContext) = {
     println("=======Create hive_org_tdapp_exception=======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql("drop table if exists hive_org_tdapp_exception")
@@ -3884,9 +3884,7 @@ object Create_Hive_Tables {
 
   }
 
-  def hive_org_tdapp_newuser(implicit sqlContext: HiveContext
-
-                            ) = {
+   def hive_org_tdapp_newuser(implicit sqlContext: HiveContext) = {
     println("=======Create hive_org_tdapp_newuser=======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql("drop table if exists hive_org_tdapp_newuser")
@@ -3922,7 +3920,9 @@ object Create_Hive_Tables {
          |stored as parquet
          |location '/user/ch_hypas/upw_hive/incident/td/hive_org_tdapp_newuser'
          | """.stripMargin)
+    println("=======Create hive_org_tdapp_newuser successfully ! =======")
 
+  }
 
 
     def hive_trans_dtl(implicit sqlContext: HiveContext) = {
@@ -4056,6 +4056,8 @@ object Create_Hive_Tables {
       println("=======Create hive_trans_log successfully ! =======")
 
     }
+
+
     def hive_swt_log(implicit sqlContext: HiveContext) = {
       println("=======Create Table: hive_swt_log=======")
       sqlContext.sql(s"use $hive_dbname")
@@ -4143,11 +4145,9 @@ object Create_Hive_Tables {
            | """.stripMargin
       )
 
-      println(
-
-        "=======Create hive_swt_log successfully ! =======")
+      println("=======Create hive_swt_log successfully ! =======")
 
     }
 
-  }
+
 }
