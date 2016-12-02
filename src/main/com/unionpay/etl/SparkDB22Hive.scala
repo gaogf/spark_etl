@@ -384,7 +384,7 @@ object SparkDB22Hive {
     df2_1.registerTempTable("db2_viw_chacc_acc_trans_dtl")
     println("###当前抽取的数据条目："+df2_1.count())
     if(!Option(df2_1).isEmpty){
-      sqlContext.sql("use upw_hive")
+      sqlContext.sql(s"use $hive_dbname")
       sqlContext.sql(
         s"""
            |insert overwrite table hive_trans_dtl partition (part_trans_dt)
@@ -467,7 +467,7 @@ object SparkDB22Hive {
     df2_2.registerTempTable("db2_viw_chacc_acc_trans_log")
     println("###当前抽取的数据条目："+df2_2.count())
     if(!Option(df2_2).isEmpty){
-      sqlContext.sql("use upw_hive")
+      sqlContext.sql(s"use $hive_dbname")
       sqlContext.sql(
         s"""
            |insert overwrite table hive_trans_log partition (part_msg_settle_dt)
@@ -561,7 +561,7 @@ object SparkDB22Hive {
     df2_3.registerTempTable("db2_viw_chmgm_swt_log")
     println("###当前抽取的数据条目："+df2_3.count())
     if(!Option(df2_3).isEmpty){
-      sqlContext.sql("use upw_hive")
+      sqlContext.sql(s"use $hive_dbname")
       sqlContext.sql(
         s"""
            |insert overwrite table hive_swt_log partition (part_trans_dt)
@@ -5450,26 +5450,18 @@ object SparkDB22Hive {
   def JOB_HV_4_transform (implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
     val currntTime =System.currentTimeMillis()
 
-    val start_day = start_dt.replace("-","")
-    val end_day = end_dt.replace("-","")
-    println("#### JOB_HV_4 Extract data start at: "+start_day+" and end :"+end_day)
-    sqlContext.sql("use upw_hive")
+    println("#### JOB_HV_4 Extract data start at: "+start_dt+" and end :"+end_dt)
 
+    sqlContext.sql(s"use $hive_dbname")
 
-    val df2_1 = sqlContext.sql(s"select * from hive_trans_dtl where part_trans_dt>='$start_day' and part_trans_dt<='$end_day'")
+    val df2_1 = sqlContext.sql(s"select * from hive_trans_dtl where part_trans_dt>='$start_dt' and part_trans_dt<='$end_dt'")
     df2_1.registerTempTable("viw_chacc_acc_trans_dtl")
-    println("viw_chacc_acc_trans_dtl :"+df2_1.count())
 
-
-    val df2_2 = sqlContext.sql(s"select * from hive_trans_log  where part_msg_settle_dt>='$start_day'  and part_msg_settle_dt <='$end_day'")
+    val df2_2 = sqlContext.sql(s"select * from hive_trans_log  where part_msg_settle_dt>='$start_dt'  and part_msg_settle_dt <='$end_dt'")
     df2_2.registerTempTable("viw_chacc_acc_trans_log")
-    println("viw_chacc_acc_trans_log: "+df2_2.count())
 
-
-    val df2_3 = sqlContext.sql(s"select * from hive_swt_log where part_trans_dt>='$start_day' and part_trans_dt<='$end_day'")
+    val df2_3 = sqlContext.sql(s"select * from hive_swt_log where part_trans_dt>='$start_dt' and part_trans_dt<='$end_dt'")
     df2_3.registerTempTable("viw_chmgm_swt_log")
-    println("viw_chmgm_swt_log: "+df2_3.count())
-
 
     val results = sqlContext.sql(
       s"""
@@ -5672,9 +5664,9 @@ object SparkDB22Hive {
 
     results.registerTempTable("spark_acc_trans")
 
-
+    println("### Transformed result count:"+results.count())
     if(!Option(results).isEmpty){
-      sqlContext.sql("use upw_hive")
+      sqlContext.sql(s"use $hive_dbname")
       sqlContext.sql(
         s"""
            |insert overwrite table hive_acc_trans partition (part_trans_dt)
