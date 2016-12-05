@@ -75,4 +75,21 @@ object DateUtils {
     dateFormat.format( now )
   }
 
+  /**
+    * 计算方法运行时间开销
+    * @param actionName 传入当前JOB名称
+    * @param action  待测试代码
+    * @tparam U
+    * @return
+    */
+  def timeCost[U](actionName: String)(action: => U): Unit = {
+    val start = System.currentTimeMillis()
+    val res = action
+    val ss:Int =((System.currentTimeMillis() - start)/1000).toInt
+    val MM:Int = ss/60
+    val hh:Int = MM/60
+    val dd:Int = hh/24
+    println(s"[TimeCost] $actionName "+dd+"d "+(hh-dd*24)+"h "+(MM-hh*60)+"m "+(ss-MM*60)+"s " , "Total："+(System.currentTimeMillis() - start)+"ms ")
+  }
+
 }
