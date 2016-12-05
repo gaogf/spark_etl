@@ -2674,15 +2674,7 @@ object SparkDB22Hive {
   def JOB_HV_27 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
     val currntTime =System.currentTimeMillis()
 
-    val start_day = start_dt.replace("-","")
-    val end_day = end_dt.replace("-","")
-
-    val df2_1 = sqlContext.readDB2_ACC_4para(s"$schemas_accdb.VIW_CHACC_ACC_TRANS_LOG","trans_dt",s"$start_day",s"$end_day")
-    df2_1.registerTempTable("VIW_CHACC_ACC_TRANS_LOG")
-
-    val df2_2 = sqlContext.readDB2_MGM_4para(s"$schemas_mgmdb.VIW_CHMGM_SWT_LOG","MSG_SETTLE_DT",s"$start_day",s"$end_day")
-    df2_2.registerTempTable("VIW_CHMGM_SWT_LOG")
-
+    sqlContext.sql(s"use $hive_dbname")
 
     val results = sqlContext.sql(
       s"""
@@ -2808,10 +2800,9 @@ object SparkDB22Hive {
          |trim(A.SYS_ERR_CD) as SYS_ERR_CD,
          |A.DTL_INQ_DATA as DTL_INQ_DATA
          |FROM
-         |(select * from VIW_CHACC_ACC_TRANS_LOG where UM_TRANS_ID='AC02003065' ) A
-         |FULL JOIN (SELECT * FROM VIW_CHMGM_SWT_LOG  WHERE SETTLE_TRANS_ID='S38') B
+         |(select * from HIVE_TRANS_LOG where PART_MSG_SETTLE_DT >= '$start_dt' and  part_msg_settle_dt <= '$end_dt' and UM_TRANS_ID='AC02003065' ) A
+         |FULL JOIN (select * from HIVE_SWT_LOG where PART_TRANS_DT >= '$start_dt' and part_trans_dt <= '$end_dt' and SETTLE_TRANS_ID='S38') B
          |on A.TRANS_TFR_TM=B.TFR_DT_TM and A.SYS_TRA_NO=B.SYS_TRA_NO and A.ACPT_INS_ID_CD=B.ACPT_INS_ID_CD and A.FWD_INS_ID_CD=B.MSG_FWD_INS_ID_CD
-         |
          | """.stripMargin)
 
     results.registerTempTable("spark_hive_search_trans")
@@ -4080,16 +4071,11 @@ object SparkDB22Hive {
   def JOB_HV_43(implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
 
     println("#### JOB_HV_43 的开始时间为: "+DateUtils.getCurrentSystemTime())
+    println("#### JOB_HV_43 增量抽取数据的时间范围: "+start_dt+"--"+end_dt)
 
     val currntTime =System.currentTimeMillis()
-    val start_day = start_dt.replace("-","")
-    val end_day = end_dt.replace("-","")
-    println("#### JOB_HV_43 增量抽取数据的时间范围: "+start_day+"--"+end_day)
 
-    val df = sqlContext.readDB2_MGM_4para(s"$schemas_mgmdb.VIW_CHMGM_SWT_LOG","trans_dt",s"$start_day",s"$end_day")
-    df.registerTempTable("db2_swt_log")
-    println("#### JOB_HV_43 readDB2_MGM_4para--VIW_CHMGM_SWT_LOG的时间为: "+DateUtils.getCurrentSystemTime())
-
+    sqlContext.sql(s"use $hive_dbname")
     val results = sqlContext.sql(
       s"""
          |select
@@ -4179,8 +4165,9 @@ object SparkDB22Hive {
          |trim(acct_proc_in) as acct_proc_in,
          |order_id
          |from
-         |db2_swt_log
+         |HIVE_SWT_LOG
          |where
+         |part_trans_dt >= '$start_dt' and part_trans_dt <= '$end_dt' and
          |trans_tp in ('S370000000','S380000000')
       """.stripMargin
     )
@@ -4188,7 +4175,6 @@ object SparkDB22Hive {
     println("#### JOB_HV_43 registerTempTable--spark_swt_log 的时间为: "+DateUtils.getCurrentSystemTime())
 
     if(!Option(results).isEmpty){
-      sqlContext.sql(s"use $hive_dbname")
       sqlContext.sql(
         """
           |insert overwrite table hive_switch_point_trans partition (part_trans_dt)
