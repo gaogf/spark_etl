@@ -89,7 +89,7 @@ object DateUtils {
     val MM:Int = ss/60
     val hh:Int = MM/60
     val dd:Int = hh/24
-    println(s"[TimeCost] $actionName "+dd+"d "+(hh-dd*24)+"h "+(MM-hh*60)+"m "+(ss-MM*60)+"s " , "Total："+(System.currentTimeMillis() - start)+"ms ")
+    println(s"[TimeCost] $actionName run "+dd+"d "+(hh-dd*24)+"h "+(MM-hh*60)+"m "+(ss-MM*60)+"s", "Total："+(System.currentTimeMillis() - start)+"ms ")
   }
 
 }
