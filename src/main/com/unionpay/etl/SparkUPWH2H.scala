@@ -611,36 +611,34 @@ object SparkUPWH2H {
 
   /**
     * JOB_HV_78
-    *hive_cdhd_trans_year  -->  hive_acc_trans
+    * hive_cdhd_trans_year  -->  hive_acc_trans
+    *
+    * @author tzq
     * @param sqlContext
     * @param start_dt
     * @param end_dt
     */
   def JOB_HV_78(implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
-        println("###JOB_HV_78( hive_life_order_inf  -->  hive_ach_order_inf)")
-
-       sqlContext.sql(s"use $hive_dbname")
-        //2.插入指定分区数据
-        val results=sqlContext.sql(
-          s"""
-             |insert into table hive_cdhd_trans_year partition (part_year)
-             |select distinct cdhd_usr_id,year
-             |from (
-             |select distinct cdhd_usr_id,year(to_date(trans_dt)) as year
-             |from hive_acc_trans
-             |where
-             |part_trans_dt>='$start_dt' and part_trans_dt<='$end_dt'
-             |
-             |union all
-             |
-             |select cdhd_usr_id,year from hive_cdhd_trans_year
-             |where
-             |part_year>=year(to_date('$start_dt')) and part_year<=year(to_date('$end_dt'))
-             |)tmp
-             |
-	      """.stripMargin)
-
-    println("results:"+results.count())
+      println("###JOB_HV_78( hive_cdhd_trans_year  -->  hive_acc_trans)")
+      sqlContext.sql(s"use $hive_dbname")
+      sqlContext.sql(
+            s"""
+               |insert overwrite table hive_cdhd_trans_year partition (part_year)
+               |select distinct cdhd_usr_id,year,year
+               |from (
+               |select distinct cdhd_usr_id,year(to_date(trans_dt)) as year
+               |from hive_acc_trans
+               |where
+               |part_trans_dt>='$start_dt' and part_trans_dt<='$end_dt'
+               |
+               |union all
+               |select cdhd_usr_id,year from hive_cdhd_trans_year
+               |where
+               |part_year >= year(to_date('$start_dt')) and part_year <= year(to_date('$end_dt'))
+               |)tmp
+               |
+              """.stripMargin)
+      println("###JOB_HV_78 execute successful!")
 
   }
 
