@@ -79,6 +79,11 @@ object SparkHive2Mysql {
       case "JOB_DM_54" =>JOB_DM_54(sqlContext,start_dt,end_dt)   //CODE BY XTP 无数据
       case "JOB_DM_10" =>JOB_DM_10(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ
       case "JOB_DM_11" =>JOB_DM_11(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ
+      case "JOB_DM_12" =>JOB_DM_12(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ
+      case "JOB_DM_13" =>JOB_DM_13(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ
+      case "JOB_DM_14" =>JOB_DM_14(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ
+      case "JOB_DM_15" =>JOB_DM_15(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ
+      case "JOB_DM_16" =>JOB_DM_16(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ
     }
 
     sc.stop()
@@ -1173,7 +1178,7 @@ object SparkHive2Mysql {
   /**
     * JOB_DM_11/11-7
     * DM_DEVELOPMENT_ORG_CLASS
-    *
+    * @author tzq
     * @param sqlContext
     * @param start_dt
     * @param end_dt
@@ -1313,6 +1318,403 @@ object SparkHive2Mysql {
       }
     }
   }
+
+
+  /**
+    * JOB_DM_12/12-6
+    * DM_COUPON_PUB_DOWN_BRANCH
+    * @author tzq
+    * @param sqlContext
+    * @param start_dt
+    * @param end_dt
+    * @param interval
+    */
+  def JOB_DM_12 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String,interval:Int) = {
+    DateUtils.timeCost("JOB_DM_12"){
+      println("###JOB_DM_12(DM_COUPON_PUB_DOWN_BRANCH)### "+DateUtils.getCurrentSystemTime())
+      UPSQL_JDBC.delete(s"DM_COUPON_PUB_DOWN_BRANCH","REPORT_DT",start_dt,end_dt)
+      var today_dt=start_dt
+      if(interval>=0 ){
+        sqlContext.sql(s"use $hive_dbname")
+        for(i <- 0 to interval){
+          val results =sqlContext.sql(
+            s"""
+               |select
+               |a.CUP_BRANCH_INS_ID_NM  as COUPON_BRANCH,
+               |'$today_dt'             as REPORT_DT,
+               |a.coupon_class          as CLASS_TPRE_ADD_NUM,
+               |a.coupon_publish        as AMT_TPRE_ADD_NUM,
+               |a.coupon_down           as DOWM_TPRE_ADD_NUM,
+               |b.batch                 as BATCH_TPRE_ADD_NUM
+               |from
+               |(
+               |select CUP_BRANCH_INS_ID_NM,
+               |count(*) as coupon_class ,
+               |sum(case when dwn_total_num = -1 then dwn_num else dwn_total_num end) as coupon_publish ,
+               |sum(dwn_num) as coupon_down
+               |FROM HIVE_TICKET_BILL_BAS_INF bill
+               |where bill_nm not like '%测试%' and bill_nm not like '%验证%' and bill_id <>'Z00000000020415'
+               |and bill_id<>'Z00000000020878' and bill_nm not like '%满2元减1%' and bill_nm not like '%满2分减1分%'
+               |and bill_nm not like '%满2减1%' and bill_nm not like '%满2抵1%' and bill_nm not like '测%' and dwn_total_num-dwn_num<100000
+               |and to_date(rec_crt_ts)='$today_dt'
+               |group by CUP_BRANCH_INS_ID_NM
+               |) a
+               |
+               |left join
+               |(
+               |select CUP_BRANCH_INS_ID_NM,
+               |sum(adj.ADJ_TICKET_BILL) as batch
+               |from
+               |HIVE_TICKET_BILL_ACCT_ADJ_TASK adj
+               |inner join
+               |HIVE_TICKET_BILL_BAS_INF bill
+               |on adj.bill_id=bill.bill_id
+               |where bill_nm not like '%测试%' and bill_nm not like '%验证%' and bill.bill_id <>'Z00000000020415'
+               |and bill.bill_id<>'Z00000000020878' and bill_nm not like '%满2元减1%' and bill_nm not like '%满2分减1分%'
+               |and bill_nm not like '%满2减1%' and bill_nm not like '%满2抵1%' and bill_nm not like '测%' and dwn_total_num-dwn_num<100000
+               |and usr_tp='1' and to_date(adj.rec_crt_ts)='$today_dt'
+               |and current_st='1'
+               |group by CUP_BRANCH_INS_ID_NM
+               |) b
+               |on a.CUP_BRANCH_INS_ID_NM=b.CUP_BRANCH_INS_ID_NM
+               |
+          """.stripMargin)
+          println(s"###JOB_DM_12------$today_dt results:"+results.count())
+          if(!Option(results).isEmpty){
+            results.save2Mysql("DM_COUPON_PUB_DOWN_BRANCH")
+          }else{
+            println("No data insert!")
+          }
+          today_dt=DateUtils.addOneDay(today_dt)
+        }
+      }
+    }
+  }
+  /**
+    * JOB_DM_13/12-6
+    * DM_COUPON_PUB_DOWN_IF_ICCARD
+    * @author tzq
+    * @param sqlContext
+    * @param start_dt
+    * @param end_dt
+    * @param interval
+    */
+  def JOB_DM_13 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String,interval:Int) = {
+    DateUtils.timeCost("JOB_DM_13"){
+      println("###JOB_DM_13(DM_COUPON_PUB_DOWN_IF_ICCARD)### "+DateUtils.getCurrentSystemTime())
+      UPSQL_JDBC.delete(s"DM_COUPON_PUB_DOWN_IF_ICCARD","REPORT_DT",start_dt,end_dt)
+      var today_dt=start_dt
+      if(interval>=0 ){
+        sqlContext.sql(s"use $hive_dbname")
+        for(i <- 0 to interval){
+          val results =sqlContext.sql(
+            s"""
+               |select
+               |a.IF_ICCARD       as IF_ICCARD,
+               |'$today_dt'       as REPORT_DT,
+               |a.coupon_class    as CLASS_TPRE_ADD_NUM,
+               |a.coupon_publish  as AMT_TPRE_ADD_NUM,
+               |a.dwn_num         as DOWM_TPRE_ADD_NUM,
+               |b.batch           as BATCH_TPRE_ADD_NUM
+               |from
+               |(
+               |select
+               |CASE WHEN pos_entry_md_cd in ('01','05','07','95','98') THEN '仅限IC卡' ELSE '非仅限IC卡' END AS IF_ICCARD,
+               |count(*) as coupon_class ,
+               |sum(case when dwn_total_num = -1 then dwn_num else dwn_total_num end) as coupon_publish ,
+               |sum(dwn_num) as dwn_num
+               |from HIVE_DOWNLOAD_TRANS as dtl,HIVE_TICKET_BILL_BAS_INF as bill
+               |where dtl.bill_id=bill.bill_id
+               |and dtl.um_trans_id in ('12','17')
+               |and dtl.trans_st='1' and trans_dt='$today_dt' and dtl.bill_nm not like '%机场%' and dtl.bill_nm not like '%住两晚送一晚%'
+               |and bill.bill_sub_tp in ('01','03') and bill.bill_nm not like '%测试%' and bill.bill_nm not like '%验证%' and bill.bill_id <>'Z00000000020415'
+               |and bill.bill_id<>'Z00000000020878' and bill.bill_nm not like '%满2元减1%' and bill.bill_nm not like '%满2分减1分%'
+               |and bill.bill_nm not like '%满2减1%' and bill.bill_nm not like '%满2抵1%' and bill.bill_nm not like '测%' and dwn_total_num-dwn_num<100000
+               |group by CASE WHEN pos_entry_md_cd in ('01','05','07','95','98') THEN '仅限IC卡' ELSE '非仅限IC卡' END
+               |) a
+               |left join
+               |(
+               |select
+               |CASE WHEN pos_entry_md_cd in ('01','05','07','95','98') THEN '仅限IC卡' ELSE '非仅限IC卡' END AS IF_ICCARD,
+               |sum(adj.ADJ_TICKET_BILL) as batch
+               |from
+               |HIVE_TICKET_BILL_ACCT_ADJ_TASK adj
+               |inner join
+               |(
+               |select bill.CUP_BRANCH_INS_ID_CD,dtl.bill_id,pos_entry_md_cd
+               |from HIVE_DOWNLOAD_TRANS as dtl,HIVE_TICKET_BILL_BAS_INF as bill
+               |where dtl.bill_id=bill.bill_id
+               |and dtl.um_trans_id in ('12','17')
+               |and dtl.trans_st='1' and trans_dt='$today_dt' and dtl.bill_nm not like '%机场%' and dtl.bill_nm not like '%住两晚送一晚%'
+               |and bill.bill_sub_tp in ('01','03') and bill.bill_nm not like '%测试%' and bill.bill_nm not like '%验证%' and bill.bill_id <>'Z00000000020415'
+               |and bill.bill_id<>'Z00000000020878' and bill.bill_nm not like '%满2元减1%' and bill.bill_nm not like '%满2分减1分%'
+               |and bill.bill_nm not like '%满2减1%' and bill.bill_nm not like '%满2抵1%' and bill.bill_nm not like '测%' and dwn_total_num-dwn_num<100000
+               |) b
+               |on adj.bill_id=b.bill_id
+               |group by CASE WHEN pos_entry_md_cd in ('01','05','07','95','98') THEN '仅限IC卡' ELSE '非仅限IC卡' END )b
+               |on a.IF_ICCARD=b.IF_ICCARD
+               |
+          """.stripMargin)
+          println(s"###JOB_DM_13------$today_dt results:"+results.count())
+          if(!Option(results).isEmpty){
+            results.save2Mysql("DM_COUPON_PUB_DOWN_IF_ICCARD")
+          }else{
+            println("No data insert!")
+          }
+          today_dt=DateUtils.addOneDay(today_dt)
+        }
+      }
+    }
+  }
+
+  /**
+    * JOB_DM_14/12-6
+    * DM_COUPON_SHIPP_DELIVER_MERCHANT
+    * @author tzq
+    * @param sqlContext
+    * @param start_dt
+    * @param end_dt
+    * @param interval
+    */
+  def JOB_DM_14 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String,interval:Int) = {
+    DateUtils.timeCost("JOB_DM_14"){
+      println("###JOB_DM_12(DM_COUPON_SHIPP_DELIVER_MERCHANT)### "+DateUtils.getCurrentSystemTime())
+      UPSQL_JDBC.delete(s"DM_COUPON_SHIPP_DELIVER_MERCHANT","REPORT_DT",start_dt,end_dt)
+      var today_dt=start_dt
+      if(interval>=0 ){
+        sqlContext.sql(s"use $hive_dbname")
+        for(i <- 0 to interval){
+          val results =sqlContext.sql(
+            s"""
+               |select
+               |mchnt_nm                                   as MERCHANT_NM,
+               |bill_sub_tp                                as BILL_TP,
+               |'$today_dt'                                as REPORT_DT,
+               |sum(trans_num)                             as DEAL_NUM,
+               |sum(trans_succ_num)                        as SUCC_DEAL_NUM,
+               |sum(trans_succ_num)/sum(trans_num)*100     as DEAL_SUCC_RATE,
+               |sum(trans_amt)                             as DEAL_AMT,
+               |sum(del_usr_num)                           as DEAL_USR_NUM,
+               |sum(card_num)                              as DEAL_CARD_NUM
+               |from(
+               |select
+               |dtl.mchnt_nm,
+               |bill.bill_sub_tp,
+               |0 as trans_num,
+               |count(distinct dtl.trans_seq) as trans_succ_num,
+               |sum(dtl.trans_at) as trans_amt,
+               |count(distinct dtl.cdhd_usr_id) as del_usr_num,
+               |count(distinct dtl.card_no) as card_num
+               |from HIVE_BILL_ORDER_TRANS as dtl,
+               |HIVE_BILL_SUB_ORDER_TRANS as sub_dtl,
+               |HIVE_TICKET_BILL_BAS_INF as bill
+               |where dtl.bill_order_id=sub_dtl.bill_order_id
+               |and sub_dtl.bill_id=bill.bill_id
+               |and dtl.order_st='00' and dtl.trans_dt='$today_dt'
+               |and bill.bill_sub_tp in ('04','07','08')
+               |group by dtl.mchnt_nm,bill.bill_sub_tp
+               |
+               |union all
+               |
+               |select
+               |dtl.mchnt_nm,
+               |bill.bill_sub_tp,
+               |count(distinct dtl.trans_seq) as trans_num,
+               |0 as trans_succ_num ,
+               |0 as trans_amt ,
+               |0 as del_usr_num ,
+               |0 as card_num
+               |from HIVE_BILL_ORDER_TRANS as dtl,
+               |HIVE_BILL_SUB_ORDER_TRANS as sub_dtl,
+               |HIVE_TICKET_BILL_BAS_INF as bill
+               |where dtl.bill_order_id=sub_dtl.bill_order_id
+               |and sub_dtl.bill_id=bill.bill_id
+               |and dtl.order_st<>'00' and dtl.trans_dt='$today_dt'
+               |and bill.bill_sub_tp in ('04','07','08')
+               |group by dtl.mchnt_nm,bill.bill_sub_tp
+               |) a
+               |group by mchnt_nm,bill_sub_tp
+               |
+          """.stripMargin)
+          println(s"###JOB_DM_14------$today_dt results:"+results.count())
+          if(!Option(results).isEmpty){
+            results.save2Mysql("DM_COUPON_SHIPP_DELIVER_MERCHANT")
+          }else{
+            println("No data insert!")
+          }
+          today_dt=DateUtils.addOneDay(today_dt)
+        }
+      }
+    }
+  }
+
+  /**
+    * JOB_DM_15/12-6
+    * DM_COUPON_SHIPP_DELIVER_ISS
+    * @author tzq
+    * @param sqlContext
+    * @param start_dt
+    * @param end_dt
+    * @param interval
+    */
+  def JOB_DM_15 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String,interval:Int) = {
+    DateUtils.timeCost("JOB_DM_15"){
+      println("###JOB_DM_12(DM_COUPON_SHIPP_DELIVER_ISS)### "+DateUtils.getCurrentSystemTime())
+      UPSQL_JDBC.delete(s"DM_COUPON_SHIPP_DELIVER_ISS","REPORT_DT",start_dt,end_dt)
+      var today_dt=start_dt
+      if(interval>=0 ){
+        sqlContext.sql(s"use $hive_dbname")
+        for(i <- 0 to interval){
+          val results =sqlContext.sql(
+            s"""
+               |select
+               |iss_ins_cn_nm                          as  CARD_ISS,
+               |bill_sub_tp                            as  BILL_TP,
+               |'$today_dt'                            as  REPORT_DT,
+               |sum(trans_num)                         as  DEAL_NUM,
+               |sum(trans_succ_num)                    as  SUCC_DEAL_NUM,
+               |sum(trans_succ_num)/sum(trans_num)*100 as  DEAL_SUCC_RATE,
+               |sum(trans_amt)                         as  DEAL_AMT,
+               |sum(del_usr_num)                       as  DEAL_USR_NUM,
+               |sum(card_num)                          as  DEAL_CARD_NUM
+               |from(
+               |select
+               |card.iss_ins_cn_nm,
+               |bill.bill_sub_tp,
+               |0  as trans_num,
+               |count(distinct dtl.trans_seq) as trans_succ_num,
+               |sum(dtl.trans_at) as trans_amt,
+               |count(distinct dtl.cdhd_usr_id)  as del_usr_num,
+               |count(distinct dtl.card_no) as card_num
+               |from
+               |HIVE_BILL_ORDER_TRANS as dtl,
+               |HIVE_BILL_SUB_ORDER_TRANS as  sub_dtl,
+               |HIVE_TICKET_BILL_BAS_INF as bill,
+               |HIVE_CARD_BIND_INF as card
+               |where dtl.bill_order_id=sub_dtl.bill_order_id
+               |and sub_dtl.bill_id=bill.bill_id
+               |and card.cdhd_usr_id=dtl.cdhd_usr_id
+               |and dtl.order_st='00' and dtl.trans_dt='$today_dt'
+               |and  bill.bill_sub_tp in ('04','07','08')
+               |group by iss_ins_cn_nm,bill.bill_sub_tp
+               |
+               |union all
+               |
+               |select
+               |card.iss_ins_cn_nm,
+               |bill.bill_sub_tp,
+               |count(distinct dtl.trans_seq) as trans_num,
+               |0 as trans_succ_num ,
+               |0 as trans_amt ,
+               |0 as del_usr_num ,
+               |0 as card_num
+               |from HIVE_BILL_ORDER_TRANS as dtl,
+               |HIVE_BILL_SUB_ORDER_TRANS as sub_dtl,
+               |HIVE_TICKET_BILL_BAS_INF as bill,
+               |HIVE_CARD_BIND_INF as card
+               |where dtl.bill_order_id=sub_dtl.bill_order_id
+               |and sub_dtl.bill_id=bill.bill_id
+               |and card.cdhd_usr_id=dtl.cdhd_usr_id
+               |and dtl.order_st<>'00' and dtl.trans_dt='$today_dt'
+               |and  bill.bill_sub_tp in ('04','07','08')
+               |group by card.iss_ins_cn_nm,bill.bill_sub_tp
+               |) a
+               |group by iss_ins_cn_nm,bill_sub_tp
+               |
+               |
+          """.stripMargin)
+          println(s"###JOB_DM_15------$today_dt results:"+results.count())
+          if(!Option(results).isEmpty){
+            results.save2Mysql("DM_COUPON_SHIPP_DELIVER_ISS")
+          }else{
+            println("No data insert!")
+          }
+          today_dt=DateUtils.addOneDay(today_dt)
+        }
+      }
+    }
+  }
+
+  /**
+    * JOB_DM_16/12-7
+    * DM_COUPON_SHIPP_DELIVER_BRANCH
+    * @author tzq
+    * @param sqlContext
+    * @param start_dt
+    * @param end_dt
+    * @param interval
+    */
+  def JOB_DM_16 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String,interval:Int) = {
+    DateUtils.timeCost("JOB_DM_16"){
+      println("###JOB_DM_12(DM_COUPON_SHIPP_DELIVER_BRANCH)### "+DateUtils.getCurrentSystemTime())
+      UPSQL_JDBC.delete(s"DM_COUPON_SHIPP_DELIVER_BRANCH","REPORT_DT",start_dt,end_dt)
+      var today_dt=start_dt
+      if(interval>=0 ){
+        sqlContext.sql(s"use $hive_dbname")
+        for(i <- 0 to interval){
+          val results =sqlContext.sql(
+            s"""
+               |select
+               |CUP_BRANCH_INS_ID_NM                     AS BRANCH_NM     ,
+               |bill_sub_tp                              AS BILL_TP       ,
+               |'$today_dt'                              AS REPORT_DT     ,
+               |sum(trans_num)                           AS DEAL_NUM      ,
+               |sum(trans_succ_num)                      AS SUCC_DEAL_NUM ,
+               |sum(trans_succ_num)/sum(trans_num)*100   AS DEAL_SUCC_RATE,
+               |sum(trans_amt)                           AS DEAL_AMT      ,
+               |sum(del_usr_num)                         AS DEAL_USR_NUM  ,
+               |sum(card_num)                            AS DEAL_CARD_NUM
+               |from(
+               |select
+               |bill.CUP_BRANCH_INS_ID_NM,
+               |bill.bill_sub_tp,
+               |0  as trans_num,
+               |count(distinct dtl.trans_seq) as trans_succ_num,
+               |sum(dtl.trans_at) as trans_amt,
+               |count(distinct dtl.cdhd_usr_id)  as del_usr_num,
+               |count(distinct dtl.card_no) as card_num
+               |from HIVE_BILL_ORDER_TRANS as dtl,
+               |HIVE_BILL_SUB_ORDER_TRANS as sub_dtl,
+               |HIVE_TICKET_BILL_BAS_INF as bill
+               |where dtl.bill_order_id=sub_dtl.bill_order_id
+               |and sub_dtl.bill_id=bill.bill_id
+               |and dtl.order_st='00'and dtl.trans_dt='$today_dt'
+               |and  bill.bill_sub_tp in ('04','07','08')
+               |group by bill.CUP_BRANCH_INS_ID_NM,bill.bill_sub_tp
+               |
+               |union all
+               |select
+               |bill.CUP_BRANCH_INS_ID_NM,
+               |bill.bill_sub_tp,
+               |count(distinct dtl.trans_seq) as trans_num,
+               |0 as trans_succ_num ,
+               |0 as trans_amt ,
+               |0 as del_usr_num ,
+               |0 as card_num
+               |from HIVE_BILL_ORDER_TRANS as dtl,
+               |HIVE_BILL_SUB_ORDER_TRANS as sub_dtl,
+               |HIVE_TICKET_BILL_BAS_INF as bill
+               |where dtl.bill_order_id=sub_dtl.bill_order_id
+               |and sub_dtl.bill_id=bill.bill_id
+               |and dtl.order_st<>'00'and dtl.trans_dt='$today_dt'
+               |and  bill.bill_sub_tp in ('04','07','08')
+               |group by  bill.CUP_BRANCH_INS_ID_NM,bill.bill_sub_tp
+               |) a
+               |group by CUP_BRANCH_INS_ID_NM,bill_sub_tp
+               |
+          """.stripMargin)
+          println(s"###JOB_DM_16------$today_dt results:"+results.count())
+          if(!Option(results).isEmpty){
+            results.save2Mysql("DM_COUPON_SHIPP_DELIVER_BRANCH")
+          }else{
+            println("No data insert!")
+          }
+          today_dt=DateUtils.addOneDay(today_dt)
+        }
+      }
+    }
+  }
+
 
   /**
     * JOB_DM_54/10-14
