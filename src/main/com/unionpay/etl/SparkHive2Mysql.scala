@@ -35,12 +35,11 @@ object SparkHive2Mysql {
     val end_dt=rowParams.getString(1)//结束日期
     val interval=DateUtils.getIntervalDays(start_dt,end_dt).toInt
 
-    println(s"####当前JOB的执行日期为：start_dt=$start_dt,end_dt=$end_dt####")
+    println(s"#### SparkHive2Mysql 数据清洗的的起始日期为: $start_dt --  $end_dt")
 
-
-    val jobName = if(args.length>0) args(0) else None
-    println(s"#### 当前执行JobName为： $jobName ####")
-    jobName match {
+    val JobName = if(args.length>0) args(0) else None
+    println(s"#### The Current Job Name is ： [$JobName]")
+    JobName match {
       /**
         * 每日模板job
         */
@@ -84,6 +83,8 @@ object SparkHive2Mysql {
       case "JOB_DM_14" =>JOB_DM_14(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ
       case "JOB_DM_15" =>JOB_DM_15(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ
       case "JOB_DM_16" =>JOB_DM_16(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ
+
+      case _ => println("#### No Case Job,Please Input JobName")
     }
 
     sc.stop()
@@ -97,98 +98,105 @@ object SparkHive2Mysql {
     * @author winslow yang
     * @param sqlContext
     */
-  def JOB_DM_1(implicit sqlContext: HiveContext,start_dt:String,end_dt:String,interval:Int) = {
-    println("###JOB_DM_1(dm_user_card_nature->hive_pri_acct_inf)")
+  def JOB_DM_1(implicit sqlContext: HiveContext, start_dt: String, end_dt: String, interval: Int) = {
+    println("#### JOB_DM_1(hive_pri_acct_inf,hive_card_bind_inf,hive_acc_trans -> dm_user_card_nature)")
 
-    UPSQL_JDBC.delete("dm_user_mobile_home","report_dt",start_dt,end_dt)
-    var today_dt=start_dt
+    DateUtils.timeCost("JOB_DM_1") {
+      UPSQL_JDBC.delete("dm_user_mobile_home", "report_dt", start_dt, end_dt)
+      println("#### JOB_DM_1 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
 
-    if(interval>0 ){
-      sqlContext.sql(s"use $hive_dbname")
-      for(i <- 0 to interval){
+      var today_dt = start_dt
+      if (interval > 0) {
+        sqlContext.sql(s"use $hive_dbname")
+        for (i <- 0 to interval) {
+          println(s"#### JOB_DM_1 spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
+          val results = sqlContext.sql(
+            s"""
+               |select
+               |a.phone_location as mobile_home ,
+               |'$today_dt' as report_dt,
+               |a.tpre   as   reg_tpre_add_num    ,
+               |a.months as   reg_months_add_num  ,
+               |a.years  as   reg_year_add_num    ,
+               |a.total  as   reg_totle_add_num   ,
+               |b.tpre   as   effect_tpre_add_num ,
+               |b.months as   effect_months_add_num  ,
+               |b.years  as   effect_year_add_num ,
+               |b.total  as   effect_totle_add_num,
+               |0        as   batch_tpre_add_num  ,
+               |0        as   batch_year_add_num  ,
+               |0        as   batch_totle_add_num ,
+               |0        as   client_tpre_add_num ,
+               |0        as   client_year_add_num ,
+               |0        as   client_totle_add_num,
+               |c.tpre   as   deal_tpre_add_num   ,
+               |c.years  as   deal_year_add_num   ,
+               |c.total  as   deal_totle_add_num  ,
+               |d.realnm_num as realnm_num
+               |from (
+               |select
+               |t.phone_location,
+               |sum(case when to_date(t.rec_crt_ts)='$today_dt' then  1  else 0 end) as tpre,
+               |sum(case when to_date(t.rec_crt_ts)>=trunc('$today_dt','MM') and to_date(t.rec_crt_ts)<='$today_dt'  then  1 else 0 end) as months,
+               |sum(case when to_date(t.rec_crt_ts)>=trunc('$today_dt','YYYY') and to_date(t.rec_crt_ts)<='$today_dt'  then  1 else 0 end) as years,
+               |sum(case when to_date(t.rec_crt_ts)<='$today_dt' then  1 else 0 end) as total
+               |from
+               |(select cdhd_usr_id,rec_crt_ts, phone_location,realnm_in from hive_pri_acct_inf where usr_st='1' or (usr_st='2' and note='BDYX_FREEZE')
+               |) t
+               |group by t.phone_location  ) a
+               |left join
+               |(
+               |select
+               |phone_location,
+               |sum(case when to_date(bind_dt)='$today_dt'  then  1  else 0 end) as tpre,
+               |sum(case when to_date(bind_dt)>=trunc('$today_dt','MM') and  to_date(bind_dt)<='$today_dt' then   1 else 0 end) as months,
+               |sum(case when to_date(bind_dt)>=trunc('$today_dt','YYYY') and  to_date(bind_dt)<=' $today_dt' then  1 else 0 end) as years,
+               |sum(case when to_date(bind_dt)<='$today_dt'  then  1 else 0 end) as total
+               |from (select rec_crt_ts,phone_location,cdhd_usr_id from hive_pri_acct_inf
+               |where usr_st='1' ) a
+               |inner join (select distinct cdhd_usr_id, min(rec_crt_ts) as bind_dt from hive_card_bind_inf where card_auth_st in ('1','2','3')
+               |group by cdhd_usr_id) b
+               |on a.cdhd_usr_id=b.cdhd_usr_id
+               |group by phone_location ) b
+               |on a.phone_location =b.phone_location
+               |left join
+               |(
+               |select
+               |phone_location,
+               |sum(case when to_date(rec_crt_ts)='$today_dt'  and to_date(trans_dt)='$today_dt'  then  1  else 0 end) as tpre,
+               |sum(case when to_date(rec_crt_ts)>=trunc('$today_dt','YYYY') and to_date(rec_crt_ts)<='$today_dt'
+               |and to_date(trans_dt)>=trunc('$today_dt','YYYY') and  to_date(trans_dt)<='$today_dt' then  1 else 0 end) as years,
+               |sum(case when to_date(rec_crt_ts)<='$today_dt' and  to_date(trans_dt)<='$today_dt' then  1 else 0 end) as total
+               |from (select phone_location,cdhd_usr_id,rec_crt_ts from hive_pri_acct_inf where usr_st='1') a
+               |inner join (select distinct cdhd_usr_id,trans_dt from hive_acc_trans ) b
+               |on a.cdhd_usr_id=b.cdhd_usr_id
+               |group by phone_location ) c
+               |on a.phone_location=c.phone_location
+               |left join
+               |(
+               |select
+               |phone_location,
+               |count(*) as realnm_num
+               |from hive_pri_acct_inf
+               |where  realnm_in='01'
+               |and to_date(rec_crt_ts)='$today_dt '
+               |group by  phone_location) d
+               |on  a.phone_location=d.phone_location
+             """.stripMargin)
+          println(s"#### JOB_DM_1 spark sql 清洗[$today_dt]数据完成时间为:" + DateUtils.
+            getCurrentSystemTime())
+          //println(s"#### JOB_DM_1 spark sql 清洗[$today_dt]数据 results:"+results.count())
 
-        val results = sqlContext.sql(
-          s"""
-             |select
-             |a.phone_location as mobile_home ,
-             |'$today_dt' as report_dt,
-             |a.tpre   as   reg_tpre_add_num    ,
-             |a.months as   reg_months_add_num  ,
-             |a.years  as   reg_year_add_num    ,
-             |a.total  as   reg_totle_add_num   ,
-             |b.tpre   as   effect_tpre_add_num ,
-             |b.months as   effect_months_add_num  ,
-             |b.years  as   effect_year_add_num ,
-             |b.total  as   effect_totle_add_num,
-             |0        as   batch_tpre_add_num  ,
-             |0        as   batch_year_add_num  ,
-             |0        as   batch_totle_add_num ,
-             |0        as   client_tpre_add_num ,
-             |0        as   client_year_add_num ,
-             |0        as   client_totle_add_num,
-             |c.tpre   as   deal_tpre_add_num   ,
-             |c.years  as   deal_year_add_num   ,
-             |c.total  as   deal_totle_add_num  ,
-             |d.realnm_num as realnm_num
-             |from (
-             |select
-             |t.phone_location,
-             |sum(case when to_date(t.rec_crt_ts)='$today_dt' then  1  else 0 end) as tpre,
-             |sum(case when to_date(t.rec_crt_ts)>=trunc('$today_dt','MM') and to_date(t.rec_crt_ts)<='$today_dt'  then  1 else 0 end) as months,
-             |sum(case when to_date(t.rec_crt_ts)>=trunc('$today_dt','YYYY') and to_date(t.rec_crt_ts)<='$today_dt'  then  1 else 0 end) as years,
-             |sum(case when to_date(t.rec_crt_ts)<='$today_dt' then  1 else 0 end) as total
-             |from
-             |(select cdhd_usr_id,rec_crt_ts, phone_location,realnm_in from hive_pri_acct_inf where usr_st='1' or (usr_st='2' and note='BDYX_FREEZE')
-             |) t
-             |group by t.phone_location  ) a
-             |left join
-             |(
-             |select
-             |phone_location,
-             |sum(case when to_date(bind_dt)='$today_dt'  then  1  else 0 end) as tpre,
-             |sum(case when to_date(bind_dt)>=trunc('$today_dt','MM') and  to_date(bind_dt)<='$today_dt' then   1 else 0 end) as months,
-             |sum(case when to_date(bind_dt)>=trunc('$today_dt','YYYY') and  to_date(bind_dt)<='$today_dt' then  1 else 0 end) as years,
-             |sum(case when to_date(bind_dt)<='$today_dt'  then  1 else 0 end) as total
-             |from (select rec_crt_ts,phone_location,cdhd_usr_id from hive_pri_acct_inf
-             |where usr_st='1' ) a
-             |inner join (select distinct cdhd_usr_id, min(rec_crt_ts) as bind_dt from hive_card_bind_inf where card_auth_st in ('1','2','3')
-             |group by cdhd_usr_id) b
-             |on a.cdhd_usr_id=b.cdhd_usr_id
-             |group by phone_location ) b
-             |on a.phone_location =b.phone_location
-             |left join
-             |(
-             |select
-             |phone_location,
-             |sum(case when to_date(rec_crt_ts)='$today_dt'  and to_date(trans_dt)='$today_dt'  then  1  else 0 end) as tpre,
-             |sum(case when to_date(rec_crt_ts)>=trunc('$today_dt','YYYY') and to_date(rec_crt_ts)<='$today_dt'
-             |          and to_date(trans_dt)>=trunc('$today_dt','YYYY') and  to_date(trans_dt)<='$today_dt' then  1 else 0 end) as years,
-             |sum(case when to_date(rec_crt_ts)<='$today_dt' and  to_date(trans_dt)<='$today_dt'  then  1 else 0 end) as total
-             |from (select phone_location,cdhd_usr_id,rec_crt_ts from hive_pri_acct_inf
-             |where usr_st='1') a
-             |inner join (select distinct cdhd_usr_id,trans_dt from hive_acc_trans ) b
-             |on a.cdhd_usr_id=b.cdhd_usr_id
-             |group by phone_location ) c
-             |on a.phone_location=c.phone_location
-             |left join
-             |(
-             |select
-             |phone_location,
-             |count(*) as realnm_num
-             |from hive_pri_acct_inf
-             |where  realnm_in='01'
-             |and to_date(rec_crt_ts)='$today_dt'
-             |group by  phone_location) d
-             |on  a.phone_location=d.phone_location
-      """.stripMargin)
-
-        println(s"###JOB_DM_1------$today_dt results:"+results.count())
-        if(!Option(results).isEmpty){
-          results.save2Mysql("dm_user_mobile_home")
-        }else{
-          println("指定的时间范围无数据插入！")
+          if (!Option(results).isEmpty) {
+            results.save2Mysql("dm_user_mobile_home")
+            println(s"#### JOB_DM_1 [$today_dt]数据插入完成时间为：" + DateUtils.getCurrentSystemTime()
+            )
+          } else {
+            println("指定的时间范围无数据插入！")
+            println(s"#### JOB_DM_1 spark sql 清洗[$today_dt]数据无结果集！")
+          }
+          today_dt = DateUtils.addOneDay(today_dt)
         }
-        today_dt=DateUtils.addOneDay(today_dt)
       }
     }
   }

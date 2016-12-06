@@ -111,7 +111,7 @@ object SparkDB22Hive {
       case "JOB_HV_75"  => JOB_HV_75  //CODE BY XTP
       case "JOB_HV_76"  => JOB_HV_76  //CODE BY XTP
 
-      case _ => println("#### No Case Job,Please input JobName")
+      case _ => println("#### No Case Job,Please Input JobName")
     }
 
     sc.stop()

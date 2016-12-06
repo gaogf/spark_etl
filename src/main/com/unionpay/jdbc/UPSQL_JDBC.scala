@@ -46,11 +46,11 @@ object UPSQL_JDBC {
     Class.forName(driver)
     val conn = DriverManager.getConnection(url,user,password)
     val sql: String = s"delete from $tableName where $field >= '$beginTime' and $field <= '$endTime'"
-    println("###### " + sql + "######")
+    println("#### MySql删除操作为："+sql)
     try {
       val stat = conn.prepareStatement(sql)
       val rs = stat.executeUpdate()
-      println("###### Affect Rows：" + rs + "  ######")
+      //println("#### Affect Rows："+rs)
     } catch {
       case e:Exception =>e.printStackTrace
     } finally {
