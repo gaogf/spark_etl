@@ -92,12 +92,13 @@ object SparkHive2Mysql {
 
   }
 
+
   /**
-    * dm-job-01 20160901
-    * dm_user_mobile_home->hive_pri_acct_inf
-    *
-    * @author winslow yang
-    * @param sqlContext
+    * JobName: JOB_DM_1
+    * Feature: hive_pri_acct_inf,hive_card_bind_inf,hive_acc_trans -> dm_user_card_nature
+    * @author YangXue
+    * @time 2016-09-01
+    * @param sqlContext,start_dt,end_dt
     */
   def JOB_DM_1(implicit sqlContext: HiveContext, start_dt: String, end_dt: String, interval: Int) = {
     println("#### JOB_DM_1(hive_pri_acct_inf,hive_card_bind_inf,hive_acc_trans -> dm_user_card_nature)")
@@ -184,8 +185,7 @@ object SparkHive2Mysql {
                |group by  phone_location) d
                |on  a.phone_location=d.phone_location
              """.stripMargin)
-          println(s"#### JOB_DM_1 spark sql 清洗[$today_dt]数据完成时间为:" + DateUtils.
-            getCurrentSystemTime())
+          println(s"#### JOB_DM_1 spark sql 清洗[$today_dt]数据完成时间为:" + DateUtils.getCurrentSystemTime())
           //println(s"#### JOB_DM_1 spark sql 清洗[$today_dt]数据 results:"+results.count())
 
           if (!Option(results).isEmpty) {
@@ -193,7 +193,6 @@ object SparkHive2Mysql {
             println(s"#### JOB_DM_1 [$today_dt]数据插入完成时间为：" + DateUtils.getCurrentSystemTime()
             )
           } else {
-            println("指定的时间范围无数据插入！")
             println(s"#### JOB_DM_1 spark sql 清洗[$today_dt]数据无结果集！")
           }
           today_dt = DateUtils.addOneDay(today_dt)
@@ -289,200 +288,203 @@ object SparkHive2Mysql {
     }
   }
 
+
   /**
-    *  dm-job-3 20160912
-    *  dm_user_regist_channel->hive_pri_acct_inf+hive_inf_source_dtl+hive_acc_trans+hive_card_bind_inf+hive_inf_source_class
-    *
-    * @author winslow yang
-    * @param sqlContext
+    * JobName: JOB_DM_3
+    * Feature: hive_pri_acct_inf,hive_inf_source_dtl,hive_acc_trans,hive_card_bind_inf,hive_inf_source_class-> dm_user_card_nature
+    * @author YangXue
+    * @time 2016-09-12
+    * @param sqlContext,start_dt,end_dt
     */
-  def JOB_DM_3(implicit sqlContext: HiveContext,start_dt:String,end_dt:String,interval:Int) = {
-    println("###JOB_DM_3(dm_user_regist_channel->hive_pri_acct_inf+hive_inf_source_dtl+hive_acc_trans+hive_card_bind_inf+hive_inf_source_class)")
+  def JOB_DM_3(implicit sqlContext: HiveContext, start_dt: String, end_dt: String, interval: Int) = {
+    println("#### JOB_DM_3(hive_pri_acct_inf,hive_inf_source_dtl,hive_acc_trans,hive_card_bind_inf,hive_inf_source_class-> dm_user_card_nature)")
 
-    UPSQL_JDBC.delete("dm_user_regist_channel","report_dt",start_dt,end_dt)
+    DateUtils.timeCost("JOB_DM_3") {
+      UPSQL_JDBC.delete("dm_user_regist_channel", "report_dt", start_dt, end_dt)
+      println("#### JOB_DM_3 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
 
-    var today_dt=start_dt
-    if(interval>0 ){
-      sqlContext.sql(s"use $hive_dbname")
-      for(i <- 0 to interval){
-        val results = sqlContext.sql(
-          s"""
-             |select
-             | d.class as regist_channel ,
-             | d.access_nm as reg_son_chn ,
-             | '$today_dt' as report_dt ,
-             | sum(a.tpre) as reg_tpre_add_num ,
-             | sum(a.years) as reg_year_add_num ,
-             | sum(a.total) as reg_totle_add_num ,
-             | sum(b.tpre) as effect_tpre_add_num ,
-             | sum(b.years) as effect_year_add_num ,
-             | sum(b.total) as effect_totle_add_num ,
-             | 0 as batch_tpre_add_num ,
-             | 0 as batch_year_add_num ,
-             | 0 as batch_totle_add_num ,
-             | 0 as client_tpre_add_num ,
-             | 0 as client_year_add_num ,
-             | 0 as client_totle_add_num ,
-             | sum(c.tpre) as deal_tpre_add_num ,
-             | sum(c.years) as deal_year_add_num ,
-             | sum(c.total) as deal_totle_add_num
-             |from
-             | (
-             | select
-             | a.inf_source,
-             | count(distinct(
-             | case
-             | when to_date(a.rec_crt_ts)='$today_dt'
-             | then a.cdhd_usr_id
-             | end)) as tpre,
-             | count(distinct(
-             | case
-             | when to_date(a.rec_crt_ts)>=trunc('$today_dt','yyyy')
-             | and to_date(a.rec_crt_ts)<='$today_dt'
-             | then a.cdhd_usr_id
-             | end)) as years,
-             | count(distinct(
-             | case
-             | when to_date(a.rec_crt_ts)<='$today_dt'
-             | then a.cdhd_usr_id
-             | end)) as total
-             | from
-             | (
-             | select
-             | inf_source,
-             | cdhd_usr_id,
-             | rec_crt_ts
-             | from
-             | hive_pri_acct_inf
-             | where
-             | usr_st='1') a
-             | group by
-             | a.inf_source ) a
-             |left join
-             | (
-             | select
-             | a.inf_source,
-             | count(distinct(
-             | case
-             | when to_date(a.rec_crt_ts)='$today_dt'
-             | and to_date(b.card_dt)='$today_dt'
-             | then a.cdhd_usr_id
-             | end)) as tpre,
-             | count(distinct(
-             | case
-             | when to_date(a.rec_crt_ts)>=trunc('$today_dt','yyyy')
-             | and to_date(a.rec_crt_ts)<='$today_dt'
-             | and to_date(b.card_dt)>=trunc('$today_dt','yyyy')
-             | and to_date(b.card_dt)<='$today_dt'
-             | then a.cdhd_usr_id
-             | end)) as years,
-             | count(distinct(
-             | case
-             | when to_date(a.rec_crt_ts)<='$today_dt'
-             | and to_date(b.card_dt)<='$today_dt'
-             | then a.cdhd_usr_id
-             | end)) as total
-             | from
-             | (
-             | select
-             | inf_source,
-             | cdhd_usr_id,
-             | rec_crt_ts
-             | from
-             | hive_pri_acct_inf
-             | where
-             | usr_st='1' ) a
-             | inner join
-             | (
-             | select distinct
-             | (cdhd_usr_id),
-             | rec_crt_ts as card_dt
-             | from
-             | hive_card_bind_inf
-             | where
-             | card_auth_st in ('1',
-             | '2',
-             | '3') ) b
-             | on
-             | a.cdhd_usr_id=b.cdhd_usr_id
-             | group by
-             | a.inf_source) b
-             |on
-             | trim(a.inf_source)=trim(b.inf_source)
-             |left join
-             | (
-             | select
-             | a.inf_source,
-             | count(distinct (a.cdhd_usr_id)),
-             | count(distinct(
-             | case
-             | when to_date(a.rec_crt_ts)='$today_dt'
-             | and to_date(b.trans_dt)='$today_dt'
-             | then a.cdhd_usr_id
-             | end)) as tpre,
-             | count(distinct(
-             | case
-             | when to_date(a.rec_crt_ts)>=trunc('$today_dt','yyyy')
-             | and to_date(a.rec_crt_ts)<='$today_dt'
-             | and to_date(b.trans_dt)>=trunc('$today_dt','yyyy')
-             | and to_date(b.trans_dt)<='$today_dt'
-             | then a.cdhd_usr_id
-             | end)) as years,
-             | count(distinct(
-             | case
-             | when to_date(a.rec_crt_ts)<='$today_dt'
-             | and to_date(b.trans_dt)<='$today_dt'
-             | then a.cdhd_usr_id
-             | end)) as total
-             | from
-             | (
-             | select
-             | inf_source,
-             | cdhd_usr_id,
-             | rec_crt_ts
-             | from
-             | hive_pri_acct_inf
-             | where
-             | usr_st='1' ) a
-             | inner join
-             | (
-             | select distinct
-             | (cdhd_usr_id),
-             | trans_dt
-             | from
-             | hive_acc_trans) b
-             | on
-             | a.cdhd_usr_id=b.cdhd_usr_id
-             | group by
-             | a.inf_source ) c
-             |on
-             | trim(a.inf_source)=trim(c.inf_source)
-             |left join
-             | (
-             | select
-             | dtl.access_id,
-             | dtl.access_nm,
-             | cla.class
-             | from
-             | hive_inf_source_dtl dtl
-             | left join
-             | hive_inf_source_class cla
-             | on
-             | trim(cla.access_nm)=trim(dtl.access_nm) ) d
-             |on
-             | trim(a.inf_source)=trim(d.access_id)
-             |group by
-             |	 d.class, d.access_nm
-             |
-      """.stripMargin)
-
-        println(s"###JOB_DM_3------$today_dt results:"+results.count())
-        if(!Option(results).isEmpty){
-          results.save2Mysql("dm_user_regist_channel")
-        }else{
-          println("指定的时间范围无数据插入！")
+      var today_dt = start_dt
+      if (interval > 0) {
+        sqlContext.sql(s"use $hive_dbname")
+        for (i <- 0 to interval) {
+          println(s"#### JOB_DM_3 spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
+          val results = sqlContext.sql(
+            s"""
+            |select
+            |d.class as regist_channel ,
+            |d.access_nm as reg_son_chn ,
+            |'$today_dt' as report_dt ,
+            |sum(a.tpre) as reg_tpre_add_num ,
+            |sum(a.years) as reg_year_add_num ,
+            |sum(a.total) as reg_totle_add_num ,
+            |sum(b.tpre) as effect_tpre_add_num ,
+            |sum(b.years) as effect_year_add_num ,
+            |sum(b.total) as effect_totle_add_num ,
+            |0 as batch_tpre_add_num ,
+            |0 as batch_year_add_num ,
+            |0 as batch_totle_add_num ,
+            |0 as client_tpre_add_num ,
+            |0 as client_year_add_num ,
+            |0 as client_totle_add_num ,
+            |sum(c.tpre) as deal_tpre_add_num ,
+            |sum(c.years) as deal_year_add_num ,
+            |sum(c.total) as deal_totle_add_num
+            |from
+            |(
+            |select
+            |a.inf_source,
+            |count(distinct(
+            |case
+            |when to_date(a.rec_crt_ts)='$today_dt'
+            |then a.cdhd_usr_id
+            |end)) as tpre,
+            |count(distinct(
+            |case
+            |when to_date(a.rec_crt_ts)>=trunc('$today_dt','yyyy')
+            |and to_date(a.rec_crt_ts)<='$today_dt'
+            |then a.cdhd_usr_id
+            |end)) as years,
+            |count(distinct(
+            |case
+            |when to_date(a.rec_crt_ts)<='$today_dt'
+            |then a.cdhd_usr_id
+            |end)) as total
+            |from
+            |(
+            |select
+            |inf_source,
+            |cdhd_usr_id,
+            |rec_crt_ts
+            |from
+            |hive_pri_acct_inf
+            |where
+            |usr_st='1') a
+            |group by
+            |a.inf_source ) a
+            |left join
+            |(
+            |select
+            |a.inf_source,
+            |count(distinct(
+            |case
+            |when to_date(a.rec_crt_ts)='$today_dt'
+            |and to_date(b.card_dt)='$today_dt'
+            |then a.cdhd_usr_id
+            |end)) as tpre,
+            |count(distinct(
+            |case
+            |when to_date(a.rec_crt_ts)>=trunc('$today_dt','yyyy')
+            |and to_date(a.rec_crt_ts)<='$today_dt'
+            |and to_date(b.card_dt)>=trunc('$today_dt','yyyy')
+            |and to_date(b.card_dt)<='$today_dt'
+            |then a.cdhd_usr_id
+            |end)) as years,
+            |count(distinct(
+            |case
+            |when to_date(a.rec_crt_ts)<='$today_dt'
+            |and to_date(b.card_dt)<='$today_dt'
+            |then a.cdhd_usr_id
+            |end)) as total
+            |from
+            |(
+            |select
+            |inf_source,
+            |cdhd_usr_id,
+            |rec_crt_ts
+            |from
+            |hive_pri_acct_inf
+            |where
+            |usr_st='1' ) a
+            |inner join
+            |(
+            |select distinct
+            |(cdhd_usr_id),
+            |rec_crt_ts as card_dt
+            |from
+            |hive_card_bind_inf
+            |where
+            |card_auth_st in ('1','2','3') ) b
+            |on
+            |a.cdhd_usr_id=b.cdhd_usr_id
+            |group by
+            |a.inf_source) b
+            |on
+            |trim(a.inf_source)=trim(b.inf_source)
+            |left join
+            |(
+            |select
+            |a.inf_source,
+            |count(distinct (a.cdhd_usr_id)),
+            |count(distinct(
+            |case
+            |when to_date(a.rec_crt_ts)='$today_dt'
+            |and to_date(b.trans_dt)='$today_dt'
+            |then a.cdhd_usr_id
+            |end)) as tpre,
+            |count(distinct(
+            |case
+            |when to_date(a.rec_crt_ts)>=trunc('$today_dt','yyyy')
+            |and to_date(a.rec_crt_ts)<='$today_dt'
+            |and to_date(b.trans_dt)>=trunc('$today_dt','yyyy')
+            |and to_date(b.trans_dt)<='$today_dt'
+            |then a.cdhd_usr_id
+            |end)) as years,
+            |count(distinct(
+            |case
+            |when to_date(a.rec_crt_ts)<='$today_dt'
+            |and to_date(b.trans_dt)<='$today_dt'
+            |then a.cdhd_usr_id
+            |end)) as total
+            |from
+            |(
+            |select
+            |inf_source,
+            |cdhd_usr_id,
+            |rec_crt_ts
+            |from
+            |hive_pri_acct_inf
+            |where
+            |usr_st='1' ) a
+            |inner join
+            |(
+            |select distinct
+            |(cdhd_usr_id),
+            |trans_dt
+            |from
+            |hive_acc_trans) b
+            |on
+            |a.cdhd_usr_id=b.cdhd_usr_id
+            |group by
+            |a.inf_source ) c
+            |on
+            |trim(a.inf_source)=trim(c.inf_source)
+            |left join
+            |(
+            |select
+            |dtl.access_id,
+            |dtl.access_nm,
+            |cla.class
+            |from
+            |hive_inf_source_dtl dtl
+            |left join
+            |hive_inf_source_class cla
+            |on
+            |trim(cla.access_nm)=trim(dtl.access_nm) ) d
+            |on
+            |trim(a.inf_source)=trim(d.access_id)
+            |group by
+            |d.class, d.access_nm
+          """.stripMargin)
+          println(s"#### JOB_DM_3 spark sql 清洗[$today_dt]数据完成时间为:" + DateUtils.getCurrentSystemTime())
+          //println(s"#### JOB_DM_3 spark sql 清洗[$today_dt]数据 results:"+results.count())
+          if (!Option(results).isEmpty) {
+            results.save2Mysql("dm_user_regist_channel")
+            println(s"#### JOB_DM_3 [$today_dt]数据插入完成时间为：" + DateUtils.getCurrentSystemTime())
+          } else {
+            println(s"#### JOB_DM_3 spark sql 清洗[$today_dt]数据无结果集！")
+          }
+          today_dt = DateUtils.addOneDay(today_dt)
         }
-        today_dt=DateUtils.addOneDay(today_dt)
       }
     }
   }
@@ -2022,48 +2024,51 @@ object SparkHive2Mysql {
     }else{
       println("指定的时间范围无数据插入！")
     }
-
-
   }
 
+
   /**
-    * dm-job-61 20160905
-    * dm_cashier_cup_red_branch->hive_cdhd_cashier_maktg_reward_dtl
-    *
-    * @author winslow yang
-    * @param sqlContext
-    * @param start_dt
-    * @param end_dt
+    * JobName: JOB_DM_61
+    * Feature: hive_cdhd_cashier_maktg_reward_dtl -> dm_cashier_cup_red_branch
+    * @author YangXue
+    * @time 2016-09-05
+    * @param sqlContext,start_dt,end_dt
     */
-  def JOB_DM_61(implicit sqlContext: HiveContext,start_dt:String,end_dt:String,interval:Int) = {
-    println("###JOB_DM_61(dm_cashier_cup_red_branch->hive_cdhd_cashier_maktg_reward_dtl)")
+  def JOB_DM_61(implicit sqlContext: HiveContext, start_dt: String, end_dt: String, interval: Int) = {
+    println("#### JOB_DM_61(hive_cdhd_cashier_maktg_reward_dtl -> dm_cashier_cup_red_branch)")
 
-    UPSQL_JDBC.delete("dm_cashier_cup_red_branch","report_dt",start_dt,end_dt)
-    var today_dt=start_dt
-    if(interval>0 ){
-      sqlContext.sql(s"use $hive_dbname")
-      for(i <- 0 to interval){
-        val results = sqlContext.sql(
-          s"""
-             |select cup_branch_ins_id_nm as branch_nm,
-             |'$today_dt' as report_dt,
-             |count(case when to_date(settle_dt)>=trunc('$today_dt','YYYY') and to_date(settle_dt)<='$today_dt' then 1 end) as years_cnt,
-             |sum(case when to_date(settle_dt)>=trunc('$today_dt','YYYY') and  to_date(settle_dt)<='$today_dt' then reward_point_at else 0 end) as years_at,
-             |count(case when to_date(settle_dt)='$today_dt' then 1  end)  as today_cnt,
-             |sum(case when to_date(settle_dt)='$today_dt' then reward_point_at else 0 end) as today_at
-             |from hive_cdhd_cashier_maktg_reward_dtl
-             |where rec_st='2' and activity_tp='004'
-             |group by cup_branch_ins_id_nm
-      """.stripMargin)
+    DateUtils.timeCost("JOB_DM_61") {
+      UPSQL_JDBC.delete("dm_cashier_cup_red_branch", "report_dt", start_dt, end_dt)
+      println("#### JOB_DM_61 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
 
-        println(s"###JOB_DM_61------$today_dt results:"+results.count())
-        if(!Option(results).isEmpty){
-          results.save2Mysql("dm_cashier_cup_red_branch")
-        }else{
-          println("指定的时间范围无数据插入！")
+      var today_dt = start_dt
+      if (interval > 0) {
+        sqlContext.sql(s"use $hive_dbname")
+        for (i <- 0 to interval) {
+          println(s"#### JOB_DM_61 spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
+          val results = sqlContext.sql(
+            s"""
+               |select cup_branch_ins_id_nm as branch_nm,
+               |'$today_dt' as report_dt,
+               |count(case when to_date(settle_dt)>=trunc('$today_dt','YYYY') and to_date(settle_dt)<='$today_dt' then 1 end) as years_cnt,
+               |sum(case when to_date(settle_dt)>=trunc('$today_dt','YYYY') and  to_date(settle_dt)<='$today_dt' then reward_point_at else 0 end) as years_at,
+               |count(case when to_date(settle_dt)='$today_dt' then 1  end)  as today_cnt,
+               |sum(case when to_date(settle_dt)='$today_dt' then reward_point_at else 0 end) as today_at
+               |from hive_cdhd_cashier_maktg_reward_dtl
+               |where rec_st='2' and activity_tp='004'
+               |group by cup_branch_ins_id_nm
+             """.stripMargin)
+          println(s"#### JOB_DM_61 spark sql 清洗[$today_dt]数据完成时间为:" + DateUtils.getCurrentSystemTime())
+          //println(s"#### JOB_DM_61 spark sql 清洗[$today_dt]数据 results:"+results.count())
+
+          if (!Option(results).isEmpty) {
+            results.save2Mysql("dm_cashier_cup_red_branch")
+            println(s"#### JOB_DM_61 [$today_dt]数据插入完成时间为：" + DateUtils.getCurrentSystemTime())
+          } else {
+            println(s"#### JOB_DM_61 spark sql 清洗[$today_dt]数据无结果集！")
+          }
+          today_dt = DateUtils.addOneDay(today_dt)
         }
-
-        today_dt=DateUtils.addOneDay(today_dt)
       }
     }
   }
@@ -2376,431 +2381,432 @@ object SparkHive2Mysql {
 
   }
 
+
   /**
-    *  dm-job-67 20160912
-    *  dm_o2o_trans_dly->
-    *  hive_acc_trans
-    *  hive_offline_point_trans
-    *  hive_passive_code_pay_trans
-    *  hive_download_trans
-    *  hive_switch_point_trans
-    *  hive_prize_discount_result
-    *  hive_discount_bas_inf
-    *
-    * @author winslow yang
-    * @param sqlContext
-    * @param start_dt
-    * @param end_dt
+    * JobName: JOB_DM_67
+    * Feature: hive_acc_trans,hive_offline_point_trans,hive_passive_code_pay_trans,hive_download_trans,
+    *          hive_switch_point_trans,hive_prize_discount_result,hive_discount_bas_inf
+    *          -> dm_o2o_trans_dly
+    * @author YangXue
+    * @time 2016-09-12
+    * @param sqlContext,start_dt,end_dt
     */
-  def JOB_DM_67(implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
-    println("###JOB_DM_67(dm_o2o_trans_dly)")
+  def JOB_DM_67(implicit sqlContext: HiveContext, start_dt: String, end_dt: String) = {
+    println("#### JOB_DM_67(hive_acc_trans,hive_offline_point_trans,hive_passive_code_pay_trans,hive_download_trans,hive_switch_point_trans,hive_prize_discount_result,hive_discount_bas_inf -> dm_user_card_nature)")
 
-    UPSQL_JDBC.delete("dm_o2o_trans_dly","report_dt",start_dt,end_dt)
+    DateUtils.timeCost("JOB_DM_67") {
+      UPSQL_JDBC.delete("dm_o2o_trans_dly", "report_dt", start_dt, end_dt)
+      println("#### JOB_DM_67 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
 
-    sqlContext.sql(s"use $hive_dbname")
-    val results = sqlContext.sql(
-      s"""
-         |select
-         |    t.cup_branch_ins_id_nm,
-         |    t.report_dt,
-         |    sum(t.coupon_cnt)        as coupon_cnt,
-         |    sum(t.up_point_cnt)      as up_point_cnt,
-         |    sum(t.offline_point_cnt) as offline_point_cnt,
-         |    sum(t.online_point_cnt)  as online_point_cnt,
-         |    sum(code_pay_cnt)        as code_pay_cnt,
-         |    sum(t.swt_point_cnt)     as swt_point_cnt,
-         |    sum(t.disc_cnt)          as disc_cnt,
-         |    sum(o2o_cnt)             as o2o_cnt,
-         |    sum(coupon_down_num)     as coupon_down_num,
-         |    sum(coupon_acpt_num)     as coupon_acpt_num,
-         |    sum(coupon_orig_at)      as coupon_orig_at,
-         |    sum(coupon_disc_at)      as coupon_disc_at
-         |from
-         |    (
-         |        select
-         |            case
-         |                when a.cup_branch_ins_id_nm is null
-         |                then
-         |                    case
-         |                        when b.cup_branch_ins_id_nm is null
-         |                        then
-         |                            case
-         |                                when c.cup_branch_ins_id_nm is null
-         |                                then
-         |                                    case
-         |                                        when d.cup_branch_ins_id_nm is null
-         |                                        then
-         |                                            case
-         |                                                when e.cup_branch_ins_id_nm is null
-         |                                                then
-         |                                                    case
-         |                                                        when f.cup_branch_ins_id_nm is null
-         |                                                        then
-         |                                                            case
-         |                                                                when g.cup_branch_ins_id_nm is null
-         |                                                                then
-         |                                                                    case
-         |                                                                        when h.cup_branch_ins_id_nm
-         |                                                                            is null
-         |                                                                        then '总公司'
-         |                                                                        else h.cup_branch_ins_id_nm
-         |                                                                    end
-         |                                                                else g.cup_branch_ins_id_nm
-         |                                                            end
-         |                                                        else f.cup_branch_ins_id_nm
-         |                                                    end
-         |                                                else e.cup_branch_ins_id_nm
-         |                                            end
-         |                                        else d.cup_branch_ins_id_nm
-         |                                    end
-         |                                else c.cup_branch_ins_id_nm
-         |                            end
-         |                        else b.cup_branch_ins_id_nm
-         |                    end
-         |                else a.cup_branch_ins_id_nm
-         |            end as cup_branch_ins_id_nm,
-         |            case
-         |                when a.trans_dt is null
-         |                then
-         |                    case
-         |                        when b.trans_dt is null
-         |                        then
-         |                            case
-         |                                when c.trans_dt is null
-         |                                then
-         |                                    case
-         |                                        when d.trans_dt is null
-         |                                        then
-         |                                            case
-         |                                                when e.trans_dt is null
-         |                                                then
-         |                                                    case
-         |                                                        when f.trans_dt is null
-         |                                                        then
-         |                                                            case
-         |                                                                when g.trans_dt is null
-         |                                                                then
-         |                                                                    case
-         |                                                                        when h.trans_dt is not null
-         |                                                                        then h.trans_dt
-         |                                                                    end
-         |                                                                else g.trans_dt
-         |                                                            end
-         |                                                        else f.trans_dt
-         |                                                    end
-         |                                                else e.trans_dt
-         |                                            end
-         |                                        else d.trans_dt
-         |                                    end
-         |                                else c.trans_dt
-         |                            end
-         |                        else b.trans_dt
-         |                    end
-         |                else a.trans_dt
-         |            end                                   as report_dt,
-         |            if(a.trans_cnt is null,0,a.trans_cnt) as coupon_cnt,
-         |            if(b.trans_cnt is null,0,b.trans_cnt) as up_point_cnt,
-         |            if(c.trans_cnt is null,0,c.trans_cnt) as offline_point_cnt,
-         |            if(d.trans_cnt is null,0,d.trans_cnt) as online_point_cnt,
-         |            if(e.trans_cnt is null,0,e.trans_cnt) as code_pay_cnt,
-         |            if(g.trans_cnt is null,0,g.trans_cnt) as swt_point_cnt,
-         |            if(h.trans_cnt is null,0,h.trans_cnt) as disc_cnt,
-         |            if(a.trans_cnt is null,0,a.trans_cnt) + if(b.trans_cnt is null,0,b.trans_cnt) + if
-         |            (c.trans_cnt is null,0,c.trans_cnt) + if(d.trans_cnt is null,0,d.trans_cnt) + if
-         |            (e.trans_cnt is null,0, e.trans_cnt) + if(g.trans_cnt is null,0,g.trans_cnt) + if
-         |            (h.trans_cnt is null,0,h.trans_cnt)         as o2o_cnt,
-         |            if(f.download_num is null,0,f.download_num) as coupon_down_num,
-         |            if(a.accept_num is null,0, a.accept_num)    as coupon_acpt_num,
-         |            if(a.orig_at is null,0, a.orig_at)          as coupon_orig_at,
-         |            if(a.discount_at is null,0, a.discount_at)  as coupon_disc_at
-         |        from
-         |            (
-         |                select
-         |                    bill.cup_branch_ins_id_nm,
-         |                    to_date(trans.trans_dt) as trans_dt,
-         |                    count(1) as trans_cnt,
-         |                    count(1) as accept_num,
-         |                    sum((
-         |                            case
-         |                                when discount_at is null
-         |                                then 0
-         |                                else discount_at
-         |                            end) + (
-         |                            case
-         |                                when trans_at is null
-         |                                then 0
-         |                                else trans_at
-         |                            end )) as orig_at,
-         |                    sum(
-         |                        case
-         |                            when discount_at is null
-         |                            then 0
-         |                            else discount_at
-         |                        end) as discount_at
-         |                from
-         |                    hive_acc_trans trans
-         |                left join
-         |                    hive_ticket_bill_bas_inf bill
-         |                on
-         |                    trans.bill_id=bill.bill_id
-         |                where
-         |                    trans.um_trans_id in ('AC02000065',
-         |                                          'AC02000063')
-         |                and trans.buss_tp in ('04',
-         |                                      '05',
-         |                                      '06')
-         |                and trans.sys_det_cd='S'
-         |                and trans.part_trans_dt >= '$start_dt'
-         |                and trans.part_trans_dt <= '$end_dt'
-         |                group by
-         |                    bill.cup_branch_ins_id_nm,
-         |                    to_date(trans.trans_dt)) a
-         |        full outer join
-         |            (
-         |                select
-         |                    ins.cup_branch_ins_id_nm,
-         |                    to_date(trans.trans_dt) as trans_dt,
-         |                    count(*) as trans_cnt
-         |                from
-         |                    hive_acc_trans trans
-         |                left join
-         |                    hive_ins_inf ins
-         |                on
-         |                    trans.acpt_ins_id_cd=concat('000',ins.ins_id_cd)
-         |                where
-         |                    trans.um_trans_id in ('AC02000065',
-         |                                          'AC02000063')
-         |                and trans.buss_tp = '02'
-         |                and trans.sys_det_cd='S'
-         |                and trans.part_trans_dt >= '$start_dt'
-         |                and trans.part_trans_dt <= '$end_dt'
-         |                group by
-         |                    ins.cup_branch_ins_id_nm,
-         |                    to_date(trans.trans_dt)) b
-         |        on
-         |            (
-         |                a.cup_branch_ins_id_nm = b.cup_branch_ins_id_nm
-         |            and a.trans_dt = b.trans_dt)
-         |        full outer join
-         |            (
-         |                select
-         |                    trans.cup_branch_ins_id_nm as cup_branch_ins_id_nm,
-         |                    to_date(trans.trans_dt) as trans_dt,
-         |                    count(*)                as trans_cnt
-         |                from
-         |                    hive_offline_point_trans trans
-         |                where
-         |                    trans.part_trans_dt >= '$start_dt'
-         |                and trans.part_trans_dt <= '$end_dt'
-         |                and trans.oper_st in('0' ,
-         |                                     '3')
-         |                and trans.point_at>0
-         |                and UM_TRANS_ID in('AD00000002','AD00000003','AD00000007')
-         |                group by
-         |                    trans.cup_branch_ins_id_nm,
-         |                    to_date(trans.trans_dt)) c
-         |        on
-         |            (
-         |                a.cup_branch_ins_id_nm = c.cup_branch_ins_id_nm
-         |            and a.trans_dt = c.trans_dt)
-         |        full outer join
-         |            (
-         |                select
-         |                    trans.cup_branch_ins_id_nm,
-         |                    to_date(trans.trans_dt) as trans_dt,
-         |                    count(*) as trans_cnt
-         |                from
-         |                    hive_online_point_trans trans
-         |                where
-         |                    trans.status = '1'
-         |                and trans.part_trans_dt >= '$start_dt'
-         |                and trans.part_trans_dt <= '$end_dt'
-         |                group by
-         |                    trans.cup_branch_ins_id_nm,
-         |                    to_date(trans.trans_dt)) d
-         |        on
-         |            (
-         |                a.cup_branch_ins_id_nm = d.cup_branch_ins_id_nm
-         |            and a.trans_dt = d.trans_dt)
-         |        full outer join
-         |            (
-         |                select
-         |                    mchnt.cup_branch_ins_id_nm,
-         |                    to_date(trans.trans_dt) as trans_dt,
-         |                    count(*) as trans_cnt
-         |                from
-         |                    hive_passive_code_pay_trans trans
-         |                left join
-         |                    hive_mchnt_inf_wallet mchnt
-         |                on
-         |                    trans.mchnt_cd=mchnt.mchnt_cd
-         |                where
-         |                    trans.mchnt_cd is not null
-         |                and trans.mchnt_cd<>''
-         |                and trans_st='04'
-         |                and trans.part_trans_dt >= '$start_dt'
-         |                and trans.part_trans_dt <= '$end_dt'
-         |                group by
-         |                    mchnt.cup_branch_ins_id_nm,
-         |                    to_date(trans.trans_dt)) e
-         |        on
-         |            (
-         |                a.cup_branch_ins_id_nm = e.cup_branch_ins_id_nm
-         |            and a.trans_dt = e.trans_dt)
-         |        full outer join
-         |            (
-         |                select
-         |                    bill.cup_branch_ins_id_nm,
-         |                    to_date(a.trans_dt) as trans_dt,
-         |                    count(1) as download_num
-         |                from
-         |                    hive_download_trans a
-         |                inner join
-         |                    hive_ticket_bill_bas_inf bill
-         |                on
-         |                    (
-         |                        a.bill_id = bill.bill_id)
-         |                where
-         |                    a.buss_tp in ('04',
-         |                                  '05',
-         |                                  '06')
-         |                and a.trans_st='1'
-         |                and a.part_trans_dt >= '$start_dt'
-         |                and a.part_trans_dt <= '$end_dt'
-         |                group by
-         |                    bill.cup_branch_ins_id_nm,
-         |                    to_date(a.trans_dt)) f
-         |        on
-         |            (
-         |                a.cup_branch_ins_id_nm = f.cup_branch_ins_id_nm
-         |            and a.trans_dt = f.trans_dt)
-         |        full outer join
-         |            (
-         |                select
-         |                    ins.cup_branch_ins_id_nm as cup_branch_ins_id_nm,
-         |                    to_date(swt.trans_dt)             as trans_dt,
-         |                    sum(
-         |                        case
-         |                            when substr(swt.trans_st,1,1)='1'
-         |                            then 1
-         |                            else 0
-         |                        end ) as trans_cnt
-         |                from
-         |                    hive_switch_point_trans swt
-         |                left join
-         |                    hive_ins_inf ins
-         |                on
-         |                    swt.rout_ins_id_cd=ins.ins_id_cd
-         |                where
-         |                    swt.part_trans_dt >= '$start_dt'
-         |                and swt.part_trans_dt <= '$end_dt'
-         |                and swt.rout_ins_id_cd<>'00250002'
-         |                and swt.rout_ins_id_cd not like '0016%'
-         |                group by
-         |                    ins.cup_branch_ins_id_nm,
-         |                    to_date(swt.trans_dt))g
-         |        on
-         |            (
-         |                a.cup_branch_ins_id_nm = g.cup_branch_ins_id_nm
-         |            and a.trans_dt = g.trans_dt)
-         |        full outer join
-         |            (
-         |                select
-         |                    dbi.cup_branch_ins_id_nm as cup_branch_ins_id_nm,
-         |                    to_date(trans.settle_dt)          as trans_dt,
-         |                    sum (
-         |                        case
-         |                            when trans.trans_id in ('V52',
-         |                                                    'R22',
-         |                                                    'V50',
-         |                                                    'R20',
-         |                                                    'S30')
-         |                            then -1
-         |                            else 1
-         |                        end) as trans_cnt
-         |                from
-         |                    hive_prize_discount_result trans,
-         |                    hive_discount_bas_inf dbi
-         |                where
-         |                    trans.agio_app_id=dbi.loc_activity_id
-         |                and trans.agio_app_id is not null
-         |                and trans.trans_id='S22'
-         |                and trans.part_settle_dt >= '$start_dt'
-         |                and trans.part_settle_dt <= '$end_dt'
-         |                group by
-         |                    dbi.cup_branch_ins_id_nm,
-         |                    to_date(trans.settle_dt)) h
-         |        on
-         |            (
-         |                a.cup_branch_ins_id_nm = h.cup_branch_ins_id_nm
-         |            and a.trans_dt = h.trans_dt)) t
-         |group by
-         |    t.cup_branch_ins_id_nm,
-         |    t.report_dt
-         |
+      sqlContext.sql(s"use $hive_dbname")
+      val results = sqlContext.sql(
+        s"""
+           |select
+           |    t.cup_branch_ins_id_nm,
+           |    t.report_dt,
+           |    sum(t.coupon_cnt)        as coupon_cnt,
+           |    sum(t.up_point_cnt)      as up_point_cnt,
+           |    sum(t.offline_point_cnt) as offline_point_cnt,
+           |    sum(t.online_point_cnt)  as online_point_cnt,
+           |    sum(code_pay_cnt)        as code_pay_cnt,
+           |    sum(t.swt_point_cnt)     as swt_point_cnt,
+           |    sum(t.disc_cnt)          as disc_cnt,
+           |    sum(o2o_cnt)             as o2o_cnt,
+           |    sum(coupon_down_num)     as coupon_down_num,
+           |    sum(coupon_acpt_num)     as coupon_acpt_num,
+           |    sum(coupon_orig_at)      as coupon_orig_at,
+           |    sum(coupon_disc_at)      as coupon_disc_at
+           |from
+           |    (
+           |        select
+           |            case
+           |                when a.cup_branch_ins_id_nm is null
+           |                then
+           |                    case
+           |                        when b.cup_branch_ins_id_nm is null
+           |                        then
+           |                            case
+           |                                when c.cup_branch_ins_id_nm is null
+           |                                then
+           |                                    case
+           |                                        when d.cup_branch_ins_id_nm is null
+           |                                        then
+           |                                            case
+           |                                                when e.cup_branch_ins_id_nm is null
+           |                                                then
+           |                                                    case
+           |                                                        when f.cup_branch_ins_id_nm is null
+           |                                                        then
+           |                                                            case
+           |                                                                when g.cup_branch_ins_id_nm is null
+           |                                                                then
+           |                                                                    case
+           |                                                                        when h.cup_branch_ins_id_nm
+           |                                                                            is null
+           |                                                                        then '总公司'
+           |                                                                        else h.cup_branch_ins_id_nm
+           |                                                                    end
+           |                                                                else g.cup_branch_ins_id_nm
+           |                                                            end
+           |                                                        else f.cup_branch_ins_id_nm
+           |                                                    end
+           |                                                else e.cup_branch_ins_id_nm
+           |                                            end
+           |                                        else d.cup_branch_ins_id_nm
+           |                                    end
+           |                                else c.cup_branch_ins_id_nm
+           |                            end
+           |                        else b.cup_branch_ins_id_nm
+           |                    end
+           |                else a.cup_branch_ins_id_nm
+           |            end as cup_branch_ins_id_nm,
+           |            case
+           |                when a.trans_dt is null
+           |                then
+           |                    case
+           |                        when b.trans_dt is null
+           |                        then
+           |                            case
+           |                                when c.trans_dt is null
+           |                                then
+           |                                    case
+           |                                        when d.trans_dt is null
+           |                                        then
+           |                                            case
+           |                                                when e.trans_dt is null
+           |                                                then
+           |                                                    case
+           |                                                        when f.trans_dt is null
+           |                                                        then
+           |                                                            case
+           |                                                                when g.trans_dt is null
+           |                                                                then
+           |                                                                    case
+           |                                                                        when h.trans_dt is not null
+           |                                                                        then h.trans_dt
+           |                                                                    end
+           |                                                                else g.trans_dt
+           |                                                            end
+           |                                                        else f.trans_dt
+           |                                                    end
+           |                                                else e.trans_dt
+           |                                            end
+           |                                        else d.trans_dt
+           |                                    end
+           |                                else c.trans_dt
+           |                            end
+           |                        else b.trans_dt
+           |                    end
+           |                else a.trans_dt
+           |            end                                   as report_dt,
+           |            if(a.trans_cnt is null,0,a.trans_cnt) as coupon_cnt,
+           |            if(b.trans_cnt is null,0,b.trans_cnt) as up_point_cnt,
+           |            if(c.trans_cnt is null,0,c.trans_cnt) as offline_point_cnt,
+           |            if(d.trans_cnt is null,0,d.trans_cnt) as online_point_cnt,
+           |            if(e.trans_cnt is null,0,e.trans_cnt) as code_pay_cnt,
+           |            if(g.trans_cnt is null,0,g.trans_cnt) as swt_point_cnt,
+           |            if(h.trans_cnt is null,0,h.trans_cnt) as disc_cnt,
+           |            if(a.trans_cnt is null,0,a.trans_cnt) + if(b.trans_cnt is null,0,b.trans_cnt) + if
+           |            (c.trans_cnt is null,0,c.trans_cnt) + if(d.trans_cnt is null,0,d.trans_cnt) + if
+           |            (e.trans_cnt is null,0, e.trans_cnt) + if(g.trans_cnt is null,0,g.trans_cnt) + if
+           |            (h.trans_cnt is null,0,h.trans_cnt)         as o2o_cnt,
+           |            if(f.download_num is null,0,f.download_num) as coupon_down_num,
+           |            if(a.accept_num is null,0, a.accept_num)    as coupon_acpt_num,
+           |            if(a.orig_at is null,0, a.orig_at)          as coupon_orig_at,
+           |            if(a.discount_at is null,0, a.discount_at)  as coupon_disc_at
+           |        from
+           |            (
+           |                select
+           |                    bill.cup_branch_ins_id_nm,
+           |                    to_date(trans.trans_dt) as trans_dt,
+           |                    count(1) as trans_cnt,
+           |                    count(1) as accept_num,
+           |                    sum((
+           |                            case
+           |                                when discount_at is null
+           |                                then 0
+           |                                else discount_at
+           |                            end) + (
+           |                            case
+           |                                when trans_at is null
+           |                                then 0
+           |                                else trans_at
+           |                            end )) as orig_at,
+           |                    sum(
+           |                        case
+           |                            when discount_at is null
+           |                            then 0
+           |                            else discount_at
+           |                        end) as discount_at
+           |                from
+           |                    hive_acc_trans trans
+           |                left join
+           |                    hive_ticket_bill_bas_inf bill
+           |                on
+           |                    trans.bill_id=bill.bill_id
+           |                where
+           |                    trans.um_trans_id in ('AC02000065',
+           |                                          'AC02000063')
+           |                and trans.buss_tp in ('04',
+           |                                      '05',
+           |                                      '06')
+           |                and trans.sys_det_cd='S'
+           |                and trans.part_trans_dt >= '$start_dt'
+           |                and trans.part_trans_dt <= '$end_dt'
+           |                group by
+           |                    bill.cup_branch_ins_id_nm,
+           |                    to_date(trans.trans_dt)) a
+           |        full outer join
+           |            (
+           |                select
+           |                    ins.cup_branch_ins_id_nm,
+           |                    to_date(trans.trans_dt) as trans_dt,
+           |                    count(*) as trans_cnt
+           |                from
+           |                    hive_acc_trans trans
+           |                left join
+           |                    hive_ins_inf ins
+           |                on
+           |                    trans.acpt_ins_id_cd=concat('000',ins.ins_id_cd)
+           |                where
+           |                    trans.um_trans_id in ('AC02000065',
+           |                                          'AC02000063')
+           |                and trans.buss_tp = '02'
+           |                and trans.sys_det_cd='S'
+           |                and trans.part_trans_dt >= '$start_dt'
+           |                and trans.part_trans_dt <= '$end_dt'
+           |                group by
+           |                    ins.cup_branch_ins_id_nm,
+           |                    to_date(trans.trans_dt)) b
+           |        on
+           |            (
+           |                a.cup_branch_ins_id_nm = b.cup_branch_ins_id_nm
+           |            and a.trans_dt = b.trans_dt)
+           |        full outer join
+           |            (
+           |                select
+           |                    trans.cup_branch_ins_id_nm as cup_branch_ins_id_nm,
+           |                    to_date(trans.trans_dt) as trans_dt,
+           |                    count(*)                as trans_cnt
+           |                from
+           |                    hive_offline_point_trans trans
+           |                where
+           |                    trans.part_trans_dt >= '$start_dt'
+           |                and trans.part_trans_dt <= '$end_dt'
+           |                and trans.oper_st in('0' ,
+           |                                     '3')
+           |                and trans.point_at>0
+           |                and UM_TRANS_ID in('AD00000002','AD00000003','AD00000007')
+           |                group by
+           |                    trans.cup_branch_ins_id_nm,
+           |                    to_date(trans.trans_dt)) c
+           |        on
+           |            (
+           |                a.cup_branch_ins_id_nm = c.cup_branch_ins_id_nm
+           |            and a.trans_dt = c.trans_dt)
+           |        full outer join
+           |            (
+           |                select
+           |                    trans.cup_branch_ins_id_nm,
+           |                    to_date(trans.trans_dt) as trans_dt,
+           |                    count(*) as trans_cnt
+           |                from
+           |                    hive_online_point_trans trans
+           |                where
+           |                    trans.status = '1'
+           |                and trans.part_trans_dt >= '$start_dt'
+           |                and trans.part_trans_dt <= '$end_dt'
+           |                group by
+           |                    trans.cup_branch_ins_id_nm,
+           |                    to_date(trans.trans_dt)) d
+           |        on
+           |            (
+           |                a.cup_branch_ins_id_nm = d.cup_branch_ins_id_nm
+           |            and a.trans_dt = d.trans_dt)
+           |        full outer join
+           |            (
+           |                select
+           |                    mchnt.cup_branch_ins_id_nm,
+           |                    to_date(trans.trans_dt) as trans_dt,
+           |                    count(*) as trans_cnt
+           |                from
+           |                    hive_passive_code_pay_trans trans
+           |                left join
+           |                    hive_mchnt_inf_wallet mchnt
+           |                on
+           |                    trans.mchnt_cd=mchnt.mchnt_cd
+           |                where
+           |                    trans.mchnt_cd is not null
+           |                and trans.mchnt_cd<>''
+           |                and trans_st='04'
+           |                and trans.part_trans_dt >= '$start_dt'
+           |                and trans.part_trans_dt <= '$end_dt'
+           |                group by
+           |                    mchnt.cup_branch_ins_id_nm,
+           |                    to_date(trans.trans_dt)) e
+           |        on
+           |            (
+           |                a.cup_branch_ins_id_nm = e.cup_branch_ins_id_nm
+           |            and a.trans_dt = e.trans_dt)
+           |        full outer join
+           |            (
+           |                select
+           |                    bill.cup_branch_ins_id_nm,
+           |                    to_date(a.trans_dt) as trans_dt,
+           |                    count(1) as download_num
+           |                from
+           |                    hive_download_trans a
+           |                inner join
+           |                    hive_ticket_bill_bas_inf bill
+           |                on
+           |                    (
+           |                        a.bill_id = bill.bill_id)
+           |                where
+           |                    a.buss_tp in ('04',
+           |                                  '05',
+           |                                  '06')
+           |                and a.trans_st='1'
+           |                and a.part_trans_dt >= '$start_dt'
+           |                and a.part_trans_dt <= '$end_dt'
+           |                group by
+           |                    bill.cup_branch_ins_id_nm,
+           |                    to_date(a.trans_dt)) f
+           |        on
+           |            (
+           |                a.cup_branch_ins_id_nm = f.cup_branch_ins_id_nm
+           |            and a.trans_dt = f.trans_dt)
+           |        full outer join
+           |            (
+           |                select
+           |                    ins.cup_branch_ins_id_nm as cup_branch_ins_id_nm,
+           |                    to_date(swt.trans_dt)             as trans_dt,
+           |                    sum(
+           |                        case
+           |                            when substr(swt.trans_st,1,1)='1'
+           |                            then 1
+           |                            else 0
+           |                        end ) as trans_cnt
+           |                from
+           |                    hive_switch_point_trans swt
+           |                left join
+           |                    hive_ins_inf ins
+           |                on
+           |                    swt.rout_ins_id_cd=ins.ins_id_cd
+           |                where
+           |                    swt.part_trans_dt >= '$start_dt'
+           |                and swt.part_trans_dt <= '$end_dt'
+           |                and swt.rout_ins_id_cd<>'00250002'
+           |                and swt.rout_ins_id_cd not like '0016%'
+           |                group by
+           |                    ins.cup_branch_ins_id_nm,
+           |                    to_date(swt.trans_dt))g
+           |        on
+           |            (
+           |                a.cup_branch_ins_id_nm = g.cup_branch_ins_id_nm
+           |            and a.trans_dt = g.trans_dt)
+           |        full outer join
+           |            (
+           |                select
+           |                    dbi.cup_branch_ins_id_nm as cup_branch_ins_id_nm,
+           |                    to_date(trans.settle_dt)          as trans_dt,
+           |                    sum (
+           |                        case
+           |                            when trans.trans_id in ('V52',
+           |                                                    'R22',
+           |                                                    'V50',
+           |                                                    'R20',
+           |                                                    'S30')
+           |                            then -1
+           |                            else 1
+           |                        end) as trans_cnt
+           |                from
+           |                    hive_prize_discount_result trans,
+           |                    hive_discount_bas_inf dbi
+           |                where
+           |                    trans.agio_app_id=dbi.loc_activity_id
+           |                and trans.agio_app_id is not null
+           |                and trans.trans_id='S22'
+           |                and trans.part_settle_dt >= '$start_dt'
+           |                and trans.part_settle_dt <= '$end_dt'
+           |                group by
+           |                    dbi.cup_branch_ins_id_nm,
+           |                    to_date(trans.settle_dt)) h
+           |        on
+           |            (
+           |                a.cup_branch_ins_id_nm = h.cup_branch_ins_id_nm
+           |            and a.trans_dt = h.trans_dt)) t
+           |group by
+           |    t.cup_branch_ins_id_nm,
+           |    t.report_dt
+           |
       """.stripMargin)
 
-    println(s"###JOB_DM_67------ ( $start_dt-$end_dt ) results:"+results.count())
+      println(s"#### JOB_DM_67 spark sql 清洗[$start_dt -- $end_dt]数据完成时间为:" + DateUtils.getCurrentSystemTime())
+      //println(s"#### JOB_DM_67 spark sql 清洗[$start_dt -- $end_dt]数据 results:"+results.count())
 
-    if(!Option(results).isEmpty){
-      results.save2Mysql("dm_o2o_trans_dly")
-    }else{
-      println("指定的时间范围无数据插入！")
+      if (!Option(results).isEmpty) {
+        results.save2Mysql("dm_o2o_trans_dly")
+        println(s"#### JOB_DM_67 [$start_dt -- $end_dt]数据插入完成时间为：" + DateUtils.getCurrentSystemTime())
+      } else {
+        println(s"#### JOB_DM_67 spark sql 清洗[$start_dt -- $end_dt]数据无结果集！")
+      }
     }
-
   }
 
+
   /**
-    *  dm-job-68 20160905
-    *  DM_OFFLINE_POINT_TRANS_DLY
-    *
-    * @author winslow yang
-    * @param sqlContext
+    * JobName: JOB_DM_68
+    * Feature: hive_offline_point_trans -> dm_offline_point_trans_dly
+    * @author YangXue
+    * @time 2016-09-05
+    * @param sqlContext,start_dt,end_dt
     */
-  def JOB_DM_68(implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
-    println("###JOB_DM_68(dm_offline_point_trans_dly)")
+  def JOB_DM_68(implicit sqlContext: HiveContext, start_dt: String, end_dt: String) = {
+    println("#### JOB_DM_68(hive_offline_point_trans -> dm_offline_point_trans_dly)")
 
+    DateUtils.timeCost("JOB_DM_68") {
+      UPSQL_JDBC.delete("dm_offline_point_trans_dly", "report_dt", start_dt, end_dt)
+      println("#### JOB_DM_68 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
 
-    UPSQL_JDBC.delete("dm_offline_point_trans_dly","report_dt",start_dt,end_dt)
-
-    sqlContext.sql(s"use $hive_dbname")
-    val results = sqlContext.sql(
-      s"""
-         |select
-         |    cup_branch_ins_id_nm,
-         |    trans_dt as report_dt,
-         |    count(distinct(plan_id)) as plan_cnt,
-         |    count(*)                as trans_cnt,
-         |    sum(
-         |        case
-         |            when um_trans_id in('AD00000002','AD00000003','AD00000007')
-         |            then point_at
-         |            else 0
-         |        end) as point_at,
-         |    sum(
-         |        case
-         |            when um_trans_id in('AD00000004','AD00000005','AD00000006')
-         |            then bill_num
-         |            else 0
-         |        end) as bill_num
-         |from
-         |    hive_offline_point_trans  trans
-         |where
-         |  trans.part_trans_dt >='$start_dt' and trans.part_trans_dt >='$end_dt' and
-         |   oper_st in('0','3')
-         |group by
-         |    cup_branch_ins_id_nm,
-         |    trans_dt
+      sqlContext.sql(s"use $hive_dbname")
+      val results = sqlContext.sql(
+        s"""
+           |select
+           |    cup_branch_ins_id_nm,
+           |    trans_dt as report_dt,
+           |    count(distinct(plan_id)) as plan_cnt,
+           |    count(*)                as trans_cnt,
+           |    sum(
+           |        case
+           |            when um_trans_id in('AD00000002','AD00000003','AD00000007')
+           |            then point_at
+           |            else 0
+           |        end) as point_at,
+           |    sum(
+           |        case
+           |            when um_trans_id in('AD00000004','AD00000005','AD00000006')
+           |            then bill_num
+           |            else 0
+           |        end) as bill_num
+           |from
+           |    hive_offline_point_trans  trans
+           |where
+           |  trans.part_trans_dt >='$start_dt' and trans.part_trans_dt >='$end_dt' and
+           |   oper_st in('0','3')
+           |group by
+           |    cup_branch_ins_id_nm,
+           |    trans_dt
       """.stripMargin)
+      println(s"#### JOB_DM_68 spark sql 清洗[$start_dt -- $end_dt]数据完成时间为:" + DateUtils.getCurrentSystemTime())
+      //println(s"#### JOB_DM_68 spark sql 清洗[$start_dt -- $end_dt]数据 results:"+results.count())
 
-    println(s"###JOB_DM_68------ ( $start_dt-$end_dt ) results:"+results.count())
-    if(!Option(results).isEmpty){
-      results.save2Mysql("dm_offline_point_trans_dly")
-    }else{
-      println("指定的时间范围无数据插入！")
+      if (!Option(results).isEmpty) {
+        results.save2Mysql("dm_offline_point_trans_dly")
+        println(s"#### JOB_DM_68 [$start_dt -- $end_dt]数据插入完成时间为：" + DateUtils.getCurrentSystemTime())
+      } else {
+        println(s"#### JOB_DM_68 spark sql 清洗[$start_dt -- $end_dt]数据无结果集！")
+      }
     }
-
-
   }
 
   /**
@@ -3104,84 +3110,87 @@ object SparkHive2Mysql {
     }
   }
 
+
   /**
-    * dm-job-72 20160901
-    * dm_offline_point_act_dly->hive_offline_point_trans
-    *
-    * @author winslow yang
-    * @param sqlContext
+    * JobName: JOB_DM_72
+    * Feature: hive_offline_point_trans -> dm_offline_point_act_dly
+    * @author YangXue
+    * @time 2016-09-01
+    * @param sqlContext,start_dt,end_dt
     */
   def JOB_DM_72(implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
-    println("###JOB_DM_72(dm_offline_point_act_dly->hive_offline_point_trans)")
+    println("#### JOB_DM_72(hive_offline_point_trans -> dm_offline_point_act_dly)")
 
-    UPSQL_JDBC.delete("dm_offline_point_act_dly","report_dt",start_dt,end_dt)
+    DateUtils.timeCost("JOB_DM_72"){
+      UPSQL_JDBC.delete("dm_offline_point_act_dly","report_dt",start_dt,end_dt)
+      println("#### JOB_DM_72 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
 
-    sqlContext.sql(s"use $hive_dbname")
-    val results = sqlContext.sql(
-      s"""
-         |select
-         |    b.plan_id,
-         |    b.plan_nm,
-         |    b.acpt_addup_bat_dt as report_dt,
-         |    b.trans_cnt,
-         |    b.point_at,
-         |    b.bill_num
-         |from
-         |    (
-         |        select
-         |            a.plan_id,
-         |            a.plan_nm,
-         |            a.acpt_addup_bat_dt,
-         |            a.trans_cnt,
-         |            a.point_at,
-         |            a.bill_num,
-         |            row_number() over(partition by to_date(a.acpt_addup_bat_dt) order by a.bill_num desc) as rn
-         |        from
-         |            (
-         |                select
-         |                    trans.plan_id,
-         |                    regexp_replace(trans.plan_nm,' ','') as plan_nm,
-         |                    to_date(trans.acct_addup_bat_dt) as acpt_addup_bat_dt,
-         |                    count(*) as trans_cnt,
-         |                    sum(
-         |                        case
-         |                            when trans.um_trans_id in('AD00000002',
-         |                                                'AD00000003',
-         |                                                'AD00000007')
-         |                            then trans.point_at
-         |                            else 0
-         |                        end) as point_at,
-         |                    sum(
-         |                        case
-         |                            when trans.um_trans_id in('AD00000004',
-         |                                                'AD00000005',
-         |                                                'AD00000006')
-         |                            then trans.bill_num
-         |                            else 0
-         |                        end) as bill_num
-         |                from
-         |                    hive_offline_point_trans trans
-         |                where
-         |                		trans.part_trans_dt >= '$start_dt' and trans.part_trans_dt <= '$end_dt' and
-         |                		trans.oper_st in('0', '3') and
-         |                		to_date(trans.acct_addup_bat_dt) >= '$start_dt' and to_date(trans.acct_addup_bat_dt) <= '$end_dt'
-         |                group by
-         |                    trans.plan_id,
-         |                    regexp_replace(trans.plan_nm,' ',''),to_date(trans.acct_addup_bat_dt))a) b
-         |        where
-         |            b.rn <= 10
+      sqlContext.sql(s"use $hive_dbname")
+      val results = sqlContext.sql(
+        s"""
+           |select
+           |    b.plan_id,
+           |    b.plan_nm,
+           |    b.acpt_addup_bat_dt as report_dt,
+           |    b.trans_cnt,
+           |    b.point_at,
+           |    b.bill_num
+           |from
+           |    (
+           |        select
+           |            a.plan_id,
+           |            a.plan_nm,
+           |            a.acpt_addup_bat_dt,
+           |            a.trans_cnt,
+           |            a.point_at,
+           |            a.bill_num,
+           |            row_number() over(partition by to_date(a.acpt_addup_bat_dt) order by a.bill_num desc) as rn
+           |        from
+           |            (
+           |                select
+           |                    trans.plan_id,
+           |                    regexp_replace(trans.plan_nm,' ','') as plan_nm,
+           |                    to_date(trans.acct_addup_bat_dt) as acpt_addup_bat_dt,
+           |                    count(*) as trans_cnt,
+           |                    sum(
+           |                        case
+           |                            when trans.um_trans_id in('AD00000002',
+           |                                                'AD00000003',
+           |                                                'AD00000007')
+           |                            then trans.point_at
+           |                            else 0
+           |                        end) as point_at,
+           |                    sum(
+           |                        case
+           |                            when trans.um_trans_id in('AD00000004',
+           |                                                'AD00000005',
+           |                                                'AD00000006')
+           |                            then trans.bill_num
+           |                            else 0
+           |                        end) as bill_num
+           |                from
+           |                    hive_offline_point_trans trans
+           |                where
+           |                		trans.part_trans_dt >= '$start_dt' and trans.part_trans_dt <= '$end_dt' and
+           |                		trans.oper_st in('0', '3') and
+           |                		to_date(trans.acct_addup_bat_dt) >= '$start_dt' and to_date(trans.acct_addup_bat_dt) <= '$end_dt'
+           |                group by
+           |                    trans.plan_id,
+           |                    regexp_replace(trans.plan_nm,' ',''),to_date(trans.acct_addup_bat_dt))a) b
+           |        where
+           |            b.rn <= 10
       """.stripMargin)
+      println(s"#### JOB_DM_72 spark sql 清洗[$start_dt -- $end_dt]数据完成时间为:" + DateUtils.getCurrentSystemTime())
+      //println(s"#### JOB_DM_72 spark sql 清洗[$start_dt -- $end_dt]数据 results:"+results.count())
 
-    println(s"###JOB_DM_72------ ( $start_dt-$end_dt ) results:"+results.count())
-    if(!Option(results).isEmpty){
-      results.save2Mysql("dm_offline_point_act_dly")
-    }else{
-      println("指定的时间范围无数据插入！")
+      if(!Option(results).isEmpty){
+        results.save2Mysql("dm_offline_point_act_dly")
+        println(s"#### JOB_DM_72 [$start_dt -- $end_dt]数据插入完成时间为：" + DateUtils.getCurrentSystemTime())
+      }else{
+        println(s"#### JOB_DM_72 spark sql 清洗[$start_dt -- $end_dt]数据无结果集！")
+      }
     }
-
   }
-
-
 
 
   /**
