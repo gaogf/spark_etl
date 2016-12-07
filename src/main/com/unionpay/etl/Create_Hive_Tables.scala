@@ -458,7 +458,7 @@ object Create_Hive_Tables {
          |acq_intnl_org_id_cd    string ,
          |iss_root_ins_id_cd     string ,
          |active_card_num        bigint ,
-         |settle_month           string
+         |hp_settle_month        string
          |)
          |partitioned by (part_settle_month string)
          |row format delimited fields terminated by '!|'
