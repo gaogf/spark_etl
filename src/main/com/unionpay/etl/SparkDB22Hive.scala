@@ -106,8 +106,8 @@ object SparkDB22Hive {
       case "JOB_HV_35"  => JOB_HV_35  //CODE BY XTP
       case "JOB_HV_37"  => JOB_HV_37  //CODE BY TZQ
       case "JOB_HV_38"  => JOB_HV_38  //CODE BY TZQ
-      case "JOB_HV_72"  => JOB_HV_72  //CODE BY TZQ
-      case "JOB_HV_73"  => JOB_HV_73  //CODE BY TZQ
+//      case "JOB_HV_72"  => JOB_HV_72  //CODE BY TZQ
+//      case "JOB_HV_73"  => JOB_HV_73  //CODE BY TZQ
       case "JOB_HV_75"  => JOB_HV_75  //CODE BY XTP
       case "JOB_HV_76"  => JOB_HV_76  //CODE BY XTP
 
