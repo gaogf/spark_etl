@@ -83,6 +83,7 @@ object SparkHive2Mysql {
       case "JOB_DM_14" =>JOB_DM_14(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ
       case "JOB_DM_15" =>JOB_DM_15(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ
       case "JOB_DM_16" =>JOB_DM_16(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ
+      case "JOB_DM_17" =>JOB_DM_17(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ
 
       case _ => println("#### No Case Job,Please Input JobName")
     }
@@ -1338,8 +1339,8 @@ object SparkHive2Mysql {
     * @param interval
     */
   def JOB_DM_12 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String,interval:Int) = {
+    println("###JOB_DM_12(DM_COUPON_PUB_DOWN_BRANCH)### "+DateUtils.getCurrentSystemTime())
     DateUtils.timeCost("JOB_DM_12"){
-      println("###JOB_DM_12(DM_COUPON_PUB_DOWN_BRANCH)### "+DateUtils.getCurrentSystemTime())
       UPSQL_JDBC.delete(s"DM_COUPON_PUB_DOWN_BRANCH","REPORT_DT",start_dt,end_dt)
       var today_dt=start_dt
       if(interval>=0 ){
@@ -1408,8 +1409,8 @@ object SparkHive2Mysql {
     * @param interval
     */
   def JOB_DM_13 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String,interval:Int) = {
+    println("###JOB_DM_13(DM_COUPON_PUB_DOWN_IF_ICCARD)### "+DateUtils.getCurrentSystemTime())
     DateUtils.timeCost("JOB_DM_13"){
-      println("###JOB_DM_13(DM_COUPON_PUB_DOWN_IF_ICCARD)### "+DateUtils.getCurrentSystemTime())
       UPSQL_JDBC.delete(s"DM_COUPON_PUB_DOWN_IF_ICCARD","REPORT_DT",start_dt,end_dt)
       var today_dt=start_dt
       if(interval>=0 ){
@@ -1485,8 +1486,8 @@ object SparkHive2Mysql {
     * @param interval
     */
   def JOB_DM_14 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String,interval:Int) = {
+    println("###JOB_DM_14(DM_COUPON_SHIPP_DELIVER_MERCHANT)### "+DateUtils.getCurrentSystemTime())
     DateUtils.timeCost("JOB_DM_14"){
-      println("###JOB_DM_12(DM_COUPON_SHIPP_DELIVER_MERCHANT)### "+DateUtils.getCurrentSystemTime())
       UPSQL_JDBC.delete(s"DM_COUPON_SHIPP_DELIVER_MERCHANT","REPORT_DT",start_dt,end_dt)
       var today_dt=start_dt
       if(interval>=0 ){
@@ -1566,8 +1567,8 @@ object SparkHive2Mysql {
     * @param interval
     */
   def JOB_DM_15 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String,interval:Int) = {
+    println("###JOB_DM_15(DM_COUPON_SHIPP_DELIVER_ISS)### "+DateUtils.getCurrentSystemTime())
     DateUtils.timeCost("JOB_DM_15"){
-      println("###JOB_DM_12(DM_COUPON_SHIPP_DELIVER_ISS)### "+DateUtils.getCurrentSystemTime())
       UPSQL_JDBC.delete(s"DM_COUPON_SHIPP_DELIVER_ISS","REPORT_DT",start_dt,end_dt)
       var today_dt=start_dt
       if(interval>=0 ){
@@ -1653,8 +1654,8 @@ object SparkHive2Mysql {
     * @param interval
     */
   def JOB_DM_16 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String,interval:Int) = {
+    println("###JOB_DM_12(DM_COUPON_SHIPP_DELIVER_BRANCH)### "+DateUtils.getCurrentSystemTime())
     DateUtils.timeCost("JOB_DM_16"){
-      println("###JOB_DM_12(DM_COUPON_SHIPP_DELIVER_BRANCH)### "+DateUtils.getCurrentSystemTime())
       UPSQL_JDBC.delete(s"DM_COUPON_SHIPP_DELIVER_BRANCH","REPORT_DT",start_dt,end_dt)
       var today_dt=start_dt
       if(interval>=0 ){
@@ -1714,6 +1715,91 @@ object SparkHive2Mysql {
           println(s"###JOB_DM_16------$today_dt results:"+results.count())
           if(!Option(results).isEmpty){
             results.save2Mysql("DM_COUPON_SHIPP_DELIVER_BRANCH")
+          }else{
+            println("No data insert!")
+          }
+          today_dt=DateUtils.addOneDay(today_dt)
+        }
+      }
+    }
+  }
+
+  /**
+    * JOB_DM_17/12-9
+    * DM_COUPON_SHIPP_DELIVER_PHOME_AREA
+    * @author tzq
+    * @param sqlContext
+    * @param start_dt
+    * @param end_dt
+    * @param interval
+    */
+  def JOB_DM_17 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String,interval:Int) = {
+    println("###JOB_DM_17(DM_COUPON_SHIPP_DELIVER_PHOME_AREA)### "+DateUtils.getCurrentSystemTime())
+    DateUtils.timeCost("JOB_DM_17"){
+      UPSQL_JDBC.delete(s"DM_COUPON_SHIPP_DELIVER_PHOME_AREA","REPORT_DT",start_dt,end_dt)
+      var today_dt=start_dt
+      if(interval>=0 ){
+        sqlContext.sql(s"use $hive_dbname")
+        for(i <- 0 to interval){
+          val results =sqlContext.sql(
+            s"""
+               |select
+               |PHONE_LOCATION as PHONE_NM ,
+               |bill_sub_tp as BILL_TP ,
+               |'$today_dt' as REPORT_DT ,
+               |sum(trans_num) as DEAL_NUM ,
+               |sum(trans_succ_num) as SUCC_DEAL_NUM ,
+               |sum(trans_succ_num)/sum(trans_num)*100 as DEAL_SUCC_RATE,
+               |sum(trans_amt) as DEAL_AMT ,
+               |sum(del_usr_num) as DEAL_USR_NUM ,
+               |sum(card_num) as DEAL_CARD_NUM
+               |from(
+               |select
+               |acc.PHONE_LOCATION,
+               |bill.bill_sub_tp,
+               |0 as trans_num,
+               |count(distinct dtl.trans_seq) as trans_succ_num,
+               |sum(dtl.trans_at) as trans_amt,
+               |count(distinct dtl.cdhd_usr_id) as del_usr_num,
+               |count(distinct dtl.card_no) as card_num
+               |from HIVE_BILL_ORDER_TRANS as dtl,
+               |HIVE_BILL_SUB_ORDER_TRANS as sub_dtl,
+               |HIVE_TICKET_BILL_BAS_INF as bill,
+               |HIVE_PRI_ACCT_INF as acc
+               |where dtl.bill_order_id=sub_dtl.bill_order_id
+               |and sub_dtl.bill_id=bill.bill_id
+               |and dtl.cdhd_usr_id=acc.cdhd_usr_id
+               |and dtl.order_st='00'and dtl.trans_dt='$today_dt'
+               |and bill.bill_sub_tp in ('04','07','08')
+               |group by acc.PHONE_LOCATION ,bill.bill_sub_tp
+               |
+               |union all
+               |
+               |select
+               |acc.PHONE_LOCATION,
+               |bill.bill_sub_tp,
+               |count(distinct dtl.trans_seq) as trans_num,
+               |0 as trans_succ_num ,
+               |0 as trans_amt ,
+               |0 as del_usr_num ,
+               |0 as card_num
+               |from HIVE_BILL_ORDER_TRANS as dtl,
+               |HIVE_BILL_SUB_ORDER_TRANS as sub_dtl,
+               |HIVE_TICKET_BILL_BAS_INF as bill,
+               |HIVE_PRI_ACCT_INF as acc
+               |where dtl.bill_order_id=sub_dtl.bill_order_id
+               |and sub_dtl.bill_id=bill.bill_id
+               |and dtl.cdhd_usr_id=acc.cdhd_usr_id
+               |and dtl.order_st<>'00'and dtl.trans_dt='$today_dt'
+               |and bill.bill_sub_tp in ('04','07','08')
+               |group by acc.PHONE_LOCATION ,bill.bill_sub_tp
+               |) a
+               |group by PHONE_LOCATION,bill_sub_tp
+               |
+          """.stripMargin)
+          println(s"###JOB_DM_17------$today_dt results:"+results.count())
+          if(!Option(results).isEmpty){
+            results.save2Mysql("DM_COUPON_SHIPP_DELIVER_PHOME_AREA")
           }else{
             println("No data insert!")
           }
