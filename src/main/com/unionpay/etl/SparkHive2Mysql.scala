@@ -35,7 +35,7 @@ object SparkHive2Mysql {
     val end_dt=rowParams.getString(1)//结束日期
     val interval=DateUtils.getIntervalDays(start_dt,end_dt).toInt
 
-    println(s"#### SparkHive2Mysql 数据清洗的的起始日期为: $start_dt --  $end_dt")
+    println(s"#### SparkHive2Mysql 数据清洗的起始日期为: $start_dt --  $end_dt")
 
     val JobName = if(args.length>0) args(0) else None
     println(s"#### The Current Job Name is ： [$JobName]")

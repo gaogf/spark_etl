@@ -34,13 +34,11 @@ object SparkUPH2H {
     val start_dt=DateUtils.getYesterdayByJob(rowParams.getString(0))  //获取开始日期：start_dt-1
     val end_dt=rowParams.getString(1)//结束日期
 
+    println(s"#### SparkUPH2H 数据抽取的起始日期为: $start_dt --  $end_dt")
 
-    println(s"####当前JOB的执行日期为：$end_dt####")
-
-
-    val jobName = if(args.length>0) args(0) else None
-    println(s"#### 当前执行JobName为： $jobName ####")
-    jobName match {
+    val JobName = if(args.length>0) args(0) else None
+    println(s"#### The Current Job Name is ： [$JobName]")
+    JobName match {
       /**
         * 每日模板job
         */
@@ -61,36 +59,48 @@ object SparkUPH2H {
       case "JOB_HV_64"  =>  JOB_HV_64(sqlContext,start_dt,end_dt) //CODE BY XTP
       case "JOB_HV_65"  =>  JOB_HV_65(sqlContext,start_dt,end_dt) //CODE BY XTP
       case "JOB_HV_71"  =>  JOB_HV_71(sqlContext,start_dt,end_dt) //CODE BY XTP
+
       /**
         * 指标套表job
         */
+
+      case _ => println("#### No Case Job,Please Input JobName")
 
     }
 
     sc.stop()
   }
 
-  /**
-    * hive-job-39 2016-08-30
-    * rtdtrs_dtl_achis to hive_achis_trans
-    * @author winslow yang
-    * @param sqlContext
-    */
-  def JOB_HV_39(implicit sqlContext: HiveContext,end_dt:String) = {
 
-    println("######JOB_HV_39######")
+  /**
+    * JobName: JOB_HV_39
+    * Feature: uphive.rtdtrs_dtl_achis -> hive.hive_achis_trans
+    * @author YangXue
+    * @time 2016-08-30
+    * @param sqlContext,end_dt
+    */
+
+  def JOB_HV_39(implicit sqlContext: HiveContext,end_dt:String) = {
+    println("#### JOB_HV_39(rtdtrs_dtl_achis -> hive_achis_trans)")
 
     val today_dt = end_dt
-    val df = sqlContext.read.parquet(s"$up_namenode/$up_hivedataroot/incident/ods/hive_achis_trans/part_settle_dt=$today_dt")
-    println(s"###### read $up_namenode/ successful ######")
-    df.registerTempTable("spark_hive_achis_trans")
+    println("#### JOB_HV_39 增量抽取的时间范围为: "+end_dt)
 
-    sqlContext.sql(s"use $hive_dbname")
-    sqlContext.sql(s"alter table hive_achis_trans drop partition (part_settle_dt='$today_dt')")
-    sqlContext.sql(s"alter table hive_achis_trans add partition (part_settle_dt='$today_dt')")
-    sqlContext.sql(s"insert into table hive_achis_trans partition(part_settle_dt='$today_dt') select * from spark_hive_achis_trans")
-    println("#### insert into table success ####")
+    DateUtils.timeCost("JOB_HV_39") {
+      val df = sqlContext.read.parquet(s"$up_namenode/$up_hivedataroot/incident/ods/hive_achis_trans/part_settle_dt=$today_dt")
+      println(s"#### JOB_HV_39 read $up_namenode/ 数据完成时间为:"+DateUtils.getCurrentSystemTime())
 
+      df.registerTempTable("spark_hive_achis_trans")
+      println("#### JOB_HV_39 registerTempTable--spark_hive_achis_trans 完成的系统时间为:"+DateUtils.getCurrentSystemTime())
+
+      if(!Option(df).isEmpty){
+        sqlContext.sql(s"use $hive_dbname")
+        sqlContext.sql(s"insert overwrite table hive_achis_trans partition(part_settle_dt='$today_dt') select * from spark_hive_achis_trans")
+        println("#### JOB_HV_39 分区数据插入完成的时间为："+DateUtils.getCurrentSystemTime())
+      } else {
+        println(s"#### JOB_HV_39 read $up_namenode/ 无数据！")
+      }
+    }
   }
 
 
@@ -125,29 +135,34 @@ object SparkUPH2H {
     }
 
 
-
-
-
   /**
-    * hive-job-49 2016-09-14
-    * rtapam_prv_ucbiz_cdhd_bas_inf to hive_ucbiz_cdhd_bas_inf
-    * @author winslow yang
+    * JobName: JOB_HV_49
+    * Feature: uphive.rtapam_prv_ucbiz_cdhd_bas_inf -> hive_ucbiz_cdhd_bas_inf
+    * @author YangXue
+    * @time 2016-09-14
     * @param sqlContext
     */
   def JOB_HV_49(implicit sqlContext: HiveContext) = {
+    println("#### JOB_HV_49(rtapam_prv_ucbiz_cdhd_bas_inf -> hive_ucbiz_cdhd_bas_inf)")
+    println("#### JOB_HV_49 为全量抽取的表")
 
-    println("######JOB_HV_49######")
+    DateUtils.timeCost("JOB_HV_49"){
+      val df = sqlContext.read.parquet(s"$up_namenode/$up_hivedataroot/participant/user/hive_ucbiz_cdhd_bas_inf")
+      println(s"#### JOB_HV_49 read $up_namenode/ 数据完成时间为:"+DateUtils.getCurrentSystemTime())
 
-    val df = sqlContext.read.parquet(s"$up_namenode/$up_hivedataroot/participant/user/hive_ucbiz_cdhd_bas_inf")
-    println(s"###### read $up_namenode successful ######")
-    df.registerTempTable("spark_ucbiz_cdhd_bas_inf")
+      df.registerTempTable("spark_ucbiz_cdhd_bas_inf")
+      println("#### JOB_HV_49 registerTempTable--spark_ucbiz_cdhd_bas_inf 完成的系统时间为:"+DateUtils.getCurrentSystemTime())
 
-    sqlContext.sql(s"use $hive_dbname")
-    sqlContext.sql("truncate table hive_ucbiz_cdhd_bas_inf")
-    sqlContext.sql("insert into table hive_ucbiz_cdhd_bas_inf select * from spark_ucbiz_cdhd_bas_inf")
-    println("#### insert into table (hive_ucbiz_cdhd_bas_inf) success ####")
-
+      if(!Option(df).isEmpty){
+        sqlContext.sql(s"use $hive_dbname")
+        sqlContext.sql("insert overwrite table hive_ucbiz_cdhd_bas_inf select * from spark_ucbiz_cdhd_bas_inf")
+        println("#### JOB_HV_49 全量数据插入完成的时间为："+DateUtils.getCurrentSystemTime())
+      }else{
+        println(s"#### JOB_HV_49 read $up_namenode/ 无数据！")
+      }
+    }
   }
+
 
   /**
     * hive-job-50 2016-11-03
@@ -204,30 +219,38 @@ object SparkUPH2H {
 
 
   /**
-    * hive-job-52 2016-08-29
-    * stmtrs_bsl_active_card_acq_branch_mon1 to hive_active_card_acq_branch_mon
-    * @author winslow yang
-    * @param sqlContext
+    * JobName: JOB_HV_52
+    * Feature: uphive.stmtrs_bsl_active_card_acq_branch_mon1 -> hive.hive_active_card_acq_branch_mon
+    * @author YangXue
+    * @time 2016-08-29
+    * @param sqlContext,end_dt
     */
-  def JOB_HV_52(implicit sqlContext: HiveContext,end_dt:String) = {
+  def JOB_HV_52(implicit sqlContext: HiveContext, end_dt: String) = {
+    println("#### JOB_HV_52(stmtrs_bsl_active_card_acq_branch_mon1 -> hive_active_card_acq_branch_mon)")
 
-    println("######JOB_HV_52######")
-    val part_dt = end_dt.substring(0,7)
-    val df = sqlContext.read.parquet(s"$up_namenode/$up_hivedataroot/product/card/hive_active_card_acq_branch_mon/part_settle_month=$part_dt")
-    println(s"###### read $up_namenode/ successful ######")
-    df.registerTempTable("spark_active_card_acq_branch_mon")
+    val part_dt = end_dt.substring(0, 7)
+    println("#### JOB_HV_52 增量抽取的时间范围为: " +part_dt)
 
-    sqlContext.sql(s"use $hive_dbname")
-    sqlContext.sql(s"alter table hive_active_card_acq_branch_mon drop partition(part_settle_month='$part_dt')")
-    sqlContext.sql(
-      s"""
-         |insert into table hive_active_card_acq_branch_mon partition(part_settle_month='$part_dt')
-         |select * from spark_active_card_acq_branch_mon
+    DateUtils.timeCost("JOB_HV_52") {
+      val df = sqlContext.read.parquet(s"$up_namenode/$up_hivedataroot/product/card/hive_active_card_acq_branch_mon/part_settle_month=$part_dt")
+      println(s"#### JOB_HV_52 read $up_namenode/ 数据完成时间为:" + DateUtils.getCurrentSystemTime())
+
+      df.registerTempTable("spark_active_card_acq_branch_mon")
+      println("#### JOB_HV_52 registerTempTable--spark_active_card_acq_branch_mon 完成的系统时间为:" + DateUtils.getCurrentSystemTime())
+
+      if(!Option(df).isEmpty){
+        sqlContext.sql(s"use $hive_dbname")
+        sqlContext.sql(
+          s"""
+             |insert overwrite table hive_active_card_acq_branch_mon partition(part_settle_month='$part_dt')
+             |select * from spark_active_card_acq_branch_mon
        """.stripMargin)
-    println("#### insert into table(hive_active_card_acq_branch_mon) success ####")
-
+        println("#### JOB_HV_52 分区数据插入完成的时间为："+DateUtils.getCurrentSystemTime())
+      }else{
+        println(s"#### JOB_HV_52 read $up_namenode/ 无数据！")
+      }
+    }
   }
-
 
 
   /**
@@ -273,10 +296,8 @@ object SparkUPH2H {
           println(s"insert into hive_org_tdapp_tactivity partition (part_daytime='$days_fmt',part_updays='$currentDay') successfully!")
 
         }
-
       }
     }
-
   }
 
   /**
@@ -317,17 +338,13 @@ object SparkUPH2H {
           sqlContext.sql(s"use $hive_dbname")
           sqlContext.sql(s"alter table hive_org_tdapp_tlaunch drop partition (part_daytime='$days_fmt',part_updays='$currentDay')")
           println(s"alter table hive_org_tdapp_tlaunch drop partition (part_daytime='$days_fmt',part_updays='$currentDay') successfully!")
-
           sqlContext.sql(s"insert into hive_org_tdapp_tlaunch partition (part_daytime='$days_fmt',part_updays='$currentDay') select * from spark_hive_org_tdapp_tlaunch hott where hott.daytime='$days'")
           println(s"insert into hive_org_tdapp_tlaunch partition (part_daytime='$days_fmt',part_updays='$currentDay') successfully!")
 
         }
-
       }
     }
-
   }
-
 
 
   /**
@@ -373,11 +390,10 @@ object SparkUPH2H {
           println(s"insert into hive_org_tdapp_terminate partition (part_daytime='$days_fmt',part_updays='$currentDay') successfully!")
 
         }
-
       }
     }
-
   }
+
 
   /**
     * hive-job-58 2016-11-15
@@ -431,6 +447,7 @@ object SparkUPH2H {
       }
     }
   }
+
 
   /**
     * hive-job-59 2016-11-16
@@ -592,6 +609,7 @@ object SparkUPH2H {
       }
     }
   }
+
 
   /**
     * hive-job-62 2016-11-22
@@ -850,9 +868,6 @@ object SparkUPH2H {
         part_dt=DateUtils.addOneDay(part_dt)//yyyy-MM-dd
       }
     }
-
-
-
   }
 
 }
