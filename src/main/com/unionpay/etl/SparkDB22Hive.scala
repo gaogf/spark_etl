@@ -3749,19 +3749,19 @@ object SparkDB22Hive {
     * @param sqlContext
     * @return
     */
-  def JOB_HV_33(implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
+  def JOB_HV_33(implicit sqlContext: HiveContext, start_dt: String, end_dt: String) = {
     println("#### JOB_HV_33(hive_bill_sub_order_trans->viw_chmgm_bill_sub_order_detail_inf)")
 
-    DateUtils.timeCost("JOB_HV_33"){
-      val start_day = start_dt.replace("-","")
-      val end_day = end_dt.replace("-","")
-      println("#### JOB_HV_18 增量抽取的时间范围: "+start_day+"--"+end_day)
+    DateUtils.timeCost("JOB_HV_33") {
+      val start_day = start_dt.replace("-", "")
+      val end_day = end_dt.replace("-", "")
+      println("#### JOB_HV_18 增量抽取的时间范围: " + start_day + "--" + end_day)
 
-      val df = sqlContext.readDB2_MGM_4para(s"$schemas_mgmdb.viw_chmgm_bill_sub_order_detail_inf","trans_dt",s"$start_day",s"$end_day")
-      println("#### JOB_HV_33 readDB2_MGM_4para 的系统时间为:"+DateUtils.getCurrentSystemTime())
+      val df = sqlContext.readDB2_MGM_4para(s"$schemas_mgmdb.viw_chmgm_bill_sub_order_detail_inf", "trans_dt", s"$start_day", s"$end_day")
+      println("#### JOB_HV_33 readDB2_MGM_4para 的系统时间为:" + DateUtils.getCurrentSystemTime())
 
       df.registerTempTable("VIW_CHMGM_BILL_SUB_ORDER_DETAIL_INF")
-      println("#### JOB_HV_33 注册临时表的系统时间为:"+DateUtils.getCurrentSystemTime())
+      println("#### JOB_HV_33 注册临时表的系统时间为:" + DateUtils.getCurrentSystemTime())
 
       val results = sqlContext.sql(
         s"""
@@ -3775,7 +3775,7 @@ object SparkDB22Hive {
            |trim(ta.bill_id) as bill_id,
            |ta.bill_price as bill_price,
            |trim(ta.trans_seq) as trans_seq,
-           |ta.refund_reason as trans_seq,
+           |ta.refund_reason as refund_reason,
            |trim(ta.order_st) as order_st,
            |ta.rec_crt_ts as rec_crt_ts,
            |trim(ta.crt_cdhd_usr_id) as crt_cdhd_usr_id,
@@ -3793,12 +3793,12 @@ object SparkDB22Hive {
            |ta.response_msg as response_msg
            |from viw_chmgm_bill_sub_order_detail_inf ta
            | """.stripMargin)
-      println("#### JOB_HV_33 spark sql 逻辑完成的系统时间为:"+DateUtils.getCurrentSystemTime())
+      println("#### JOB_HV_33 spark sql 逻辑完成的系统时间为:" + DateUtils.getCurrentSystemTime())
 
       results.registerTempTable("spark_hive_bill_sub_order_trans")
-      println("#### JOB_HV_33 registerTempTable--spark_hive_bill_sub_order_trans 完成的系统时间为:"+DateUtils.getCurrentSystemTime())
+      println("#### JOB_HV_33 registerTempTable--spark_hive_bill_sub_order_trans 完成的系统时间为:" + DateUtils.getCurrentSystemTime())
 
-      if(!Option(results).isEmpty){
+      if (!Option(results).isEmpty) {
         sqlContext.sql(s"use $hive_dbname")
         sqlContext.sql(
           s"""
@@ -3829,8 +3829,8 @@ object SparkDB22Hive {
              |from
              |spark_hive_bill_sub_order_trans
          """.stripMargin)
-        println("#### JOB_HV_33 动态分区插入完成的时间为："+DateUtils.getCurrentSystemTime())
-      }else{
+        println("#### JOB_HV_33 动态分区插入完成的时间为：" + DateUtils.getCurrentSystemTime())
+      } else {
         println("#### JOB_HV_33 spark sql 逻辑处理后无数据！")
       }
     }
