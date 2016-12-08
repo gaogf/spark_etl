@@ -1419,7 +1419,7 @@ object SparkHive2Mysql {
     }
   }
   /**
-    * JobName:JOB_DM_13/12-6
+    * JobName:JOB_DM_13
     * Feature:DM_COUPON_PUB_DOWN_IF_ICCARD
     * @author tzq
     * @time 2016-12-6
@@ -1503,7 +1503,7 @@ object SparkHive2Mysql {
   }
 
   /**
-    * JobName: JOB_DM_14/12-6
+    * JobName: JOB_DM_14
     * Feature: DM_COUPON_SHIPP_DELIVER_MERCHANT
     * @author tzq
     * @time 2016-12-6
