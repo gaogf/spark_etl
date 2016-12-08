@@ -27,11 +27,11 @@ object SparkUPWH2H {
     val end_dt=rowParams.getString(1)//结束日期
     val interval=DateUtils.getIntervalDays(start_dt,end_dt).toInt
 
-    println(s"####当前JOB的执行日期为：start_dt=$start_dt,end_dt=$end_dt####")
+    println(s"#### SparkUPWH2H 数据抽取的起始日期为: $start_dt --  $end_dt")
 
-    val jobName = if(args.length>0) args(0) else None
-    println(s"#### 当前执行JobName为： $jobName ####")
-    jobName match {
+    val JobName = if(args.length>0) args(0) else None
+    println(s"#### 当前执行JobName为： $JobName ####")
+    JobName match {
       /**
         * 每日模板job
         */
@@ -44,6 +44,7 @@ object SparkUPWH2H {
         *  指标套表job
         */
 
+      case _ => println("#### No Case Job,Please Input JobName")
     }
 
     sc.stop()
