@@ -43,13 +43,18 @@ object SparkUPH2H {
         * 每日模板job
         */
       case "JOB_HV_39"  => JOB_HV_39(sqlContext,end_dt) //CODE BY YX
-      case "JOB_HV_41"  => JOB_HV_41(sqlContext,start_dt,end_dt) //CODE BY XTP
+      case "JOB_HV_41"  => JOB_HV_41(sqlContext,end_dt) //CODE BY XTP   already formatted
       case "JOB_HV_49"  => JOB_HV_49 //CODE BY YX
-      case "JOB_HV_50"  =>  JOB_HV_50(sqlContext,start_dt,end_dt) //CODE BY XTP
       case "JOB_HV_52"  => JOB_HV_52(sqlContext,end_dt) //CODE BY YX
       case "JOB_HV_55"  =>  JOB_HV_55(sqlContext,start_dt,end_dt) //CODE BY TZQ
       case "JOB_HV_56"  =>  JOB_HV_56(sqlContext,start_dt,end_dt) //CODE BY TZQ
       case "JOB_HV_57"  =>  JOB_HV_57(sqlContext,start_dt,end_dt) //CODE BY TZQ
+
+
+      /**
+        * 指标套表job
+        */
+      case "JOB_HV_50"  =>  JOB_HV_50(sqlContext,start_dt,end_dt) //CODE BY XTP
       case "JOB_HV_58"  =>  JOB_HV_58(sqlContext,start_dt,end_dt) //CODE BY XTP
       case "JOB_HV_59"  =>  JOB_HV_59(sqlContext,start_dt,end_dt) //CODE BY XTP
       case "JOB_HV_60"  =>  JOB_HV_60(sqlContext,start_dt,end_dt) //CODE BY XTP
@@ -59,10 +64,6 @@ object SparkUPH2H {
       case "JOB_HV_64"  =>  JOB_HV_64(sqlContext,start_dt,end_dt) //CODE BY XTP
       case "JOB_HV_65"  =>  JOB_HV_65(sqlContext,start_dt,end_dt) //CODE BY XTP
       case "JOB_HV_71"  =>  JOB_HV_71(sqlContext,start_dt,end_dt) //CODE BY XTP
-
-      /**
-        * 指标套表job
-        */
 
       case _ => println("#### No Case Job,Please Input JobName")
 
@@ -75,6 +76,7 @@ object SparkUPH2H {
   /**
     * JobName: JOB_HV_39
     * Feature: uphive.rtdtrs_dtl_achis -> hive.hive_achis_trans
+    *
     * @author YangXue
     * @time 2016-08-30
     * @param sqlContext,end_dt
@@ -292,37 +294,241 @@ object SparkUPH2H {
   /**
     * hive-job-41 2016-11-03
     * rtdtrs_dtl_cups to hive_cups_trans
+    *
     * @author Xue
     * @param sqlContext
     */
+    def JOB_HV_41(implicit sqlContext: HiveContext,end_dt: String) {
+    println("#### JOB_HV_41(rtdtrs_dtl_achis -> hive_achis_trans)")
 
-    // Xue create function about partition by date ^_^
-    def JOB_HV_41(implicit sqlContext: HiveContext,start_dt: String, end_dt: String)  {
-      var sdf: SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd")
-      val start = LocalDate.parse(start_dt, dateFormatter)
-      val end = LocalDate.parse(end_dt, dateFormatter)
-      val days = Days.daysBetween(start, end).getDays
-      val dateStrs = for (day <- 0 to days) {
-        val currentDay = (start.plusDays(day).toString(dateFormatter))
-        val currentDay_ft = (start.plusDays(day).toString(dateFormat_2))
-        println(currentDay_ft)
-        val df = sqlContext.read.parquet(s"$up_namenode/$up_hivedataroot/incident/ods/hive_cups_trans/part_settle_dt=$currentDay")
-        println(s"###### read $up_namenode/ successful ######")
-        df.registerTempTable("spark_hive_cups_trans")
+    val today_dt = end_dt
+    println("#### JOB_HV_41 增量抽取的时间范围为: " + end_dt)
+    DateUtils.timeCost("JOB_HV_41") {
+      val df = sqlContext.read.parquet(s"$up_namenode/$up_hivedataroot/incident/ods/hive_cups_trans/part_settle_dt=$today_dt")
+      println(s"#### JOB_HV_41 read $up_namenode/ 数据完成时间为:" + DateUtils.getCurrentSystemTime())
 
-        println(s"=========插入'$currentDay'分区的数据=========")
+      df.registerTempTable("spark_hive_cups_trans")
+      println("#### JOB_HV_41 registerTempTable--spark_hive_cups_trans 完成的系统时间为:" + DateUtils.getCurrentSystemTime())
+
+      if (!Option(df).isEmpty) {
         sqlContext.sql(s"use $hive_dbname")
-        sqlContext.sql(s"alter table hive_cups_trans drop partition (part_settle_dt='$currentDay')")
-        println(s"alter table hive_cups_trans drop partition (part_settle_dt='$currentDay') successfully!")
-        sqlContext.sql(s"insert into hive_cups_trans partition (part_settle_dt='$currentDay') select * from spark_hive_cups_trans htempa where htempa.hp_settle_dt='$currentDay_ft'")
-        println(s"insert into hive_cups_trans partition (part_settle_dt='$currentDay') successfully!")
+        sqlContext.sql(
+          s"""
+             |insert overwrite table hive_achis_trans partition (part_settle_dt)
+             |select
+             |settle_dt             ,
+             |pri_key               ,
+             |log_cd                ,
+             |settle_tp             ,
+             |settle_cycle          ,
+             |block_id              ,
+             |orig_key              ,
+             |related_key           ,
+             |trans_fwd_st          ,
+             |trans_rcv_st          ,
+             |sms_dms_conv_in       ,
+             |fee_in                ,
+             |cross_dist_in         ,
+             |orig_acpt_sdms_in     ,
+             |tfr_in_in             ,
+             |trans_md              ,
+             |source_region_cd      ,
+             |dest_region_cd        ,
+             |cups_card_in          ,
+             |cups_sig_card_in      ,
+             |card_class            ,
+             |card_attr             ,
+             |sti_in                ,
+             |trans_proc_in         ,
+             |acq_ins_id_cd         ,
+             |acq_ins_tp            ,
+             |fwd_ins_id_cd         ,
+             |fwd_ins_tp            ,
+             |rcv_ins_id_cd         ,
+             |rcv_ins_tp            ,
+             |iss_ins_id_cd         ,
+             |iss_ins_tp            ,
+             |related_ins_id_cd     ,
+             |related_ins_tp        ,
+             |acpt_ins_id_cd        ,
+             |acpt_ins_tp           ,
+             |pri_acct_no           ,
+             |pri_acct_no_conv      ,
+             |sys_tra_no            ,
+             |sys_tra_no_conv       ,
+             |sw_sys_tra_no         ,
+             |auth_dt               ,
+             |auth_id_resp_cd       ,
+             |resp_cd1              ,
+             |resp_cd2              ,
+             |resp_cd3              ,
+             |resp_cd4              ,
+             |cu_trans_st           ,
+             |sti_takeout_in        ,
+             |trans_id              ,
+             |trans_tp              ,
+             |trans_chnl            ,
+             |card_media            ,
+             |card_media_proc_md    ,
+             |card_brand            ,
+             |expire_seg            ,
+             |trans_id_conv         ,
+             |settle_mon            ,
+             |settle_d              ,
+             |orig_settle_dt        ,
+             |settle_fwd_ins_id_cd  ,
+             |settle_rcv_ins_id_cd  ,
+             |trans_at              ,
+             |orig_trans_at         ,
+             |trans_conv_rt         ,
+             |trans_curr_cd         ,
+             |cdhd_fee_at           ,
+             |cdhd_fee_conv_rt      ,
+             |cdhd_fee_acct_curr_cd ,
+             |repl_at               ,
+             |exp_snd_chnl          ,
+             |confirm_exp_chnl      ,
+             |extend_inf            ,
+             |conn_md               ,
+             |msg_tp                ,
+             |msg_tp_conv           ,
+             |card_bin              ,
+             |related_card_bin      ,
+             |trans_proc_cd         ,
+             |trans_proc_cd_conv    ,
+             |tfr_dt_tm             ,
+             |loc_trans_tm          ,
+             |loc_trans_dt          ,
+             |conv_dt               ,
+             |mchnt_tp              ,
+             |pos_entry_md_cd       ,
+             |card_seq              ,
+             |pos_cond_cd           ,
+             |pos_cond_cd_conv      ,
+             |retri_ref_no          ,
+             |term_id               ,
+             |term_tp               ,
+             |mchnt_cd              ,
+             |card_accptr_nm_addr   ,
+             |ic_data               ,
+             |rsn_cd                ,
+             |addn_pos_inf          ,
+             |orig_msg_tp           ,
+             |orig_msg_tp_conv      ,
+             |orig_sys_tra_no       ,
+             |orig_sys_tra_no_conv  ,
+             |orig_tfr_dt_tm        ,
+             |related_trans_id      ,
+             |related_trans_chnl    ,
+             |orig_trans_id         ,
+             |orig_trans_id_conv    ,
+             |orig_trans_chnl       ,
+             |orig_card_media       ,
+             |orig_card_media_proc_m,
+             |tfr_in_acct_no        ,
+             |tfr_out_acct_no       ,
+             |cups_resv             ,
+             |ic_flds               ,
+             |cups_def_fld          ,
+             |spec_settle_in        ,
+             |settle_trans_id       ,
+             |spec_mcc_in           ,
+             |iss_ds_settle_in      ,
+             |acq_ds_settle_in      ,
+             |settle_bmp            ,
+             |upd_in                ,
+             |exp_rsn_cd            ,
+             |to_ts                 ,
+             |resnd_num             ,
+             |pri_cycle_no          ,
+             |alt_cycle_no          ,
+             |corr_pri_cycle_no     ,
+             |corr_alt_cycle_no     ,
+             |disc_in               ,
+             |vfy_rslt              ,
+             |vfy_fee_cd            ,
+             |orig_disc_in          ,
+             |orig_disc_curr_cd     ,
+             |fwd_settle_at         ,
+             |rcv_settle_at         ,
+             |fwd_settle_conv_rt    ,
+             |rcv_settle_conv_rt    ,
+             |fwd_settle_curr_cd    ,
+             |rcv_settle_curr_cd    ,
+             |disc_cd               ,
+             |allot_cd              ,
+             |total_disc_at         ,
+             |fwd_orig_settle_at    ,
+             |rcv_orig_settle_at    ,
+             |vfy_fee_at            ,
+             |sp_mchnt_cd           ,
+             |acct_ins_id_cd        ,
+             |iss_ins_id_cd1        ,
+             |iss_ins_id_cd2        ,
+             |iss_ins_id_cd3        ,
+             |iss_ins_id_cd4        ,
+             |mchnt_ins_id_cd1      ,
+             |mchnt_ins_id_cd2      ,
+             |mchnt_ins_id_cd3      ,
+             |mchnt_ins_id_cd4      ,
+             |term_ins_id_cd1       ,
+             |term_ins_id_cd2       ,
+             |term_ins_id_cd3       ,
+             |term_ins_id_cd4       ,
+             |term_ins_id_cd5       ,
+             |acpt_cret_disc_at     ,
+             |acpt_debt_disc_at     ,
+             |iss1_cret_disc_at     ,
+             |iss1_debt_disc_at     ,
+             |iss2_cret_disc_at     ,
+             |iss2_debt_disc_at     ,
+             |iss3_cret_disc_at     ,
+             |iss3_debt_disc_at     ,
+             |iss4_cret_disc_at     ,
+             |iss4_debt_disc_at     ,
+             |mchnt1_cret_disc_at   ,
+             |mchnt1_debt_disc_at   ,
+             |mchnt2_cret_disc_at   ,
+             |mchnt2_debt_disc_at   ,
+             |mchnt3_cret_disc_at   ,
+             |mchnt3_debt_disc_at   ,
+             |mchnt4_cret_disc_at   ,
+             |mchnt4_debt_disc_at   ,
+             |term1_cret_disc_at    ,
+             |term1_debt_disc_at    ,
+             |term2_cret_disc_at    ,
+             |term2_debt_disc_at    ,
+             |term3_cret_disc_at    ,
+             |term3_debt_disc_at    ,
+             |term4_cret_disc_at    ,
+             |term4_debt_disc_at    ,
+             |term5_cret_disc_at    ,
+             |term5_debt_disc_at    ,
+             |pay_in                ,
+             |exp_id                ,
+             |vou_in                ,
+             |orig_log_cd           ,
+             |related_log_cd        ,
+             |mdc_key               ,
+             |rec_upd_ts            ,
+             |rec_crt_ts            ,
+             |hp_settle_dt          ,
+             |hp_settle_dt
+             |from
+             |spark_hive_achis_trans
+           """.stripMargin)
+        println("#### JOB_HV_41 分区数据插入完成的时间为：" + DateUtils.getCurrentSystemTime())
+      } else {
+        println(s"#### JOB_HV_41 read $up_namenode/ 无数据！")
       }
     }
+  }
 
 
   /**
     * JobName: JOB_HV_49
     * Feature: uphive.rtapam_prv_ucbiz_cdhd_bas_inf -> hive_ucbiz_cdhd_bas_inf
+    *
     * @author YangXue
     * @time 2016-09-14
     * @param sqlContext
@@ -352,6 +558,7 @@ object SparkUPH2H {
   /**
     * hive-job-50 2016-11-03
     * org_tdapp_keyvalue to hive_org_tdapp_keyvalue
+    *
     * @author Xue
     * @param sqlContext
     */
@@ -406,6 +613,7 @@ object SparkUPH2H {
   /**
     * JobName: JOB_HV_52
     * Feature: uphive.stmtrs_bsl_active_card_acq_branch_mon1 -> hive.hive_active_card_acq_branch_mon
+    *
     * @author YangXue
     * @time 2016-08-29
     * @param sqlContext,end_dt
@@ -454,6 +662,7 @@ object SparkUPH2H {
   /**
     * hive-job-55 2016-11-15
     * org_tdapp_tactivity to  hive_org_tdapp_tactivity
+    *
     * @author tzq
     * @param sqlContext
     */
@@ -501,6 +710,7 @@ object SparkUPH2H {
   /**
     * hive-job-56 2016-11-24
     * org_tdapp_tlaunch to  hive_org_tdapp_tlaunch
+    *
     * @author tzq
     * @param sqlContext
     */
@@ -548,6 +758,7 @@ object SparkUPH2H {
   /**
     * hive-job-57   2016-11-24
     * org_tdapp_terminate to  hive_org_tdapp_terminate
+    *
     * @author tzq
     * @param sqlContext
     */
@@ -596,6 +807,7 @@ object SparkUPH2H {
   /**
     * hive-job-58 2016-11-15
     * org_tdapp_activitynew to hive_org_tdapp_activitynew
+    *
     * @author Xue
     * @param sqlContext
     */
@@ -650,6 +862,7 @@ object SparkUPH2H {
   /**
     * hive-job-59 2016-11-16
     * org_tdapp_devicenew to hive_org_tdapp_devicenew
+    *
     * @author Xue
     * @param sqlContext
     */
@@ -704,6 +917,7 @@ object SparkUPH2H {
   /**
     * hive-job-60 2016-11-17
     * org_tdapp_eventnew to hive_org_tdapp_eventnew
+    *
     * @author Xue
     * @param sqlContext
     */
@@ -758,6 +972,7 @@ object SparkUPH2H {
   /**
     * hive-job-61 2016-11-22
     * org_tdapp_exceptionnew to hive_org_tdapp_exceptionnew
+    *
     * @author Xue
     * @param sqlContext
     */
@@ -812,6 +1027,7 @@ object SparkUPH2H {
   /**
     * hive-job-62 2016-11-22
     * org_tdapp_tlaunchnew to hive_org_tdapp_tlaunchnew
+    *
     * @author Xue
     * @param sqlContext
     */
@@ -866,6 +1082,7 @@ object SparkUPH2H {
   /**
     * hive-job-63 2016-11-22
     * org_tdapp_device to hive_org_tdapp_device
+    *
     * @author Xue
     * @param sqlContext
     */
@@ -920,6 +1137,7 @@ object SparkUPH2H {
   /**
     * hive-job-64 2016-11-25
     * org_tdapp_exception to hive_org_tdapp_exception
+    *
     * @author Xue
     * @param sqlContext
     */
@@ -974,6 +1192,7 @@ object SparkUPH2H {
   /**
     * hive-job-65 2016-11-25
     * org_tdapp_newuser to hive_org_tdapp_newuser
+    *
     * @author Xue
     * @param sqlContext
     */
