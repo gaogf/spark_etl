@@ -667,7 +667,7 @@ object SparkHive2Mysql {
          println(s"###JOB_DM_5------$today_dt results:"+results.count())
          if(!Option(results).isEmpty){
            results.save2Mysql("dm_user_card_iss")
-           println(s"#### JOB_DM_5 [$today_dt]数据插入完成时间为：" + DateUtils.getCurrentSystemTime()
+           println(s"#### JOB_DM_5 [$today_dt]数据插入完成时间为：" + DateUtils.getCurrentSystemTime())
          }else{
            println(s"#### JOB_DM_5 spark sql 清洗[$today_dt]数据无结果集！")
          }
@@ -766,7 +766,7 @@ object SparkHive2Mysql {
 
           if(!Option(results).isEmpty){
             results.save2Mysql("dm_user_card_nature")
-            println(s"#### JOB_DM_6 [$today_dt]数据插入完成时间为：" + DateUtils.getCurrentSystemTime()
+            println(s"#### JOB_DM_6 [$today_dt]数据插入完成时间为：" + DateUtils.getCurrentSystemTime())
           }else{
               println(s"#### JOB_DM_6 spark sql 清洗[$today_dt]数据无结果集！")
           }
@@ -1332,7 +1332,7 @@ object SparkHive2Mysql {
         println(s"###JOB_DM_11------$today_dt results:"+results.count())
         if(!Option(results).isEmpty){
           results.save2Mysql("dm_development_org_class")
-          println(s"#### JOB_DM_11 [$today_dt]数据插入完成时间为：" + DateUtils.getCurrentSystemTime()
+          println(s"#### JOB_DM_11 [$today_dt]数据插入完成时间为：" + DateUtils.getCurrentSystemTime())
         }else{
           println(s"#### JOB_DM_11 spark sql 清洗[$today_dt]数据无结果集！")
         }
@@ -1409,7 +1409,7 @@ object SparkHive2Mysql {
           println(s"###JOB_DM_12------$today_dt results:"+results.count())
           if(!Option(results).isEmpty){
             results.save2Mysql("DM_COUPON_PUB_DOWN_BRANCH")
-            println(s"#### JOB_DM_12 [$today_dt]数据插入完成时间为：" + DateUtils.getCurrentSystemTime()
+            println(s"#### JOB_DM_12 [$today_dt]数据插入完成时间为：" + DateUtils.getCurrentSystemTime())
           }else{
             println(s"#### JOB_DM_12 spark sql 清洗[$today_dt]数据无结果集！")
           }
@@ -1492,7 +1492,7 @@ object SparkHive2Mysql {
           println(s"###JOB_DM_13------$today_dt results:"+results.count())
           if(!Option(results).isEmpty){
             results.save2Mysql("DM_COUPON_PUB_DOWN_IF_ICCARD")
-            println(s"#### JOB_DM_13 [$today_dt]数据插入完成时间为：" + DateUtils.getCurrentSystemTime()
+            println(s"#### JOB_DM_13 [$today_dt]数据插入完成时间为：" + DateUtils.getCurrentSystemTime())
           }else{
             println(s"#### JOB_DM_13 spark sql 清洗[$today_dt]数据无结果集！")
           }
@@ -1579,7 +1579,7 @@ object SparkHive2Mysql {
           println(s"###JOB_DM_14------$today_dt results:"+results.count())
           if(!Option(results).isEmpty){
             results.save2Mysql("DM_COUPON_SHIPP_DELIVER_MERCHANT")
-            println(s"#### JOB_DM_14 [$today_dt]数据插入完成时间为：" + DateUtils.getCurrentSystemTime()
+            println(s"#### JOB_DM_14 [$today_dt]数据插入完成时间为：" + DateUtils.getCurrentSystemTime())
           }else{
             println(s"#### JOB_DM_14 spark sql 清洗[$today_dt]数据无结果集！")
           }
@@ -1675,7 +1675,7 @@ object SparkHive2Mysql {
 
           if(!Option(results).isEmpty){
             results.save2Mysql("DM_COUPON_SHIPP_DELIVER_ISS")
-            println(s"#### JOB_DM_15 [$today_dt]数据插入完成时间为：" + DateUtils.getCurrentSystemTime()
+            println(s"#### JOB_DM_15 [$today_dt]数据插入完成时间为：" + DateUtils.getCurrentSystemTime())
           }else{
               println(s"#### JOB_DM_15 spark sql 清洗[$today_dt]数据无结果集！")
           }
@@ -1761,7 +1761,7 @@ object SparkHive2Mysql {
           println(s"###JOB_DM_16------$today_dt results:"+results.count())
           if(!Option(results).isEmpty){
             results.save2Mysql("DM_COUPON_SHIPP_DELIVER_BRANCH")
-            println(s"#### JOB_DM_16 [$today_dt]数据插入完成时间为：" + DateUtils.getCurrentSystemTime()
+            println(s"#### JOB_DM_16 [$today_dt]数据插入完成时间为：" + DateUtils.getCurrentSystemTime())
           }else{
             println(s"#### JOB_DM_16 spark sql 清洗[$today_dt]数据无结果集！")
           }
@@ -1852,7 +1852,7 @@ object SparkHive2Mysql {
           println(s"###JOB_DM_17------$today_dt results:"+results.count())
           if(!Option(results).isEmpty){
             results.save2Mysql("DM_COUPON_SHIPP_DELIVER_PHOME_AREA")
-            println(s"#### JOB_DM_17 [$today_dt]数据插入完成时间为：" + DateUtils.getCurrentSystemTime()
+            println(s"#### JOB_DM_17 [$today_dt]数据插入完成时间为：" + DateUtils.getCurrentSystemTime())
           }else{
               println(s"#### JOB_DM_17 spark sql 清洗[$today_dt]数据无结果集！")
           }
@@ -2041,7 +2041,7 @@ object SparkHive2Mysql {
       println("##### JOB_DM_55 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
 
       sqlContext.sql(s"use $hive_dbname")
-      println(s"#### JOB_DM_55 spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
+      println(s"#### JOB_DM_55 spark sql 清洗数据开始时间为:" + DateUtils.getCurrentSystemTime())
 
       val results=sqlContext.sql(
         s"""
@@ -2067,15 +2067,15 @@ object SparkHive2Mysql {
            |    dbi.cup_branch_ins_id_nm,
            |    to_date(trans.settle_dt)
         """.stripMargin)
-      println(s"#### JOB_DM_55 spark sql 清洗[$today_dt]数据完成时间为:" + DateUtils.getCurrentSystemTime())
+      println(s"#### JOB_DM_55 spark sql 清洗数据完成时间为:" + DateUtils.getCurrentSystemTime())
 
       //println("###JOB_DM_55------results:"+results.count())
       if(!Option(results).isEmpty){
         results.save2Mysql("dm_disc_act_branch_dly")
-        println(s"#### JOB_DM_55 [$today_dt]数据插入完成时间为：" + DateUtils.getCurrentSystemTime()
+        println(s"#### JOB_DM_55 数据插入完成时间为：" + DateUtils.getCurrentSystemTime())
 
       }else{
-          println(s"#### JOB_DM_55 spark sql 清洗[$today_dt]数据无结果集！")
+          println(s"#### JOB_DM_55 spark sql 清洗数据无结果集！")
       }
   }
 
@@ -2179,7 +2179,7 @@ object SparkHive2Mysql {
 
           if(!Option(results).isEmpty){
             results.save2Mysql("dm_usr_auther_nature_tie_card")
-            println(s"#### JOB_DM_62 [$today_dt]数据插入完成时间为：" + DateUtils.getCurrentSystemTime()
+            println(s"#### JOB_DM_62 [$today_dt]数据插入完成时间为：" + DateUtils.getCurrentSystemTime())
           }else{
             println(s"#### JOB_DM_62 spark sql 清洗[$today_dt]数据无结果集！")
           }
@@ -2382,7 +2382,7 @@ object SparkHive2Mysql {
       if(interval>0 ){
         sqlContext.sql(s"use $hive_dbname")
         for(i <- 0 to interval){
-          println(s"#### JOB_DM_66 spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
+          println(s"#### JOB_DM_66 spark sql 清洗数据开始时间为:" + DateUtils.getCurrentSystemTime())
           val results=sqlContext.sql(
             s"""
                |select
@@ -2425,14 +2425,14 @@ object SparkHive2Mysql {
                | group by  cup_branch_ins_id_nm,cfp_sign
                |
       """.stripMargin)
-          println(s"#### JOB_DM_66 spark sql 清洗[$today_dt]数据完成时间为:" + DateUtils.getCurrentSystemTime())
+          println(s"#### JOB_DM_66 spark sql 清洗数据完成时间为:" + DateUtils.getCurrentSystemTime())
           println(s"###JOB_DM_66------$today_dt results:"+results.count())
 
           if(!Option(results).isEmpty){
             results.save2Mysql("dm_coupon_cfp_tran")
-            println(s"#### JOB_DM_66 [$today_dt]数据插入完成时间为：" + DateUtils.getCurrentSystemTime()
+            println(s"#### JOB_DM_66 数据插入完成时间为：" + DateUtils.getCurrentSystemTime())
           }else{
-            println(s"#### JOB_DM_66 spark sql 清洗[$today_dt]数据无结果集！")
+            println(s"#### JOB_DM_66 spark sql 清洗数据无结果集！")
           }
           today_dt=DateUtils.addOneDay(today_dt)
         }
@@ -2886,7 +2886,7 @@ object SparkHive2Mysql {
 
       sqlContext.sql(s"use $hive_dbname")
 
-      println(s"#### JOB_DM_69 spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
+      println(s"#### JOB_DM_69 spark sql 清洗数据开始时间为:" + DateUtils.getCurrentSystemTime())
       val results=sqlContext.sql(
         s"""
            |select
@@ -2965,13 +2965,13 @@ object SparkHive2Mysql {
            |    a.rn <= 10
            |
       """.stripMargin)
-      println(s"#### JOB_DM_69 spark sql 清洗[$today_dt]数据完成时间为:" + DateUtils.getCurrentSystemTime())
+      println(s"#### JOB_DM_69 spark sql 清洗数据完成时间为:" + DateUtils.getCurrentSystemTime())
       println("###JOB_DM_69------results:"+results.count())
       if(!Option(results).isEmpty){
         results.save2Mysql("dm_disc_tkt_act_dly")
-        println(s"#### JOB_DM_69 [$today_dt]数据插入完成时间为：" + DateUtils.getCurrentSystemTime()
+        println(s"#### JOB_DM_69 数据插入完成时间为：" + DateUtils.getCurrentSystemTime())
       }else{
-        println(s"#### JOB_DM_69 spark sql 清洗[$today_dt]数据无结果集！")
+        println(s"#### JOB_DM_69 spark sql 清洗数据无结果集！")
       }
     }
   }
@@ -2990,7 +2990,7 @@ object SparkHive2Mysql {
       println( "#### JOB_DM_70 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
       sqlContext.sql(s"use $hive_dbname")
 
-      println(s"#### JOB_DM_70 spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
+      println(s"#### JOB_DM_70 spark sql 清洗数据开始时间为:" + DateUtils.getCurrentSystemTime())
       val results=sqlContext.sql(
         s"""
            |
@@ -3070,13 +3070,13 @@ object SparkHive2Mysql {
            |    a.rn <= 10
            |
       """.stripMargin)
-      println(s"#### JOB_DM_70 spark sql 清洗[$today_dt]数据完成时间为:" + DateUtils.getCurrentSystemTime())
+      println(s"#### JOB_DM_70 spark sql 清洗数据完成时间为:" + DateUtils.getCurrentSystemTime())
       println("###JOB_DM_70------results:"+results.count())
       if(!Option(results).isEmpty){
         results.save2Mysql("dm_elec_tkt_act_dly")
-        println(s"#### JOB_DM_70 [$today_dt]数据插入完成时间为：" + DateUtils.getCurrentSystemTime()
+        println(s"#### JOB_DM_70 数据插入完成时间为：" + DateUtils.getCurrentSystemTime())
       }else{
-        println(s"#### JOB_DM_70 spark sql 清洗[$today_dt]数据无结果集！")
+        println(s"#### JOB_DM_70 spark sql 清洗数据无结果集！")
       }
     }
 
@@ -3099,7 +3099,7 @@ object SparkHive2Mysql {
       println( "#### JOB_DM_71 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
 
       sqlContext.sql(s"use $hive_dbname")
-      println(s"#### JOB_DM_71 spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
+      println(s"#### JOB_DM_71 spark sql 清洗数据开始时间为:" + DateUtils.getCurrentSystemTime())
       val results=sqlContext.sql(
         s"""
            |select
@@ -3176,14 +3176,14 @@ object SparkHive2Mysql {
            |    a.rn <= 10
            |
       """.stripMargin)
-      println(s"#### JOB_DM_71 spark sql 清洗[$today_dt]数据完成时间为:" + DateUtils.getCurrentSystemTime())
+      println(s"#### JOB_DM_71 spark sql 清洗数据完成时间为:" + DateUtils.getCurrentSystemTime())
 
       println("###JOB_DM_71------results:"+results.count())
       if(!Option(results).isEmpty){
         results.save2Mysql("dm_vchr_tkt_act_dly")
-        println(s"#### JOB_DM_71 [$today_dt]数据插入完成时间为：" + DateUtils.getCurrentSystemTime()
+        println(s"#### JOB_DM_71 数据插入完成时间为：" + DateUtils.getCurrentSystemTime())
       }else{
-        println(s"#### JOB_DM_71 spark sql 清洗[$today_dt]数据无结果集！")
+        println(s"#### JOB_DM_71 spark sql 清洗数据无结果集！")
       }
     }
   }
@@ -3630,7 +3630,7 @@ object SparkHive2Mysql {
 
           if(!Option(results).isEmpty){
             results.save2Mysql("dm_auto_disc_cfp_tran")
-            println(s"#### JOB_DM_76 [$today_dt]数据插入完成时间为：" + DateUtils.getCurrentSystemTime()
+            println(s"#### JOB_DM_76 [$today_dt]数据插入完成时间为：" + DateUtils.getCurrentSystemTime())
           }else{
             println(s"#### JOB_DM_76 spark sql 清洗[$today_dt]数据无结果集！")
           }
@@ -3878,17 +3878,17 @@ object SparkHive2Mysql {
   def JOB_DM_87(implicit sqlContext: HiveContext,start_dt:String,end_dt:String,interval:Int) = {
 
     println("###JOB_DM_87(dm_cashier_stat_dly->hive_cashier_bas_inf+cup_branch_ins_id_nm+hive_cashier_point_acct_oper_dtl+hive_cdhd_cashier_maktg_reward_dtl+hive_signer_log)")
+    DateUtils.timeCost("JOB_DM_87"){
+      UPSQL_JDBC.delete("dm_cashier_stat_dly","report_dt",start_dt,end_dt);
+      println( "#### JOB_DM_87 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
 
-    UPSQL_JDBC.delete("dm_cashier_stat_dly","report_dt",start_dt,end_dt);
-    println( "#### JOB_DM_87 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
+      var today_dt=start_dt
+      if(interval>0 ){
+        sqlContext.sql(s"use $hive_dbname")
+        for(i <- 0 to interval)
 
-    var today_dt=start_dt
-    if(interval>0 ){
-      sqlContext.sql(s"use $hive_dbname")
-      for(i <- 0 to interval)
-
-      println(s"#### JOB_DM_87 spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
-      val results=sqlContext.sql(
+        println(s"#### JOB_DM_87 spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
+        val results=sqlContext.sql(
           s"""
              |SELECT
              |    t.cup_branch_ins_id_nm as cup_branch_ins_id_nm,
@@ -4362,12 +4362,12 @@ object SparkHive2Mysql {
              |    t.cup_branch_ins_id_nm,
              |    t.report_dt
       """.stripMargin)
-      println(s"#### JOB_DM_87 spark sql 清洗[$today_dt]数据完成时间为:" + DateUtils.getCurrentSystemTime())
+        println(s"#### JOB_DM_87 spark sql 清洗[$today_dt]数据完成时间为:" + DateUtils.getCurrentSystemTime())
 
-      println(s"###JOB_DM_87------$today_dt results:"+results.count())
+        println(s"###JOB_DM_87------$today_dt results:"+results.count())
         if(!Option(results).isEmpty){
           results.save2Mysql("dm_cashier_stat_dly")
-          println(s"#### JOB_DM_87 [$today_dt]数据插入完成时间为：" + DateUtils.getCurrentSystemTime()
+          println(s"#### JOB_DM_87 [$today_dt]数据插入完成时间为：" + DateUtils.getCurrentSystemTime())
         }else{
           println(s"#### JOB_DM_87 spark sql 清洗[$today_dt]数据无结果集！")
         }
@@ -4375,10 +4375,8 @@ object SparkHive2Mysql {
         today_dt=DateUtils.addOneDay(today_dt)
       }
     }
+
   }
-
-
-
 
 }
 
