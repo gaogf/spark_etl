@@ -590,187 +590,191 @@ object SparkHive2Mysql {
   }
 
   /**
-    * JOB_DM_5  2016年9月27日 星期二
-    * dm_user_card_iss->hive_pri_acct_inf+hive_acc_trans+hive_card_bind_inf+hive_card_bin
-    *
+    * JobName: JOB_DM_5
+    * Feature: hive_pri_acct_inf+hive_acc_trans+hive_card_bind_inf+hive_card_bin->dm_user_card_iss
     * @author tzq
-    * @param sqlContext
+    * @time 2016-9-27
+    * @param sqlContext,start_dt,end_dt,interval
     */
   def JOB_DM_5(implicit sqlContext: HiveContext,start_dt:String,end_dt:String,interval:Int) = {
+    println("###JOB_DM_5(hive_pri_acct_inf+hive_acc_trans+hive_card_bind_inf+hive_card_bin->dm_user_card_iss)")
 
-    println("###JOB_DM_5(dm_user_card_iss->hive_pri_acct_inf+hive_acc_trans+hive_card_bind_inf+hive_card_bin)")
+    DateUtils.timeCost("JOB_DM_5"){
+     UPSQL_JDBC.delete("dm_user_card_iss","report_dt",start_dt,end_dt);
+     println( "#### JOB_DM_5 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
 
-    //1.先删除作业指定开始日期和结束日期间的数据
-    UPSQL_JDBC.delete("dm_user_card_iss","report_dt",start_dt,end_dt);
-    var today_dt=start_dt
-    //2.循环从指定的日期范围内抽取数据（单位：天）
-    if(interval>0 ){
-      sqlContext.sql(s"use $hive_dbname")
-      for(i <- 0 to interval){
-        val results=sqlContext.sql(
-          s"""
-             |
+     var today_dt=start_dt
+     if(interval>0 ){
+       sqlContext.sql(s"use $hive_dbname")
+       for(i <- 0 to interval){
+         println(s"#### JOB_DM_5 spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
+         val results=sqlContext.sql(
+           s"""
+              |
              |select
-             |trim(a.iss_ins_cn_nm) as card_iss,
-             |'$today_dt' as report_dt,
-             |nvl(sum(a.tpre),0) as effect_tpre_add_num ,
-             |nvl(sum(a.years),0) as effect_year_add_num ,
-             |nvl(sum(a.total),0) as effect_totle_add_num,
-             |0 as batch_tpre_add_num,
-             |0 as batch_year_add_num,
-             |0 as batch_totle_add_num,
-             |0 as client_tpre_add_num,
-             |0 as client_year_add_num,
-             |0 as client_totle_add_num,
-             |nvl(sum(b.tpre),0) as deal_tpre_add_num ,
-             |nvl(sum(b.years),0) as deal_year_add_num ,
-             |nvl(sum(b.total),0) as  deal_totle_add_num
-             |from
-             |(
-             |select iss_ins_cn_nm,
-             |count(distinct(case when substr(rec_crt_ts,1,10)='$today_dt' and substr(card_dt,1,10)='$today_dt' then a.cdhd_usr_id end)) as tpre,
-             |count(distinct(case when substr(rec_crt_ts,1,10)>=trunc('$today_dt',"YY") and substr(rec_crt_ts,1,10)<='$today_dt'
-             |and substr(card_dt,1,10)>=trunc('$today_dt',"YY") and substr(card_dt,1,10)<='$today_dt' then a.cdhd_usr_id end)) as years,
-             |count(distinct(case when substr(rec_crt_ts,1,10)<='$today_dt' and substr(card_dt,1,10)<='$today_dt' then a.cdhd_usr_id end)) as total
-             |
+              |trim(a.iss_ins_cn_nm) as card_iss,
+              |'$today_dt' as report_dt,
+              |nvl(sum(a.tpre),0) as effect_tpre_add_num ,
+              |nvl(sum(a.years),0) as effect_year_add_num ,
+              |nvl(sum(a.total),0) as effect_totle_add_num,
+              |0 as batch_tpre_add_num,
+              |0 as batch_year_add_num,
+              |0 as batch_totle_add_num,
+              |0 as client_tpre_add_num,
+              |0 as client_year_add_num,
+              |0 as client_totle_add_num,
+              |nvl(sum(b.tpre),0) as deal_tpre_add_num ,
+              |nvl(sum(b.years),0) as deal_year_add_num ,
+              |nvl(sum(b.total),0) as  deal_totle_add_num
+              |from
+              |(
+              |select iss_ins_cn_nm,
+              |count(distinct(case when substr(rec_crt_ts,1,10)='$today_dt' and substr(card_dt,1,10)='$today_dt' then a.cdhd_usr_id end)) as tpre,
+              |count(distinct(case when substr(rec_crt_ts,1,10)>=trunc('$today_dt',"YY") and substr(rec_crt_ts,1,10)<='$today_dt'
+              |and substr(card_dt,1,10)>=trunc('$today_dt',"YY") and substr(card_dt,1,10)<='$today_dt' then a.cdhd_usr_id end)) as years,
+              |count(distinct(case when substr(rec_crt_ts,1,10)<='$today_dt' and substr(card_dt,1,10)<='$today_dt' then a.cdhd_usr_id end)) as total
+              |
                    |from (
-             |select cdhd_usr_id, rec_crt_ts
-             |from hive_pri_acct_inf
-             |where usr_st='1'
-             |) a
-             |inner join (
-             |select distinct cdhd_usr_id,iss_ins_cn_nm,rec_crt_ts as card_dt
-             |from hive_card_bind_inf where card_auth_st in ('1','2','3')
-             |) b
-             |on a.cdhd_usr_id=b.cdhd_usr_id
-             |group by iss_ins_cn_nm) a
-             |
+              |select cdhd_usr_id, rec_crt_ts
+              |from hive_pri_acct_inf
+              |where usr_st='1'
+              |) a
+              |inner join (
+              |select distinct cdhd_usr_id,iss_ins_cn_nm,rec_crt_ts as card_dt
+              |from hive_card_bind_inf where card_auth_st in ('1','2','3')
+              |) b
+              |on a.cdhd_usr_id=b.cdhd_usr_id
+              |group by iss_ins_cn_nm) a
+              |
                    |left join
-             |(
-             |select iss_ins_cn_nm,
-             |count(distinct(case when substr(rec_crt_ts,1,10)='$today_dt' then cdhd_usr_id end)) as tpre,
-             |count(distinct(case when substr(rec_crt_ts,1,10)>=trunc('$today_dt',"YY")
-             |and substr(rec_crt_ts,1,10)<='$today_dt' then cdhd_usr_id end)) as years,
-             |count(distinct(case when substr(rec_crt_ts,1,10)<='$today_dt' then cdhd_usr_id end)) as total
-             |from (select iss_ins_cn_nm,card_bin from hive_card_bin
-             |) a
-             |inner join
-             |(select distinct cdhd_usr_id,substr(card_no,1,8) as card_bin,rec_crt_ts from hive_acc_trans ) b
-             |on a.card_bin=b.card_bin
-             |group by iss_ins_cn_nm ) b
-             |on a.iss_ins_cn_nm=b.iss_ins_cn_nm
-             |group by trim(a.iss_ins_cn_nm),'$today_dt'
-             |
+              |(
+              |select iss_ins_cn_nm,
+              |count(distinct(case when substr(rec_crt_ts,1,10)='$today_dt' then cdhd_usr_id end)) as tpre,
+              |count(distinct(case when substr(rec_crt_ts,1,10)>=trunc('$today_dt',"YY")
+              |and substr(rec_crt_ts,1,10)<='$today_dt' then cdhd_usr_id end)) as years,
+              |count(distinct(case when substr(rec_crt_ts,1,10)<='$today_dt' then cdhd_usr_id end)) as total
+              |from (select iss_ins_cn_nm,card_bin from hive_card_bin
+              |) a
+              |inner join
+              |(select distinct cdhd_usr_id,substr(card_no,1,8) as card_bin,rec_crt_ts from hive_acc_trans ) b
+              |on a.card_bin=b.card_bin
+              |group by iss_ins_cn_nm ) b
+              |on a.iss_ins_cn_nm=b.iss_ins_cn_nm
+              |group by trim(a.iss_ins_cn_nm),'$today_dt'
+              |
       """.stripMargin)
-
-        println(s"###JOB_DM_5------$today_dt results:"+results.count())
-        if(!Option(results).isEmpty){
-          results.save2Mysql("dm_user_card_iss")
-        }else{
-          println("指定的时间范围无数据插入！")
-        }
-        //日期加1天
-        today_dt=DateUtils.addOneDay(today_dt)
-      }
-    }
+         println(s"#### JOB_DM_5 spark sql 清洗[$today_dt]数据完成时间为:" + DateUtils.getCurrentSystemTime())
+         println(s"###JOB_DM_5------$today_dt results:"+results.count())
+         if(!Option(results).isEmpty){
+           results.save2Mysql("dm_user_card_iss")
+           println(s"#### JOB_DM_5 [$today_dt]数据插入完成时间为：" + DateUtils.getCurrentSystemTime()
+         }else{
+           println(s"#### JOB_DM_5 spark sql 清洗[$today_dt]数据无结果集！")
+         }
+         today_dt=DateUtils.addOneDay(today_dt)
+       }
+     }
+   }
 
   }
 
   /**
-    * JOB_DM_6  2016年9月27日 星期二
-    * dm_user_card_nature
-    *
+    * JobName: JOB_DM_6
+    * Feature: dm_user_card_nature
     * @author tzq
-    * @param sqlContext
+    * @time   2016-9-27
+    * @param sqlContext,start_dt,end_dt,interval
     */
   def JOB_DM_6(implicit sqlContext: HiveContext,start_dt:String,end_dt:String,interval:Int) = {
-
     println("JOB_DM_6------->JOB_DM_6(dm_user_card_nature->hive_pri_acct_inf+hive_card_bind_inf+hive_acc_trans)")
+    DateUtils.timeCost("JOB_DM_6"){
+      UPSQL_JDBC.delete("dm_user_card_nature","report_dt",start_dt,end_dt)
+      println( "#### JOB_DM_6 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
 
-    UPSQL_JDBC.delete("dm_user_card_nature","report_dt",start_dt,end_dt)
-
-    var today_dt=start_dt
-    if(interval>0 ){
-      sqlContext.sql(s"use $hive_dbname")
-      for(i <- 0 to interval){
-        val results=sqlContext.sql(
-          s"""
-             |select
-             |a.card_auth_nm as card_nature,
-             |'$today_dt'   as report_dt,
-             |nvl(a.tpre,0)   as   effect_tpre_add_num ,
-             |nvl(a.years,0)  as   effect_year_add_num ,
-             |nvl(a.total,0) as   effect_totle_add_num,
-             |0 as batch_tpre_add_num,
-             |0 as batch_year_add_num,
-             |0 as batch_totle_add_num,
-             |0 as client_tpre_add_num,
-             |0 as client_year_add_num,
-             |0 as client_totle_add_num,
-             |nvl(b.tpre,0)   as   deal_tpre_add_num ,
-             |nvl(b.years,0)  as   deal_year_add_num ,
-             |nvl(b.total,0) as   deal_totle_add_num
-             |
+      var today_dt=start_dt
+      if(interval>0 ){
+        sqlContext.sql(s"use $hive_dbname")
+        println(s"#### JOB_DM_6 spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
+        for(i <- 0 to interval){
+          val results=sqlContext.sql(
+            s"""
+               |select
+               |a.card_auth_nm as card_nature,
+               |'$today_dt'   as report_dt,
+               |nvl(a.tpre,0)   as   effect_tpre_add_num ,
+               |nvl(a.years,0)  as   effect_year_add_num ,
+               |nvl(a.total,0) as   effect_totle_add_num,
+               |0 as batch_tpre_add_num,
+               |0 as batch_year_add_num,
+               |0 as batch_totle_add_num,
+               |0 as client_tpre_add_num,
+               |0 as client_year_add_num,
+               |0 as client_totle_add_num,
+               |nvl(b.tpre,0)   as   deal_tpre_add_num ,
+               |nvl(b.years,0)  as   deal_year_add_num ,
+               |nvl(b.total,0) as   deal_totle_add_num
+               |
              |from (
-             |select
-             |(case when card_auth_st='0' then   '默认'
-             |  when card_auth_st='1' then   '支付认证'
-             |  when card_auth_st='2' then   '可信认证'
-             |  when card_auth_st='3' then   '可信+支付认证'
-             | else '--' end) as card_auth_nm,
-             |count(distinct(case when substr(rec_crt_ts,1,10)='$today_dt'  and substr(CARD_DT,1,10)='$today_dt'  then a.cdhd_usr_id end)) as tpre,
-             |count(distinct(case when substr(rec_crt_ts,1,10)>=trunc('$today_dt',"YY") and substr(rec_crt_ts,1,10)<='$today_dt'
-             |     and substr(CARD_DT,1,10)>=trunc('$today_dt',"YY") and  substr(CARD_DT,1,10)<='$today_dt' then  a.cdhd_usr_id end)) as years,
-             |count(distinct(case when substr(rec_crt_ts,1,10)<='$today_dt' and  substr(CARD_DT,1,10)<='$today_dt'  then  a.cdhd_usr_id end)) as total
-             |from
-             |(select cdhd_usr_id,rec_crt_ts from hive_pri_acct_inf
-             |where usr_st='1' ) a
-             |inner join (select distinct cdhd_usr_id,card_auth_st,rec_crt_ts as CARD_DT from hive_card_bind_inf ) b
-             |on a.cdhd_usr_id=b.cdhd_usr_id
-             |group by
-             |case when card_auth_st='0' then   '默认'
-             |  when card_auth_st='1' then   '支付认证'
-             |  when card_auth_st='2' then   '可信认证'
-             |  when card_auth_st='3' then   '可信+支付认证'
-             | else '--' end) a
-             |
+               |select
+               |(case when card_auth_st='0' then   '默认'
+               |  when card_auth_st='1' then   '支付认证'
+               |  when card_auth_st='2' then   '可信认证'
+               |  when card_auth_st='3' then   '可信+支付认证'
+               | else '--' end) as card_auth_nm,
+               |count(distinct(case when substr(rec_crt_ts,1,10)='$today_dt'  and substr(CARD_DT,1,10)='$today_dt'  then a.cdhd_usr_id end)) as tpre,
+               |count(distinct(case when substr(rec_crt_ts,1,10)>=trunc('$today_dt',"YY") and substr(rec_crt_ts,1,10)<='$today_dt'
+               |     and substr(CARD_DT,1,10)>=trunc('$today_dt',"YY") and  substr(CARD_DT,1,10)<='$today_dt' then  a.cdhd_usr_id end)) as years,
+               |count(distinct(case when substr(rec_crt_ts,1,10)<='$today_dt' and  substr(CARD_DT,1,10)<='$today_dt'  then  a.cdhd_usr_id end)) as total
+               |from
+               |(select cdhd_usr_id,rec_crt_ts from hive_pri_acct_inf
+               |where usr_st='1' ) a
+               |inner join (select distinct cdhd_usr_id,card_auth_st,rec_crt_ts as CARD_DT from hive_card_bind_inf ) b
+               |on a.cdhd_usr_id=b.cdhd_usr_id
+               |group by
+               |case when card_auth_st='0' then   '默认'
+               |  when card_auth_st='1' then   '支付认证'
+               |  when card_auth_st='2' then   '可信认证'
+               |  when card_auth_st='3' then   '可信+支付认证'
+               | else '--' end) a
+               |
              | left join
-             |(
-             |select
-             |(case when card_auth_st='0' then   '默认'
-             |  when card_auth_st='1' then   '支付认证'
-             |  when card_auth_st='2' then   '可信认证'
-             |  when card_auth_st='3' then   '可信+支付认证'
-             | else '--' end) as card_auth_nm,
-             |count(distinct(case when substr(rec_crt_ts,1,10)='$today_dt'  and substr(trans_dt,1,10)='$today_dt'  then a.cdhd_usr_id end)) as tpre,
-             |count(distinct(case when substr(rec_crt_ts,1,10)>=trunc('$today_dt',"YY") and substr(rec_crt_ts,1,10)<='$today_dt'
-             |and substr(trans_dt,1,10)>=trunc('$today_dt',"YY") and  substr(trans_dt,1,10)<='$today_dt' then  a.cdhd_usr_id end)) as years,
-             |count(distinct(case when substr(rec_crt_ts,1,10)<='$today_dt' and  substr(trans_dt,1,10)<='$today_dt'  then a.cdhd_usr_id end)) as total
-             |from (select distinct cdhd_usr_id,card_auth_st,rec_crt_ts from hive_card_bind_inf) a
-             |inner join (select distinct cdhd_usr_id,trans_dt from hive_acc_trans ) b
-             |on a.cdhd_usr_id=b.cdhd_usr_id
-             |group by
-             |case when card_auth_st='0' then   '默认'
-             |  when card_auth_st='1' then   '支付认证'
-             |  when card_auth_st='2' then   '可信认证'
-             |  when card_auth_st='3' then   '可信+支付认证'
-             | else '--' end) b
-             | on a.card_auth_nm=b.card_auth_nm
-             |
+               |(
+               |select
+               |(case when card_auth_st='0' then   '默认'
+               |  when card_auth_st='1' then   '支付认证'
+               |  when card_auth_st='2' then   '可信认证'
+               |  when card_auth_st='3' then   '可信+支付认证'
+               | else '--' end) as card_auth_nm,
+               |count(distinct(case when substr(rec_crt_ts,1,10)='$today_dt'  and substr(trans_dt,1,10)='$today_dt'  then a.cdhd_usr_id end)) as tpre,
+               |count(distinct(case when substr(rec_crt_ts,1,10)>=trunc('$today_dt',"YY") and substr(rec_crt_ts,1,10)<='$today_dt'
+               |and substr(trans_dt,1,10)>=trunc('$today_dt',"YY") and  substr(trans_dt,1,10)<='$today_dt' then  a.cdhd_usr_id end)) as years,
+               |count(distinct(case when substr(rec_crt_ts,1,10)<='$today_dt' and  substr(trans_dt,1,10)<='$today_dt'  then a.cdhd_usr_id end)) as total
+               |from (select distinct cdhd_usr_id,card_auth_st,rec_crt_ts from hive_card_bind_inf) a
+               |inner join (select distinct cdhd_usr_id,trans_dt from hive_acc_trans ) b
+               |on a.cdhd_usr_id=b.cdhd_usr_id
+               |group by
+               |case when card_auth_st='0' then   '默认'
+               |  when card_auth_st='1' then   '支付认证'
+               |  when card_auth_st='2' then   '可信认证'
+               |  when card_auth_st='3' then   '可信+支付认证'
+               | else '--' end) b
+               | on a.card_auth_nm=b.card_auth_nm
+               |
             """.stripMargin)
+          println(s"#### JOB_DM_6 spark sql 清洗[$today_dt]数据完成时间为:" + DateUtils.getCurrentSystemTime())
+          println(s"###JOB_DM_6------$today_dt results:"+results.count())
 
-        println(s"###JOB_DM_6------$today_dt results:"+results.count())
-
-        if(!Option(results).isEmpty){
-          results.save2Mysql("dm_user_card_nature")
-
-        }else{
-          println("指定的时间范围无数据插入！")
+          if(!Option(results).isEmpty){
+            results.save2Mysql("dm_user_card_nature")
+            println(s"#### JOB_DM_6 [$today_dt]数据插入完成时间为：" + DateUtils.getCurrentSystemTime()
+          }else{
+              println(s"#### JOB_DM_6 spark sql 清洗[$today_dt]数据无结果集！")
+          }
+          today_dt=DateUtils.addOneDay(today_dt)
         }
-        //日期加1天
-        today_dt=DateUtils.addOneDay(today_dt)
       }
     }
+
   }
 
 
@@ -1187,21 +1191,25 @@ object SparkHive2Mysql {
 
 
   /**
-    * JOB_DM_11/11-7
-    * DM_DEVELOPMENT_ORG_CLASS
+    * JobName: JOB_DM_11
+    * Feature: DM_DEVELOPMENT_ORG_CLASS
     * @author tzq
+    * @time 2016-11-7
     * @param sqlContext
     * @param start_dt
     * @param end_dt
     * @param interval
     */
   def JOB_DM_11 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String,interval:Int) = {
-    println("###JOB_DM_11###")
+    println("###JOB_DM_11（DM_DEVELOPMENT_ORG_CLASS）###")
     UPSQL_JDBC.delete(s"DM_DEVELOPMENT_ORG_CLASS","REPORT_DT",start_dt,end_dt)
+    println( "#### JOB_DM_11 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
+
     var today_dt=start_dt
     if(interval>0 ){
       sqlContext.sql(s"use $hive_dbname")
       for(i <- 0 to interval){
+        println(s"#### JOB_DM_11 spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
         val results = sqlContext.sql(
           s"""
              |select
@@ -1319,11 +1327,14 @@ object SparkHive2Mysql {
              |group by (case when a.extend_ins_id_cd_class is null then nvl(b.extend_ins_id_cd_class,c.extend_ins_id_cd_class) else  nvl(a.extend_ins_id_cd_class,'其它') end)
              |
              | """.stripMargin)
+        println(s"#### JOB_DM_11 spark sql 清洗[$today_dt]数据完成时间为:" + DateUtils.getCurrentSystemTime())
+
         println(s"###JOB_DM_11------$today_dt results:"+results.count())
         if(!Option(results).isEmpty){
           results.save2Mysql("dm_development_org_class")
+          println(s"#### JOB_DM_11 [$today_dt]数据插入完成时间为：" + DateUtils.getCurrentSystemTime()
         }else{
-          println("指定的时间范围无数据插入！")
+          println(s"#### JOB_DM_11 spark sql 清洗[$today_dt]数据无结果集！")
         }
         today_dt=DateUtils.addOneDay(today_dt)
       }
@@ -1332,9 +1343,10 @@ object SparkHive2Mysql {
 
 
   /**
-    * JOB_DM_12/12-6
-    * DM_COUPON_PUB_DOWN_BRANCH
+    * JobName:JOB_DM_12
+    * Feature:DM_COUPON_PUB_DOWN_BRANCH
     * @author tzq
+    * @time  2016-12-6
     * @param sqlContext
     * @param start_dt
     * @param end_dt
@@ -1344,10 +1356,12 @@ object SparkHive2Mysql {
     println("###JOB_DM_12(DM_COUPON_PUB_DOWN_BRANCH)### "+DateUtils.getCurrentSystemTime())
     DateUtils.timeCost("JOB_DM_12"){
       UPSQL_JDBC.delete(s"DM_COUPON_PUB_DOWN_BRANCH","REPORT_DT",start_dt,end_dt)
+      println( "#### JOB_DM_12 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
       var today_dt=start_dt
       if(interval>=0 ){
         sqlContext.sql(s"use $hive_dbname")
         for(i <- 0 to interval){
+          println(s"#### JOB_DM_12 spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
           val results =sqlContext.sql(
             s"""
                |select
@@ -1390,11 +1404,14 @@ object SparkHive2Mysql {
                |on a.CUP_BRANCH_INS_ID_NM=b.CUP_BRANCH_INS_ID_NM
                |
           """.stripMargin)
+          println(s"#### JOB_DM_12 spark sql 清洗[$today_dt]数据完成时间为:" + DateUtils.getCurrentSystemTime())
+
           println(s"###JOB_DM_12------$today_dt results:"+results.count())
           if(!Option(results).isEmpty){
             results.save2Mysql("DM_COUPON_PUB_DOWN_BRANCH")
+            println(s"#### JOB_DM_12 [$today_dt]数据插入完成时间为：" + DateUtils.getCurrentSystemTime()
           }else{
-            println("No data insert!")
+            println(s"#### JOB_DM_12 spark sql 清洗[$today_dt]数据无结果集！")
           }
           today_dt=DateUtils.addOneDay(today_dt)
         }
@@ -1402,9 +1419,10 @@ object SparkHive2Mysql {
     }
   }
   /**
-    * JOB_DM_13/12-6
-    * DM_COUPON_PUB_DOWN_IF_ICCARD
+    * JobName:JOB_DM_13/12-6
+    * Feature:DM_COUPON_PUB_DOWN_IF_ICCARD
     * @author tzq
+    * @time 2016-12-6
     * @param sqlContext
     * @param start_dt
     * @param end_dt
@@ -1414,10 +1432,13 @@ object SparkHive2Mysql {
     println("###JOB_DM_13(DM_COUPON_PUB_DOWN_IF_ICCARD)### "+DateUtils.getCurrentSystemTime())
     DateUtils.timeCost("JOB_DM_13"){
       UPSQL_JDBC.delete(s"DM_COUPON_PUB_DOWN_IF_ICCARD","REPORT_DT",start_dt,end_dt)
+      println( "#### JOB_DM_13 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
+
       var today_dt=start_dt
       if(interval>=0 ){
         sqlContext.sql(s"use $hive_dbname")
         for(i <- 0 to interval){
+          println(s"#### JOB_DM_13 spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
           val results =sqlContext.sql(
             s"""
                |select
@@ -1466,11 +1487,14 @@ object SparkHive2Mysql {
                |on a.IF_ICCARD=b.IF_ICCARD
                |
           """.stripMargin)
+          println(s"#### JOB_DM_13 spark sql 清洗[$today_dt]数据完成时间为:" + DateUtils.getCurrentSystemTime())
+
           println(s"###JOB_DM_13------$today_dt results:"+results.count())
           if(!Option(results).isEmpty){
             results.save2Mysql("DM_COUPON_PUB_DOWN_IF_ICCARD")
+            println(s"#### JOB_DM_13 [$today_dt]数据插入完成时间为：" + DateUtils.getCurrentSystemTime()
           }else{
-            println("No data insert!")
+            println(s"#### JOB_DM_13 spark sql 清洗[$today_dt]数据无结果集！")
           }
           today_dt=DateUtils.addOneDay(today_dt)
         }
@@ -1479,9 +1503,10 @@ object SparkHive2Mysql {
   }
 
   /**
-    * JOB_DM_14/12-6
-    * DM_COUPON_SHIPP_DELIVER_MERCHANT
+    * JobName: JOB_DM_14/12-6
+    * Feature: DM_COUPON_SHIPP_DELIVER_MERCHANT
     * @author tzq
+    * @time 2016-12-6
     * @param sqlContext
     * @param start_dt
     * @param end_dt
@@ -1491,10 +1516,13 @@ object SparkHive2Mysql {
     println("###JOB_DM_14(DM_COUPON_SHIPP_DELIVER_MERCHANT)### "+DateUtils.getCurrentSystemTime())
     DateUtils.timeCost("JOB_DM_14"){
       UPSQL_JDBC.delete(s"DM_COUPON_SHIPP_DELIVER_MERCHANT","REPORT_DT",start_dt,end_dt)
+      println( "#### JOB_DM_14 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
+
       var today_dt=start_dt
       if(interval>=0 ){
         sqlContext.sql(s"use $hive_dbname")
         for(i <- 0 to interval){
+          println(s"#### JOB_DM_14 spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
           val results =sqlContext.sql(
             s"""
                |select
@@ -1547,11 +1575,13 @@ object SparkHive2Mysql {
                |group by mchnt_nm,bill_sub_tp
                |
           """.stripMargin)
+          println(s"#### JOB_DM_14 spark sql 清洗[$today_dt]数据完成时间为:" + DateUtils.getCurrentSystemTime())
           println(s"###JOB_DM_14------$today_dt results:"+results.count())
           if(!Option(results).isEmpty){
             results.save2Mysql("DM_COUPON_SHIPP_DELIVER_MERCHANT")
+            println(s"#### JOB_DM_14 [$today_dt]数据插入完成时间为：" + DateUtils.getCurrentSystemTime()
           }else{
-            println("No data insert!")
+            println(s"#### JOB_DM_14 spark sql 清洗[$today_dt]数据无结果集！")
           }
           today_dt=DateUtils.addOneDay(today_dt)
         }
@@ -1560,9 +1590,10 @@ object SparkHive2Mysql {
   }
 
   /**
-    * JOB_DM_15/12-6
-    * DM_COUPON_SHIPP_DELIVER_ISS
+    * JobName:JOB_DM_15
+    * Feature:DM_COUPON_SHIPP_DELIVER_ISS
     * @author tzq
+    * @time 2016-12-6
     * @param sqlContext
     * @param start_dt
     * @param end_dt
@@ -1571,11 +1602,16 @@ object SparkHive2Mysql {
   def JOB_DM_15 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String,interval:Int) = {
     println("###JOB_DM_15(DM_COUPON_SHIPP_DELIVER_ISS)### "+DateUtils.getCurrentSystemTime())
     DateUtils.timeCost("JOB_DM_15"){
+
       UPSQL_JDBC.delete(s"DM_COUPON_SHIPP_DELIVER_ISS","REPORT_DT",start_dt,end_dt)
+      println( "#### JOB_DM_15 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
+
       var today_dt=start_dt
       if(interval>=0 ){
         sqlContext.sql(s"use $hive_dbname")
         for(i <- 0 to interval){
+          println(s"#### JOB_DM_15 spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
+
           val results =sqlContext.sql(
             s"""
                |select
@@ -1634,11 +1670,14 @@ object SparkHive2Mysql {
                |
                |
           """.stripMargin)
+          println(s"#### JOB_DM_15 spark sql 清洗[$today_dt]数据完成时间为:" + DateUtils.getCurrentSystemTime())
           println(s"###JOB_DM_15------$today_dt results:"+results.count())
+
           if(!Option(results).isEmpty){
             results.save2Mysql("DM_COUPON_SHIPP_DELIVER_ISS")
+            println(s"#### JOB_DM_15 [$today_dt]数据插入完成时间为：" + DateUtils.getCurrentSystemTime()
           }else{
-            println("No data insert!")
+              println(s"#### JOB_DM_15 spark sql 清洗[$today_dt]数据无结果集！")
           }
           today_dt=DateUtils.addOneDay(today_dt)
         }
@@ -1647,9 +1686,10 @@ object SparkHive2Mysql {
   }
 
   /**
-    * JOB_DM_16/12-7
-    * DM_COUPON_SHIPP_DELIVER_BRANCH
+    * JobName: JOB_DM_16/
+    * Feature: DM_COUPON_SHIPP_DELIVER_BRANCH
     * @author tzq
+    * @time 2016-12-7
     * @param sqlContext
     * @param start_dt
     * @param end_dt
@@ -1659,10 +1699,12 @@ object SparkHive2Mysql {
     println("###JOB_DM_16(DM_COUPON_SHIPP_DELIVER_BRANCH)### "+DateUtils.getCurrentSystemTime())
     DateUtils.timeCost("JOB_DM_16"){
       UPSQL_JDBC.delete(s"DM_COUPON_SHIPP_DELIVER_BRANCH","REPORT_DT",start_dt,end_dt)
+      println( "#### JOB_DM_16 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
       var today_dt=start_dt
       if(interval>=0 ){
         sqlContext.sql(s"use $hive_dbname")
         for(i <- 0 to interval){
+          println(s"#### JOB_DM_16 spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
           val results =sqlContext.sql(
             s"""
                |select
@@ -1714,11 +1756,14 @@ object SparkHive2Mysql {
                |group by CUP_BRANCH_INS_ID_NM,bill_sub_tp
                |
           """.stripMargin)
+          println(s"#### JOB_DM_16 spark sql 清洗[$today_dt]数据完成时间为:" + DateUtils.getCurrentSystemTime())
+
           println(s"###JOB_DM_16------$today_dt results:"+results.count())
           if(!Option(results).isEmpty){
             results.save2Mysql("DM_COUPON_SHIPP_DELIVER_BRANCH")
+            println(s"#### JOB_DM_16 [$today_dt]数据插入完成时间为：" + DateUtils.getCurrentSystemTime()
           }else{
-            println("No data insert!")
+            println(s"#### JOB_DM_16 spark sql 清洗[$today_dt]数据无结果集！")
           }
           today_dt=DateUtils.addOneDay(today_dt)
         }
@@ -1727,9 +1772,10 @@ object SparkHive2Mysql {
   }
 
   /**
-    * JOB_DM_17/12-9
-    * DM_COUPON_SHIPP_DELIVER_PHOME_AREA
+    * JobName: JOB_DM_17
+    * Feature: DM_COUPON_SHIPP_DELIVER_PHOME_AREA
     * @author tzq
+    * @time 2016-12-9
     * @param sqlContext
     * @param start_dt
     * @param end_dt
@@ -1739,10 +1785,12 @@ object SparkHive2Mysql {
     println("###JOB_DM_17(DM_COUPON_SHIPP_DELIVER_PHOME_AREA)### "+DateUtils.getCurrentSystemTime())
     DateUtils.timeCost("JOB_DM_17"){
       UPSQL_JDBC.delete(s"DM_COUPON_SHIPP_DELIVER_PHOME_AREA","REPORT_DT",start_dt,end_dt)
+      println( "#### JOB_DM_17 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
       var today_dt=start_dt
       if(interval>=0 ){
         sqlContext.sql(s"use $hive_dbname")
         for(i <- 0 to interval){
+          println(s"#### JOB_DM_17 spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
           val results =sqlContext.sql(
             s"""
                |select
@@ -1799,11 +1847,14 @@ object SparkHive2Mysql {
                |group by PHONE_LOCATION,bill_sub_tp
                |
           """.stripMargin)
+          println(s"#### JOB_DM_17 spark sql 清洗[$today_dt]数据完成时间为:" + DateUtils.getCurrentSystemTime())
+
           println(s"###JOB_DM_17------$today_dt results:"+results.count())
           if(!Option(results).isEmpty){
             results.save2Mysql("DM_COUPON_SHIPP_DELIVER_PHOME_AREA")
+            println(s"#### JOB_DM_17 [$today_dt]数据插入完成时间为：" + DateUtils.getCurrentSystemTime()
           }else{
-            println("No data insert!")
+              println(s"#### JOB_DM_17 spark sql 清洗[$today_dt]数据无结果集！")
           }
           today_dt=DateUtils.addOneDay(today_dt)
         }
@@ -3534,56 +3585,61 @@ object SparkHive2Mysql {
 
 
   /**
-    * JOB_DM_76  2016-8-31
-    * dm_auto_disc_cfp_tran->hive_prize_discount_result
-    * code by tzq
-    *
-    * @param sqlContext
+    * JobName:JOB_DM_76
+    * Feature:hive_prize_discount_result->dm_auto_disc_cfp_tran
+    * @author tzq
+    * @time 2016-8-31
+    * @param sqlContext start_dt,end_dt,interval
     */
   def JOB_DM_76(implicit sqlContext: HiveContext,start_dt:String,end_dt:String,interval:Int) = {
+    println("###JOB_DM_76(hive_prize_discount_result->dm_auto_disc_cfp_tran)")
+    DateUtils.timeCost("JOB_DM_76"){
+      UPSQL_JDBC.delete("dm_auto_disc_cfp_tran","report_dt",start_dt,end_dt)
+      println( "#### JOB_DM_76 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
 
-    println("###JOB_DM_76(dm_auto_disc_cfp_tran->hive_prize_discount_result)")
-
-    UPSQL_JDBC.delete("dm_auto_disc_cfp_tran","report_dt",start_dt,end_dt)
-
-    var today_dt=start_dt
-    if(interval>0 ){
-      sqlContext.sql(s"use $hive_dbname")
-      for(i <- 0 to interval){
-        val results=sqlContext.sql(
-          s"""
-             |select
-             | tmp.cup_branch_nm as branch_nm,
-             | tmp.cfp_sign as cfp_sign ,
-             | tmp.settle_dt as report_dt,
-             | count(case when tmp.settle_dt >= trunc('$today_dt','YYYY') and
-             |           tmp.settle_dt <='$today_dt' then tmp.pri_acct_no end) as year_tran_num,
-             | count(case when tmp.settle_dt = '$today_dt' then tmp.pri_acct_no end) as today_tran_num
-             | from (
-             | select (case when t.cloud_pay_in='0' then 'apple pay'
-             |      when t.cloud_pay_in='1' then 'hce'
-             |      when t.cloud_pay_in in ('2','3') then '三星pay'
-             |      when t.cloud_pay_in='4' then 'ic卡挥卡'
-             |      when t.cloud_pay_in='5' then '华为pay'
-             |      when t.cloud_pay_in='6' then '小米pay'
-             |    else '其它' end ) as cfp_sign ,t.cup_branch_ins_id_nm as cup_branch_nm,to_date(t.settle_dt) as settle_dt,t.pri_acct_no
-             | from hive_prize_discount_result  t
-             | where  t.prod_in='0'  and  t.trans_id='S22'
-             | ) tmp
-             | group by tmp.cup_branch_nm, tmp.cfp_sign, tmp.settle_dt
+      var today_dt=start_dt
+      if(interval>0 ){
+        sqlContext.sql(s"use $hive_dbname")
+        for(i <- 0 to interval){
+          println(s"#### JOB_DM_76 spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
+          val results=sqlContext.sql(
+            s"""
+               |select
+               | tmp.cup_branch_nm as branch_nm,
+               | tmp.cfp_sign as cfp_sign ,
+               | tmp.settle_dt as report_dt,
+               | count(case when tmp.settle_dt >= trunc('$today_dt','YYYY') and
+               |           tmp.settle_dt <='$today_dt' then tmp.pri_acct_no end) as year_tran_num,
+               | count(case when tmp.settle_dt = '$today_dt' then tmp.pri_acct_no end) as today_tran_num
+               | from (
+               | select (case when t.cloud_pay_in='0' then 'apple pay'
+               |      when t.cloud_pay_in='1' then 'hce'
+               |      when t.cloud_pay_in in ('2','3') then '三星pay'
+               |      when t.cloud_pay_in='4' then 'ic卡挥卡'
+               |      when t.cloud_pay_in='5' then '华为pay'
+               |      when t.cloud_pay_in='6' then '小米pay'
+               |    else '其它' end ) as cfp_sign ,t.cup_branch_ins_id_nm as cup_branch_nm,to_date(t.settle_dt) as settle_dt,t.pri_acct_no
+               | from hive_prize_discount_result  t
+               | where  t.prod_in='0'  and  t.trans_id='S22'
+               | ) tmp
+               | group by tmp.cup_branch_nm, tmp.cfp_sign, tmp.settle_dt
       """.stripMargin)
+          println(s"#### JOB_DM_76 spark sql 清洗[$today_dt]数据完成时间为:" + DateUtils.getCurrentSystemTime())
 
-        println(s"###JOB_DM_76------$today_dt results:"+results.count())
+          println(s"###JOB_DM_76------$today_dt results:"+results.count())
 
-        if(!Option(results).isEmpty){
-          results.save2Mysql("dm_auto_disc_cfp_tran")
-        }else{
-          println("指定的时间范围无数据插入！")
+          if(!Option(results).isEmpty){
+            results.save2Mysql("dm_auto_disc_cfp_tran")
+            println(s"#### JOB_DM_76 [$today_dt]数据插入完成时间为：" + DateUtils.getCurrentSystemTime()
+          }else{
+            println(s"#### JOB_DM_76 spark sql 清洗[$today_dt]数据无结果集！")
+          }
+
+          today_dt=DateUtils.addOneDay(today_dt)
         }
-
-        today_dt=DateUtils.addOneDay(today_dt)
       }
     }
+
   }
 
 
