@@ -1976,54 +1976,59 @@ object SparkHive2Mysql {
 
 
   /**
-    *
-    * JOB_DM_55  2016-9-6
-    *
-    * DM_DISC_ACT_BRANCH_DLY->hive_prize_discount_result
-    *
+    * JobName: JOB_DM_55
+    * Feature: hive_prize_discount_result->dm_disc_act_branch_dly
     * @author tzq
-    * @param sqlContext
+    * @time 2016-9-6
+    * @param sqlContext ,start_dt,end_dt
     */
   def JOB_DM_55(implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
 
     println("###JOB_DM_55-----JOB_DM_55(dm_disc_act_branch_dly->hive_prize_discount_result)")
+    DateUtils.timeCost("JOB_DM_55"){
+      UPSQL_JDBC.delete("dm_disc_act_branch_dly","report_dt",start_dt,end_dt);
+      println("##### JOB_DM_55 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
 
-    UPSQL_JDBC.delete("dm_disc_act_branch_dly","report_dt",start_dt,end_dt);
+      sqlContext.sql(s"use $hive_dbname")
+      println(s"#### JOB_DM_55 spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
 
-    sqlContext.sql(s"use $hive_dbname")
+      val results=sqlContext.sql(
+        s"""
+           |select
+           |    dbi.cup_branch_ins_id_nm as cup_branch_ins_id_nm,
+           |    to_date(trans.settle_dt) as report_dt,
+           |    count(1)                                 as trans_cnt,
+           |    sum(trans.trans_pos_at)                  as trans_at,
+           |    sum(trans.trans_pos_at - trans.trans_at) as discount_at
+           |from
+           |    hive_prize_discount_result trans
+           |left join
+           |    hive_discount_bas_inf dbi
+           |on
+           |    (
+           |        trans.agio_app_id=dbi.loc_activity_id)
+           |where
+           |trans.prod_in = '0'
+           |and trans.trans_id='S22'
+           |and trans.part_settle_dt >= '$start_dt'
+           |and trans.part_settle_dt <= '$end_dt'
+           |group by
+           |    dbi.cup_branch_ins_id_nm,
+           |    to_date(trans.settle_dt)
+        """.stripMargin)
+      println(s"#### JOB_DM_55 spark sql 清洗[$today_dt]数据完成时间为:" + DateUtils.getCurrentSystemTime())
 
-    val results=sqlContext.sql(
-      s"""
-         |select
-         |    dbi.cup_branch_ins_id_nm as cup_branch_ins_id_nm,
-         |    to_date(trans.settle_dt) as report_dt,
-         |    count(1)                                 as trans_cnt,
-         |    sum(trans.trans_pos_at)                  as trans_at,
-         |    sum(trans.trans_pos_at - trans.trans_at) as discount_at
-         |from
-         |    hive_prize_discount_result trans
-         |left join
-         |    hive_discount_bas_inf dbi
-         |on
-         |    (
-         |        trans.agio_app_id=dbi.loc_activity_id)
-         |where
-         |trans.prod_in = '0'
-         |and trans.trans_id='S22'
-         |and trans.part_settle_dt >= '$start_dt'
-         |and trans.part_settle_dt <= '$end_dt'
-         |group by
-         |    dbi.cup_branch_ins_id_nm,
-         |    to_date(trans.settle_dt)
-      """.stripMargin)
+      //println("###JOB_DM_55------results:"+results.count())
+      if(!Option(results).isEmpty){
+        results.save2Mysql("dm_disc_act_branch_dly")
+        println(s"#### JOB_DM_55 [$today_dt]数据插入完成时间为：" + DateUtils.getCurrentSystemTime()
 
-    if(!Option(results).isEmpty){
-      println("###JOB_DM_55------results:"+results.count())
-      results.save2Mysql("dm_disc_act_branch_dly")
+      }else{
+          println(s"#### JOB_DM_55 spark sql 清洗[$today_dt]数据无结果集！")
+      }
+  }
 
-    }else{
-      println("指定的时间范围无数据插入！")
-    }
+
   }
 
 
@@ -2074,59 +2079,61 @@ object SparkHive2Mysql {
   }
 
   /**
-    * JOB_DM_62  2016-9-6
-    * dm_usr_auther_nature_tie_card --> hive_card_bind_inf
-    *
+    * JobName: JOB_DM_62
+    * Feature: dm_usr_auther_nature_tie_card --> hive_card_bind_inf
     * @author tzq
-    * @param sqlContext
+    * @time 2016-9-6
+    * @param sqlContext,start_dt,end_dt,interval
     */
   def JOB_DM_62(implicit sqlContext: HiveContext,start_dt:String,end_dt:String,interval:Int) = {
-    println("###JOB_DM_62-----JOB_DM_62(dm_usr_auther_nature_tie_card->hive_card_bind_inf)")
+    println("###JOB_DM_62-----JOB_DM_62(dm_usr_auther_nature_tie_card --> hive_card_bind_inf)")
 
-    UPSQL_JDBC.delete("dm_usr_auther_nature_tie_card","report_dt",start_dt,end_dt)
+    DateUtils.timeCost("JOB_DM_62"){
+      UPSQL_JDBC.delete("dm_usr_auther_nature_tie_card","report_dt",start_dt,end_dt)
+      println("##### JOB_DM_62 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
 
-    var today_dt=start_dt
-    if(interval>0 ){
-      sqlContext.sql(s"use $hive_dbname")
-      for(i <- 0 to interval){
-
-        val results=sqlContext.sql(
-          s"""
-             |select
-             |(case when card_auth_st='0' then   '未认证'
-             |  when card_auth_st='1' then   '支付认证'
-             |  when card_auth_st='2' then   '可信认证'
-             |  when card_auth_st='3' then   '可信+支付认证'
-             | else '--' end) as card_auth_nm,
-             |card_attr as card_attr ,
-             |'$today_dt' as report_dt ,
-             |count(case when to_date(bind_ts) = '$today_dt'  then 1 end)  as tpre,
-             |count(case when to_date(bind_ts) <= '$today_dt'  then 1 end)  as total
-             |
+      var today_dt=start_dt
+      if(interval>0 ){
+        sqlContext.sql(s"use $hive_dbname")
+        for(i <- 0 to interval){
+          println(s"#### JOB_DM_62 spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
+          val results=sqlContext.sql(
+            s"""
+               |select
+               |(case when card_auth_st='0' then   '未认证'
+               |  when card_auth_st='1' then   '支付认证'
+               |  when card_auth_st='2' then   '可信认证'
+               |  when card_auth_st='3' then   '可信+支付认证'
+               | else '--' end) as card_auth_nm,
+               |card_attr as card_attr ,
+               |'$today_dt' as report_dt ,
+               |count(case when to_date(bind_ts) = '$today_dt'  then 1 end)  as tpre,
+               |count(case when to_date(bind_ts) <= '$today_dt'  then 1 end)  as total
+               |
              |from  (
-             |select  card_auth_st,bind_ts,substr(bind_card_no,1,8) as card_bin
-             |from hive_card_bind_inf where card_bind_st='0') a
-             |left join
-             |(select card_attr,card_bin from hive_card_bin ) b
-             |on a.card_bin=b.card_bin
-             |group by (case when card_auth_st='0' then   '未认证'
-             |  when card_auth_st='1' then   '支付认证'
-             |  when card_auth_st='2' then   '可信认证'
-             |  when card_auth_st='3' then   '可信+支付认证'
-             | else '--' end),card_attr
-             |
+               |select  card_auth_st,bind_ts,substr(bind_card_no,1,8) as card_bin
+               |from hive_card_bind_inf where card_bind_st='0') a
+               |left join
+               |(select card_attr,card_bin from hive_card_bin ) b
+               |on a.card_bin=b.card_bin
+               |group by (case when card_auth_st='0' then   '未认证'
+               |  when card_auth_st='1' then   '支付认证'
+               |  when card_auth_st='2' then   '可信认证'
+               |  when card_auth_st='3' then   '可信+支付认证'
+               | else '--' end),card_attr
+               |
             """.stripMargin)
+          println(s"#### JOB_DM_62 spark sql 清洗[$today_dt]数据完成时间为:" + DateUtils.getCurrentSystemTime())
+          println(s"###JOB_DM_62------$today_dt results:"+results.count())
 
-        println(s"###JOB_DM_62------$today_dt results:"+results.count())
-
-        if(!Option(results).isEmpty){
-          results.save2Mysql("dm_usr_auther_nature_tie_card")
-        }else{
-          println("指定的时间范围无数据插入！")
+          if(!Option(results).isEmpty){
+            results.save2Mysql("dm_usr_auther_nature_tie_card")
+            println(s"#### JOB_DM_62 [$today_dt]数据插入完成时间为：" + DateUtils.getCurrentSystemTime()
+          }else{
+            println(s"#### JOB_DM_62 spark sql 清洗[$today_dt]数据无结果集！")
+          }
+          today_dt=DateUtils.addOneDay(today_dt)
         }
-
-        //日期加1天
-        today_dt=DateUtils.addOneDay(today_dt)
       }
     }
   }
@@ -2308,74 +2315,76 @@ object SparkHive2Mysql {
   }
 
   /**
-    * JOB_DM_66 2016-09-07
-    *
-    * dm_coupon_cfp_tran->hive_acc_trans+hive_ticket_bill_bas_inf
-    *
+    * JobName: JOB_DM_66
+    * Feature: hive_acc_trans+hive_ticket_bill_bas_inf->dm_coupon_cfp_tran
     * @author tzq
-    * @param sqlContext
+    * @time 2016-9-7
+    * @param sqlContext,start_dt,end_dt,interval
     */
   def JOB_DM_66(implicit sqlContext: HiveContext,start_dt:String,end_dt:String,interval:Int) = {
     println("###JOB_DM_66(dm_coupon_cfp_tran->hive_acc_trans+hive_ticket_bill_bas_inf)")
 
-    UPSQL_JDBC.delete("dm_coupon_cfp_tran","report_dt",start_dt,end_dt)
-
-    var today_dt=start_dt
-    if(interval>0 ){
-      sqlContext.sql(s"use $hive_dbname")
-      for(i <- 0 to interval){
-
-        val results=sqlContext.sql(
-          s"""
-             |select
-             |cup_branch_ins_id_nm as branch_nm,
-             |'$today_dt' as report_dt,
-             |cfp_sign as  cfp_sign ,
-             |count(case when to_date(trans_dt) >=trunc('$today_dt','YYYY') and to_date(trans_dt) <='$today_dt' then a.bill_id end) as year_tran_num,
-             |count(case when to_date(trans_dt) ='$today_dt' then a.bill_id end) as today_tran_num
-             |from
-             |(select
-             | bill_id, trans_dt,
-             | case when substr(udf_fld,31,2)='01'  then 'HCE'
-             |      when substr(udf_fld,31,2)='02'  then 'Apple Pay'
-             |      when substr(udf_fld,31,2)in ('03','04')  then '三星pay'
-             |      when substr(udf_fld,31,2)='05'  then 'IC卡挥卡'
-             |      when substr(udf_fld,31,2)='06'  then '华为pay'
-             |      when substr(udf_fld,31,2)='07'  then '小米pay'
-             | else '其它' end  as cfp_sign
-             |from hive_acc_trans
-             | where substr(udf_fld,31,2) not in ('',' ','  ','00') and
-             |       um_trans_id in ('AC02000065','AC02000063') and
-             |       buss_tp in ('04','05','06')
-             |       and sys_det_cd='S' and
-             |        bill_nm not like '%机场%'         and
-             |        bill_nm not like '%住两晚送一晚%' and
-             |        bill_nm not like '%测试%'         and
-             |        bill_nm not like '%验证%'         and
-             |        bill_nm not like '%满2元减1%'     and
-             |        bill_nm not like '%满2分减1分%'   and
-             |        bill_nm not like '%满2减1%'       and
-             |        bill_nm not like '%满2抵1%'       and
-             |        bill_nm not like '测%'            and
-             |        bill_nm not like '%test%'
-             |       ) a
-             | left join
-             |(
-             |   select bill_id, bill_nm,cup_branch_ins_id_nm from hive_ticket_bill_bas_inf
-             | ) b
-             | on a.bill_id = b.bill_id
-             | group by  cup_branch_ins_id_nm,cfp_sign
-             |
+    DateUtils.timeCost("JOB_DM_66"){
+      UPSQL_JDBC.delete("dm_coupon_cfp_tran","report_dt",start_dt,end_dt)
+      println("##### JOB_DM_66 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
+      var today_dt=start_dt
+      if(interval>0 ){
+        sqlContext.sql(s"use $hive_dbname")
+        for(i <- 0 to interval){
+          println(s"#### JOB_DM_66 spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
+          val results=sqlContext.sql(
+            s"""
+               |select
+               |cup_branch_ins_id_nm as branch_nm,
+               |'$today_dt' as report_dt,
+               |cfp_sign as  cfp_sign ,
+               |count(case when to_date(trans_dt) >=trunc('$today_dt','YYYY') and to_date(trans_dt) <='$today_dt' then a.bill_id end) as year_tran_num,
+               |count(case when to_date(trans_dt) ='$today_dt' then a.bill_id end) as today_tran_num
+               |from
+               |(select
+               | bill_id, trans_dt,
+               | case when substr(udf_fld,31,2)='01'  then 'HCE'
+               |      when substr(udf_fld,31,2)='02'  then 'Apple Pay'
+               |      when substr(udf_fld,31,2)in ('03','04')  then '三星pay'
+               |      when substr(udf_fld,31,2)='05'  then 'IC卡挥卡'
+               |      when substr(udf_fld,31,2)='06'  then '华为pay'
+               |      when substr(udf_fld,31,2)='07'  then '小米pay'
+               | else '其它' end  as cfp_sign
+               |from hive_acc_trans
+               | where substr(udf_fld,31,2) not in ('',' ','  ','00') and
+               |       um_trans_id in ('AC02000065','AC02000063') and
+               |       buss_tp in ('04','05','06')
+               |       and sys_det_cd='S' and
+               |        bill_nm not like '%机场%'         and
+               |        bill_nm not like '%住两晚送一晚%' and
+               |        bill_nm not like '%测试%'         and
+               |        bill_nm not like '%验证%'         and
+               |        bill_nm not like '%满2元减1%'     and
+               |        bill_nm not like '%满2分减1分%'   and
+               |        bill_nm not like '%满2减1%'       and
+               |        bill_nm not like '%满2抵1%'       and
+               |        bill_nm not like '测%'            and
+               |        bill_nm not like '%test%'
+               |       ) a
+               | left join
+               |(
+               |   select bill_id, bill_nm,cup_branch_ins_id_nm from hive_ticket_bill_bas_inf
+               | ) b
+               | on a.bill_id = b.bill_id
+               | group by  cup_branch_ins_id_nm,cfp_sign
+               |
       """.stripMargin)
+          println(s"#### JOB_DM_66 spark sql 清洗[$today_dt]数据完成时间为:" + DateUtils.getCurrentSystemTime())
+          println(s"###JOB_DM_66------$today_dt results:"+results.count())
 
-        println(s"###JOB_DM_66------$today_dt results:"+results.count())
-
-        if(!Option(results).isEmpty){
-          results.save2Mysql("dm_coupon_cfp_tran")
-        }else{
-          println("指定的日期无数据插入！")
+          if(!Option(results).isEmpty){
+            results.save2Mysql("dm_coupon_cfp_tran")
+            println(s"#### JOB_DM_66 [$today_dt]数据插入完成时间为：" + DateUtils.getCurrentSystemTime()
+          }else{
+            println(s"#### JOB_DM_66 spark sql 清洗[$today_dt]数据无结果集！")
+          }
+          today_dt=DateUtils.addOneDay(today_dt)
         }
-        today_dt=DateUtils.addOneDay(today_dt)
       }
     }
 
@@ -2810,303 +2819,321 @@ object SparkHive2Mysql {
   }
 
   /**
-    * JOB_DM_69  2016-9-1
-    * dm_disc_tkt_act_dly->hive_ticket_bill_bas_inf+hive_acc_trans
-    * (使用分区part_trans_dt 中的数据)
-    *
+    * JobName: JOB_DM_69
+    * Feature: hive_ticket_bill_bas_inf+hive_acc_trans->dm_disc_tkt_act_dly
     * @author tzq
-    * @param sqlContext
+    * @time 2016-9-1
+    * @param sqlContext,start_dt,end_dt
     */
   def JOB_DM_69(implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
-    println("###JOB_DM_69-----JOB_DM_69(dm_disc_tkt_act_dly->hive_ticket_bill_bas_inf+hive_acc_trans)")
+    println("###JOB_DM_69(hive_ticket_bill_bas_inf+hive_acc_trans->dm_disc_tkt_act_dly)")
 
-    UPSQL_JDBC.delete("dm_disc_tkt_act_dly","report_dt",start_dt,end_dt);
+    DateUtils.timeCost("JOB_DM_69"){
 
-    sqlContext.sql(s"use $hive_dbname")
+      UPSQL_JDBC.delete("dm_disc_tkt_act_dly","report_dt",start_dt,end_dt);
+      println( "#### JOB_DM_69 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
 
-    val results=sqlContext.sql(
-      s"""
-         |select
-         |    a.bill_id as bill_id,
-         |    a.bill_nm as bill_nm,
-         |    a.trans_dt as report_dt,
-         |    a.plh_num  as rlse_num,
-         |    a.dwn_num  as dnld_num,
-         |    a.acpt_cnt as acct_cnt,
-         |    a.disc_cnt as disc_at,
-         |    a.acpt_rate as acct_rate
-         |from
-         |    (
-         |        select
-         |            trans_data.bill_id            as bill_id,
-         |            bill_data.bill_nm             as bill_nm,
-         |            trans_data.trans_dt           as trans_dt,
-         |            bill_data.dwn_total_num       as plh_num,
-         |            bill_data.dwn_num             as dwn_num,
-         |            trans_data.concnt             as acpt_cnt,
-         |            trans_data.discount_at        as disc_cnt,
-         |            case when bill_data.dwn_num is null or bill_data.dwn_num = 0
-         |            then 0
-         |            else
-         |            round(trans_data.concnt/bill_data.dwn_num * 100,2)
-         |            end  as acpt_rate,
-         |            row_number() over(partition by trans_data.trans_dt order by trans_data.concnt desc) as
-         |            rn
-         |        from
-         |            (
-         |                select
-         |                    bill_id,
-         |                    bill_nm,
-         |                    dwn_total_num,
-         |                    dwn_num,
-         |                    to_date(valid_begin_dt) as valid_begin_dt,
-         |                    to_date(valid_end_dt) as valid_end_dt
-         |                from
-         |                    hive_ticket_bill_bas_inf
-         |                where
-         |                    bill_st in('1', '2')
-         |            ) bill_data
-         |        left join
-         |            (
-         |                select
-         |                    bill_id,
-         |                    to_date(trans_dt) as trans_dt,
-         |                    count(*) as concnt,
-         |                    sum(
-         |                        case
-         |                            when discount_at is null
-         |                            then 0
-         |                            else discount_at
-         |                        end) as discount_at
-         |                from
-         |                    hive_acc_trans
-         |                where
-         |                    bill_id like 'D%'
-         |                and um_trans_id in ('AC02000065','AC02000063')
-         |                and buss_tp in ('04', '05', '06')
-         |               and part_trans_dt >= '$start_dt'
-         |               and part_trans_dt <= '$end_dt'
-         |
+      sqlContext.sql(s"use $hive_dbname")
+
+      println(s"#### JOB_DM_69 spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
+      val results=sqlContext.sql(
+        s"""
+           |select
+           |    a.bill_id as bill_id,
+           |    a.bill_nm as bill_nm,
+           |    a.trans_dt as report_dt,
+           |    a.plh_num  as rlse_num,
+           |    a.dwn_num  as dnld_num,
+           |    a.acpt_cnt as acct_cnt,
+           |    a.disc_cnt as disc_at,
+           |    a.acpt_rate as acct_rate
+           |from
+           |    (
+           |        select
+           |            trans_data.bill_id            as bill_id,
+           |            bill_data.bill_nm             as bill_nm,
+           |            trans_data.trans_dt           as trans_dt,
+           |            bill_data.dwn_total_num       as plh_num,
+           |            bill_data.dwn_num             as dwn_num,
+           |            trans_data.concnt             as acpt_cnt,
+           |            trans_data.discount_at        as disc_cnt,
+           |            case when bill_data.dwn_num is null or bill_data.dwn_num = 0
+           |            then 0
+           |            else
+           |            round(trans_data.concnt/bill_data.dwn_num * 100,2)
+           |            end  as acpt_rate,
+           |            row_number() over(partition by trans_data.trans_dt order by trans_data.concnt desc) as
+           |            rn
+           |        from
+           |            (
+           |                select
+           |                    bill_id,
+           |                    bill_nm,
+           |                    dwn_total_num,
+           |                    dwn_num,
+           |                    to_date(valid_begin_dt) as valid_begin_dt,
+           |                    to_date(valid_end_dt) as valid_end_dt
+           |                from
+           |                    hive_ticket_bill_bas_inf
+           |                where
+           |                    bill_st in('1', '2')
+           |            ) bill_data
+           |        left join
+           |            (
+           |                select
+           |                    bill_id,
+           |                    to_date(trans_dt) as trans_dt,
+           |                    count(*) as concnt,
+           |                    sum(
+           |                        case
+           |                            when discount_at is null
+           |                            then 0
+           |                            else discount_at
+           |                        end) as discount_at
+           |                from
+           |                    hive_acc_trans
+           |                where
+           |                    bill_id like 'D%'
+           |                and um_trans_id in ('AC02000065','AC02000063')
+           |                and buss_tp in ('04', '05', '06')
+           |               and part_trans_dt >= '$start_dt'
+           |               and part_trans_dt <= '$end_dt'
+           |
          |                and sys_det_cd='S'
-         |                group by
-         |                    bill_id,to_date(trans_dt))  trans_data
-         |        on
-         |            (
-         |                bill_data.bill_id = trans_data.bill_id)
-         |        where
-         |            trans_data.concnt is not null
-         |            and bill_data.valid_begin_dt<= trans_data.trans_dt
-         |            and bill_data.valid_end_dt>= trans_data.trans_dt
-         |       ) a
-         |where
-         |    a.rn <= 10
-         |
+           |                group by
+           |                    bill_id,to_date(trans_dt))  trans_data
+           |        on
+           |            (
+           |                bill_data.bill_id = trans_data.bill_id)
+           |        where
+           |            trans_data.concnt is not null
+           |            and bill_data.valid_begin_dt<= trans_data.trans_dt
+           |            and bill_data.valid_end_dt>= trans_data.trans_dt
+           |       ) a
+           |where
+           |    a.rn <= 10
+           |
       """.stripMargin)
-    println("###JOB_DM_69------results:"+results.count())
-    if(!Option(results).isEmpty){
-      results.save2Mysql("dm_disc_tkt_act_dly")
-    }else{
-      println("指定的时间范围无数据插入！")
+      println(s"#### JOB_DM_69 spark sql 清洗[$today_dt]数据完成时间为:" + DateUtils.getCurrentSystemTime())
+      println("###JOB_DM_69------results:"+results.count())
+      if(!Option(results).isEmpty){
+        results.save2Mysql("dm_disc_tkt_act_dly")
+        println(s"#### JOB_DM_69 [$today_dt]数据插入完成时间为：" + DateUtils.getCurrentSystemTime()
+      }else{
+        println(s"#### JOB_DM_69 spark sql 清洗[$today_dt]数据无结果集！")
+      }
     }
   }
 
   /**
-    * JOB_DM_70  2016-8-30
-    * dm_elec_tkt_act_dly->hive_ticket_bill_bas_inf+hive_acc_trans
-    *
+    * JobName: JOB_DM_70
+    * Feature: hive_ticket_bill_bas_inf+hive_acc_trans->dm_elec_tkt_act_dly
     * @author tzq
-    * @param sqlContext
+    * @time 2016-8-30
+    * @param sqlContext,start_dt,end_dt
     */
   def JOB_DM_70(implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
-    println("###JOB_DM_70-----JOB_DM_70(dm_elec_tkt_act_dly->hive_ticket_bill_bas_inf+hive_acc_trans)")
+    println("###JOB_DM_70(hive_ticket_bill_bas_inf+hive_acc_trans->dm_elec_tkt_act_dly)")
+    DateUtils.timeCost("JOB_DM_70"){
+      UPSQL_JDBC.delete("dm_elec_tkt_act_dly","report_dt",start_dt,end_dt);
+      println( "#### JOB_DM_70 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
+      sqlContext.sql(s"use $hive_dbname")
 
-    UPSQL_JDBC.delete("dm_elec_tkt_act_dly","report_dt",start_dt,end_dt);
-
-    sqlContext.sql(s"use $hive_dbname")
-
-    val results=sqlContext.sql(
-      s"""
-         |
+      println(s"#### JOB_DM_70 spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
+      val results=sqlContext.sql(
+        s"""
+           |
          |select
-         |    a.bill_id  as bill_id,
-         |    a.bill_nm  as bill_nm,
-         |    a.trans_dt as report_dt,
-         |    a.plh_num  as rlse_num,
-         |    a.dwn_num  as dnld_num,
-         |    a.acpt_cnt as acct_cnt,
-         |    a.disc_cnt as disc_at,
-         |    a.acpt_rate as acct_rate
-         |from
-         |    (
-         |        select
-         |            trans_data.bill_id                                 as bill_id,
-         |            bill_data.bill_nm                                  as bill_nm,
-         |            trans_data.trans_dt                                as trans_dt,
-         |            bill_data.dwn_total_num                            as plh_num,
-         |            bill_data.dwn_num                                  as dwn_num,
-         |            trans_data.concnt                                  as acpt_cnt,
-         |            trans_data.discount_at                             as disc_cnt,
-         |            case when bill_data.dwn_num is null or bill_data.dwn_num = 0
-         |            then 0
-         |            else
-         |            round(trans_data.concnt/bill_data.dwn_num * 100,2)
-         |            end  as acpt_rate,
-         |            row_number() over(partition by trans_data.trans_dt order by trans_data.concnt desc) as rn
-         |        from
-         |            (
-         |                select
-         |                    bill_id,
-         |                    bill_nm,
-         |                    dwn_total_num,
-         |                    dwn_num,
-         |                    to_date(valid_begin_dt) as valid_begin_dt,
-         |                    to_date(valid_end_dt) as valid_end_dt
-         |                from
-         |                    hive_ticket_bill_bas_inf
-         |                where
-         |                    bill_st in('1', '2')
-         |
+           |    a.bill_id  as bill_id,
+           |    a.bill_nm  as bill_nm,
+           |    a.trans_dt as report_dt,
+           |    a.plh_num  as rlse_num,
+           |    a.dwn_num  as dnld_num,
+           |    a.acpt_cnt as acct_cnt,
+           |    a.disc_cnt as disc_at,
+           |    a.acpt_rate as acct_rate
+           |from
+           |    (
+           |        select
+           |            trans_data.bill_id                                 as bill_id,
+           |            bill_data.bill_nm                                  as bill_nm,
+           |            trans_data.trans_dt                                as trans_dt,
+           |            bill_data.dwn_total_num                            as plh_num,
+           |            bill_data.dwn_num                                  as dwn_num,
+           |            trans_data.concnt                                  as acpt_cnt,
+           |            trans_data.discount_at                             as disc_cnt,
+           |            case when bill_data.dwn_num is null or bill_data.dwn_num = 0
+           |            then 0
+           |            else
+           |            round(trans_data.concnt/bill_data.dwn_num * 100,2)
+           |            end  as acpt_rate,
+           |            row_number() over(partition by trans_data.trans_dt order by trans_data.concnt desc) as rn
+           |        from
+           |            (
+           |                select
+           |                    bill_id,
+           |                    bill_nm,
+           |                    dwn_total_num,
+           |                    dwn_num,
+           |                    to_date(valid_begin_dt) as valid_begin_dt,
+           |                    to_date(valid_end_dt) as valid_end_dt
+           |                from
+           |                    hive_ticket_bill_bas_inf
+           |                where
+           |                    bill_st in('1', '2')
+           |
          |            ) bill_data
-         |        left join
-         |            (
-         |                select
-         |                    bill_id,
-         |                    to_date(trans_dt) as trans_dt,
-         |                    count(*) as concnt,
-         |                    sum(
-         |                        case
-         |                            when discount_at is null
-         |                            then 0
-         |                            else discount_at
-         |                        end) as discount_at
-         |                from
-         |                    hive_acc_trans
-         |                where
-         |                    bill_id like 'E%'
-         |                and um_trans_id in ('AC02000065', 'AC02000063')
-         |                and buss_tp in ('04', '05','06')
-         |               and part_trans_dt >= '$start_dt'
-         |               and part_trans_dt <= '$end_dt'
-         |                and sys_det_cd='S'
-         |                group by bill_id, to_date(trans_dt)
-         |            ) as trans_data
-         |        on
-         |            (
-         |            bill_data.bill_id = trans_data.bill_id
-         |            )
-         |        where
-         |            trans_data.concnt is not null
-         |            and bill_data.valid_begin_dt<= trans_data.trans_dt
-         |            and bill_data.valid_end_dt>= trans_data.trans_dt
-         |    ) a
-         |where
-         |    a.rn <= 10
-         |
+           |        left join
+           |            (
+           |                select
+           |                    bill_id,
+           |                    to_date(trans_dt) as trans_dt,
+           |                    count(*) as concnt,
+           |                    sum(
+           |                        case
+           |                            when discount_at is null
+           |                            then 0
+           |                            else discount_at
+           |                        end) as discount_at
+           |                from
+           |                    hive_acc_trans
+           |                where
+           |                    bill_id like 'E%'
+           |                and um_trans_id in ('AC02000065', 'AC02000063')
+           |                and buss_tp in ('04', '05','06')
+           |               and part_trans_dt >= '$start_dt'
+           |               and part_trans_dt <= '$end_dt'
+           |                and sys_det_cd='S'
+           |                group by bill_id, to_date(trans_dt)
+           |            ) as trans_data
+           |        on
+           |            (
+           |            bill_data.bill_id = trans_data.bill_id
+           |            )
+           |        where
+           |            trans_data.concnt is not null
+           |            and bill_data.valid_begin_dt<= trans_data.trans_dt
+           |            and bill_data.valid_end_dt>= trans_data.trans_dt
+           |    ) a
+           |where
+           |    a.rn <= 10
+           |
       """.stripMargin)
-    println("###JOB_DM_70------results:"+results.count())
-    if(!Option(results).isEmpty){
-      results.save2Mysql("dm_elec_tkt_act_dly")
-    }else{
-      println("指定的时间范围无数据插入！")
+      println(s"#### JOB_DM_70 spark sql 清洗[$today_dt]数据完成时间为:" + DateUtils.getCurrentSystemTime())
+      println("###JOB_DM_70------results:"+results.count())
+      if(!Option(results).isEmpty){
+        results.save2Mysql("dm_elec_tkt_act_dly")
+        println(s"#### JOB_DM_70 [$today_dt]数据插入完成时间为：" + DateUtils.getCurrentSystemTime()
+      }else{
+        println(s"#### JOB_DM_70 spark sql 清洗[$today_dt]数据无结果集！")
+      }
     }
 
   }
 
   /**
-    * JOB_DM_71  2016-8-31
-    * dm_vchr_tkt_act_dly->hive_ticket_bill_bas_inf+hive_acc_trans
-    *
+    * JobName:JOB_DM_71
+    * Feature:hive_ticket_bill_bas_inf+hive_acc_trans->dm_vchr_tkt_act_dly
     * @author tzq
-    * @param sqlContext
+    * @time 2016-8-31
+    * @param sqlContext,start_dt,end_dt
     */
   def JOB_DM_71(implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
 
-    println("###JOB_DM_71-----JOB_DM_71(dm_vchr_tkt_act_dly->hive_ticket_bill_bas_inf+hive_acc_trans)")
+    println("###JOB_DM_71(hive_ticket_bill_bas_inf+hive_acc_trans->dm_vchr_tkt_act_dly)")
 
-    UPSQL_JDBC.delete("dm_vchr_tkt_act_dly","report_dt",start_dt,end_dt);
+    DateUtils.timeCost("JOB_DM_71"){
 
-    sqlContext.sql(s"use $hive_dbname")
-    val results=sqlContext.sql(
-      s"""
-         |select
-         |    a.bill_id  as bill_id,
-         |    a.bill_nm  as bill_nm,
-         |    a.trans_dt  as report_dt,
-         |    a.plh_num  as rlse_num,
-         |    a.dwn_num  as dnld_num,
-         |    a.acpt_cnt  as acct_cnt,
-         |    a.disc_cnt  as disc_at,
-         |    a.acpt_rate   as acct_rate
-         |from
-         |    (
-         |        select
-         |            trans_data.bill_id            as bill_id,
-         |            bill_data.bill_nm             as bill_nm,
-         |            trans_data.trans_dt           as trans_dt,
-         |            bill_data.dwn_total_num       as plh_num,
-         |            bill_data.dwn_num             as dwn_num,
-         |            trans_data.concnt             as acpt_cnt,
-         |            trans_data.discount_at        as disc_cnt,
-         |            case when bill_data.dwn_num is null or bill_data.dwn_num = 0
-         |            then 0
-         |            else
-         |            round(trans_data.concnt/bill_data.dwn_num * 100,2)
-         |            end  as acpt_rate,
-         |            row_number() over(partition by trans_data.trans_dt order by trans_data.concnt desc) as
-         |            rn
-         |        from
-         |            (
-         |                select
-         |                    bill_id,
-         |                    bill_nm,
-         |                    dwn_total_num,
-         |                    dwn_num,
-         |                   to_date(valid_begin_dt) as valid_begin_dt,
-         |                    to_date(valid_end_dt) as valid_end_dt
-         |                from
-         |                    hive_ticket_bill_bas_inf
-         |                where
-         |                    bill_st in('1','2')
-         |
+      UPSQL_JDBC.delete("dm_vchr_tkt_act_dly","report_dt",start_dt,end_dt);
+      println( "#### JOB_DM_71 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
+
+      sqlContext.sql(s"use $hive_dbname")
+      println(s"#### JOB_DM_71 spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
+      val results=sqlContext.sql(
+        s"""
+           |select
+           |    a.bill_id  as bill_id,
+           |    a.bill_nm  as bill_nm,
+           |    a.trans_dt  as report_dt,
+           |    a.plh_num  as rlse_num,
+           |    a.dwn_num  as dnld_num,
+           |    a.acpt_cnt  as acct_cnt,
+           |    a.disc_cnt  as disc_at,
+           |    a.acpt_rate   as acct_rate
+           |from
+           |    (
+           |        select
+           |            trans_data.bill_id            as bill_id,
+           |            bill_data.bill_nm             as bill_nm,
+           |            trans_data.trans_dt           as trans_dt,
+           |            bill_data.dwn_total_num       as plh_num,
+           |            bill_data.dwn_num             as dwn_num,
+           |            trans_data.concnt             as acpt_cnt,
+           |            trans_data.discount_at        as disc_cnt,
+           |            case when bill_data.dwn_num is null or bill_data.dwn_num = 0
+           |            then 0
+           |            else
+           |            round(trans_data.concnt/bill_data.dwn_num * 100,2)
+           |            end  as acpt_rate,
+           |            row_number() over(partition by trans_data.trans_dt order by trans_data.concnt desc) as
+           |            rn
+           |        from
+           |            (
+           |                select
+           |                    bill_id,
+           |                    bill_nm,
+           |                    dwn_total_num,
+           |                    dwn_num,
+           |                   to_date(valid_begin_dt) as valid_begin_dt,
+           |                    to_date(valid_end_dt) as valid_end_dt
+           |                from
+           |                    hive_ticket_bill_bas_inf
+           |                where
+           |                    bill_st in('1','2')
+           |
          |            ) bill_data
-         |        left join
-         |            (
-         |                select
-         |                    bill_id,
-         |                    to_date(trans_dt) as trans_dt,
-         |                    count(*) as concnt,
-         |                    sum(
-         |                        case
-         |                            when discount_at is null
-         |                            then 0
-         |                            else discount_at
-         |                        end) as discount_at
-         |                from
-         |                    hive_acc_trans
-         |                where
-         |                    bill_id like 'Z%'
-         |               and um_trans_id in ('AC02000065','AC02000063')
-         |               and buss_tp in ('04', '05', '06')
-         |               and part_trans_dt >= '$start_dt'
-         |               and part_trans_dt <= '$end_dt'
-         |               and sys_det_cd='S'
-         |                group by bill_id,to_date(trans_dt)) as trans_data
-         |        on
-         |            (
-         |                bill_data.bill_id = trans_data.bill_id)
-         |        where
-         |            trans_data.concnt is not null
-         |        and bill_data.valid_begin_dt<= trans_data.trans_dt
-         |        and bill_data.valid_end_dt>= trans_data.trans_dt) a
-         |where
-         |    a.rn <= 10
-         |
+           |        left join
+           |            (
+           |                select
+           |                    bill_id,
+           |                    to_date(trans_dt) as trans_dt,
+           |                    count(*) as concnt,
+           |                    sum(
+           |                        case
+           |                            when discount_at is null
+           |                            then 0
+           |                            else discount_at
+           |                        end) as discount_at
+           |                from
+           |                    hive_acc_trans
+           |                where
+           |                    bill_id like 'Z%'
+           |               and um_trans_id in ('AC02000065','AC02000063')
+           |               and buss_tp in ('04', '05', '06')
+           |               and part_trans_dt >= '$start_dt'
+           |               and part_trans_dt <= '$end_dt'
+           |               and sys_det_cd='S'
+           |                group by bill_id,to_date(trans_dt)) as trans_data
+           |        on
+           |            (
+           |                bill_data.bill_id = trans_data.bill_id)
+           |        where
+           |            trans_data.concnt is not null
+           |        and bill_data.valid_begin_dt<= trans_data.trans_dt
+           |        and bill_data.valid_end_dt>= trans_data.trans_dt) a
+           |where
+           |    a.rn <= 10
+           |
       """.stripMargin)
-    println("###JOB_DM_71------results:"+results.count())
-    if(!Option(results).isEmpty){
-      results.save2Mysql("dm_vchr_tkt_act_dly")
-    }else{
-      println("指定的时间范围无数据插入！")
+      println(s"#### JOB_DM_71 spark sql 清洗[$today_dt]数据完成时间为:" + DateUtils.getCurrentSystemTime())
+
+      println("###JOB_DM_71------results:"+results.count())
+      if(!Option(results).isEmpty){
+        results.save2Mysql("dm_vchr_tkt_act_dly")
+        println(s"#### JOB_DM_71 [$today_dt]数据插入完成时间为：" + DateUtils.getCurrentSystemTime()
+      }else{
+        println(s"#### JOB_DM_71 spark sql 清洗[$today_dt]数据无结果集！")
+      }
     }
   }
 
@@ -3780,29 +3807,32 @@ object SparkHive2Mysql {
 
 
   /**
-    * JOB_DM_87  2016年9月7日
-    * dm_cashier_stat_dly ->
+    * JobName:JOB_DM_87
+    * Feature:dm_cashier_stat_dly ->
     * FROM :
     * cup_branch_ins_id_nm
     * hive_cashier_point_acct_oper_dtl
     * hive_cashier_bas_inf
     * hive_cdhd_cashier_maktg_reward_dtl
     * hive_signer_log
-    *
     * @author tzq
-    * @param sqlContext
+    * @time 2016-9-7
+    * @param sqlContext,start_dt,end_dt,interval
     */
   def JOB_DM_87(implicit sqlContext: HiveContext,start_dt:String,end_dt:String,interval:Int) = {
 
     println("###JOB_DM_87(dm_cashier_stat_dly->hive_cashier_bas_inf+cup_branch_ins_id_nm+hive_cashier_point_acct_oper_dtl+hive_cdhd_cashier_maktg_reward_dtl+hive_signer_log)")
 
     UPSQL_JDBC.delete("dm_cashier_stat_dly","report_dt",start_dt,end_dt);
+    println( "#### JOB_DM_87 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
 
     var today_dt=start_dt
     if(interval>0 ){
       sqlContext.sql(s"use $hive_dbname")
-      for(i <- 0 to interval){
-        val results=sqlContext.sql(
+      for(i <- 0 to interval)
+
+      println(s"#### JOB_DM_87 spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
+      val results=sqlContext.sql(
           s"""
              |SELECT
              |    t.cup_branch_ins_id_nm as cup_branch_ins_id_nm,
@@ -4276,20 +4306,19 @@ object SparkHive2Mysql {
              |    t.cup_branch_ins_id_nm,
              |    t.report_dt
       """.stripMargin)
-        println(s"###JOB_DM_87------$today_dt results:"+results.count())
+      println(s"#### JOB_DM_87 spark sql 清洗[$today_dt]数据完成时间为:" + DateUtils.getCurrentSystemTime())
+
+      println(s"###JOB_DM_87------$today_dt results:"+results.count())
         if(!Option(results).isEmpty){
           results.save2Mysql("dm_cashier_stat_dly")
+          println(s"#### JOB_DM_87 [$today_dt]数据插入完成时间为：" + DateUtils.getCurrentSystemTime()
         }else{
-          println("指定的时间范围无数据插入！")
+          println(s"#### JOB_DM_87 spark sql 清洗[$today_dt]数据无结果集！")
         }
 
         today_dt=DateUtils.addOneDay(today_dt)
       }
     }
-
-
-
-
   }
 
 
