@@ -1311,18 +1311,21 @@ object SparkDB22Hive {
 
 
   /**
-    * JOB_HV_9/08-23
-    * hive_preferential_mchnt_inf->tbl_chmgm_preferential_mchnt_inf
-    *
+    * JobName:JOB_HV_9
+    * Feature:tbl_chmgm_preferential_mchnt_inf->hive_preferential_mchnt_inf
     * @author tzq
+    * @time 2016-8-23
     * @param sqlContext
     * @return
     */
   def JOB_HV_9(implicit sqlContext: HiveContext) = {
+    println("###JOB_HV_9[全量抽取](hive_preferential_mchnt_inf --->tbl_chmgm_preferential_mchnt_inf)")
     DateUtils.timeCost("JOB_HV_9"){
-      println("###JOB_HV_9(hive_preferential_mchnt_inf --->tbl_chmgm_preferential_mchnt_inf)")
       val df = sqlContext.readDB2_ACC(s"$schemas_mgmdb.TBL_CHMGM_PREFERENTIAL_MCHNT_INF")
+      println("#### JOB_HV_9 readDB2_ACC 的系统时间为:"+DateUtils.getCurrentSystemTime())
+
       df.registerTempTable("db2_tbl_chmgm_preferential_mchnt_inf")
+      println("#### JOB_HV_9 注册临时表 的系统时间为:"+DateUtils.getCurrentSystemTime())
       val results = sqlContext.sql(
         """
           |select
@@ -1416,16 +1419,18 @@ object SparkDB22Hive {
           |from
           |db2_tbl_chmgm_preferential_mchnt_inf
         """.stripMargin)
-      println("JOB_HV_9------>results:"+results.count())
+
+      println("#### JOB_HV_9 spark sql 逻辑完成的系统时间为:"+DateUtils.getCurrentSystemTime())
+      //println("JOB_HV_9------>results:"+results.count())
 
       if(!Option(results).isEmpty){
         results.registerTempTable("spark_tbl_chmgm_preferential_mchnt_inf")
         sqlContext.sql(s"use $hive_dbname")
         sqlContext.sql("truncate table  hive_preferential_mchnt_inf")
         sqlContext.sql("insert into table hive_preferential_mchnt_inf select * from spark_tbl_chmgm_preferential_mchnt_inf")
-        println("insert into table hive_preferential_mchnt_inf successfully!")
+        println("#### JOB_HV_9 全量数据插入完成的系统时间为:"+DateUtils.getCurrentSystemTime())
       }else{
-        println("加载的表tbl_chmgm_preferential_mchnt_inf中无数据！")
+        println("#### JOB_HV_9 spark sql 逻辑处理后无数据！")
       }
     }
 
@@ -1433,18 +1438,19 @@ object SparkDB22Hive {
 
 
   /**
-    * JOB_HV_10/08-23
-    * hive_access_bas_inf->tbl_chmgm_access_bas_inf
-    *
+    * JobName:JOB_HV_10
+    * Feature:db2.tbl_chmgm_access_bas_inf->hive_access_bas_inf
     * @author tzq
+    * @time 2016-8-23
     * @param sqlContext
-    * @return
     */
   def JOB_HV_10(implicit sqlContext: HiveContext) = {
+    println("###JOB_HV_10[全量抽取](hive_access_bas_inf->tbl_chmgm_access_bas_inf)")
     DateUtils.timeCost("JOB_HV_10"){
-      println("###JOB_HV_10(hive_access_bas_inf->tbl_chmgm_access_bas_inf)")
       val df = sqlContext.readDB2_MGM(s"$schemas_mgmdb.TBL_CHMGM_ACCESS_BAS_INF")
+      println("#### JOB_HV_10 readDB2_ACC 的系统时间为:"+DateUtils.getCurrentSystemTime())
       df.registerTempTable("db2_tbl_chmgm_access_bas_inf")
+      println("#### JOB_HV_10 注册临时表 的系统时间为:"+DateUtils.getCurrentSystemTime())
       val results = sqlContext.sql(
         """
           |select
@@ -1543,16 +1549,17 @@ object SparkDB22Hive {
           |from
           |db2_tbl_chmgm_access_bas_inf
         """.stripMargin)
-      println("job10--------->原表：results :"+results.count())
+      println("#### JOB_HV_10 spark sql 逻辑完成的系统时间为:"+DateUtils.getCurrentSystemTime())
+//      println("job10--------->原表：results :"+results.count())
 
       if(!Option(results).isEmpty){
         results.registerTempTable("spark_tbl_chmgm_access_bas_inf")
         sqlContext.sql(s"use $hive_dbname")
         sqlContext.sql("truncate table  hive_access_bas_inf")
         sqlContext.sql("insert into table hive_access_bas_inf select * from spark_tbl_chmgm_access_bas_inf")
-        println("insert into table hive_access_bas_inf successfully!")
+        println("#### JOB_HV_10 全量数据插入完成的系统时间为:"+DateUtils.getCurrentSystemTime())
       }else{
-        println("加载的表tbl_chmgm_access_bas_inf中无数据！")
+        println("#### JOB_HV_10 spark sql 逻辑处理后无数据！")
       }
     }
 
@@ -1560,182 +1567,184 @@ object SparkDB22Hive {
 
 
   /**
-    * JOB_HV_11/08-23
-    * hive_ticket_bill_bas_inf->tbl_chacc_ticket_bill_bas_inf
-    *
+    * JobName:JOB_HV_11
+    * Feature:db2.tbl_chacc_ticket_bill_bas_inf->hive_ticket_bill_bas_inf
     * @author tzq
+    * @time 2016-8-23
     * @param sqlContext
-    * @return
     */
   def JOB_HV_11(implicit sqlContext: HiveContext) = {
-   DateUtils.timeCost("JOB_HV_11"){
-    println("###JOB_HV_11(hive_ticket_bill_bas_inf->tbl_chacc_ticket_bill_bas_inf)")
-    val df = sqlContext.readDB2_ACC(s"$schemas_accdb.TBL_CHACC_TICKET_BILL_BAS_INF")
-
-    df.registerTempTable("db2_tbl_chacc_ticket_bill_bas_inf")
-    val results = sqlContext.sql(
-      """
-        |select
-        |trim(bill_id) as bill_id,
-        |bill_nm,
-        |bill_desc,
-        |trim(bill_tp) as bill_tp,
-        |trim(mchnt_cd) as mchnt_cd,
-        |mchnt_nm,
-        |trim(affl_id) as affl_id,
-        |affl_nm,
-        |bill_pic_path,
-        |trim(acpt_in) as acpt_in,
-        |trim(enable_in) as enable_in,
-        |dwn_total_num,
-        |dwn_num,
-        |case
-        |	when
-        |		substr(valid_begin_dt,1,4) between '0001' and '9999' and substr(valid_begin_dt,5,2) between '01' and '12' and
-        |		substr(valid_begin_dt,7,2) between '01' and substr(last_day(concat_ws('-',substr(valid_begin_dt,1,4),substr(valid_begin_dt,5,2),substr(valid_begin_dt,7,2))),9,2)
-        |	then concat_ws('-',substr(valid_begin_dt,1,4),substr(valid_begin_dt,5,2),substr(valid_begin_dt,7,2))
-        |	else null
-        |end as valid_begin_dt,
-        |
-        |case
-        |	when
-        |		substr(valid_end_dt,1,4) between '0001' and '9999' and substr(valid_end_dt,5,2) between '01' and '12' and
-        |		substr(valid_end_dt,7,2) between '01' and substr(last_day(concat_ws('-',substr(valid_end_dt,1,4),substr(valid_end_dt,5,2),substr(valid_end_dt,7,2))),9,2)
-        |	then concat_ws('-',substr(valid_end_dt,1,4),substr(valid_end_dt,5,2),substr(valid_end_dt,7,2))
-        |	else null
-        |end as valid_end_dt,
-        |
-        |
-        |dwn_num_limit,
-        |disc_rate,
-        |money_at,
-        |low_trans_at_limit,
-        |high_trans_at_limit,
-        |trim(sale_in) as sale_in,
-        |bill_price,
-        |trim(bill_st) as bill_st,
-        |trim(oper_action) as oper_action,
-        |trim(aud_st) as aud_st,
-        |trim(aud_usr_id) as aud_usr_id,
-        |aud_ts,
-        |aud_idea,
-        |trim(rec_upd_usr_id) as rec_upd_usr_id,
-        |rec_upd_ts,
-        |trim(rec_crt_usr_id) as rec_crt_usr_id,
-        |rec_crt_ts,
-        |ver_no,
-        |trim(bill_related_card_bin) as bill_related_card_bin,
-        |event_id,
-        |trim(oper_in) as oper_in,
-        |trim(sync_st)as sync_st,
-        |trim(blkbill_in) as blkbill_in,
-        |trim(chara_grp_cd) as chara_grp_cd,
-        |chara_grp_nm,
-        |trim(obtain_chnl) as obtain_chnl,
-        |trim(cfg_tp) as cfg_tp,
-        |delay_use_days,
-        |trim(bill_rule_bmp) as bill_rule_bmp,
-        |cup_branch_ins_id_cd,
-        |trim(cycle_deduct_in) as cycle_deduct_in,
-        |discount_at_max,
-        |trim(input_data_tp) as input_data_tp,
-        |trim(temp_use_in) as temp_use_in,
-        |aud_id,
-        |trim(entry_ins_id_cd) as entry_ins_id_cd,
-        |entry_ins_cn_nm,
-        |trim(entry_cup_branch_ins_id_cd) as entry_cup_branch_ins_id_cd,
-        |entry_cup_branch_nm,
-        |trim(exclusive_in) as exclusive_in,
-        |trim(data_src) as data_src,
-        |bill_original_price,
-        |trim(price_trend_st) as price_trend_st,
-        |trim(bill_sub_tp) as bill_sub_tp,
-        |pay_timeout,
-        |trim(auto_refund_st) as auto_refund_st,
-        |trim(anytime_refund_st) as anytime_refund_st,
-        |trim(imprest_tp_st) as imprest_tp_st,
-        |trim(rand_tp) as rand_tp,
-        |expt_val,
-        |std_deviation,
-        |rand_at_min,
-        |rand_at_max,
-        |trim(disc_max_in) as disc_max_in,
-        |disc_max,
-        |trim(rand_period_tp) as rand_period_tp,
-        |trim(rand_period) as rand_period,
-        |
-        |case
-        |when trim(cup_branch_ins_id_cd)='00011000' then '北京'
-        |when trim(cup_branch_ins_id_cd)='00011100' then '天津'
-        |when trim(cup_branch_ins_id_cd)='00011200' then '河北'
-        |when trim(cup_branch_ins_id_cd)='00011600' then '山西'
-        |when trim(cup_branch_ins_id_cd)='00011900' then '内蒙古'
-        |when trim(cup_branch_ins_id_cd)='00012210' then '辽宁'
-        |when trim(cup_branch_ins_id_cd)='00012220' then '大连'
-        |when trim(cup_branch_ins_id_cd)='00012400' then '吉林'
-        |when trim(cup_branch_ins_id_cd)='00012600' then '黑龙江'
-        |when trim(cup_branch_ins_id_cd)='00012900' then '上海'
-        |when trim(cup_branch_ins_id_cd)='00013000' then '江苏'
-        |when trim(cup_branch_ins_id_cd)='00013310' then '浙江'
-        |when trim(cup_branch_ins_id_cd)='00013320' then '宁波'
-        |when trim(cup_branch_ins_id_cd)='00013600' then '安徽'
-        |when trim(cup_branch_ins_id_cd)='00013900' then '福建'
-        |when trim(cup_branch_ins_id_cd)='00013930' then '厦门'
-        |when trim(cup_branch_ins_id_cd)='00014200' then '江西'
-        |when trim(cup_branch_ins_id_cd)='00014500' then '山东'
-        |when trim(cup_branch_ins_id_cd)='00014520' then '青岛'
-        |when trim(cup_branch_ins_id_cd)='00014900' then '河南'
-        |when trim(cup_branch_ins_id_cd)='00015210' then '湖北'
-        |when trim(cup_branch_ins_id_cd)='00015500' then '湖南'
-        |when trim(cup_branch_ins_id_cd)='00015800' then '广东'
-        |when trim(cup_branch_ins_id_cd)='00015840' then '深圳'
-        |when trim(cup_branch_ins_id_cd)='00016100' then '广西'
-        |when trim(cup_branch_ins_id_cd)='00016400' then '海南'
-        |when trim(cup_branch_ins_id_cd)='00016500' then '四川'
-        |when trim(cup_branch_ins_id_cd)='00016530' then '重庆'
-        |when trim(cup_branch_ins_id_cd)='00017000' then '贵州'
-        |when trim(cup_branch_ins_id_cd)='00017310' then '云南'
-        |when trim(cup_branch_ins_id_cd)='00017700' then '西藏'
-        |when trim(cup_branch_ins_id_cd)='00017900' then '陕西'
-        |when trim(cup_branch_ins_id_cd)='00018200' then '甘肃'
-        |when trim(cup_branch_ins_id_cd)='00018500' then '青海'
-        |when trim(cup_branch_ins_id_cd)='00018700' then '宁夏'
-        |when trim(cup_branch_ins_id_cd)='00018800' then '新疆'
-        |else '总公司' end
-        |as  CUP_BRANCH_INS_ID_NM
-        |
-        |from
-        |db2_tbl_chacc_ticket_bill_bas_inf
-      """.stripMargin)
-    println("job11-------results:"+results.count())
-    if(!Option(results).isEmpty){
-      results.registerTempTable("spark_db2_tbl_chacc_ticket_bill_bas_inf")
-      sqlContext.sql(s"use $hive_dbname")
-      sqlContext.sql("truncate table  hive_ticket_bill_bas_inf")
-      sqlContext.sql("insert into table hive_ticket_bill_bas_inf select * from spark_db2_tbl_chacc_ticket_bill_bas_inf")
-      println("insert into table hive_ticket_bill_bas_inf successfully!")
-    }else{
-      println("加载的表TBL_CHMGM_TICKET_BILL_BAS_INF中无数据！")
+    println("###JOB_HV_11[全量抽取](hive_ticket_bill_bas_inf->tbl_chacc_ticket_bill_bas_inf)")
+    DateUtils.timeCost("JOB_HV_11") {
+      val df = sqlContext.readDB2_ACC(s"$schemas_accdb.TBL_CHACC_TICKET_BILL_BAS_INF")
+      println("#### JOB_HV_11 readDB2_ACC 的系统时间为:" + DateUtils.getCurrentSystemTime())
+      df.registerTempTable("db2_tbl_chacc_ticket_bill_bas_inf")
+      println("#### JOB_HV_11 注册临时表 的系统时间为:" + DateUtils.getCurrentSystemTime())
+      val results = sqlContext.sql(
+        """
+          |select
+          |trim(bill_id) as bill_id,
+          |bill_nm,
+          |bill_desc,
+          |trim(bill_tp) as bill_tp,
+          |trim(mchnt_cd) as mchnt_cd,
+          |mchnt_nm,
+          |trim(affl_id) as affl_id,
+          |affl_nm,
+          |bill_pic_path,
+          |trim(acpt_in) as acpt_in,
+          |trim(enable_in) as enable_in,
+          |dwn_total_num,
+          |dwn_num,
+          |case
+          |	when
+          |		substr(valid_begin_dt,1,4) between '0001' and '9999' and substr(valid_begin_dt,5,2) between '01' and '12' and
+          |		substr(valid_begin_dt,7,2) between '01' and substr(last_day(concat_ws('-',substr(valid_begin_dt,1,4),substr(valid_begin_dt,5,2),substr(valid_begin_dt,7,2))),9,2)
+          |	then concat_ws('-',substr(valid_begin_dt,1,4),substr(valid_begin_dt,5,2),substr(valid_begin_dt,7,2))
+          |	else null
+          |end as valid_begin_dt,
+          |
+          |case
+          |	when
+          |		substr(valid_end_dt,1,4) between '0001' and '9999' and substr(valid_end_dt,5,2) between '01' and '12' and
+          |		substr(valid_end_dt,7,2) between '01' and substr(last_day(concat_ws('-',substr(valid_end_dt,1,4),substr(valid_end_dt,5,2),substr(valid_end_dt,7,2))),9,2)
+          |	then concat_ws('-',substr(valid_end_dt,1,4),substr(valid_end_dt,5,2),substr(valid_end_dt,7,2))
+          |	else null
+          |end as valid_end_dt,
+          |
+          |
+          |dwn_num_limit,
+          |disc_rate,
+          |money_at,
+          |low_trans_at_limit,
+          |high_trans_at_limit,
+          |trim(sale_in) as sale_in,
+          |bill_price,
+          |trim(bill_st) as bill_st,
+          |trim(oper_action) as oper_action,
+          |trim(aud_st) as aud_st,
+          |trim(aud_usr_id) as aud_usr_id,
+          |aud_ts,
+          |aud_idea,
+          |trim(rec_upd_usr_id) as rec_upd_usr_id,
+          |rec_upd_ts,
+          |trim(rec_crt_usr_id) as rec_crt_usr_id,
+          |rec_crt_ts,
+          |ver_no,
+          |trim(bill_related_card_bin) as bill_related_card_bin,
+          |event_id,
+          |trim(oper_in) as oper_in,
+          |trim(sync_st)as sync_st,
+          |trim(blkbill_in) as blkbill_in,
+          |trim(chara_grp_cd) as chara_grp_cd,
+          |chara_grp_nm,
+          |trim(obtain_chnl) as obtain_chnl,
+          |trim(cfg_tp) as cfg_tp,
+          |delay_use_days,
+          |trim(bill_rule_bmp) as bill_rule_bmp,
+          |cup_branch_ins_id_cd,
+          |trim(cycle_deduct_in) as cycle_deduct_in,
+          |discount_at_max,
+          |trim(input_data_tp) as input_data_tp,
+          |trim(temp_use_in) as temp_use_in,
+          |aud_id,
+          |trim(entry_ins_id_cd) as entry_ins_id_cd,
+          |entry_ins_cn_nm,
+          |trim(entry_cup_branch_ins_id_cd) as entry_cup_branch_ins_id_cd,
+          |entry_cup_branch_nm,
+          |trim(exclusive_in) as exclusive_in,
+          |trim(data_src) as data_src,
+          |bill_original_price,
+          |trim(price_trend_st) as price_trend_st,
+          |trim(bill_sub_tp) as bill_sub_tp,
+          |pay_timeout,
+          |trim(auto_refund_st) as auto_refund_st,
+          |trim(anytime_refund_st) as anytime_refund_st,
+          |trim(imprest_tp_st) as imprest_tp_st,
+          |trim(rand_tp) as rand_tp,
+          |expt_val,
+          |std_deviation,
+          |rand_at_min,
+          |rand_at_max,
+          |trim(disc_max_in) as disc_max_in,
+          |disc_max,
+          |trim(rand_period_tp) as rand_period_tp,
+          |trim(rand_period) as rand_period,
+          |
+          |case
+          |when trim(cup_branch_ins_id_cd)='00011000' then '北京'
+          |when trim(cup_branch_ins_id_cd)='00011100' then '天津'
+          |when trim(cup_branch_ins_id_cd)='00011200' then '河北'
+          |when trim(cup_branch_ins_id_cd)='00011600' then '山西'
+          |when trim(cup_branch_ins_id_cd)='00011900' then '内蒙古'
+          |when trim(cup_branch_ins_id_cd)='00012210' then '辽宁'
+          |when trim(cup_branch_ins_id_cd)='00012220' then '大连'
+          |when trim(cup_branch_ins_id_cd)='00012400' then '吉林'
+          |when trim(cup_branch_ins_id_cd)='00012600' then '黑龙江'
+          |when trim(cup_branch_ins_id_cd)='00012900' then '上海'
+          |when trim(cup_branch_ins_id_cd)='00013000' then '江苏'
+          |when trim(cup_branch_ins_id_cd)='00013310' then '浙江'
+          |when trim(cup_branch_ins_id_cd)='00013320' then '宁波'
+          |when trim(cup_branch_ins_id_cd)='00013600' then '安徽'
+          |when trim(cup_branch_ins_id_cd)='00013900' then '福建'
+          |when trim(cup_branch_ins_id_cd)='00013930' then '厦门'
+          |when trim(cup_branch_ins_id_cd)='00014200' then '江西'
+          |when trim(cup_branch_ins_id_cd)='00014500' then '山东'
+          |when trim(cup_branch_ins_id_cd)='00014520' then '青岛'
+          |when trim(cup_branch_ins_id_cd)='00014900' then '河南'
+          |when trim(cup_branch_ins_id_cd)='00015210' then '湖北'
+          |when trim(cup_branch_ins_id_cd)='00015500' then '湖南'
+          |when trim(cup_branch_ins_id_cd)='00015800' then '广东'
+          |when trim(cup_branch_ins_id_cd)='00015840' then '深圳'
+          |when trim(cup_branch_ins_id_cd)='00016100' then '广西'
+          |when trim(cup_branch_ins_id_cd)='00016400' then '海南'
+          |when trim(cup_branch_ins_id_cd)='00016500' then '四川'
+          |when trim(cup_branch_ins_id_cd)='00016530' then '重庆'
+          |when trim(cup_branch_ins_id_cd)='00017000' then '贵州'
+          |when trim(cup_branch_ins_id_cd)='00017310' then '云南'
+          |when trim(cup_branch_ins_id_cd)='00017700' then '西藏'
+          |when trim(cup_branch_ins_id_cd)='00017900' then '陕西'
+          |when trim(cup_branch_ins_id_cd)='00018200' then '甘肃'
+          |when trim(cup_branch_ins_id_cd)='00018500' then '青海'
+          |when trim(cup_branch_ins_id_cd)='00018700' then '宁夏'
+          |when trim(cup_branch_ins_id_cd)='00018800' then '新疆'
+          |else '总公司' end
+          |as  CUP_BRANCH_INS_ID_NM
+          |
+          |from
+          |db2_tbl_chacc_ticket_bill_bas_inf
+        """.stripMargin)
+      println("#### JOB_HV_11 spark sql 逻辑完成的系统时间为:" + DateUtils.getCurrentSystemTime())
+      //println("job11-------results:"+results.count())
+      if (!Option(results).isEmpty) {
+        results.registerTempTable("spark_db2_tbl_chacc_ticket_bill_bas_inf")
+        sqlContext.sql(s"use $hive_dbname")
+        sqlContext.sql("truncate table  hive_ticket_bill_bas_inf")
+        sqlContext.sql("insert into table hive_ticket_bill_bas_inf select * from spark_db2_tbl_chacc_ticket_bill_bas_inf")
+        println("#### JOB_HV_11 全量数据插入完成的系统时间为:" + DateUtils.getCurrentSystemTime())
+      } else {
+        println("#### JOB_HV_11 spark sql 逻辑处理后无数据！")
+      }
     }
-  }
 
 
   }
 
   /**
-    * JOB_HV_12/08-23
-    * hive_chara_grp_def_bat->tbl_chmgm_chara_grp_def_bat
-    *
+    * JobName:JOB_HV_12
+    * Feature:db2.tbl_chmgm_chara_grp_def_bat->hive_chara_grp_def_bat
     * @author tzq
+    * @time 2016-08-23
     * @param sqlContext
-    * @return
     */
   def JOB_HV_12(implicit sqlContext: HiveContext) = {
-       DateUtils.timeCost("JOB_HV_12"){
-        println("###JOB_HV_12(hive_chara_grp_def_bat->tbl_chmgm_chara_grp_def_bat)")
+    println("###JOB_HV_12[全量抽取](hive_chara_grp_def_bat->tbl_chmgm_chara_grp_def_bat)")
+    DateUtils.timeCost("JOB_HV_12"){
         val df = sqlContext.readDB2_MGM(s"$schemas_mgmdb.TBL_CHMGM_CHARA_GRP_DEF_BAT")
+        println("#### JOB_HV_12 readDB2_MGM 的系统时间为:" + DateUtils.getCurrentSystemTime())
         df.registerTempTable("db2_tbl_chmgm_chara_grp_def_bat")
-        val results = sqlContext.sql(
+        println("#### JOB_HV_12 注册表 的系统时间为:" + DateUtils.getCurrentSystemTime())
+      val results = sqlContext.sql(
           """
             |select
             |rec_id,
@@ -1767,16 +1776,17 @@ object SparkDB22Hive {
             |from
             |db2_tbl_chmgm_chara_grp_def_bat
           """.stripMargin)
-        println("JOB_HV_12-------results:"+results.count())
+         println("#### JOB_HV_12 spark sql 逻辑完成的系统时间为:" + DateUtils.getCurrentSystemTime())
+         //println("JOB_HV_12-------results:"+results.count())
 
         if(!Option(results).isEmpty){
           results.registerTempTable("spark_tbl_chmgm_chara_grp_def_bat")
           sqlContext.sql(s"use $hive_dbname")
           sqlContext.sql("truncate table  hive_chara_grp_def_bat")
           sqlContext.sql("insert into table hive_chara_grp_def_bat select * from spark_tbl_chmgm_chara_grp_def_bat")
-          println("insert into table hive_chara_grp_def_bat successfully!")
+          println("#### JOB_HV_12 全量数据插入完成的系统时间为:" + DateUtils.getCurrentSystemTime())
         }else{
-          println("加载的表tbl_chmgm_chara_grp_def_bat中无数据！")
+          println("#### JOB_HV_12 spark sql 逻辑处理后无数据！")
         }
       }
 
@@ -1784,19 +1794,21 @@ object SparkDB22Hive {
 
 
   /**
-    * hive-job-13/08-22
-    * hive_card_bin->tbl_chmgm_card_bin
+    * JobName:hive-job-13/08-22
+    * Fethure:hive_card_bin->tbl_chmgm_card_bin
     *
     * @author tzq
     * @param sqlContext
     * @return
     */
   def JOB_HV_13(implicit sqlContext: HiveContext) = {
+    println("###JOB_HV_13[全量抽取](hive_card_bin->tbl_chmgm_card_bin)")
     DateUtils.timeCost("JOb_HV_13"){
-      println("###JOB_HV_13(hive_card_bin->tbl_chmgm_card_bin)")
       val df = sqlContext.readDB2_MGM(s"$schemas_mgmdb.TBL_CHMGM_CARD_BIN")
+      println("#### JOB_HV_13 readDB2_MGM 的系统时间为:" + DateUtils.getCurrentSystemTime())
 
       df.registerTempTable("db2_tbl_chmgm_card_bin")
+      println("#### JOB_HV_13 注册表 的系统时间为:" + DateUtils.getCurrentSystemTime())
       val results = sqlContext.sql(
         """
           |select
@@ -1841,17 +1853,17 @@ object SparkDB22Hive {
           |from
           |db2_tbl_chmgm_card_bin
         """.stripMargin)
-      println("JOB_HV_13---------results: "+results.count())
+      println("#### JOB_HV_13 spark sql 逻辑完成的系统时间为:" + DateUtils.getCurrentSystemTime())
+      // println("JOB_HV_13---------results: "+results.count())
 
       if(!Option(results).isEmpty){
         results.registerTempTable("spark_db2_tbl_chmgm_card_bin")
         sqlContext.sql(s"use $hive_dbname")
         sqlContext.sql("truncate table  hive_card_bin")
         sqlContext.sql("insert into table hive_card_bin select * from spark_db2_tbl_chmgm_card_bin")
-        println("insert into table hive_card_bin successfully!")
-
+        println("#### JOB_HV_13 全量数据插入完成的系统时间为:" + DateUtils.getCurrentSystemTime())
       }else{
-        println("加载的表TBL_CHMGM_CARD_BIN中无数据！")
+        println("#### JOB_HV_13 spark sql 逻辑处理后无数据！")
       }
     }
 
@@ -1859,19 +1871,21 @@ object SparkDB22Hive {
 
 
   /**
-    * hive-job-14/08-22
-    * hive_inf_source_dtl->tbl_inf_source_dtl
-    *
+    * JobName:JOB_HV_14
+    * Feature:hive_inf_source_dtl->tbl_inf_source_dtl
+    * @time 2016-8-23
     * @author tzq
     * @param sqlContext
     * @return
     */
   def JOB_HV_14(implicit sqlContext: HiveContext) = {
-      DateUtils.timeCost("JOB_HV_14"){
-        println("###JOB_HV_14(hive_inf_source_dtl->tbl_inf_source_dtl)")
-        val df = sqlContext.readDB2_ACC(s"$schemas_accdb.TBL_INF_SOURCE_DTL")
-        df.registerTempTable("db2_tbl_inf_source_dtl")
-        val results = sqlContext.sql(
+    println("###JOB_HV_14[全量抽取](hive_inf_source_dtl->tbl_inf_source_dtl)")
+    DateUtils.timeCost("JOB_HV_14"){
+      val df = sqlContext.readDB2_ACC(s"$schemas_accdb.TBL_INF_SOURCE_DTL")
+      println("#### JOB_HV_14 readDB2_ACC 的系统时间为:" + DateUtils.getCurrentSystemTime())
+      df.registerTempTable("db2_tbl_inf_source_dtl")
+      println("#### JOB_HV_14 注册表 的系统时间为:" + DateUtils.getCurrentSystemTime())
+      val results = sqlContext.sql(
           """
             |select
             |trim(access_id) as access_id ,
@@ -1879,33 +1893,33 @@ object SparkDB22Hive {
             |from
             |db2_tbl_inf_source_dtl
           """.stripMargin)
-        println("JOB_HV_14-------------results :"+results.count())
+        println("#### JOB_HV_14 spark sql 逻辑完成的系统时间为:" + DateUtils.getCurrentSystemTime())
+        //println("JOB_HV_14-------------results :"+results.count())
 
         if(!Option(results).isEmpty){
           results.registerTempTable("spark_db2_tbl_inf_source_dtl")
           sqlContext.sql(s"use $hive_dbname")
           sqlContext.sql("truncate table  hive_inf_source_dtl")
           sqlContext.sql("insert into table hive_inf_source_dtl select * from spark_db2_tbl_inf_source_dtl")
-          println("insert into table hive_inf_source_dtl successfully!")
+          println("#### JOB_HV_14 全量数据插入完成的系统时间为:" + DateUtils.getCurrentSystemTime())
         }else{
-          println("加载的表TBL_INF_SOURCE_DTL中无数据！")
+          println("#### JOB_HV_14 spark sql 逻辑处理后无数据！")
         }
       }
 
   }
 
   /**
-    * hive-job-15
-    * hive_undefine_store_inf-->  hive_acc_trans + hive_store_term_relation
-    *
+    * JobName:hive-job-15
+    * Feature:hive_undefine_store_inf-->  hive_acc_trans + hive_store_term_relation
     * @author tzq
+    * @time 2016-8-23
     * @param sqlContext
-    * @return
     *
     */
   def JOB_HV_15(implicit sqlContext: HiveContext) = {
+    println("###JOB_HV_15(hive_undefine_store_inf-->  hive_acc_trans + hive_store_term_relation)")
     DateUtils.timeCost("JOB_HV_15"){
-      println("###JOB_HV_15(hive_undefine_store_inf-->  hive_acc_trans + hive_store_term_relation)")
       sqlContext.sql(s"use $hive_dbname")
       val results = sqlContext.sql(
         """
@@ -1949,39 +1963,51 @@ object SparkDB22Hive {
           |
           |
         """.stripMargin)
-
+      println("#### JOB_HV_15 spark sql 逻辑完成的系统时间为:" + DateUtils.getCurrentSystemTime())
       if(!Option(results).isEmpty){
         results.registerTempTable("hive_undefine_store_inf_temp")
+        println("#### JOB_HV_15 注册临时表 的系统时间为:" + DateUtils.getCurrentSystemTime())
+
+
         sqlContext.sql("truncate table  hive_undefine_store_inf")
         sqlContext.sql("insert into table hive_undefine_store_inf select * from hive_undefine_store_inf_temp")
-        println("insert into table hive_undefine_store_inf successfully!")
+
+        println("#### JOB_HV_15 全量数据插入完成的系统时间为:" + DateUtils.getCurrentSystemTime())
 
       }else{
-        println("没有数据插入到指定表hive_undefine_store_inf ！")
+
+        println("#### JOB_HV_15 spark sql 逻辑处理后无数据！")
       }
     }
 
   }
 
   /**
-    * JOB_HV_16/08-23
-    * hive_mchnt_inf_wallet->tbl_chmgm_mchnt_inf/TBL_CHMGM_STORE_TERM_RELATION/TBL_CHMGM_ACCESS_BAS_INF
-    *
+    * JobName:JOB_HV_16
+    * Feature:hive_mchnt_inf_wallet->tbl_chmgm_mchnt_inf/TBL_CHMGM_STORE_TERM_RELATION/TBL_CHMGM_ACCESS_BAS_INF
+    * @time 2016-8-23
     * @author tzq
     * @param sqlContext
     * @return
     */
   def JOB_HV_16(implicit sqlContext: HiveContext) = {
+    println("###JOB_HV_16[全量抽取](hive_mchnt_inf_wallet->tbl_chmgm_mchnt_inf/TBL_CHMGM_STORE_TERM_RELATION/TBL_CHMGM_ACCESS_BAS_INF)")
     DateUtils.timeCost("JOB_HV_16"){
-      println("###JOB_HV_16(hive_mchnt_inf_wallet->tbl_chmgm_mchnt_inf/TBL_CHMGM_STORE_TERM_RELATION/TBL_CHMGM_ACCESS_BAS_INF)")
+
       val df = sqlContext.readDB2_MGM(s"$schemas_mgmdb.TBL_CHMGM_MCHNT_INF")
+      println("#### JOB_HV_16 readDB2_MGM (TBL_CHMGM_MCHNT_INF) 的系统时间为:" + DateUtils.getCurrentSystemTime())
       df.registerTempTable("db2_tbl_chmgm_mchnt_inf")
+      println("#### JOB_HV_16 注册临时表db2_tbl_chmgm_mchnt_inf 的系统时间为:" + DateUtils.getCurrentSystemTime())
 
       val df1 = sqlContext.readDB2_MGM(s"$schemas_mgmdb.TBL_CHMGM_STORE_TERM_RELATION")
+      println("#### JOB_HV_16 readDB2_MGM (TBL_CHMGM_STORE_TERM_RELATION) 的系统时间为:" + DateUtils.getCurrentSystemTime())
       df1.registerTempTable("db2_tbl_chmgm_store_term_relation")
+      println("#### JOB_HV_16 注册临时表db2_tbl_chmgm_store_term_relation 的系统时间为:" + DateUtils.getCurrentSystemTime())
 
       val df2 = sqlContext.readDB2_MGM(s"$schemas_mgmdb.TBL_CHMGM_ACCESS_BAS_INF")
+      println("#### JOB_HV_16 readDB2_MGM (TBL_CHMGM_ACCESS_BAS_INF) 的系统时间为:" + DateUtils.getCurrentSystemTime())
       df2.registerTempTable("db2_tbl_chmgm_access_bas_inf")
+      println("#### JOB_HV_16 注册临时表db2_tbl_chmgm_access_bas_inf 的系统时间为:" + DateUtils.getCurrentSystemTime())
 
       val results = sqlContext.sql(
         """
@@ -2116,17 +2142,17 @@ object SparkDB22Hive {
           |on a.mchnt_cd=d.mchnt_cd
           |
         """.stripMargin)
-
-      println("###JOB_HV_16-----results:"+results.count())
+      println("#### JOB_HV_16 spark sql 逻辑完成的系统时间为:" + DateUtils.getCurrentSystemTime())
+      //println("###JOB_HV_16-----results:"+results.count())
 
       if(!Option(results).isEmpty){
         results.registerTempTable("spark_tbl_chmgm_mchnt_inf")
         sqlContext.sql(s"use $hive_dbname")
         sqlContext.sql("truncate table  hive_mchnt_inf_wallet")
         sqlContext.sql("insert into table hive_mchnt_inf_wallet select * from spark_tbl_chmgm_mchnt_inf")
-        println("###JOB_HV_16 insert into table hive_mchnt_inf_wallet successfully!")
+        println("#### JOB_HV_16 全量数据插入完成的系统时间为:" + DateUtils.getCurrentSystemTime())
       }else{
-        println("指定表hive_mchnt_inf_wallet无数据插入！")
+        println("#### JOB_HV_16 spark sql 逻辑处理后无数据！")
       }
     }
   }
@@ -2466,19 +2492,20 @@ object SparkDB22Hive {
 
 
   /**
-    * hive-job-23  2016年10月9日
-    * hive_brand_inf-->TBL_CHMGM_BRAND_INF
-    *
+    * JobName:JOB_HV_23
+    * Feature:db2.tbl_chmgm_brand_inf->hive.hive_brand_inf
     * @author tzq
+    * @time 2016-10-9
     * @param sqlContext
     * @return
     */
   def JOB_HV_23(implicit sqlContext: HiveContext) = {
+    println("###JOB_HV_23[全量抽取](hive_brand_inf->tbl_chmgm_brand_inf)")
     DateUtils.timeCost("JOB_HV_23"){
-      println("###JOB_HV_23(hive_brand_inf->tbl_chmgm_brand_inf)")
-
       val df = sqlContext.readDB2_MGM(s"$schemas_mgmdb.TBL_CHMGM_BRAND_INF")
+      println("#### JOB_HV_23 readDB2_MGM 的系统时间为:" + DateUtils.getCurrentSystemTime())
       df.registerTempTable("db2_tbl_chmgm_brand_inf")
+      println("#### JOB_HV_23 注册临时表 的系统时间为:" + DateUtils.getCurrentSystemTime())
       val results = sqlContext.sql(
         """
           |select
@@ -2506,16 +2533,17 @@ object SparkDB22Hive {
           |from
           |db2_tbl_chmgm_brand_inf
         """.stripMargin)
-      println("###JOB_HV_23---------->results:"+results.count())
+      println("#### JOB_HV_23 spark sql 逻辑完成的系统时间为:" + DateUtils.getCurrentSystemTime())
+      //println("###JOB_HV_23---------->results:"+results.count())
 
       if(!Option(results).isEmpty){
         results.registerTempTable("spark_db2_tbl_chmgm_brand_inf")
         sqlContext.sql(s"use $hive_dbname")
         sqlContext.sql("truncate table  hive_brand_inf")
         sqlContext.sql("insert into table hive_brand_inf select * from spark_db2_tbl_chmgm_brand_inf")
-        println("insert into table hive_brand_inf successfully!")
+        println("#### JOB_HV_23 全量数据插入完成的系统时间为:" + DateUtils.getCurrentSystemTime())
       }else{
-        println("加载的表TBL_CHMGM_BRAND_INF中无数据！")
+        println("#### JOB_HV_23 spark sql 逻辑处理后无数据！")
       }
     }
 
@@ -2627,18 +2655,19 @@ object SparkDB22Hive {
   }
 
   /**
-    * hive-job-26
-    * hive_mchnt_tp_grp-->tbl_mcmgm_mchnt_tp_grp
-    *
+    * JobName: hive-job-26
+    * Feature: db2.tbl_mcmgm_mchnt_tp_grp->hive.hive_mchnt_tp_grp
     * @author tzq
+    * @time 2016-09-18
     * @param sqlContext
-    * @return
     */
   def JOB_HV_26(implicit sqlContext: HiveContext) = {
+    println("###JOB_HV_26[全量抽取](hive_mchnt_tp_grp-->tbl_mcmgm_mchnt_tp_grp)")
     DateUtils.timeCost("JOB_HV_26"){
-      println("###JOB_HV_26(hive_mchnt_tp_grp-->tbl_mcmgm_mchnt_tp_grp)")
       val df = sqlContext.readDB2_MGM(s"$schemas_mgmdb.TBL_MCMGM_MCHNT_TP_GRP")
+      println("#### JOB_HV_26 readDB2_MGM 的系统时间为:" + DateUtils.getCurrentSystemTime())
       df.registerTempTable("db2_tbl_mcmgm_mchnt_tp_grp")
+      println("#### JOB_HV_26 注册临时表 的系统时间为:" + DateUtils.getCurrentSystemTime())
       val results = sqlContext.sql(
         """
           |
@@ -2659,16 +2688,17 @@ object SparkDB22Hive {
           |from
           |db2_tbl_mcmgm_mchnt_tp_grp
         """.stripMargin)
-      println("###JOB_HV_26---------->results:"+results.count())
+      println("#### JOB_HV_26 spark sql 逻辑完成的系统时间为:" + DateUtils.getCurrentSystemTime())
+      //println("###JOB_HV_26---------->results:"+results.count())
 
       if(!Option(results).isEmpty){
         results.registerTempTable("spark_db2_tbl_mcmgm_mchnt_tp_grp")
         sqlContext.sql(s"use $hive_dbname")
         sqlContext.sql("truncate table  hive_mchnt_tp_grp")
         sqlContext.sql("insert into table hive_mchnt_tp_grp select * from spark_db2_tbl_mcmgm_mchnt_tp_grp")
-        println("insert into table hive_mchnt_tp_grp successfully!")
+        println("#### JOB_HV_26 全量数据插入完成的系统时间为:" + DateUtils.getCurrentSystemTime())
       }else{
-        println("加载的表TBL_MCMGM_MCHNT_TP_GRP中无数据！")
+        println("#### JOB_HV_26 spark sql 逻辑处理后无数据！")
       }
     }
 
@@ -3909,18 +3939,21 @@ object SparkDB22Hive {
   }
 
   /**
-    * hive-job-37  2016年9月21日 星期三
-    * hive_filter_app_det-->tbl_umsvc_filter_app_det
-    *
+    * JobName:hive-job-37
+    * Feature:DB2.tbl_umsvc_filter_app_det-->hive_filter_app_det
     * @author tzq
+    * @time 2016-9-21
     * @param sqlContext
     * @return
     */
   def JOB_HV_37(implicit sqlContext: HiveContext) = {
+    println("###JOB_HV_37[全量抽取](hive_filter_app_det-->tbl_umsvc_filter_app_det)")
     DateUtils.timeCost("JOB_HV_37"){
-      println("###JOB_HV_37(hive_filter_app_det-->tbl_umsvc_filter_app_det)")
       val df = sqlContext.readDB2_MGM(s"$schemas_mgmdb.TBL_UMSVC_FILTER_APP_DET")
+      println("#### JOB_HV_37 readDB2_MGM 的系统时间为:" + DateUtils.getCurrentSystemTime())
       df.registerTempTable("db2_tbl_umsvc_filter_app_det")
+      println("#### JOB_HV_37 注册临时表 的系统时间为:" + DateUtils.getCurrentSystemTime())
+
       val results = sqlContext.sql(
         """
           |select
@@ -3944,15 +3977,16 @@ object SparkDB22Hive {
           |from
           |db2_tbl_umsvc_filter_app_det
         """.stripMargin)
-
-      println("###JOB_HV_37---------->results:"+results.count())
+      println("#### JOB_HV_37 spark sql 逻辑完成的系统时间为:" + DateUtils.getCurrentSystemTime())
+      //println("###JOB_HV_37---------->results:"+results.count())
       if(!Option(results).isEmpty){
         results.registerTempTable("spark_db2_tbl_umsvc_filter_app_det")
         sqlContext.sql(s"use $hive_dbname")
         sqlContext.sql("truncate table  hive_filter_app_det")
         sqlContext.sql("insert into table hive_filter_app_det select * from spark_db2_tbl_umsvc_filter_app_det")
+        println("#### JOB_HV_37 全量数据插入完成的系统时间为:" + DateUtils.getCurrentSystemTime())
       }else{
-        println("加载的表TBL_UMSVC_FILTER_APP_DET中无数据！")
+        println("#### JOB_HV_37 spark sql 逻辑处理后无数据！")
       }
     }
 
@@ -3961,18 +3995,21 @@ object SparkDB22Hive {
 
 
   /**
-    * hive-job-38  2016年9月21日 星期三
-    * hive_filter_rule_det-->tbl_umsvc_filter_rule_det
-    *
+    * JobName: JOB_HV_38
+    * Feature: db2.tbl_umsvc_filter_rule_det->hive.hive_filter_rule_det-->
     * @author tzq
+    * @time 2016-9-21
     * @param sqlContext
     * @return
     */
   def JOB_HV_38(implicit sqlContext: HiveContext) = {
+    println("###JOB_HV_38[全量抽取](hive_filter_rule_det-->tbl_umsvc_filter_rule_det)")
     DateUtils.timeCost("JOB_HV_38"){
-      println("###JOB_HV_38(hive_filter_rule_det-->tbl_umsvc_filter_rule_det)")
       val df = sqlContext.readDB2_MGM(s"$schemas_mgmdb.TBL_UMSVC_FILTER_RULE_DET")
+      println("#### JOB_HV_38 readDB2_MGM 的系统时间为:" + DateUtils.getCurrentSystemTime())
       df.registerTempTable("db2_tbl_umsvc_filter_rule_det")
+      println("#### JOB_HV_38 注册临时表 的系统时间为:" + DateUtils.getCurrentSystemTime())
+
       val results = sqlContext.sql(
         """
           |
@@ -3996,16 +4033,17 @@ object SparkDB22Hive {
           |from
           |db2_tbl_umsvc_filter_rule_det
         """.stripMargin)
-
-      println("###JOB_HV_38---------->results:"+results.count())
+      println("#### JOB_HV_38 spark sql 逻辑完成的系统时间为:" + DateUtils.getCurrentSystemTime())
+      //println("###JOB_HV_38---------->results:"+results.count())
 
       if(!Option(results).isEmpty){
         results.registerTempTable("spark_db2_tbl_umsvc_filter_rule_det")
         sqlContext.sql(s"use $hive_dbname")
         sqlContext.sql("truncate table  hive_filter_rule_det")
         sqlContext.sql("insert into table hive_filter_rule_det select * from db2_tbl_umsvc_filter_rule_det")
+        println("#### JOB_HV_38 全量数据插入完成的系统时间为:" + DateUtils.getCurrentSystemTime())
       }else{
-        println("加载的表TBL_UMSVC_FILTER_RULE_DET中无数据！")
+        println("#### JOB_HV_38 spark sql 逻辑处理后无数据！")
       }
     }
 
@@ -4013,20 +4051,20 @@ object SparkDB22Hive {
 
 
   /**
-    * hive-job-44/08-22
-    * hive_cdhd_cashier_maktg_reward_dtl->viw_chacc_cdhd_cashier_maktg_reward_dtl
-    *
+    * JobName: JOB_HV_44
+    * Feature: db2.viw_chacc_cdhd_cashier_maktg_reward_dtl->hive.hive_cdhd_cashier_maktg_reward_dtl
     * @author tzq
+    * @time 2016-8-22
     * @param sqlContext
     * @return
     */
   def JOB_HV_44(implicit sqlContext: HiveContext) = {
+    println("###JOB_HV_44[全量抽取](viw_chacc_cdhd_cashier_maktg_reward_dtl)")
     DateUtils.timeCost("JOB_HV_44"){
-      println("###JOB_HV_44(viw_chacc_cdhd_cashier_maktg_reward_dtl)")
-
       val df= sqlContext.readDB2_ACC(s"$schemas_accdb.VIW_CHACC_CDHD_CASHIER_MAKTG_REWARD_DTL")
-
+      println("#### JOB_HV_44 readDB2_ACC 的系统时间为:" + DateUtils.getCurrentSystemTime())
       df.registerTempTable("db2_cdhd_cashier_maktg_reward_dtl")
+      println("#### JOB_HV_44 注册临时表 的系统时间为:" + DateUtils.getCurrentSystemTime())
 
       val results = sqlContext.sql(
         """
@@ -4132,16 +4170,16 @@ object SparkDB22Hive {
           |from
           |db2_cdhd_cashier_maktg_reward_dtl
         """.stripMargin)
-
-      println("###JOB_HV_44---------results 条目数: "+results.count())
+      println("#### JOB_HV_44 spark sql 逻辑完成的系统时间为:" + DateUtils.getCurrentSystemTime())
+      //println("###JOB_HV_44---------results 条目数: "+results.count())
       if(!Option(results).isEmpty){
         results.registerTempTable("spark_cdhd_cashier_maktg_reward_dtl")
         sqlContext.sql(s"use $hive_dbname")
         sqlContext.sql("truncate table  hive_cdhd_cashier_maktg_reward_dtl")
         sqlContext.sql("insert into table hive_cdhd_cashier_maktg_reward_dtl select * from spark_cdhd_cashier_maktg_reward_dtl")
-        println("insert into table hive_cdhd_cashier_maktg_reward_dtl successfully!")
+        println("#### JOB_HV_44 全量数据插入完成的系统时间为:" + DateUtils.getCurrentSystemTime())
       }else{
-        println("加载视图表VIW_CHACC_CDHD_CASHIER_MAKTG_REWARD_DTL中无数据！")
+        println("#### JOB_HV_44 spark sql 逻辑处理后无数据！")
       }
     }
 
@@ -4383,19 +4421,20 @@ object SparkDB22Hive {
 
 
   /**
-    * hive-job-48/08-29
-    * hive_prize_bas->tbl_umsvc_prize_bas
-    *
+    *JobName: JOB_HV_48
+    *Feature: db2.tbl_umsvc_prize_bas->hive.hive_prize_bas
     * @author tzq
+    * @time 2016-8-29
     * @param sqlContext
     * @return
     */
   def JOB_HV_48(implicit sqlContext: HiveContext) = {
+    println("###JOB_HV_48[全量抽取](hive_prize_bas->tbl_umsvc_prize_bas)")
     DateUtils.timeCost("JOB_HV_48"){
-      println("###JOB_HV_48(hive_prize_bas->tbl_umsvc_prize_bas)")
       val df = sqlContext.readDB2_MGM(s"$schemas_mgmdb.TBL_UMSVC_PRIZE_BAS")
-
+      println("#### JOB_HV_48 readDB2_MGM 的系统时间为:" + DateUtils.getCurrentSystemTime())
       df.registerTempTable("db2_tbl_umsvc_prize_bas")
+      println("#### JOB_HV_48 注册临时表 的系统时间为:" + DateUtils.getCurrentSystemTime())
       val results = sqlContext.sql(
         """
           |select
@@ -4424,34 +4463,37 @@ object SparkDB22Hive {
           |from
           |db2_tbl_umsvc_prize_bas
         """.stripMargin)
-      println("###JOB_HV_48--------->results : "+results.count())
+        println("#### JOB_HV_48 spark sql 逻辑完成的系统时间为:" + DateUtils.getCurrentSystemTime())
+//      println("###JOB_HV_48--------->results : "+results.count())
 
       if(!Option(results).isEmpty){
         results.registerTempTable("spark_tbl_umsvc_prize_bas")
         sqlContext.sql(s"use $hive_dbname")
         sqlContext.sql("truncate table  hive_prize_bas")
         sqlContext.sql("insert into table hive_prize_bas select * from spark_tbl_umsvc_prize_bas")
-        println("insert into table hive_prize_bas successfully!")
+        println("#### JOB_HV_48 全量数据插入完成的系统时间为:" + DateUtils.getCurrentSystemTime())
       }else{
-        println("加载的表TBL_UMSVC_PRIZE_BAS中无数据！")
-      }
+        println("#### JOB_HV_48 spark sql 逻辑处理后无数据！")      }
     }
   }
 
   /**
-    * hive-job-54/08-29
-    * hive_cashier_bas_inf->tbl_chacc_cashier_bas_inf
-    *
+    * JobName: JOB_HV_54
+    * Feature: db2.tbl_chacc_cashier_bas_inf->hive.hive_cashier_bas_inf
     * @author tzq
+    * @time 2016-8-29
     * @param sqlContext
     * @return
     */
   def JOB_HV_54(implicit sqlContext: HiveContext) = {
-   DateUtils.timeCost("JOB_HV_54"){
-     println("###JOB_HV_54(tbl_chacc_cashier_bas_inf)")
+    println("###JOB_HV_54[全量抽取](tbl_chacc_cashier_bas_inf)")
+    DateUtils.timeCost("JOB_HV_54"){
      val df = sqlContext.readDB2_ACC(s"$schemas_accdb.TBL_CHACC_CASHIER_BAS_INF")
-
+     println("#### JOB_HV_54 readDB2_ACC 的系统时间为:" + DateUtils.getCurrentSystemTime())
      df.registerTempTable("db2_tbl_chacc_cashier_bas_inf")
+
+     println("#### JOB_HV_54 注册临时表 的系统时间为:" + DateUtils.getCurrentSystemTime())
+
      val results = sqlContext.sql(
        """
          |select
@@ -4546,16 +4588,16 @@ object SparkDB22Hive {
          |from
          |db2_tbl_chacc_cashier_bas_inf
        """.stripMargin)
-
-     println("###JOB_HV_54--------->results："+results.count())
+     println("#### JOB_HV_54 spark sql 逻辑完成的系统时间为:" + DateUtils.getCurrentSystemTime())
+     //println("###JOB_HV_54--------->results："+results.count())
      if(!Option(results).isEmpty){
        results.registerTempTable("spark_bl_chacc_cashier_bas_inf")
        sqlContext.sql(s"use $hive_dbname")
        sqlContext.sql("truncate table  hive_cashier_bas_inf")
        sqlContext.sql("insert into table hive_cashier_bas_inf select * from spark_bl_chacc_cashier_bas_inf")
-       println("insert into table hive_cashier_bas_inf successfully!")
+       println("#### JOB_HV_54 全量数据插入完成的系统时间为:" + DateUtils.getCurrentSystemTime())
      }else{
-       println("加载的表tbl_chacc_cashier_bas_inf中无数据！")
+       println("#### JOB_HV_54 spark sql 逻辑处理后无数据！")
      }
    }
 
@@ -4564,19 +4606,20 @@ object SparkDB22Hive {
 
 
   /**
-    * hive-job-67
-    * Hive_signer_log -->tbl_umtxn_signer_log
-    *
-    *@author tzq
+    * JobName: JOB_HV_67
+    * Feature: db2.tbl_umtxn_signer_log->hive.Hive_signer_log
+    * @author tzq
+    * @time 2016-8-29
     * @param sqlContext
-    * @return
     */
   def JOB_HV_67(implicit sqlContext: HiveContext) = {
-   DateUtils.timeCost("JOB_HV_67"){
-     println("###JOB_HV_67(Hive_signer_log -->tbl_umtxn_signer_log)")
+    println("###JOB_HV_67[全量抽取](Hive_signer_log -->tbl_umtxn_signer_log)")
+    DateUtils.timeCost("JOB_HV_67"){
      val df = sqlContext.readDB2_ACC(s"$schemas_accdb.TBL_UMTXN_SIGNER_LOG")
-     df.registerTempTable("db2_tbl_umtxn_signer_log")
-     val results = sqlContext.sql(
+      println("#### JOB_HV_67 readDB2_ACC 的系统时间为:" + DateUtils.getCurrentSystemTime())
+      df.registerTempTable("db2_tbl_umtxn_signer_log")
+      println("#### JOB_HV_67 注册临时表 的系统时间为:" + DateUtils.getCurrentSystemTime())
+      val results = sqlContext.sql(
        """
          |select
          |trim(mchnt_cd),
@@ -4587,18 +4630,17 @@ object SparkDB22Hive {
          |from
          |db2_tbl_umtxn_signer_log
        """.stripMargin)
-
-     println("###JOB_HV_67---------->results："+results.count())
+      println("#### JOB_HV_67 spark sql 逻辑完成的系统时间为:" + DateUtils.getCurrentSystemTime())
+     //println("###JOB_HV_67---------->results："+results.count())
 
      if(!Option(results).isEmpty){
        results.registerTempTable("spark_db2_tbl_umtxn_signer_log")
        sqlContext.sql(s"use $hive_dbname")
        sqlContext.sql("truncate table  hive_signer_log")
        sqlContext.sql("insert into table hive_signer_log select * from spark_db2_tbl_umtxn_signer_log")
-       println("insert into table hive_signer_log successfully!")
+       println("#### JOB_HV_67 全量数据插入完成的系统时间为:" + DateUtils.getCurrentSystemTime())
      }else{
-       println("加载的表tbl_umtxn_signer_log中无数据！")
-     }
+       println("#### JOB_HV_67 spark sql 逻辑处理后无数据！")     }
    }
 
 
@@ -4606,18 +4648,20 @@ object SparkDB22Hive {
 
 
   /**
-    * hive-job-68
-    * hive_cashier_point_acct_oper_dtl-->tbl_umtxn_cashier_point_acct_oper_dtl
-    *
+    * JobName: JOB_HV_68
+    * Feature: db2.tbl_umtxn_cashier_point_acct_oper_dtl->hive_cashier_point_acct_oper_dtl
     * @author tzq
+    * @time 2016-8-29
     * @param sqlContext
     * @return
     */
   def JOB_HV_68(implicit sqlContext: HiveContext) = {
+    println("###JOB_HV_68[全量抽取](tbl_umtxn_cashier_point_acct_oper_dtl)")
     DateUtils.timeCost("JOB_HV_68"){
-      println("###JOB_HV_68(tbl_umtxn_cashier_point_acct_oper_dtl)")
       val df = sqlContext.readDB2_ACC(s"$schemas_accdb.TBL_UMTXN_CASHIER_POINT_ACCT_OPER_DTL")
+      println("#### JOB_HV_68 readDB2_ACC 的系统时间为:" + DateUtils.getCurrentSystemTime())
       df.registerTempTable("db2_tbl_umtxn_cashier_point_acct_oper_dtl")
+      println("#### JOB_HV_68 注册临时表 的系统时间为:" + DateUtils.getCurrentSystemTime())
       val results = sqlContext.sql(
         """
           |
@@ -4632,16 +4676,17 @@ object SparkDB22Hive {
           |from
           |db2_tbl_umtxn_cashier_point_acct_oper_dtl
         """.stripMargin)
-      println("###JOB_HV_68---------->results："+results.count())
+      println("#### JOB_HV_68 spark sql 逻辑完成的系统时间为:" + DateUtils.getCurrentSystemTime())
+      //println("###JOB_HV_68---------->results："+results.count())
 
       if(!Option(results).isEmpty){
         results.registerTempTable("spark_db2_tbl_umtxn_cashier_point_acct_oper_dtl")
         sqlContext.sql(s"use $hive_dbname")
         sqlContext.sql("truncate table  hive_cashier_point_acct_oper_dtl")
         sqlContext.sql("insert into table hive_cashier_point_acct_oper_dtl select * from spark_db2_tbl_umtxn_cashier_point_acct_oper_dtl")
-        println("insert into table hive_cashier_point_acct_oper_dtl successfully!")
+        println("#### JOB_HV_68 全量数据插入完成的系统时间为:" + DateUtils.getCurrentSystemTime())
       }else{
-        println("加载的表TBL_UMTXN_CASHIER_POINT_ACCT_OPER_DTL中无数据！")
+        println("#### JOB_HV_68 spark sql 逻辑处理后无数据！")
       }
     }
 
@@ -4755,18 +4800,21 @@ object SparkDB22Hive {
 
 
   /**
-    *  hive-job-72 2016-11-2
-    *  hive_bill_order_aux_inf->viw_chmgm_bill_order_aux_inf
-    *
+    *  JobName: hive-job-72 2016-11-2
+    *  Feature: hive_bill_order_aux_inf->viw_chmgm_bill_order_aux_inf
     * @author tzq
+    * @time 2016-8-29
     * @param sqlContext
     */
   def JOB_HV_72(implicit sqlContext: HiveContext) = {
-      DateUtils.timeCost("JOB_HV_72"){
-        println("###JOB_HV_72(hive_bill_order_aux_inf->viw_chmgm_bill_order_aux_inf)")
-        sqlContext.sql(s"use $hive_dbname")
-        val df = sqlContext.readDB2_MGM(s"$schemas_mgmdb.viw_chmgm_bill_order_aux_inf")
-        df.registerTempTable("db2_viw_chmgm_bill_order_aux_inf")
+    println("###JOB_HV_72[全量抽取](hive_bill_order_aux_inf->viw_chmgm_bill_order_aux_inf)")
+    DateUtils.timeCost("JOB_HV_72"){
+      sqlContext.sql(s"use $hive_dbname")
+      val df = sqlContext.readDB2_MGM(s"$schemas_mgmdb.viw_chmgm_bill_order_aux_inf")
+      println("#### JOB_HV_72 readDB2_ACC 的系统时间为:" + DateUtils.getCurrentSystemTime())
+      df.registerTempTable("db2_viw_chmgm_bill_order_aux_inf")
+      println("#### JOB_HV_72 注册临时表 的系统时间为:" + DateUtils.getCurrentSystemTime())
+
         val results = sqlContext.sql(
           """
             |select
@@ -4819,31 +4867,37 @@ object SparkDB22Hive {
             |
           """.stripMargin
         )
-        println("JOB_HV_72------>results:"+results.count())
-        if(!Option(results).isEmpty){
+      println("#### JOB_HV_72 spark sql 逻辑完成的系统时间为:" + DateUtils.getCurrentSystemTime())
+//      println("JOB_HV_72------>results:"+results.count())
+
+      if(!Option(results).isEmpty){
           results.registerTempTable("spark_db2_viw_chmgm_bill_order_aux_inf")
           sqlContext.sql("truncate table hive_bill_order_aux_inf")
           sqlContext.sql("insert into table hive_bill_order_aux_inf select * from spark_db2_viw_chmgm_bill_order_aux_inf")
-          println("insert into table hive_bill_order_aux_inf successfully!")
+          println("#### JOB_HV_72 全量数据插入完成的系统时间为:" + DateUtils.getCurrentSystemTime())
         }else{
-          println("加载的视图：viw_chmgm_bill_order_aux_inf 中无数据！")
+          println("#### JOB_HV_72 spark sql 逻辑处理后无数据！")
         }
       }
   }
 
   /**
-    *  hive-job-73 2016-11-2
-    * hive_bill_sub_order_detail_inf->viw_chmgm_bill_sub_order_detail_inf
-    *
+    * JobName:  hive-job-73 2016-11-2
+    * Feature: hive_bill_sub_order_detail_inf->viw_chmgm_bill_sub_order_detail_inf
     * @author tzq
+    * @time 2016-8-29
     * @param sqlContext
     */
   def JOB_HV_73(implicit sqlContext: HiveContext) = {
+    println("###JOB_HV_73[全量抽取](hive_bill_sub_order_detail_inf->viw_chmgm_bill_sub_order_detail_inf)")
     DateUtils.timeCost("JOB_HV_73"){
-      println("###JOB_HV_73(hive_bill_sub_order_detail_inf->viw_chmgm_bill_sub_order_detail_inf)")
       sqlContext.sql(s"use $hive_dbname")
       val df = sqlContext.readDB2_MGM(s"$schemas_mgmdb.viw_chmgm_bill_sub_order_detail_inf")
+      println("#### JOB_HV_73 readDB2_ACC 的系统时间为:" + DateUtils.getCurrentSystemTime())
       df.registerTempTable("db2_viw_chmgm_bill_sub_order_detail_inf")
+
+      println("#### JOB_HV_73 注册临时表 的系统时间为:" + DateUtils.getCurrentSystemTime())
+
       val results = sqlContext.sql(
         """
           |select
@@ -4879,14 +4933,15 @@ object SparkDB22Hive {
           |
         """.stripMargin
       )
-      println("JOB_HV_73------>results:"+results.count())
+      println("#### JOB_HV_73 spark sql 逻辑完成的系统时间为:" + DateUtils.getCurrentSystemTime())
+//      println("JOB_HV_73------>results:"+results.count())
       if(!Option(results).isEmpty){
         results.registerTempTable("spark_db2_viw_chmgm_bill_sub_order_detail_inf")
         sqlContext.sql("truncate table hive_bill_sub_order_detail_inf")
         sqlContext.sql("insert into table hive_bill_sub_order_detail_inf select * from spark_db2_viw_chmgm_bill_sub_order_detail_inf")
-        println("insert into table hive_bill_sub_order_detail_inf successfully!")
+        println("#### JOB_HV_73 全量数据插入完成的系统时间为:" + DateUtils.getCurrentSystemTime())
       }else{
-        println("加载的视图：viw_chmgm_bill_sub_order_detail_inf 中无数据！")
+        println("#### JOB_HV_73 spark sql 逻辑处理后无数据！")
       }
     }
 
