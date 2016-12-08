@@ -43,7 +43,6 @@ object SparkUPH2H {
         * 每日模板job
         */
       case "JOB_HV_39"  => JOB_HV_39(sqlContext,end_dt) //CODE BY YX
-      case "JOB_HV_41"  => JOB_HV_41(sqlContext,end_dt) //CODE BY XTP   already formatted
       case "JOB_HV_49"  => JOB_HV_49 //CODE BY YX
       case "JOB_HV_52"  => JOB_HV_52(sqlContext,end_dt) //CODE BY YX
       case "JOB_HV_55"  =>  JOB_HV_55(sqlContext,start_dt,end_dt) //CODE BY TZQ
@@ -54,6 +53,7 @@ object SparkUPH2H {
       /**
         * 指标套表job
         */
+      case "JOB_HV_41"  => JOB_HV_41(sqlContext,end_dt) //CODE BY XTP   already formatted
       case "JOB_HV_50"  =>  JOB_HV_50(sqlContext,start_dt,end_dt) //CODE BY XTP
       case "JOB_HV_58"  =>  JOB_HV_58(sqlContext,start_dt,end_dt) //CODE BY XTP
       case "JOB_HV_59"  =>  JOB_HV_59(sqlContext,start_dt,end_dt) //CODE BY XTP

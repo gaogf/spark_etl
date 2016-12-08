@@ -3033,7 +3033,8 @@ object SparkDB22Hive {
             |sys_err_cd,
             |bill_acq_md,
             |cup_branch_ins_id_cd,
-            |cup_branch_ins_id_nm
+            |cup_branch_ins_id_nm,
+            |to_date(trans_dt)
             |from spark_hive_online_point_trans
           """.stripMargin)
         println("#### JOB_HV_28 动态分区插入完成的时间为："+DateUtils.getCurrentSystemTime())
@@ -3755,7 +3756,7 @@ object SparkDB22Hive {
     DateUtils.timeCost("JOB_HV_33") {
       val start_day = start_dt.replace("-", "")
       val end_day = end_dt.replace("-", "")
-      println("#### JOB_HV_18 增量抽取的时间范围: " + start_day + "--" + end_day)
+      println("#### JOB_HV_33 增量抽取的时间范围: " + start_day + "--" + end_day)
 
       val df = sqlContext.readDB2_MGM_4para(s"$schemas_mgmdb.viw_chmgm_bill_sub_order_detail_inf", "trans_dt", s"$start_day", s"$end_day")
       println("#### JOB_HV_33 readDB2_MGM_4para 的系统时间为:" + DateUtils.getCurrentSystemTime())
