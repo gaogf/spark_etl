@@ -778,6 +778,7 @@ object SparkHive2Mysql {
   }
 
 
+
   /**
     * dm-job-07 20161205
     * dm_user_card_level->HIVE_CARD_BIN,HIVE_CARD_BIND_INF,HIVE_PRI_ACCT_INF
@@ -798,14 +799,14 @@ object SparkHive2Mysql {
         val results = sqlContext.sql(
           s"""
              |select
-             |tempa.card_lvl as card_level,
+             |NVL(NVL(tempa.card_lvl,tempb.card_lvl),'其它') as card_level,
              |'$today_dt' as report_dt,
-             |tempa.tpre   as   effect_tpre_add_num  ,
-             |tempa.years  as   effect_year_add_num  ,
-             |tempa.total  as   effect_totle_add_num ,
-             |tempb.tpre   as   deal_tpre_add_num    ,
-             |tempb.years  as   deal_year_add_num    ,
-             |tempb.total  as   deal_totle_add_num
+             |sum(tempa.tpre)   as   effect_tpre_add_num  ,
+             |sum(tempa.years)  as   effect_year_add_num  ,
+             |sum(tempa.total)  as   effect_totle_add_num ,
+             |sum(tempb.tpre)   as   deal_tpre_add_num    ,
+             |sum(tempb.years)  as   deal_year_add_num    ,
+             |sum(tempb.total)  as   deal_totle_add_num
              |FROM
              |(
              |select a.card_lvl as card_lvl,
@@ -835,7 +836,7 @@ object SparkHive2Mysql {
              |(select distinct cdhd_usr_id,trans_dt,substr(card_no,1,8) as card_bin  from VIW_CHACC_ACC_TRANS_DTL ) b on a.card_bin=b.card_bin
              |group by a.card_lvl ) tempb
              |on tempa.card_lvl=tempb.card_lvl
-             |
+             |group by NVL(NVL(tempa.card_lvl,tempb.card_lvl),'其它'),'$today_dt'
       """.stripMargin)
 
         println(s"###JOB_DM_7------$today_dt results:"+results.count())
@@ -870,17 +871,17 @@ object SparkHive2Mysql {
         val results = sqlContext.sql(
           s"""
              |SELECT
-             |a.CUP_BRANCH_INS_ID_NM as INPUT_BRANCH,
+             |NVL(NVL(NVL(a.CUP_BRANCH_INS_ID_NM,c.BRANCH_DIVISION_CD),d.CUP_BRANCH_INS_ID_NM),'其它') as INPUT_BRANCH,
              |'$today_dt' as REPORT_DT,
-             |a.tpre   as   STORE_TPRE_ADD_NUM  ,
-             |a.years  as   STORE_YEAR_ADD_NUM  ,
-             |a.total  as   STORE_TOTLE_ADD_NUM ,
-             |c.tpre   as   ACTIVE_TPRE_ADD_NUM ,
-             |c.years  as   ACTIVE_YEAR_ADD_NUM ,
-             |c.total  as   ACTIVE_TOTLE_ADD_NUM,
-             |d.tpre   as   COUPON_TPRE_ADD_NUM ,
-             |d.years  as   COUPON_YEAR_ADD_NUM ,
-             |d.total  as   COUPON_TOTLE_ADD_NUM
+             |sum(a.tpre)   as   STORE_TPRE_ADD_NUM  ,
+             |sum(a.years)  as   STORE_YEAR_ADD_NUM  ,
+             |sum(a.total)  as   STORE_TOTLE_ADD_NUM ,
+             |sum(c.tpre)   as   ACTIVE_TPRE_ADD_NUM ,
+             |sum(c.years)  as   ACTIVE_YEAR_ADD_NUM ,
+             |sum(c.total)  as   ACTIVE_TOTLE_ADD_NUM,
+             |sum(d.tpre)   as   COUPON_TPRE_ADD_NUM ,
+             |sum(d.years)  as   COUPON_YEAR_ADD_NUM ,
+             |sum(d.total)  as   COUPON_TOTLE_ADD_NUM
              |from(
              |select CUP_BRANCH_INS_ID_NM,
              |count(distinct(case when to_date(rec_crt_ts)='$today_dt'  then MCHNT_CD end)) as tpre,
@@ -921,7 +922,7 @@ object SparkHive2Mysql {
              |from HIVE_MCHNT_INF_WALLET  where substr(OPEN_BUSS_BMP,1,2) in (10,11)
              |group by CUP_BRANCH_INS_ID_NM) d
              |on a.CUP_BRANCH_INS_ID_NM=d.CUP_BRANCH_INS_ID_NM
-             |
+             |group by NVL(NVL(NVL(a.CUP_BRANCH_INS_ID_NM,c.BRANCH_DIVISION_CD),d.CUP_BRANCH_INS_ID_NM),'其它'),'$today_dt'
       """.stripMargin)
 
         println(s"###JOB_DM_8------$today_dt results:"+results.count())
@@ -1858,6 +1859,89 @@ object SparkHive2Mysql {
           }
           today_dt=DateUtils.addOneDay(today_dt)
         }
+      }
+    }
+  }
+
+
+  /**
+    * JOB_DM_18
+    * dm_coupon_shipp_deliver_address->hive_bill_order_trans,hive_bill_sub_order_trans,hive_ticket_bill_bas_inf
+    *
+    * @author XTP
+    * @param sqlContext
+    */
+  def JOB_DM_18(implicit sqlContext: HiveContext,start_dt:String,end_dt:String,interval:Int) = {
+
+    println("###JOB_DM_18(dm_coupon_shipp_deliver_address->hive_bill_order_trans,hive_bill_sub_order_trans,hive_ticket_bill_bas_inf)")
+
+    UPSQL_JDBC.delete("dm_coupon_shipp_deliver_address","report_dt",start_dt,end_dt);
+
+    var today_dt=start_dt
+    if(interval>0 ){
+      sqlContext.sql(s"use $hive_dbname")
+      for(i <- 0 to interval){
+        val results=sqlContext.sql(
+          s"""
+             |select
+             |tempa.delivery_district_nm as deliver_address,
+             |tempa.bill_sub_tp as bill_tp,
+             |'$today_dt' as report_dt,
+             |sum(tempa.trans_num) as  deal_num,
+             |sum(tempa.trans_succ_num) as succ_deal_num,
+             |sum(tempa.trans_succ_num)/sum(tempa.trans_num)*100 as deal_succ_rate,
+             |sum(tempa.trans_amt)   as deal_amt,
+             |sum(tempa.del_usr_num) as deal_usr_num,
+             |sum(tempa.card_num) as deal_card_num
+             |from
+             |(
+             |select
+             |dtl.delivery_district_nm,
+             |bill.bill_sub_tp,
+             |0  as trans_num,
+             |count(distinct dtl.trans_seq) as trans_succ_num,
+             |sum(dtl.trans_at) as trans_amt,
+             |count(distinct dtl.cdhd_usr_id)  as del_usr_num,
+             |count(distinct dtl.card_no) as card_num
+             |from hive_bill_order_trans as dtl,
+             |hive_bill_sub_order_trans as sub_dtl,
+             |hive_ticket_bill_bas_inf as bill
+             |where dtl.bill_order_id=sub_dtl.bill_order_id
+             |and sub_dtl.bill_id=bill.bill_id
+             |and dtl.order_st='00' and dtl.trans_dt='$today_dt'
+             |and  bill.bill_sub_tp ='08'
+             |group by dtl.delivery_district_nm,bill.bill_sub_tp
+             |
+             |union all
+             |
+             |select
+             |dtl.delivery_district_nm,
+             |bill.bill_sub_tp,
+             |count(distinct dtl.trans_seq) as trans_num,
+             |0 as trans_succ_num ,
+             |0 as trans_amt ,
+             |0 as del_usr_num ,
+             |0 as card_num
+             |from hive_bill_order_trans as dtl,
+             |hive_bill_sub_order_trans as sub_dtl,
+             |hive_ticket_bill_bas_inf as bill
+             |where dtl.bill_order_id=sub_dtl.bill_order_id
+             |and sub_dtl.bill_id=bill.bill_id
+             |and dtl.order_st<>'00' and dtl.trans_dt='$today_dt'
+             |and  bill.bill_sub_tp ='08'
+             |group by  dtl.delivery_district_nm,bill.bill_sub_tp
+             |) tempa
+             |group by tempa.delivery_district_nm,tempa.bill_sub_tp
+             |
+      """.stripMargin)
+        println(s"###JOB_DM_18------$today_dt results:"+results.count())
+        if(!Option(results).isEmpty){
+          results.save2Mysql("dm_coupon_shipp_deliver_address")
+        }else{
+          println("指定的时间范围无数据插入！")
+        }
+
+        today_dt=DateUtils.addOneDay(today_dt)
       }
     }
   }
