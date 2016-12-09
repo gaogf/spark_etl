@@ -2,6 +2,7 @@ package com.unionpay.jdbc
 
 import java.sql.DriverManager
 import java.util.Properties
+import java.sql.{Connection, DriverManager}
 
 import com.unionpay.conf.ConfigurationManager
 import com.unionpay.constant.Constants

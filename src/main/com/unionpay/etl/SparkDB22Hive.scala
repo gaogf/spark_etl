@@ -17,98 +17,117 @@ import org.joda.time.{Days, LocalDate}
   */
 object SparkDB22Hive {
   // Xue update formatted date -_-
-  private  lazy  val dateFormatter=DateTimeFormat.forPattern("yyyy-MM-dd")
+  private lazy val dateFormatter = DateTimeFormat.forPattern("yyyy-MM-dd")
   //指定HIVE数据库名
-  private lazy val hive_dbname =ConfigurationManager.getProperty(Constants.HIVE_DBNAME)
-  private lazy val schemas_accdb =ConfigurationManager.getProperty(Constants.SCHEMAS_ACCDB)
-  private lazy val schemas_mgmdb =ConfigurationManager.getProperty(Constants.SCHEMAS_MGMDB)
+  private lazy val hive_dbname = ConfigurationManager.getProperty(Constants.HIVE_DBNAME)
+  private lazy val schemas_accdb = ConfigurationManager.getProperty(Constants.SCHEMAS_ACCDB)
+  private lazy val schemas_mgmdb = ConfigurationManager.getProperty(Constants.SCHEMAS_MGMDB)
 
- def main(args: Array[String]) {
+  def main(args: Array[String]) {
 
     val conf = new SparkConf()
-        .setAppName("SparkDB22Hive")
-        .set("spark.serializer","org.apache.spark.serializer.KryoSerializer")
-        .set("spark.Kryoserializer.buffer.max","1024m")
-        .set("spark.yarn.driver.memoryOverhead","1024")
-        .set("spark.yarn.executor.memoryOverhead","2000")
-        .set("spark.newwork.buffer.timeout","300s")
-        .set("spark.executor.heartbeatInterval","30s")
-        .set("spark.driver.extraJavaOptions","-XX:+UseG1GC -XX:+UseCompressedOops")
-        .set("spark.executor.extraJavaOptions","-XX:+UseG1GC -XX:+UseCompressedOops")
+      .setAppName("SparkDB22Hive")
+      .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
+      .set("spark.Kryoserializer.buffer.max", "1024m")
+      .set("spark.yarn.driver.memoryOverhead", "1024")
+      .set("spark.yarn.executor.memoryOverhead", "2000")
+      .set("spark.newwork.buffer.timeout", "300s")
+      .set("spark.executor.heartbeatInterval", "30s")
+      .set("spark.driver.extraJavaOptions", "-XX:+UseG1GC -XX:+UseCompressedOops")
+      .set("spark.executor.extraJavaOptions", "-XX:+UseG1GC -XX:+UseCompressedOops")
 
     val sc = new SparkContext(conf)
     sc.setLogLevel("ERROR")
     implicit val sqlContext = new HiveContext(sc)
 
-    //从数据库中获取当前JOB的执行起始和结束日期
-    val rowParams=UPSQL_TIMEPARAMS_JDBC.readTimeParams(sqlContext)
-    val start_dt=DateUtils.getYesterdayByJob(rowParams.getString(0))//获取开始日期：start_dt-1
-    val end_dt=rowParams.getString(1)//结束日期
-    val interval=DateUtils.getIntervalDays(start_dt,end_dt).toInt
+    var start_dt: String = s"0000-00-00"
+    var end_dt: String = s"0000-00-00"
+
+    /**
+      * 从数据库中获取当前JOB的执行起始和结束日期。
+      * 日常调度使用。
+      */
+    val rowParams = UPSQL_TIMEPARAMS_JDBC.readTimeParams(sqlContext)
+    start_dt=DateUtils.getYesterdayByJob(rowParams.getString(0))//获取开始日期：start_dt-1
+    end_dt=rowParams.getString(1)//结束日期
+
+    /**
+      * 从命令行获取当前JOB的执行起始和结束日期。
+      * 无规则日期的增量数据抽取，主要用于调试。
+      */
+//    if (args.length > 1) {
+//      start_dt = args(1)
+//      end_dt = args(2)
+//    } else {
+//      println("#### 缺少参数输入")
+//      println("#### 请指定 SparkDB22Hive 数据抽取的起始日期")
+//    }
+
+    val interval = DateUtils.getIntervalDays(start_dt, end_dt).toInt
 
     println(s"#### SparkDB22Hive 数据抽取的起始日期为: $start_dt --  $end_dt")
 
-    val JobName = if(args.length>0) args(0) else None
+    val JobName = if (args.length > 0) args(0) else None
     println(s"#### The Current Job Name is ： [$JobName]")
     JobName match {
       /**
         * 每日模板job
         */
-      case "JOB_HV_1"  => JOB_HV_1   //CODE BY YX
-      case "JOB_HV_3"  => JOB_HV_3  //CODE BY YX
-      case "JOB_HV_4_old"  => JOB_HV_4_old(sqlContext,start_dt,end_dt)   //CODE BY TZQ
-      case "JOB_HV_4"  => JOB_HV_4(sqlContext,start_dt,end_dt)   //CODE BY XTP
-      case "JOB_HV_8"  => JOB_HV_8(sqlContext,start_dt,end_dt)   //CODE BY XTP  already formatted
-      case "JOB_HV_9"  => JOB_HV_9   //CODE BY TZQ
-      case "JOB_HV_10"  => JOB_HV_10  //CODE BY TZQ
-      case "JOB_HV_11"  => JOB_HV_11  //CODE BY TZQ
-      case "JOB_HV_12"  => JOB_HV_12  //CODE BY TZQ
-      case "JOB_HV_13"  => JOB_HV_13  //CODE BY TZQ
-      case "JOB_HV_14"  => JOB_HV_14  //CODE BY TZQ
-      case "JOB_HV_16"  => JOB_HV_16  //CODE BY TZQ
-      case "JOB_HV_18"  => JOB_HV_18(sqlContext,start_dt,end_dt)  //CODE BY YX
-      case "JOB_HV_19"  => JOB_HV_19  //CODE BY YX
-      case "JOB_HV_28"  => JOB_HV_28(sqlContext,start_dt,end_dt)  //CODE BY XTP   already formatted
-      case "JOB_HV_29"  => JOB_HV_29(sqlContext,start_dt,end_dt)  //CODE BY XTP   already formatted
-      case "JOB_HV_30"  => JOB_HV_30(sqlContext,start_dt,end_dt)  //CODE BY YX
-      case "JOB_HV_32"  => JOB_HV_32(sqlContext,start_dt,end_dt)  //CODE BY XTP   already formatted
-      case "JOB_HV_33"  => JOB_HV_33(sqlContext,start_dt,end_dt)  //CODE BY XTP   already formatted
-      case "JOB_HV_36"  => JOB_HV_36  //CODE BY YX
-      case "JOB_HV_44"  => JOB_HV_44  //CODE BY TZQ
-      case "JOB_HV_45"  => JOB_HV_45  //CODE BY YX
-      case "JOB_HV_46"  => JOB_HV_46  //CODE BY XTP   already formatted
-      case "JOB_HV_47"  => JOB_HV_47  //CODE BY XTP   already formatted
-      case "JOB_HV_48"  => JOB_HV_48  //CODE BY TZQ
-      case "JOB_HV_54"  => JOB_HV_54  //CODE BY TZQ
-      case "JOB_HV_67"  => JOB_HV_67  //CODE BY TZQ
-      case "JOB_HV_68"  => JOB_HV_68  //CODE BY TZQ
-      case "JOB_HV_69"  => JOB_HV_69  //CODE BY XTP   already formatted
-      case "JOB_HV_70"  => JOB_HV_70  //CODE BY YX
-      case "JOB_HV_79"  => JOB_HV_79  //CODE BY XTP   already formatted
-      case "JOB_HV_80"  => JOB_HV_80(sqlContext,start_dt,end_dt)   //CODE BY XTP   already formatted
-      case "JOB_HV_81"  => JOB_HV_81(sqlContext,start_dt,end_dt)   //CODE BY XTP   already formatted
-      case "JOB_HV_82"  => JOB_HV_82(sqlContext,start_dt,end_dt)   //CODE BY XTP   already formatted
+      case "JOB_HV_1" => JOB_HV_1 //CODE BY YX
+      case "JOB_HV_3" => JOB_HV_3 //CODE BY YX
+      case "JOB_HV_4_old" => JOB_HV_4_old(sqlContext, start_dt, end_dt) //CODE BY TZQ
+      case "JOB_HV_4" => JOB_HV_4(sqlContext, start_dt, end_dt) //CODE BY XTP
+      case "JOB_HV_8" => JOB_HV_8(sqlContext, start_dt, end_dt) //CODE BY XTP  already formatted
+      case "JOB_HV_9" => JOB_HV_9 //CODE BY TZQ
+      case "JOB_HV_10" => JOB_HV_10 //CODE BY TZQ
+      case "JOB_HV_11" => JOB_HV_11 //CODE BY TZQ
+      case "JOB_HV_12" => JOB_HV_12 //CODE BY TZQ
+      case "JOB_HV_13" => JOB_HV_13 //CODE BY TZQ
+      case "JOB_HV_14" => JOB_HV_14 //CODE BY TZQ
+      case "JOB_HV_16" => JOB_HV_16 //CODE BY TZQ
+      case "JOB_HV_18" => JOB_HV_18(sqlContext, start_dt, end_dt) //CODE BY YX
+      case "JOB_HV_19" => JOB_HV_19 //CODE BY YX
+      case "JOB_HV_28" => JOB_HV_28(sqlContext, start_dt, end_dt) //CODE BY XTP   already formatted
+      case "JOB_HV_29" => JOB_HV_29(sqlContext, start_dt, end_dt) //CODE BY XTP   already formatted
+      case "JOB_HV_30" => JOB_HV_30(sqlContext, start_dt, end_dt) //CODE BY YX
+      case "JOB_HV_32" => JOB_HV_32(sqlContext, start_dt, end_dt) //CODE BY XTP   already formatted
+      case "JOB_HV_33" => JOB_HV_33(sqlContext, start_dt, end_dt) //CODE BY XTP   already formatted
+      case "JOB_HV_36" => JOB_HV_36 //CODE BY YX
+      case "JOB_HV_44" => JOB_HV_44 //CODE BY TZQ
+      case "JOB_HV_45" => JOB_HV_45 //CODE BY YX
+      case "JOB_HV_46" => JOB_HV_46 //CODE BY XTP   already formatted
+      case "JOB_HV_47" => JOB_HV_47 //CODE BY XTP   already formatted
+      case "JOB_HV_48" => JOB_HV_48 //CODE BY TZQ
+      case "JOB_HV_54" => JOB_HV_54 //CODE BY TZQ
+      case "JOB_HV_67" => JOB_HV_67 //CODE BY TZQ
+      case "JOB_HV_68" => JOB_HV_68 //CODE BY TZQ
+      case "JOB_HV_69" => JOB_HV_69 //CODE BY XTP   already formatted
+      case "JOB_HV_70" => JOB_HV_70 //CODE BY YX
+      case "JOB_HV_79" => JOB_HV_79 //CODE BY XTP   already formatted
+      case "JOB_HV_80" => JOB_HV_80(sqlContext, start_dt, end_dt) //CODE BY XTP   already formatted
+      case "JOB_HV_81" => JOB_HV_81(sqlContext, start_dt, end_dt) //CODE BY XTP   already formatted
+      case "JOB_HV_82" => JOB_HV_82(sqlContext, start_dt, end_dt) //CODE BY XTP   already formatted
 
       /**
         * 指标套表job
         */
-      case "JOB_HV_15"  => JOB_HV_15  //CODE BY TZQ  //测试出错，未解决
-      case "JOB_HV_20_INI_I"  => JOB_HV_20_INI_I  //CODE BY YX
+      case "JOB_HV_15" => JOB_HV_15 //CODE BY TZQ  //测试出错，未解决
+      case "JOB_HV_20_INI_I" => JOB_HV_20_INI_I //CODE BY YX
       //case "JOB_HV_20"  => JOB_HV_20  //CODE BY YX
-      case "JOB_HV_23"  => JOB_HV_23  //CODE BY TZQ
-      case "JOB_HV_24"  => JOB_HV_24  //CODE BY YX
-      case "JOB_HV_25"  => JOB_HV_25  //CODE BY XTP
-      case "JOB_HV_26"  => JOB_HV_26  //CODE BY TZQ
-      case "JOB_HV_27"  => JOB_HV_27(sqlContext,start_dt,end_dt)  //CODE BY XTP
-      case "JOB_HV_31"  => JOB_HV_31(sqlContext,start_dt,end_dt)  //CODE BY XTP
-      case "JOB_HV_34"  => JOB_HV_34  //CODE BY XTP
-      case "JOB_HV_35"  => JOB_HV_35  //CODE BY XTP
-      case "JOB_HV_37"  => JOB_HV_37  //CODE BY TZQ
-      case "JOB_HV_38"  => JOB_HV_38  //CODE BY TZQ
-//      case "JOB_HV_72"  => JOB_HV_72  //CODE BY TZQ
-//      case "JOB_HV_73"  => JOB_HV_73  //CODE BY TZQ
-      case "JOB_HV_75"  => JOB_HV_75  //CODE BY XTP
-      case "JOB_HV_76"  => JOB_HV_76  //CODE BY XTP
+      case "JOB_HV_23" => JOB_HV_23 //CODE BY TZQ
+      case "JOB_HV_24" => JOB_HV_24 //CODE BY YX
+      case "JOB_HV_25" => JOB_HV_25 //CODE BY XTP
+      case "JOB_HV_26" => JOB_HV_26 //CODE BY TZQ
+      case "JOB_HV_27" => JOB_HV_27(sqlContext, start_dt, end_dt) //CODE BY XTP
+      case "JOB_HV_31" => JOB_HV_31(sqlContext, start_dt, end_dt) //CODE BY XTP
+      case "JOB_HV_34" => JOB_HV_34 //CODE BY XTP
+      case "JOB_HV_35" => JOB_HV_35 //CODE BY XTP
+      case "JOB_HV_37" => JOB_HV_37 //CODE BY TZQ
+      case "JOB_HV_38" => JOB_HV_38 //CODE BY TZQ
+      //      case "JOB_HV_72"  => JOB_HV_72  //CODE BY TZQ
+      //      case "JOB_HV_73"  => JOB_HV_73  //CODE BY TZQ
+      case "JOB_HV_75" => JOB_HV_75 //CODE BY XTP
+      case "JOB_HV_76" => JOB_HV_76 //CODE BY XTP
 
       case _ => println("#### No Case Job,Please Input JobName")
     }
@@ -5567,6 +5586,7 @@ object SparkDB22Hive {
       println("#### JOB_HV_82 落地增量抽取的时间范围: "+start_day+"--"+end_day)
 
       val df =  sqlContext.readDB2_MGM_4para(s"$schemas_mgmdb.viw_chmgm_swt_log","trans_dt",s"$start_day",s"$end_day")
+
       println("#### JOB_HV_82 readDB2_MGM_4para 的系统时间为:"+DateUtils.getCurrentSystemTime())
 
       df.registerTempTable("db2_viw_chmgm_swt_log")
