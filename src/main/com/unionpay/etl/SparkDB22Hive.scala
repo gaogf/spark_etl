@@ -1323,8 +1323,8 @@ object SparkDB22Hive {
   def JOB_HV_9(implicit sqlContext: HiveContext) = {
     println("###JOB_HV_9[全量抽取](hive_preferential_mchnt_inf --->tbl_chmgm_preferential_mchnt_inf)")
     DateUtils.timeCost("JOB_HV_9"){
-      val df = sqlContext.readDB2_ACC(s"$schemas_mgmdb.TBL_CHMGM_PREFERENTIAL_MCHNT_INF")
-      println("#### JOB_HV_9 readDB2_ACC 的系统时间为:"+DateUtils.getCurrentSystemTime())
+      val df = sqlContext.readDB2_MGM(s"$schemas_mgmdb.TBL_CHMGM_PREFERENTIAL_MCHNT_INF")
+      println("#### JOB_HV_9 readDB2_MGM 的系统时间为:"+DateUtils.getCurrentSystemTime())
 
       df.registerTempTable("db2_tbl_chmgm_preferential_mchnt_inf")
       println("#### JOB_HV_9 注册临时表 的系统时间为:"+DateUtils.getCurrentSystemTime())

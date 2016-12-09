@@ -54,33 +54,26 @@ object SparkUPWH2H {
 
 
   /**
-    * hive-job-40/08-22
-    * hive_life_trans->  hive_achis_trans（分区字段格式为：part_hp_settle_dt=2016-04-13）
-    *
+    *JobName:  JOB_HV_40
+    *Feature:  hive_achis_trans->hive_life_trans
     * @author tzq
+    * @time 2016-8-22
     * @param sqlContext
     * @param start_dt
     * @param end_dt
     * @return
     */
   def JOB_HV_40(implicit sqlContext: HiveContext,start_dt:String,end_dt:String,interval:Int) = {
-    DateUtils.timeCost("JOB_HV_40"){
-      println("###JOB_HV_40(hive_life_trans -> hive_achis_trans)")
-
-      //1.循环从hive39的分区表中抽取数据到hive40的分区表中
-      //1.1第一个分区从start_dt开始
+      println("####JOB_HV_40(hive_life_trans -> hive_achis_trans)")
+      println("#### JOB_HV_40 增量抽取的时间范围: "+start_dt+"--"+end_dt)
+      DateUtils.timeCost("JOB_HV_40"){
       var part_dt = start_dt
-
-      //spark sql 操作hive upw_hive 数据库中的表
       sqlContext.sql(s"use $hive_dbname")
-
       if(interval>0){
         for(i <- 0 to interval){
 
-          //1.删除分区
           sqlContext.sql(s"alter table hive_life_trans drop partition (part_settle_dt='$part_dt')")
-
-          //2.插入指定分区数据
+          println(s"#### JOB_HV_40 删除当前分区 $part_dt 完成的时间为："+DateUtils.getCurrentSystemTime())
           sqlContext.sql(
             s"""
                |insert into hive_life_trans partition(part_settle_dt='$part_dt')
@@ -276,7 +269,7 @@ object SparkUPWH2H {
                |									 '443701094980005','802500049000098','048000049001001','048000049001002','048000049001003',
                |									 '048000065131001','048000092221001','048000048141002','048000048141003','048000048141004','048000094980001')
           """.stripMargin)
-          //3.日期加1
+          println("#### JOB_HV_40 分区插入完成的时间为："+DateUtils.getCurrentSystemTime())
           part_dt=DateUtils.addOneDay(part_dt)
         }
       }
@@ -285,8 +278,8 @@ object SparkUPWH2H {
 
 
   /**
-    * hive-job-42  2016年10月11日 星期二
-    * hive_active_code_pay_trans-->hive_achis_trans
+    * JobName: JOB_HV_42 2016年10月11日
+    * Feature:
     * @author tzq
     * @param sqlContext
     * @param start_dt
@@ -294,22 +287,16 @@ object SparkUPWH2H {
     * @return
     */
   def JOB_HV_42(implicit sqlContext: HiveContext,start_dt:String,end_dt:String,interval:Int) = {
+    println("#### JOB_HV_42(hive_achis_trans->hive_active_code_pay_trans)")
+    println("#### JOB_HV_42 增量抽取的时间范围: "+start_dt+"--"+end_dt)
+
     DateUtils.timeCost("JOB_HV_42"){
-      println("###JOB_HV_42( hive_active_code_pay_trans-> hive_achis_trans)")
-      //1.循环从hive39的分区表中抽取数据到hive42的分区表中
-      //1.1第一个分区从start_dt开始
       var part_dt = start_dt
-
-      //spark sql 操作hive upw_hive 数据库中的表
       sqlContext.sql(s"use $hive_dbname")
-
       if(interval>0){
         for(i <- 0 to interval){
-
-          //1.删除分区
           sqlContext.sql(s"alter table hive_active_code_pay_trans drop partition (part_settle_dt='$part_dt')")
-
-          //2.插入指定分区数据
+          println(s"#### JOB_HV_42 删除当前分区 $part_dt 完成的时间为："+DateUtils.getCurrentSystemTime())
           sqlContext.sql(
             s"""
                |insert into hive_active_code_pay_trans partition(part_settle_dt='$part_dt')
@@ -500,10 +487,9 @@ object SparkUPWH2H {
                |and trans_source in ('0001','9001') and mchnt_conn_tp='81'
                |
 	      """.stripMargin)
+          println(s"#### JOB_HV_42 当前分区 $part_dt 插入完成的时间为："+DateUtils.getCurrentSystemTime())
 
-          //3.日期加1
-
-          part_dt=DateUtils.addOneDay(part_dt)//yyyy-MM-dd
+          part_dt=DateUtils.addOneDay(part_dt)
         }
       }
     }
@@ -718,13 +704,8 @@ object SparkUPWH2H {
   }
 
   /**
-    * hive-job-77  数据来源于job71
-    * hive_life_order_inf  ---->  hive_ach_order_inf(part_hp_trans_dt=2015-11-09)
-    *
-    * 测试：以分区part_hp_trans_dt=2015-11-09为例
-    *    val start_dt="2015-11-09"
-    *    val end_dt="2015-11-09"
-    * 结果：正常
+    * JobName: hive-job-77  数据来源于job71
+    * Feature: hive_life_order_inf  ---->  hive_ach_order_inf(part_hp_trans_dt=2015-11-09)
     * @author tzq
     * @param sqlContext
     * @param start_dt
@@ -732,17 +713,17 @@ object SparkUPWH2H {
     * @return
     */
   def JOB_HV_77(implicit sqlContext: HiveContext,start_dt:String,end_dt:String,interval:Int) = {
+    println("#### JOB_HV_77(  hive_ach_order_inf-> hive_life_order_inf  )")
+    println("#### JOB_HV_77 增量抽取的时间范围: "+start_dt+"--"+end_dt)
+
     DateUtils.timeCost("JOB_HV_77"){
-      println("###JOB_HV_77( hive_life_order_inf  -->  hive_ach_order_inf)")
       var part_dt = start_dt
       sqlContext.sql(s"use $hive_dbname")
       if(interval>=0){
         for(i <- 0 to interval){
 
-          //1.删除分区
           sqlContext.sql(s"alter table hive_life_order_inf drop partition (part_hp_trans_dt='$part_dt')")
-
-          //2.插入指定分区数据
+          println(s"#### JOB_HV_77 删除当前分 $part_dt 完成的时间为："+DateUtils.getCurrentSystemTime())
           sqlContext.sql(
             s"""
                |insert into hive_life_order_inf partition(part_hp_trans_dt='$part_dt')
@@ -819,10 +800,9 @@ object SparkUPWH2H {
                |
 	      """.stripMargin)
 
-          println(s"insert into hive_life_order_inf at partition $part_dt successful !")
+          println(s"#### JOB_HV_77 当前分区 $part_dt 插入完成的时间为："+DateUtils.getCurrentSystemTime())
 
-          //3.日期加1
-          part_dt=DateUtils.addOneDay(part_dt)//yyyy-MM-dd
+          part_dt=DateUtils.addOneDay(part_dt)
         }
       }
     }
@@ -830,17 +810,18 @@ object SparkUPWH2H {
   }
 
   /**
-    * JOB_HV_78
-    * hive_cdhd_trans_year  -->  hive_acc_trans
-    *
+    * JobName: JOB_HV_78
+    * Feature: hive_acc_trans->hive_cdhd_trans_year
     * @author tzq
     * @param sqlContext
     * @param start_dt
     * @param end_dt
     */
   def JOB_HV_78(implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
+    println("#### JOB_HV_78( hive_cdhd_trans_year  -->  hive_acc_trans)")
+    println("#### JOB_HV_78 增量抽取的时间范围: "+start_dt+"--"+end_dt)
+
     DateUtils.timeCost("JOB_HV_78"){
-      println("###JOB_HV_78( hive_cdhd_trans_year  -->  hive_acc_trans)")
       sqlContext.sql(s"use $hive_dbname")
       sqlContext.sql(
         s"""
@@ -852,14 +833,14 @@ object SparkUPWH2H {
            |where
            |part_trans_dt>='$start_dt' and part_trans_dt<='$end_dt'
            |
-               |union all
+           |union all
            |select cdhd_usr_id,year from hive_cdhd_trans_year
            |where
            |part_year >= year(to_date('$start_dt')) and part_year <= year(to_date('$end_dt'))
            |)tmp
            |
               """.stripMargin)
-      println("###JOB_HV_78 execute successful!")
+      println("#### JOB_HV_78 动态分区插入完成的时间为："+DateUtils.getCurrentSystemTime())
     }
   }
 }
