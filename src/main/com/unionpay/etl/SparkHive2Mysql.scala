@@ -78,12 +78,12 @@ object SparkHive2Mysql {
       case "JOB_DM_54" =>JOB_DM_54(sqlContext,start_dt,end_dt)   //CODE BY XTP 无数据
       case "JOB_DM_10" =>JOB_DM_10(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ
       case "JOB_DM_11" =>JOB_DM_11(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ
-      case "JOB_DM_12" =>JOB_DM_12(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ
-      case "JOB_DM_13" =>JOB_DM_13(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ
-      case "JOB_DM_14" =>JOB_DM_14(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ
-      case "JOB_DM_15" =>JOB_DM_15(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ
-      case "JOB_DM_16" =>JOB_DM_16(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ
-      case "JOB_DM_17" =>JOB_DM_17(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ
+      case "JOB_DM_12" =>JOB_DM_12(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ 测试9/8-9/9有数据,依赖源表hive_ticket_bill_acct_adj_task无数据
+      case "JOB_DM_13" =>JOB_DM_13(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ 无数据，依赖源表hive_ticket_bill_acct_adj_task无数据
+      case "JOB_DM_14" =>JOB_DM_14(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ 无数据：源表HIVE_BILL_ORDER_TRANS,HIVE_BILL_SUB_ORDER_TRANS无数据
+      case "JOB_DM_15" =>JOB_DM_15(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ 无数据：同DM14
+      case "JOB_DM_16" =>JOB_DM_16(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ 无数据：同DM14
+      case "JOB_DM_17" =>JOB_DM_17(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ 无数据：同DM14
 
       case _ => println("#### No Case Job,Please Input JobName")
     }
@@ -1946,7 +1946,46 @@ object SparkHive2Mysql {
     }
   }
 
+  /**
+    * JobName: JOB_DM_24
+    * Feature: DM_UNIONPAY_RED_DOMAIN_BRANCH
+    * @author tzq
+    * @time 2016-12-12
+    * @param sqlContext
+    * @param start_dt
+    * @param end_dt
+    * @param interval
+    */
+  def JOB_DM_24 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String,interval:Int) = {
+    println("###JOB_DM_24(DM_UNIONPAY_RED_DOMAIN_BRANCH)### "+DateUtils.getCurrentSystemTime())
+    DateUtils.timeCost("JOB_DM_24"){
+      UPSQL_JDBC.delete(s"DM_UNIONPAY_RED_DOMAIN_BRANCH","REPORT_DT",start_dt,end_dt)
+      println( "#### JOB_DM_24 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
+      var today_dt=start_dt
+      if(interval>=0 ){
+        sqlContext.sql(s"use $hive_dbname")
+        for(i <- 0 to interval){
+          println(s"#### JOB_DM_24 spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
+          val results =sqlContext.sql(
+            s"""
+               |
+               |
+               |
+          """.stripMargin)
+          println(s"#### JOB_DM_24 spark sql 清洗[$today_dt]数据完成时间为:" + DateUtils.getCurrentSystemTime())
 
+          println(s"###JOB_DM_24------$today_dt results:"+results.count())
+          if(!Option(results).isEmpty){
+            results.save2Mysql("DM_UNIONPAY_RED_DOMAIN_BRANCH")
+            println(s"#### JOB_DM_24 [$today_dt]数据插入完成时间为：" + DateUtils.getCurrentSystemTime())
+          }else{
+            println(s"#### JOB_DM_24 spark sql 清洗[$today_dt]数据无结果集！")
+          }
+          today_dt=DateUtils.addOneDay(today_dt)
+        }
+      }
+    }
+  }
   /**
     * JOB_DM_54/10-14
     * dm_val_tkt_act_mchnt_tp_dly->hive_bill_order_trans,hive_bill_sub_order_trans
