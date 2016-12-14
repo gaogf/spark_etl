@@ -78,14 +78,18 @@ object SparkHive2Mysql {
       case "JOB_DM_54" =>JOB_DM_54(sqlContext,start_dt,end_dt)   //CODE BY XTP 无数据   already formatted
       case "JOB_DM_10" =>JOB_DM_10(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ
       case "JOB_DM_11" =>JOB_DM_11(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ
-      case "JOB_DM_12" =>JOB_DM_12(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ
-      case "JOB_DM_13" =>JOB_DM_13(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ
-      case "JOB_DM_14" =>JOB_DM_14(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ
-      case "JOB_DM_15" =>JOB_DM_15(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ
-      case "JOB_DM_16" =>JOB_DM_16(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ
-      case "JOB_DM_17" =>JOB_DM_17(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ
+      case "JOB_DM_12" =>JOB_DM_12(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ  有数据，测试9/8-9/9两天 依赖源表HIVE_TICKET_BILL_ACCT_ADJ_TASK中无数据
+      case "JOB_DM_13" =>JOB_DM_13(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ  有数据，依赖源表HIVE_TICKET_BILL_ACCT_ADJ_TASk无数据
+      case "JOB_DM_14" =>JOB_DM_14(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ  无数据, 源表HIVE_BILL_ORDER_TRANS,HIVE_BILL_SUB_ORDER_TRANS无数据
+      case "JOB_DM_15" =>JOB_DM_15(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ  无数据, 同DM14
+      case "JOB_DM_16" =>JOB_DM_16(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ  无数据, 同DM14
+      case "JOB_DM_17" =>JOB_DM_17(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ  无数据, 同DM14
       case "JOB_DM_18" =>JOB_DM_18(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP   already formatted
       case "JOB_DM_20" =>JOB_DM_20(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP   already formatted
+      case "JOB_DM_24" =>JOB_DM_24(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ  无数据（原表有数据）
+      case "JOB_DM_25" =>JOB_DM_25(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ  无数据（原表有数据）
+      case "JOB_DM_26" =>JOB_DM_26(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ  无数据（原表有数据）
+      case "JOB_DM_27" =>JOB_DM_27(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ  无数据（原表有数据）依赖源表中hive_mchnt_tp和hive_mchnt_tp_grp无数据
 
       case _ => println("#### No Case Job,Please Input JobName")
     }
@@ -2179,6 +2183,438 @@ object SparkHive2Mysql {
     }
   }
 
+  /**
+    * JobName: JOB_DM_24
+    * Feature: DM_UNIONPAY_RED_DOMAIN_BRANCH
+    * @author tzq
+    * @time 2016-12-14
+    * @param sqlContext
+    * @param start_dt
+    * @param end_dt
+    * @param interval
+    */
+  def JOB_DM_24 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String,interval:Int) = {
+    println("###JOB_DM_24(DM_UNIONPAY_RED_DOMAIN_BRANCH)### "+DateUtils.getCurrentSystemTime())
+    DateUtils.timeCost("JOB_DM_24"){
+      UPSQL_JDBC.delete(s"DM_UNIONPAY_RED_DOMAIN_BRANCH","REPORT_DT",start_dt,end_dt)
+      println( "#### JOB_DM_24 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
+      var today_dt=start_dt
+      if(interval>=0 ){
+        sqlContext.sql(s"use $hive_dbname")
+        for(i <- 0 to interval){
+          println(s"#### JOB_DM_24 spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
+          val results =sqlContext.sql(
+            s"""
+               |select
+               |mchnt.cup_branch_ins_id_nm    as BRANCH_NM,
+               |'$today_dt'                   as REPORT_DT,
+               |sum(mchnt_stat.cnt)           as TRAN_NUM,
+               |sum(mchnt_stat.succnt)        as SUCC_TRAN_NUM,
+               |sum(mchnt_stat.trans_at_all)  as TRAN_AMT,
+               |sum(mchnt_stat.PT_at_all)     as POINT_AMT,
+               |sum(mchnt_stat.usr_cnt)       as TRAN_USR_NUM,
+               |sum(mchnt_stat.card_cnt)      as TRAN_CARD_NUM
+               |from (select all.CARD_ACCPTR_CD ,all.cnt,succ.succnt,succ.PT_at_all,succ.usr_cnt,succ.card_cnt,succ.trans_at_all from
+               |(select
+               |CARD_ACCPTR_CD ,
+               |count(*) as cnt
+               |from HIVE_ACC_TRANS
+               |where fwd_ins_id_cd not in ('00000049998','00000050000') and buss_tp='02' and um_trans_id='AC02000065'
+               |and to_date(rec_crt_ts)='$today_dt'
+               |group by CARD_ACCPTR_CD) as all
+               |left join
+               |(select
+               |CARD_ACCPTR_CD,
+               |count(*) as succnt,
+               |sum(point_at) as PT_at_all ,
+               |count(distinct cdhd_usr_id) as usr_cnt,
+               |count(distinct card_no) as card_cnt,
+               |sum(CASE WHEN trans_at IS NULL OR trans_at ='' THEN 0 ELSE trans_at END) as trans_at_all
+               |from HIVE_ACC_TRANS
+               |where fwd_ins_id_cd not in ('00000049998','00000050000') and buss_tp='02' and um_trans_id='AC02000065' and SYS_DET_CD='S'
+               |and to_date(rec_crt_ts)='$today_dt'
+               |group by CARD_ACCPTR_CD) as succ
+               |on all.CARD_ACCPTR_CD=succ.CARD_ACCPTR_CD ) as mchnt_stat, HIVE_MCHNT_INF_WALLET as mchnt
+               |where mchnt_stat.CARD_ACCPTR_CD=mchnt.mchnt_cd
+               |group by mchnt.cup_branch_ins_id_nm
+               |
+          """.stripMargin)
+          println(s"#### JOB_DM_24 spark sql 清洗[$today_dt]数据完成时间为:" + DateUtils.getCurrentSystemTime())
+
+          println(s"###JOB_DM_24------$today_dt results:"+results.count())
+          if(!Option(results).isEmpty){
+            results.save2Mysql("DM_UNIONPAY_RED_DOMAIN_BRANCH")
+            println(s"#### JOB_DM_24 [$today_dt]数据插入完成时间为：" + DateUtils.getCurrentSystemTime())
+          }else{
+            println(s"#### JOB_DM_24 spark sql 清洗[$today_dt]数据无结果集！")
+          }
+          today_dt=DateUtils.addOneDay(today_dt)
+        }
+      }
+    }
+  }
+
+  /**
+    * JobName: JOB_DM_25
+    * Feature: DM_UNIONPAY_RED_PHONE_AREA
+    * @author tzq
+    * @time 2016-12-14
+    * @param sqlContext
+    * @param start_dt
+    * @param end_dt
+    * @param interval
+    */
+  def JOB_DM_25 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String,interval:Int) = {
+    println("###JOB_DM_25(DM_UNIONPAY_RED_PHONE_AREA)### "+DateUtils.getCurrentSystemTime())
+    DateUtils.timeCost("JOB_DM_25"){
+      UPSQL_JDBC.delete(s"DM_UNIONPAY_RED_PHONE_AREA","REPORT_DT",start_dt,end_dt)
+      println( "#### JOB_DM_25 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
+      var today_dt=start_dt
+      if(interval>=0 ){
+        sqlContext.sql(s"use $hive_dbname")
+        for(i <- 0 to interval){
+          println(s"#### JOB_DM_25 spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
+          val results =sqlContext.sql(
+            s"""
+               |SELECT PHONE_LOCATION AS PHONE_BRANCH_NM,
+               |       '$today_dt' AS REPORT_DT,
+               |       sum(all.cnt) AS TRAN_NUM,
+               |       sum(succ.succnt) AS SUCC_TRAN_NUM,
+               |       sum(succ.trans_at_all) AS TRAN_AMT,
+               |       sum(succ.PT_at_all) AS POINT_AMT,
+               |       sum(succ.usr_cnt) AS TRAN_USR_NUM,
+               |       sum(succ.card_cnt) AS TRAN_CARD_NUM
+               |FROM
+               |  (SELECT CARD_ACCPTR_CD,
+               |          PHONE_LOCATION,
+               |          count(*) AS cnt
+               |   FROM HIVE_ACC_TRANS a,
+               |        HIVE_PRI_ACCT_INF b
+               |   WHERE a.cdhd_usr_id=b.cdhd_usr_id
+               |     AND fwd_ins_id_cd NOT IN ('00000049998',
+               |                               '00000050000')
+               |     AND buss_tp='02'
+               |     AND um_trans_id='AC02000065'
+               |     AND to_date(a.rec_crt_ts)='$today_dt'
+               |   GROUP BY CARD_ACCPTR_CD,
+               |            PHONE_LOCATION) AS ALL
+               |LEFT JOIN
+               |  (SELECT CARD_ACCPTR_CD,
+               |          count(*) AS succnt,
+               |          sum(point_at) AS PT_at_all,
+               |          count(DISTINCT cdhd_usr_id) AS usr_cnt,
+               |          count(DISTINCT card_no) AS card_cnt,
+               |          sum(CASE
+               |                  WHEN trans_at IS NULL
+               |                       OR trans_at ='' THEN 0
+               |                  ELSE trans_at
+               |              END) AS trans_at_all
+               |   FROM HIVE_ACC_TRANS
+               |   WHERE fwd_ins_id_cd NOT IN ('00000049998','00000050000')
+               |     AND buss_tp='02'
+               |     AND um_trans_id='AC02000065'
+               |     AND SYS_DET_CD='S'
+               |     AND to_date(rec_crt_ts)='$today_dt'
+               |   GROUP BY CARD_ACCPTR_CD) AS succ ON all.CARD_ACCPTR_CD=succ.CARD_ACCPTR_CD
+               |GROUP BY PHONE_LOCATION
+               |
+          """.stripMargin)
+          println(s"#### JOB_DM_25 spark sql 清洗[$today_dt]数据完成时间为:" + DateUtils.getCurrentSystemTime())
+
+          println(s"###JOB_DM_25------$today_dt results:"+results.count())
+          if(!Option(results).isEmpty){
+            results.save2Mysql("DM_UNIONPAY_RED_PHONE_AREA")
+            println(s"#### JOB_DM_25 [$today_dt]数据插入完成时间为：" + DateUtils.getCurrentSystemTime())
+          }else{
+            println(s"#### JOB_DM_25 spark sql 清洗[$today_dt]数据无结果集！")
+          }
+          today_dt=DateUtils.addOneDay(today_dt)
+        }
+      }
+    }
+  }
+
+  /**
+    * JobName: JOB_DM_26
+    * Feature: DM_UNIONPAY_RED_DIRECT_CONTACT_TRAN
+    * @author tzq
+    * @time 2016-12-15
+    * @param sqlContext
+    * @param start_dt
+    * @param end_dt
+    * @param interval
+    */
+  def JOB_DM_26 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String,interval:Int) = {
+    println("###JOB_DM_26(DM_UNIONPAY_RED_DIRECT_CONTACT_TRAN )### "+DateUtils.getCurrentSystemTime())
+    DateUtils.timeCost("JOB_DM_26"){
+      UPSQL_JDBC.delete(s"DM_UNIONPAY_RED_DIRECT_CONTACT_TRAN ","REPORT_DT",start_dt,end_dt)
+      println( "#### JOB_DM_26 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
+      var today_dt=start_dt
+      if(interval>=0 ){
+        sqlContext.sql(s"use $hive_dbname")
+        for(i <- 0 to interval){
+          println(s"#### JOB_DM_26 spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
+          val results =sqlContext.sql(
+            s"""
+               |SELECT PROJECT_NAME    as  PROJECT_NAME,
+               |       '$today_dt'     as  REPORT_DT,
+               |       allcnt          as  TRAN_NUM,
+               |       succcnt         as  SUCC_TRAN_NUM,
+               |       sum_trans_at    as  TRAN_AMT,
+               |       sum_PT_at       as  POINT_AMT,
+               |       usr_cnt         as  TRAN_USR_NUM,
+               |       card_cnt        as  TRAN_CARD_NUM
+               |FROM
+               |  (SELECT CASE
+               |              WHEN all.FWD_INS_ID_CD IN (
+               |              '00097310','00093600','00095210','00098700','00098500','00097700',
+               |              '00096400','00096500','00155800','00095840','00097000','00085500','00096900','00093930',
+               |              '00094200','00093900','00096100','00092210','00092220','00092900','00091600','00092400',
+               |              '00098800','00098200','00097900','00091900','00092600','00091200','00093320','00031000',
+               |              '00094500','00094900','00091100','00094520','00093000','00093310'
+               |              ) THEN '直联' ELSE '间联'
+               |          END AS PROJECT_NAME,
+               |          sum(all.cnt) AS allcnt,
+               |          sum(succ.succnt) AS succcnt,
+               |          sum(succ.trans_at_all) AS sum_trans_at,
+               |          sum(succ.PT_at_all) AS sum_PT_at,
+               |          sum(succ.usr_cnt) AS usr_cnt,
+               |          sum(succ.card_cnt) AS card_cnt from
+               |     (SELECT CARD_ACCPTR_CD,FWD_INS_ID_CD,PHONE_LOCATION,count(*) AS cnt
+               |      FROM HIVE_ACC_TRANS a, HIVE_PRI_ACCT_INF b
+               |      WHERE a.cdhd_usr_id=b.cdhd_usr_id
+               |        AND fwd_ins_id_cd NOT IN ('00000049998','00000050000')
+               |        AND buss_tp='02'
+               |        AND um_trans_id='AC02000065'
+               |        AND to_date(a.rec_crt_ts)='$today_dt'
+               |      GROUP BY CARD_ACCPTR_CD,FWD_INS_ID_CD,PHONE_LOCATION) AS ALL
+               |   LEFT JOIN
+               |     (SELECT CARD_ACCPTR_CD,
+               |             FWD_INS_ID_CD,
+               |             count(*) AS succnt,
+               |             sum(point_at) AS PT_at_all,
+               |             count(DISTINCT cdhd_usr_id) AS usr_cnt,
+               |             count(DISTINCT card_no) AS card_cnt,
+               |             sum(CASE
+               |                     WHEN trans_at IS NULL
+               |                          OR trans_at ='' THEN 0
+               |                     ELSE trans_at
+               |                 END) AS trans_at_all
+               |      FROM HIVE_ACC_TRANS
+               |      WHERE fwd_ins_id_cd NOT IN ('00000049998',
+               |                                  '00000050000')
+               |        AND buss_tp='02'
+               |        AND um_trans_id='AC02000065'
+               |        AND SYS_DET_CD='S'
+               |        AND to_date(rec_crt_ts)='$today_dt'
+               |      GROUP BY CARD_ACCPTR_CD,
+               |               FWD_INS_ID_CD) AS succ ON all.CARD_ACCPTR_CD=succ.CARD_ACCPTR_CD
+               |   GROUP BY CASE
+               |                WHEN all.FWD_INS_ID_CD IN (
+               |                  '00097310','00093600','00095210','00098700','00098500','00097700',
+               |                  '00096400','00096500','00155800','00095840','00097000','00085500','00096900','00093930',
+               |                  '00094200','00093900','00096100','00092210','00092220','00092900','00091600','00092400',
+               |                  '00098800','00098200','00097900','00091900','00092600','00091200','00093320','00031000',
+               |                  '00094500','00094900','00091100','00094520','00093000','00093310'
+               |                ) THEN '直联' ELSE '间联' END
+               |   UNION ALL SELECT CASE
+               |                        WHEN all.internal_trans_tp='C00023' THEN '终端不改造'
+               |                        ELSE '终端改造'
+               |                    END AS PROJECT_NAME,
+               |                    sum(all.cnt) AS allcnt,
+               |                    sum(succ.succnt) AS succcnt,
+               |                    sum(succ.trans_at_all) AS sum_trans_at,
+               |                    sum(succ.PT_at_all) AS sum_PT_at,
+               |                    sum(succ.usr_cnt) AS usr_cnt,
+               |                    sum(succ.card_cnt) AS card_cnt from
+               |     (SELECT CARD_ACCPTR_CD,internal_trans_tp,PHONE_LOCATION,count(*) AS cnt
+               |      FROM HIVE_ACC_TRANS a, HIVE_PRI_ACCT_INF b
+               |      WHERE a.cdhd_usr_id=b.cdhd_usr_id
+               |        AND fwd_ins_id_cd NOT IN ('00000049998','00000050000')
+               |        AND buss_tp='02'
+               |        AND um_trans_id='AC02000065'
+               |        AND to_date(a.rec_crt_ts)='$today_dt'
+               |      GROUP BY CARD_ACCPTR_CD,internal_trans_tp,PHONE_LOCATION) AS ALL
+               |   LEFT JOIN
+               |     (SELECT CARD_ACCPTR_CD,
+               |             internal_trans_tp,
+               |             count(*) AS succnt,
+               |             sum(point_at) AS PT_at_all,
+               |             count(DISTINCT cdhd_usr_id) AS usr_cnt,
+               |             count(DISTINCT card_no) AS card_cnt,
+               |             sum(CASE
+               |                     WHEN trans_at IS NULL
+               |                          OR trans_at ='' THEN 0
+               |                     ELSE trans_at
+               |                 END) AS trans_at_all
+               |      FROM HIVE_ACC_TRANS
+               |      WHERE fwd_ins_id_cd NOT IN ('00000049998',
+               |                                  '00000050000')
+               |        AND buss_tp='02'
+               |        AND um_trans_id='AC02000065'
+               |        AND SYS_DET_CD='S'
+               |        AND to_date(rec_crt_ts)='$today_dt'
+               |      GROUP BY CARD_ACCPTR_CD,
+               |               internal_trans_tp) AS succ ON all.CARD_ACCPTR_CD=succ.CARD_ACCPTR_CD
+               |   GROUP BY CASE
+               |                WHEN all.internal_trans_tp='C00023' THEN '终端不改造'
+               |                ELSE '终端改造' END
+               |   UNION ALL SELECT CASE
+               |                        WHEN all.internal_trans_tp='C00022' THEN '交易规范 1.0 规范'
+               |                        ELSE '交易规范 2.0 规范'
+               |                    END AS PROJECT_NAME,
+               |                    sum(all.cnt) AS allcnt,
+               |                    sum(succ.succnt) AS succcnt,
+               |                    sum(succ.trans_at_all) AS sum_trans_at,
+               |                    sum(succ.PT_at_all) AS sum_PT_at,
+               |                    sum(succ.usr_cnt) AS usr_cnt,
+               |                    sum(succ.card_cnt) AS card_cnt from
+               |     (SELECT CARD_ACCPTR_CD,internal_trans_tp,PHONE_LOCATION,count(*) AS cnt
+               |      FROM HIVE_ACC_TRANS a, HIVE_PRI_ACCT_INF b
+               |      WHERE a.cdhd_usr_id=b.cdhd_usr_id
+               |        AND fwd_ins_id_cd NOT IN ('00000049998','00000050000')
+               |        AND buss_tp='02'
+               |        AND um_trans_id='AC02000065'
+               |        AND internal_trans_tp IN ('C00022','C20022')
+               |        AND to_date(a.rec_crt_ts)='$today_dt'
+               |      GROUP BY CARD_ACCPTR_CD,internal_trans_tp,PHONE_LOCATION) AS ALL
+               |   LEFT JOIN
+               |     (SELECT CARD_ACCPTR_CD,
+               |             internal_trans_tp,
+               |             count(*) AS succnt,
+               |             sum(point_at) AS PT_at_all,
+               |             count(DISTINCT cdhd_usr_id) AS usr_cnt,
+               |             count(DISTINCT card_no) AS card_cnt,
+               |             sum(CASE
+               |                     WHEN trans_at IS NULL
+               |                          OR trans_at ='' THEN 0
+               |                     ELSE trans_at
+               |                 END) AS trans_at_all
+               |      FROM HIVE_ACC_TRANS
+               |      WHERE fwd_ins_id_cd NOT IN ('00000049998','00000050000')
+               |        AND buss_tp='02'
+               |        AND um_trans_id='AC02000065'
+               |        AND internal_trans_tp IN ('C00022', 'C20022')
+               |        AND SYS_DET_CD='S'
+               |        AND to_date(rec_crt_ts)='$today_dt'
+               |      GROUP BY CARD_ACCPTR_CD,
+               |               internal_trans_tp) AS succ ON all.CARD_ACCPTR_CD=succ.CARD_ACCPTR_CD
+               |   GROUP BY CASE
+               |                WHEN all.internal_trans_tp='C00022' THEN '交易规范 1.0 规范'
+               |                ELSE '交易规范 2.0 规范'
+               |            END) tmp
+               |
+          """.stripMargin)
+          println(s"#### JOB_DM_26 spark sql 清洗[$today_dt]数据完成时间为:" + DateUtils.getCurrentSystemTime())
+
+          println(s"###JOB_DM_26------$today_dt results:"+results.count())
+          if(!Option(results).isEmpty){
+            results.save2Mysql("DM_UNIONPAY_RED_DIRECT_CONTACT_TRAN ")
+            println(s"#### JOB_DM_26 [$today_dt]数据插入完成时间为：" + DateUtils.getCurrentSystemTime())
+          }else{
+            println(s"#### JOB_DM_26 spark sql 清洗[$today_dt]数据无结果集！")
+          }
+          today_dt=DateUtils.addOneDay(today_dt)
+        }
+      }
+    }
+  }
+
+  /**
+    * JobName: JOB_DM_27
+    * Feature: DM_UNIONPAY_RED_MCC
+    * @author tzq
+    * @time 2016-12-15
+    * @param sqlContext
+    * @param start_dt
+    * @param end_dt
+    * @param interval
+    */
+  def JOB_DM_27 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String,interval:Int) = {
+    println("###JOB_DM_27(DM_UNIONPAY_RED_MCC )### "+DateUtils.getCurrentSystemTime())
+    DateUtils.timeCost("JOB_DM_27"){
+      UPSQL_JDBC.delete(s"DM_UNIONPAY_RED_MCC ","REPORT_DT",start_dt,end_dt)
+      println( "#### JOB_DM_27 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
+      var today_dt=start_dt
+      if(interval>=0 ){
+        sqlContext.sql(s"use $hive_dbname")
+        for(i <- 0 to interval){
+          println(s"#### JOB_DM_27 spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
+          val results =sqlContext.sql(
+            s"""
+               |SELECT mchnt.grp_nm                 as STORE_FRIST_NM,
+               |       mchnt.tp_nm                  as STORE_SECOND_NM,
+               |       '$today_dt'                 as REPORT_DT,
+               |       SUM(mchnt_stat.cnt)          as TRAN_NUM,
+               |       SUM(mchnt_stat.succnt)       as SUCC_TRAN_NUM,
+               |       sum(mchnt_stat.trans_at_all) as TRAN_AMT,
+               |       SUM(mchnt_stat.PT_at_all)    as POINT_AMT,
+               |       SUM(mchnt_stat.usr_cnt)      as TRAN_USR_NUM,
+               |       SUM(mchnt_stat.card_cnt)     as TRAN_CARD_NUM
+               |FROM
+               |  (SELECT all.CARD_ACCPTR_CD,
+               |          all.MCHNT_TP,
+               |          all.cnt,
+               |          succ.succnt,
+               |          succ.PT_at_all,
+               |          succ.trans_at_all,
+               |          succ.usr_cnt,
+               |          succ.card_cnt
+               |   FROM
+               |     (SELECT CARD_ACCPTR_CD,
+               |             MCHNT_TP,
+               |             COUNT(*) AS cnt
+               |      FROM HIVE_ACC_TRANS
+               |      WHERE fwd_ins_id_cd NOT IN ('00000049998',
+               |                                  '00000050000')
+               |        AND buss_tp='02'
+               |        AND um_trans_id='AC02000065'
+               |        AND to_date(rec_crt_ts)='$today_dt'
+               |      GROUP BY CARD_ACCPTR_CD,MCHNT_TP) AS ALL
+               |   LEFT JOIN
+               |     (SELECT CARD_ACCPTR_CD,
+               |             MCHNT_TP,
+               |             COUNT(*) AS succnt,
+               |             SUM(point_at) AS PT_at_all,
+               |             COUNT(DISTINCT cdhd_usr_id) AS usr_cnt,
+               |             COUNT(DISTINCT card_no) AS card_cnt,
+               |             SUM(CASE
+               |                     WHEN trans_at IS NULL
+               |                          OR trans_at ='' THEN 0
+               |                     ELSE trans_at
+               |                 END) AS trans_at_all
+               |      FROM HIVE_ACC_TRANS
+               |      WHERE fwd_ins_id_cd NOT IN ('00000049998',
+               |                                  '00000050000')
+               |        AND buss_tp='02'
+               |        AND um_trans_id='AC02000065'
+               |        AND SYS_DET_CD='S'
+               |        AND to_date(rec_crt_ts)='$today_dt'
+               |      GROUP BY CARD_ACCPTR_CD,MCHNT_TP) AS succ ON all.CARD_ACCPTR_CD=succ.CARD_ACCPTR_CD
+               |   AND all.MCHNT_TP=succ.MCHNT_TP) AS mchnt_stat,
+               |
+               |  (SELECT tp_grp.MCHNT_TP_GRP_DESC_CN AS grp_nm,
+               |          tp.MCHNT_TP_DESC_CN AS tp_nm,
+               |          tp.MCHNT_TP
+               |   FROM HIVE_MCHNT_TP tp
+               |   LEFT JOIN HIVE_MCHNT_TP_GRP tp_grp ON tp.MCHNT_TP_GRP=tp_grp.MCHNT_TP_GRP) AS mchnt
+               |WHERE mchnt.MCHNT_TP=mchnt_stat.MCHNT_TP
+               |GROUP BY mchnt.grp_nm,mchnt.tp_nm
+          """.stripMargin)
+          println(s"#### JOB_DM_27 spark sql 清洗[$today_dt]数据完成时间为:" + DateUtils.getCurrentSystemTime())
+
+          println(s"###JOB_DM_27------$today_dt results:"+results.count())
+          if(!Option(results).isEmpty){
+            results.save2Mysql("DM_UNIONPAY_RED_MCC ")
+            println(s"#### JOB_DM_27 [$today_dt]数据插入完成时间为：" + DateUtils.getCurrentSystemTime())
+          }else{
+            println(s"#### JOB_DM_27 spark sql 清洗[$today_dt]数据无结果集！")
+          }
+          today_dt=DateUtils.addOneDay(today_dt)
+        }
+      }
+    }
+  }
 
   /**
     * JOB_DM_54/10-14
