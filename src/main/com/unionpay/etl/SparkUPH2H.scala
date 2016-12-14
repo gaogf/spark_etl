@@ -63,7 +63,7 @@ object SparkUPH2H {
       case "JOB_HV_63"  =>  JOB_HV_63(sqlContext,start_dt,end_dt) //CODE BY XTP
       case "JOB_HV_64"  =>  JOB_HV_64(sqlContext,start_dt,end_dt) //CODE BY XTP
       case "JOB_HV_65"  =>  JOB_HV_65(sqlContext,start_dt,end_dt) //CODE BY XTP
-      case "JOB_HV_71"  =>  JOB_HV_71(sqlContext,start_dt,end_dt) //CODE BY XTP
+      case "JOB_HV_71"  =>  JOB_HV_71(sqlContext,start_dt,end_dt) //CODE BY TZQ
 
       case _ => println("#### No Case Job,Please Input JobName")
 
@@ -1244,14 +1244,12 @@ object SparkUPH2H {
 
 
   /**
-    * hive-job-71 2016-11-28  循环抽取
+    * hive-job-71 2016-11-28
     * hive_ach_order_inf -> hbkdb.rtdtrs_dtl_ach_order_inf (测试环境只有这一天：20151109 有数据)
     *
     * 测试时间段为:
     * start_dt="2015-11-09"
     * end_dt="2015-11-09"
-    *
-    * 数据量：16415条
     *
     * @author tzq
     * @param sqlContext
@@ -1281,7 +1279,7 @@ object SparkUPH2H {
        """.stripMargin)
         println(s"#### insert into table(hive_ach_order_inf) at partition= $part_dt successful ####")
 
-        //循环抽取：天数加1
+
         part_dt=DateUtils.addOneDay(part_dt)//yyyy-MM-dd
       }
     }

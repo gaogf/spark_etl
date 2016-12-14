@@ -38,7 +38,7 @@ object SparkUPWH2H {
       case "JOB_HV_40"  => JOB_HV_40(sqlContext,start_dt,end_dt) //CODE BY TZQ
       case "JOB_HV_42"  => JOB_HV_42(sqlContext,start_dt,end_dt) //CODE BY TZQ
       case "JOB_HV_43"  => JOB_HV_43(sqlContext,start_dt,end_dt)  //CODE BY YX
-      case "JOB_HV_77"  => JOB_HV_77(sqlContext,start_dt,end_dt) //CODE BY TZQ
+      case "JOB_HV_77"  => JOB_HV_77(sqlContext,start_dt,end_dt) //CODE BY TZQ 动态分区插入失败，未解决！
       case "JOB_HV_78"  => JOB_HV_78(sqlContext,start_dt,end_dt) //CODE BY TZQ
 
       /**
@@ -685,7 +685,7 @@ object SparkUPWH2H {
   }
 
   /**
-    * JobName: hive-job-77  数据来源于job71
+    * JobName: hive-job-77  数据来源于job71（2015-11-09和10两天有数据）
     * Feature:  hive_ach_order_inf(part_hp_trans_dt=2015-11-09)-->hive_life_order_inf
     * @author tzq
     * @param sqlContext
@@ -698,7 +698,7 @@ object SparkUPWH2H {
     println("#### JOB_HV_77 增量抽取的时间范围: "+start_dt+"--"+end_dt)
 
     DateUtils.timeCost("JOB_HV_77"){
-      var part_dt = start_dt
+
       sqlContext.sql(s"use $hive_dbname")
       sqlContext.sql(
         s"""
@@ -761,7 +761,7 @@ object SparkUPWH2H {
            |a.rec_upd_ts,
            |b.buss_tp_nm as buss_tp_nm,
            |b.chnl_tp_nm as chnl_tp_nm,
-           |to_date(a.trans_dt) as part_hp_trans_dt
+           |a.part_hp_trans_dt
            |from
            |hive_ach_order_inf a
            |left join hive_life b

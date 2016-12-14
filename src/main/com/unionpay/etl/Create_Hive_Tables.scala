@@ -101,6 +101,7 @@ object Create_Hive_Tables {
     hive_trans_log
     hive_swt_log
     hive_cdhd_trans_year
+    hive_life_order_inf
 
     println("=======Create all tables on the hive successfully=======")
 
@@ -4162,11 +4163,87 @@ object Create_Hive_Tables {
            |partitioned by (part_year    string)
            |row format delimited fields terminated by '!|'
            |stored as parquet
-           |location '/user/ch_hypas/upw_hive/parameter/hive_cdhd_trans_year';
+           |location '/user/ch_hypas/upw_hive/parameter/hive_cdhd_trans_year'
            | """.stripMargin
       )
 
       println("=======Create hive_cdhd_trans_year successfully ! =======")
+
+    }
+    def hive_life_order_inf(implicit sqlContext: HiveContext) = {
+      println("=======Create Table : hive_life_order_inf=======")
+      sqlContext.sql(s"use $hive_dbname")
+      sqlContext.sql(
+        s"""
+           |create table if not exists $hive_dbname.hive_life_order_inf(
+           |order_id              string ,
+           |sys_no                string ,
+           |mchnt_version         string ,
+           |encoding              string ,
+           |sign_method           string ,
+           |mchnt_trans_tp        string ,
+           |biz_tp                string ,
+           |pay_method            string ,
+           |trans_tp              string ,
+           |buss_chnl             string ,
+           |mchnt_front_url       string ,
+           |mchnt_back_url        string ,
+           |acq_ins_id_cd         string ,
+           |mchnt_cd              string ,
+           |mchnt_tp              string ,
+           |mchnt_nm              string ,
+           |sub_mchnt_cd          string ,
+           |sub_mchnt_nm          string ,
+           |mchnt_order_id        string ,
+           |trans_tm              string ,
+           |trans_dt              timestamp ,
+           |sys_tm                string ,
+           |pay_timeout           string ,
+           |trans_at              string ,
+           |trans_curr_cd         string ,
+           |kz_at                 string ,
+           |kz_curr_cd            string ,
+           |conv_dt               string ,
+           |deduct_at             string ,
+           |discount_info         string ,
+           |upoint_at             string ,
+           |top_info              string ,
+           |refund_at             string ,
+           |iss_ins_id_cd         string ,
+           |iss_head              string ,
+           |pri_acct_no           string ,
+           |card_attr             string ,
+           |usr_id                string ,
+           |phone_no              string ,
+           |trans_ip              string ,
+           |trans_st              string ,
+           |trans_no              string ,
+           |trans_idx             string ,
+           |sys_tra_no            string ,
+           |order_desc            string ,
+           |order_detail          string ,
+           |proc_sys              string ,
+           |proc_st               string ,
+           |trans_source          string ,
+           |resp_cd               string ,
+           |other_usr             string ,
+           |initial_pay           string ,
+           |to_ts                 string ,
+           |rec_crt_ts            string ,
+           |rec_upd_ts            string ,
+           |buss_tp_nm						string ,
+           |chnl_tp_nm						string
+           |
+           |)
+           |partitioned by (part_hp_trans_dt string)
+           |row format delimited fields terminated by '!|'
+           |stored as parquet
+           |location '/user/ch_datas/upw_hive/incident/order/hive_life_order_inf'
+           |
+           | """.stripMargin
+      )
+
+      println("=======Create hive_life_order_inf successfully ! =======")
 
     }
 
