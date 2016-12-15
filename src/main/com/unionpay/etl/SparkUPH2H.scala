@@ -613,7 +613,7 @@ object SparkUPH2H {
   /**
     * JobName: JOB_HV_52
     * Feature: uphive.stmtrs_bsl_active_card_acq_branch_mon1 -> hive.hive_active_card_acq_branch_mon
-    *
+    * 每月7、8、9三天抽取
     * @author YangXue
     * @time 2016-08-29
     * @param sqlContext,end_dt
