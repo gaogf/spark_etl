@@ -85,14 +85,19 @@ object SparkHive2Mysql {
       case "JOB_DM_16" =>JOB_DM_16(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ  无数据, 同DM14
       case "JOB_DM_17" =>JOB_DM_17(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ  无数据, 同DM14
       case "JOB_DM_18" =>JOB_DM_18(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP   already formatted
+      case "JOB_DM_19" =>JOB_DM_19(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP   already formatted
       case "JOB_DM_20" =>JOB_DM_20(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP   already formatted
+      case "JOB_DM_21" =>JOB_DM_21(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP   already formatted
+      case "JOB_DM_22" =>JOB_DM_22(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP   already formatted
+      case "JOB_DM_23" =>JOB_DM_23(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP   already formatted
       case "JOB_DM_24" =>JOB_DM_24(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ  无数据（原表有数据）
       case "JOB_DM_25" =>JOB_DM_25(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ  无数据（原表有数据）
       case "JOB_DM_26" =>JOB_DM_26(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ  无数据（原表有数据）
       case "JOB_DM_27" =>JOB_DM_27(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ  无数据（原表有数据）依赖源表中hive_mchnt_tp和hive_mchnt_tp_grp无数据
       case "JOB_DM_30" =>JOB_DM_30(sqlContext,start_dt,end_dt) //CODE BY TZQ  [kryo序列化缓存溢出，未解决]
       case "JOB_DM_31" =>JOB_DM_31(sqlContext,start_dt,end_dt) //CODE BY TZQ  [主键有空值，无法插入数据库,现在代码里面讲主键空值过滤后可通过,待有有效数据后要删除where条件内容]
-
+      case "JOB_DM_32" =>JOB_DM_32(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP   already formatted
+      case "JOB_DM_33" =>JOB_DM_33(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP   already formatted
       case _ => println("#### No Case Job,Please Input JobName")
     }
 
@@ -2002,6 +2007,194 @@ object SparkHive2Mysql {
   }
 
   /**
+    * JOB_DM_19 20161212
+    * dm_swept_area_usr_device->hive_passive_code_pay_trans,hive_pri_acct_inf
+    * Code by Xue
+    *
+    * @param sqlContext
+    * @return
+    */
+  def JOB_DM_19(implicit sqlContext: HiveContext, start_dt: String, end_dt: String, interval: Int) = {
+    println("###JOB_DM_19(dm_swept_area_usr_device->hive_passive_code_pay_trans,hive_pri_acct_inf)")
+    DateUtils.timeCost("JOB_DM_19") {
+      UPSQL_JDBC.delete(s"dm_swept_area_usr_device", "report_dt", start_dt, end_dt)
+      println("#### JOB_DM_19 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
+      var today_dt = start_dt
+      if (interval > 0) {
+        println(s"#### JOB_DM_19  spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
+        sqlContext.sql(s"use $hive_dbname")
+        for (i <- 0 to interval) {
+          val results = sqlContext.sql(
+            s"""
+               |select
+               |tempa.PHONE_LOCATION as USR_DEVICE_AREA,
+               |'$today_dt' as REPORT_DT,
+               |tempa.count   AS GEN_QRCODE_NUM,
+               |tempb.usr_cnt AS GEN_QRCODE_USR_NUM,
+               |tempc.count   AS SWEEP_NUM,
+               |tempd.usr_cnt AS SWEEP_USR_NUM,
+               |tempe.count   AS PAY_NUM,
+               |tempf.usr_cnt AS PAY_USR_NUM,
+               |tempg.count   AS PAY_SUCC_NUM,
+               |tempg.amt     AS PAY_AMT,
+               |temph.usr_cnt AS PAY_SUCC_USR_NUM
+               |from
+               |(select
+               |c.PHONE_LOCATION,
+               |sum(c.cnt) as count
+               |from
+               |(select distinct b.PHONE_LOCATION,a.rec_crt_ts, a.cdhd_usr_id,a.cnt
+               |from
+               |(select cdhd_usr_id,rec_crt_ts,count(*) as cnt
+               |from HIVE_PASSIVE_CODE_PAY_TRANS
+               |where rec_crt_ts='$today_dt'
+               |and TRAN_CERTI like '10%'
+               |group by cdhd_usr_id,rec_crt_ts) a
+               |inner join HIVE_PRI_ACCT_INF b
+               |on a.cdhd_usr_id=b.cdhd_usr_id) c
+               |group by c.PHONE_LOCATION ) tempa
+               |
+               |left join
+               |
+               |(SELECT
+               |c.PHONE_LOCATION,
+               |COUNT(distinct(c.cdhd_usr_id)) AS usr_cnt
+               |FROM
+               |( SELECT DISTINCT b.PHONE_LOCATION, a.cdhd_usr_id,  a.rec_crt_ts
+               |FROM
+               |( SELECT DISTINCT (cdhd_usr_id), rec_crt_ts
+               |FROM  HIVE_PASSIVE_CODE_PAY_TRANS
+               |WHERE  rec_crt_ts='$today_dt'
+               |AND TRAN_CERTI LIKE '10%') a
+               |INNER JOIN  HIVE_PRI_ACCT_INF b
+               |ON  a.cdhd_usr_id=b.cdhd_usr_id) c
+               |GROUP BY  c.PHONE_LOCATION) tempb
+               |on tempa.PHONE_LOCATION=tempb.PHONE_LOCATION
+               |
+               |left join
+               |
+               |(select
+               |c.PHONE_LOCATION,
+               |sum(c.cnt) as count
+               |from
+               |(select distinct (b.PHONE_LOCATION) as PHONE_LOCATION, a.cdhd_usr_id,a.cnt
+               |from
+               |(select cdhd_usr_id,rec_crt_ts,count(*) as cnt
+               |from HIVE_PASSIVE_CODE_PAY_TRANS
+               |where rec_crt_ts='$today_dt' and TRAN_CERTI like '10%'
+               |and mchnt_cd is not null and mchnt_cd<>'' group by cdhd_usr_id,rec_crt_ts) a
+               |inner join HIVE_PRI_ACCT_INF b on a.cdhd_usr_id=b.cdhd_usr_id)c
+               |group by c.PHONE_LOCATION ) tempc
+               |on tempa.PHONE_LOCATION=tempc.PHONE_LOCATION
+               |
+               |left join
+               |
+               |(select
+               |c.PHONE_LOCATION,
+               |count(distinct(c.cdhd_usr_id)) as usr_cnt
+               |from
+               |(select distinct (b.PHONE_LOCATION) as PHONE_LOCATION, a.cdhd_usr_id
+               |from
+               |(select distinct(cdhd_usr_id),rec_crt_ts
+               |from HIVE_PASSIVE_CODE_PAY_TRANS
+               |where rec_crt_ts='$today_dt'
+               |and TRAN_CERTI like '10%' and mchnt_cd is not null and mchnt_cd<>'') a
+               |inner join HIVE_PRI_ACCT_INF b
+               |on a.cdhd_usr_id=b.cdhd_usr_id)c
+               |group by c.PHONE_LOCATION ) tempd
+               |on tempa.PHONE_LOCATION=tempd.PHONE_LOCATION
+               |
+               |left join
+               |
+               |(select
+               |c.PHONE_LOCATION,
+               |sum(c.cnt) as count
+               |from
+               |(select distinct b.PHONE_LOCATION, a.cdhd_usr_id,a.cnt
+               |from
+               |(select cdhd_usr_id,rec_crt_ts,count(*) as cnt
+               |from HIVE_PASSIVE_CODE_PAY_TRANS
+               |where rec_crt_ts='$today_dt'
+               |and TRAN_CERTI like '10%' and mchnt_cd is not null and mchnt_cd<>''
+               |and trans_tp='00' and trans_st in ('03','04','05','06','08','09','10','11')
+               |group by cdhd_usr_id,rec_crt_ts) a
+               |inner join HIVE_PRI_ACCT_INF b on a.cdhd_usr_id=b.cdhd_usr_id) c
+               |group by c.PHONE_LOCATION ) tempe
+               |on tempa.PHONE_LOCATION=tempe.PHONE_LOCATION
+               |
+               |left join
+               |
+               |(select
+               |c.PHONE_LOCATION,
+               |count(distinct(c.cdhd_usr_id)) as usr_cnt
+               |from
+               |(select distinct  b.PHONE_LOCATION, a.cdhd_usr_id
+               |from
+               |(select distinct(cdhd_usr_id),rec_crt_ts
+               |from HIVE_PASSIVE_CODE_PAY_TRANS
+               |where rec_crt_ts='$today_dt'
+               | and TRAN_CERTI like '10%'  and mchnt_cd is not null and mchnt_cd<>''
+               |and trans_tp='00' and trans_st in ('03','04','05','06','08','09','10','11')) a
+               |inner join HIVE_PRI_ACCT_INF b
+               |on a.cdhd_usr_id=b.cdhd_usr_id) c
+               |group by c.PHONE_LOCATION ) tempf
+               |on tempa.PHONE_LOCATION=tempf.PHONE_LOCATION
+               |
+               |left join
+               |
+               |(select
+               |c.PHONE_LOCATION,
+               |sum(c.cnt) as count,
+               |sum(c.trans_at) as amt
+               |from
+               |(select distinct b.PHONE_LOCATION, a.cdhd_usr_id,a.cnt,a.trans_at
+               |from
+               |(select cdhd_usr_id,rec_crt_ts,sum(trans_at) as trans_at ,count(*) as cnt
+               |from HIVE_PASSIVE_CODE_PAY_TRANS
+               |where rec_crt_ts='$today_dt'
+               |and TRAN_CERTI like '10%' and mchnt_cd is not null and mchnt_cd<>''
+               |and trans_tp='00' and trans_st in ('04','10')
+               | group by cdhd_usr_id,rec_crt_ts) a
+               |inner join HIVE_PRI_ACCT_INF b
+               |on a.cdhd_usr_id=b.cdhd_usr_id) c
+               |group by c.PHONE_LOCATION ) tempg
+               |on tempa.PHONE_LOCATION=tempg.PHONE_LOCATION
+               |
+               |left join
+               |
+               |(select
+               |c.PHONE_LOCATION,
+               |count(distinct(c.cdhd_usr_id)) as usr_cnt
+               |from
+               |(select distinct b.PHONE_LOCATION, a.cdhd_usr_id
+               |from
+               |(select distinct (cdhd_usr_id),rec_crt_ts
+               |from HIVE_PASSIVE_CODE_PAY_TRANS
+               |where rec_crt_ts='$today_dt'
+               |and TRAN_CERTI like '10%'  and mchnt_cd is not null and mchnt_cd<>''
+               |and trans_tp='00' and trans_st in ('04','10')) a
+               |inner join HIVE_PRI_ACCT_INF b
+               |on a.cdhd_usr_id=b.cdhd_usr_id) c
+               |group by c.PHONE_LOCATION ) temph
+               |on tempa.PHONE_LOCATION=temph.PHONE_LOCATION
+               |
+               | """.stripMargin)
+          println(s"#### JOB_DM_19 spark sql 清洗[$today_dt]数据完成时间为:" + DateUtils.getCurrentSystemTime())
+
+          if (!Option(results).isEmpty) {
+            results.save2Mysql("dm_swept_area_usr_device")
+            println(s"#### JOB_DM_19 [$today_dt]数据插入完成时间为：" + DateUtils.getCurrentSystemTime()
+            )
+          } else {
+            println(s"#### JOB_DM_19 spark sql 清洗[$today_dt]数据无结果集！")
+          }
+          today_dt = DateUtils.addOneDay(today_dt)
+        }
+      }
+    }
+  }
+
+  /**
     * JOB_DM_20 20161212
     * dm_swept_area_store_address->hive_passive_code_pay_trans,hive_mchnt_inf_wallet
     * Code by Xue
@@ -2180,6 +2373,509 @@ object SparkHive2Mysql {
             println(s"#### JOB_DM_20 spark sql 清洗[$today_dt]数据无结果集！")
           }
           today_dt=DateUtils.addOneDay(today_dt)
+        }
+      }
+    }
+  }
+
+
+  /**
+    * JOB_DM_21 20161213
+    * dm_swept_store_class_mcc->hive_passive_code_pay_trans,hive_pri_acct_inf
+    * Code by Xue
+    *
+    * @param sqlContext
+    * @return
+    */
+  def JOB_DM_21(implicit sqlContext: HiveContext, start_dt: String, end_dt: String, interval: Int) = {
+    println("###JOB_DM_21(dm_swept_store_class_mcc->hive_passive_code_pay_trans,hive_pri_acct_inf)")
+    DateUtils.timeCost("JOB_DM_21") {
+      UPSQL_JDBC.delete(s"dm_swept_store_class_mcc", "report_dt", start_dt, end_dt)
+      println("#### JOB_DM_21 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
+      var today_dt = start_dt
+      if (interval > 0) {
+        println(s"#### JOB_DM_21  spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
+        sqlContext.sql(s"use $hive_dbname")
+        for (i <- 0 to interval) {
+          val results = sqlContext.sql(
+            s"""
+               |select
+               |tempg.grp_nm as STORE_FRIST_NM,
+               |tempg.tp_nm as STORE_SECOND_NM,
+               |'$today_dt' as REPORT_DT,
+               |tempa.count   AS SWEEP_NUM,
+               |tempb.usr_cnt AS SWEEP_USR_NUM,
+               |tempc.count   AS PAY_NUM,
+               |tempd.usr_cnt AS PAY_USR_NUM,
+               |tempe.count   AS PAY_SUCC_NUM,
+               |tempe.amt     AS PAY_AMT,
+               |tempf.usr_cnt AS PAY_SUCC_USR_NUM
+               |
+               |from
+               |(select c.GB_REGION_NM,
+               |c.mchnt_tp as mchnt_tp,
+               |sum(c.cnt) as count
+               |from
+               |(select distinct b.GB_REGION_NM, a.cdhd_usr_id,a.cnt,b.mchnt_tp as mchnt_tp
+               |from
+               |(select cdhd_usr_id,rec_crt_ts,mchnt_cd,count(*) as cnt
+               |from HIVE_PASSIVE_CODE_PAY_TRANS
+               |where rec_crt_ts='$today_dt' and TRAN_CERTI like '10%'
+               |and mchnt_cd is not null and mchnt_cd<>'' group by cdhd_usr_id,rec_crt_ts,mchnt_cd) a
+               |inner join HIVE_MCHNT_INF_WALLET b
+               |on  a.mchnt_cd=b.mchnt_cd) c
+               |group by c.GB_REGION_NM,c.mchnt_tp ) tempa
+               |
+               |left join
+               |
+               |(select c.GB_REGION_NM,
+               |count(distinct(c.cdhd_usr_id)) as usr_cnt
+               |from
+               |(select distinct b.GB_REGION_NM, a.cdhd_usr_id
+               |from
+               |(select distinct(cdhd_usr_id),rec_crt_ts,mchnt_cd
+               |from HIVE_PASSIVE_CODE_PAY_TRANS
+               |where rec_crt_ts='$today_dt'
+               | and TRAN_CERTI like '10%') a
+               |inner join HIVE_MCHNT_INF_WALLET b
+               |on  a.mchnt_cd=b.mchnt_cd )c
+               |group by c.GB_REGION_NM ) tempb
+               |on tempa.GB_REGION_NM=tempb.GB_REGION_NM
+               |
+               |left join
+               |
+               |(select c.GB_REGION_NM,
+               |sum(c.cnt) as count
+               |from
+               |(select distinct b.GB_REGION_NM, a.cdhd_usr_id,a.cnt
+               |from
+               |(select cdhd_usr_id,rec_crt_ts,mchnt_cd,count(*) as cnt
+               |from HIVE_PASSIVE_CODE_PAY_TRANS
+               |where rec_crt_ts='$today_dt'
+               |and TRAN_CERTI like '10%' and mchnt_cd is not null and mchnt_cd<>''
+               |and trans_tp='00' and trans_st in ('03','04','05','06','08','09','10','11')
+               |group by cdhd_usr_id,rec_crt_ts,mchnt_cd) a
+               |inner join HIVE_MCHNT_INF_WALLET b
+               |on  a.mchnt_cd=b.mchnt_cd) c
+               |group by c.GB_REGION_NM ) tempc
+               |on tempa.GB_REGION_NM=tempc.GB_REGION_NM
+               |
+               |left join
+               |
+               |(select c.GB_REGION_NM,
+               |count(distinct(c.cdhd_usr_id)) as usr_cnt
+               |from
+               |(select distinct  GB_REGION_NM, a.cdhd_usr_id
+               |from
+               |(select distinct(cdhd_usr_id),rec_crt_ts ,mchnt_cd
+               |from HIVE_PASSIVE_CODE_PAY_TRANS
+               |where rec_crt_ts='$today_dt'
+               |and TRAN_CERTI like '10%'  and mchnt_cd is not null and mchnt_cd<>''
+               |and trans_tp='00' and trans_st in ('03','04','05','06','08','09','10','11')) a
+               |inner join HIVE_MCHNT_INF_WALLET b
+               |on  a.mchnt_cd=b.mchnt_cd) c
+               |group by c.GB_REGION_NM ) tempd
+               |on tempa.GB_REGION_NM=tempd.GB_REGION_NM
+               |
+               |left join
+               |
+               |(select
+               |c.GB_REGION_NM,
+               |sum(c.cnt) as count,
+               |sum(c.trans_at) as amt
+               |from
+               |(select distinct b.GB_REGION_NM, a.cdhd_usr_id,a.cnt,a.trans_at
+               |from
+               |(select cdhd_usr_id,rec_crt_ts,mchnt_cd,sum(trans_at) as trans_at ,count(*) as cnt
+               |from HIVE_PASSIVE_CODE_PAY_TRANS
+               |where rec_crt_ts='$today_dt'
+               |and TRAN_CERTI like '10%' and mchnt_cd is not null and mchnt_cd<>''
+               |and trans_tp='00' and trans_st in ('04','10')
+               | group by cdhd_usr_id,rec_crt_ts,mchnt_cd) a
+               |inner join HIVE_MCHNT_INF_WALLET b
+               |on  a.mchnt_cd=b.mchnt_cd) c
+               |group by c.GB_REGION_NM ) tempe
+               |on tempa.GB_REGION_NM=tempe.GB_REGION_NM
+               |
+               |left join
+               |
+               |(select c.GB_REGION_NM,
+               |count(distinct(c.cdhd_usr_id)) as usr_cnt
+               |from
+               |(select distinct b.GB_REGION_NM, a.cdhd_usr_id
+               |from
+               |(select distinct (cdhd_usr_id),rec_crt_ts ,mchnt_cd
+               |from HIVE_PASSIVE_CODE_PAY_TRANS
+               |where rec_crt_ts='$today_dt'
+               |and TRAN_CERTI like '10%'  and mchnt_cd is not null and mchnt_cd<>''
+               |and trans_tp='00' and trans_st in ('04','10')) a
+               |inner join HIVE_MCHNT_INF_WALLET b
+               |on  a.mchnt_cd=b.mchnt_cd) c
+               |group by c.GB_REGION_NM ) tempf
+               |on tempa.GB_REGION_NM=tempf.GB_REGION_NM
+               |
+               |left join
+               |
+               |(SELECT
+               |tp_grp.MCHNT_TP_GRP_DESC_CN AS grp_nm ,
+               |tp.MCHNT_TP_DESC_CN         AS tp_nm,
+               |tp.MCHNT_TP
+               |FROM  HIVE_MCHNT_TP tp
+               |LEFT JOIN HIVE_MCHNT_TP_GRP tp_grp
+               |ON tp.MCHNT_TP_GRP=tp_grp.MCHNT_TP_GRP) tempg
+               |on tempa.mchnt_tp=tempg.mchnt_tp
+               | """.stripMargin)
+          println(s"#### JOB_DM_21 spark sql 清洗[$today_dt]数据完成时间为:" + DateUtils.getCurrentSystemTime())
+
+          if (!Option(results).isEmpty) {
+            results.save2Mysql("dm_swept_store_class_mcc")
+            println(s"#### JOB_DM_21 [$today_dt]数据插入完成时间为：" + DateUtils.getCurrentSystemTime()
+            )
+          } else {
+            println(s"#### JOB_DM_21 spark sql 清洗[$today_dt]数据无结果集！")
+          }
+          today_dt = DateUtils.addOneDay(today_dt)
+        }
+      }
+    }
+  }
+
+  /**
+    * JOB_DM_22 20161214
+    * dm_swept_store_class_mcc->hive_passive_code_pay_trans,hive_mchnt_inf_wallet
+    * Code by Xue
+    *
+    * @param sqlContext
+    * @return
+    */
+  def JOB_DM_22(implicit sqlContext: HiveContext, start_dt: String, end_dt: String, interval: Int) = {
+    println("###JOB_DM_22(dm_swept_merchant->hive_passive_code_pay_trans,hive_mchnt_inf_wallet)")
+    DateUtils.timeCost("JOB_DM_22") {
+      UPSQL_JDBC.delete(s"dm_swept_store_class_mcc", "report_dt", start_dt, end_dt)
+      println("#### JOB_DM_22 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
+      var today_dt = start_dt
+      if (interval > 0) {
+        println(s"#### JOB_DM_22  spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
+        sqlContext.sql(s"use $hive_dbname")
+        for (i <- 0 to interval) {
+          val results = sqlContext.sql(
+            s"""
+               |select
+               |final.mchnt_cn_nm as STORE_FRIST_NM,
+               |'$today_dt'  as REPORT_DT,
+               |final.type as TYPE,
+               |final.Sweep_num as SWEEP_NUM,
+               |final.sweep_usr_num as SWEEP_USR_NUM,
+               |final.pay_num as PAY_NUM,
+               |final.pay_usr_num as PAY_USR_NUM,
+               |final.pay_succ_num as PAY_SUCC_NUM,
+               |final.pay_amt as PAY_AMT,
+               |final.pay_succ_usr_num as PAY_SUCC_USR_NUM
+               |
+               |from
+               |
+               |(
+               |
+               |select
+               |tempa.mchnt_cn_nm,
+               |'0'       as type,
+               |tempa.count   as Sweep_num,
+               |tempb.usr_cnt as sweep_usr_num,
+               |tempc.count   as pay_num,
+               |tempd.usr_cnt as pay_usr_num,
+               |tempe.count   as pay_succ_num,
+               |tempe.amt     as pay_amt,
+               |tempf.usr_cnt as pay_succ_usr_num
+               |from
+               |(
+               |select c.mchnt_cn_nm,
+               |sum(c.cnt) as count
+               |from
+               |(select distinct b.mchnt_cn_nm, a.cdhd_usr_id,a.cnt
+               |from
+               |(select cdhd_usr_id,rec_crt_ts,mchnt_cd,count(*) as cnt
+               |from HIVE_PASSIVE_CODE_PAY_TRANS
+               |where rec_crt_ts='$today_dt' and TRAN_CERTI like '10%'
+               |and mchnt_cd is not null and mchnt_cd<>'' group by cdhd_usr_id,rec_crt_ts,mchnt_cd) a
+               |inner join HIVE_MCHNT_INF_WALLET b
+               |on  a.mchnt_cd=b.mchnt_cd) c
+               |group by c.mchnt_cn_nm ) tempa
+               |
+               |left join
+               |
+               |(
+               |select c.mchnt_cn_nm,
+               |count(distinct(c.cdhd_usr_id)) as usr_cnt
+               |from
+               |(select distinct b.mchnt_cn_nm, a.cdhd_usr_id
+               |from
+               |(select distinct(cdhd_usr_id),rec_crt_ts,mchnt_cd
+               |from HIVE_PASSIVE_CODE_PAY_TRANS
+               |where rec_crt_ts='$today_dt'
+               | and TRAN_CERTI like '10%') a
+               |inner join HIVE_MCHNT_INF_WALLET b
+               |on  a.mchnt_cd=b.mchnt_cd) c
+               |group by c.mchnt_cn_nm ) tempb
+               |on tempa.mchnt_cn_nm=tempb.mchnt_cn_nm
+               |
+               |left join
+               |
+               |(
+               |select c.mchnt_cn_nm,
+               |sum(c.cnt) as count
+               |from
+               |(select distinct b.mchnt_cn_nm, a.cdhd_usr_id,a.cnt
+               |from
+               |(select cdhd_usr_id,rec_crt_ts,mchnt_cd,count(*) as cnt
+               |from HIVE_PASSIVE_CODE_PAY_TRANS
+               |where rec_crt_ts='$today_dt'
+               |and TRAN_CERTI like '10%' and mchnt_cd is not null and mchnt_cd<>''
+               |and trans_tp='00' and trans_st in ('03','04','05','06','08','09','10','11')
+               |group by cdhd_usr_id,rec_crt_ts,mchnt_cd) a
+               |inner join HIVE_MCHNT_INF_WALLET b
+               |on  a.mchnt_cd=b.mchnt_cd) c
+               |group by c.mchnt_cn_nm ) tempc
+               |on tempa.mchnt_cn_nm=tempc.mchnt_cn_nm
+               |
+               |left join
+               |
+               |(select c.mchnt_cn_nm,
+               |count(distinct(c.cdhd_usr_id)) as usr_cnt
+               |from
+               |(select distinct  b.mchnt_cn_nm, a.cdhd_usr_id
+               |from
+               |(select distinct(cdhd_usr_id),rec_crt_ts ,mchnt_cd
+               |from HIVE_PASSIVE_CODE_PAY_TRANS
+               |where rec_crt_ts='$today_dt'
+               | and TRAN_CERTI like '10%'  and mchnt_cd is not null and mchnt_cd<>''
+               |and trans_tp='00' and trans_st in ('03','04','05','06','08','09','10','11')) a
+               |inner join HIVE_MCHNT_INF_WALLET b
+               |on  a.mchnt_cd=b.mchnt_cd) c
+               |group by c.mchnt_cn_nm ) tempd
+               |on tempa.mchnt_cn_nm=tempd.mchnt_cn_nm
+               |
+               |left join
+               |
+               |(select
+               |c.mchnt_cn_nm,
+               |sum(c.cnt) as count,
+               |sum(c.trans_at) as amt
+               |from
+               |(select distinct b.mchnt_cn_nm, a.cdhd_usr_id,a.cnt,a.trans_at
+               |from
+               |(select cdhd_usr_id,rec_crt_ts,mchnt_cd,sum(trans_at) as trans_at ,count(*) as cnt
+               |from HIVE_PASSIVE_CODE_PAY_TRANS
+               |where rec_crt_ts='$today_dt'
+               |and TRAN_CERTI like '10%' and mchnt_cd is not null and mchnt_cd<>''
+               |and trans_tp='00' and trans_st in ('04','10')
+               | group by cdhd_usr_id,rec_crt_ts,mchnt_cd) a
+               |inner join HIVE_MCHNT_INF_WALLET b
+               |on  a.mchnt_cd=b.mchnt_cd) c
+               |group by c.mchnt_cn_nm ) tempe
+               |on tempa.mchnt_cn_nm=tempe.mchnt_cn_nm
+               |
+               |left join
+               |
+               |(select c.mchnt_cn_nm,
+               |count(distinct(c.cdhd_usr_id)) as usr_cnt
+               |from
+               |(select distinct b.mchnt_cn_nm, a.cdhd_usr_id
+               |from
+               |(select distinct (cdhd_usr_id),rec_crt_ts ,mchnt_cd
+               |from HIVE_PASSIVE_CODE_PAY_TRANS
+               |where rec_crt_ts='$today_dt'
+               |and TRAN_CERTI like '10%'  and mchnt_cd is not null and mchnt_cd<>''
+               |and trans_tp='00' and trans_st in ('04','10')) a
+               |inner join HIVE_MCHNT_INF_WALLET b
+               |on  a.mchnt_cd=b.mchnt_cd) c
+               |group by c.mchnt_cn_nm ) tempf
+               |on tempa.mchnt_cn_nm=tempf.mchnt_cn_nm
+               |
+               |order by tempc.count desc limit 20
+               |
+               |
+               |union all
+               |
+               |select
+               |ta.mchnt_cn_nm,
+               |'1'       as type,
+               |ta.count   as Sweep_num,
+               |tb.usr_cnt as sweep_usr_num,
+               |tc.count   as pay_num,
+               |td.usr_cnt as pay_usr_num,
+               |te.count   as pay_succ_num,
+               |te.amt     as pay_amt,
+               |tf.usr_cnt as pay_succ_usr_num
+               |
+               |from
+               |(
+               |select c.mchnt_cn_nm,
+               |sum(c.cnt) as count
+               |from
+               |(select distinct b.mchnt_cn_nm, a.cdhd_usr_id,a.cnt
+               |from
+               |(select cdhd_usr_id,rec_crt_ts,mchnt_cd,count(*) as cnt
+               |from HIVE_PASSIVE_CODE_PAY_TRANS
+               |where rec_crt_ts='$today_dt' and TRAN_CERTI like '10%'  and trans_tp='01'
+               |and mchnt_cd is not null and mchnt_cd<>'' group by cdhd_usr_id,rec_crt_ts,mchnt_cd) a
+               |inner join HIVE_MCHNT_INF_WALLET b
+               |on  a.mchnt_cd=b.mchnt_cd) c
+               |group by c.mchnt_cn_nm ) ta
+               |
+               |left join
+               |
+               |(
+               |select
+               |c.mchnt_cn_nm,
+               |count(distinct(c.cdhd_usr_id)) as usr_cnt
+               |from
+               |(
+               |select distinct b.mchnt_cn_nm, a.cdhd_usr_id
+               |from
+               |(select distinct(cdhd_usr_id),rec_crt_ts,mchnt_cd
+               |from HIVE_PASSIVE_CODE_PAY_TRANS
+               |where rec_crt_ts='$today_dt'
+               |and TRAN_CERTI like '10%'
+               |and trans_tp='01') a
+               |inner join HIVE_MCHNT_INF_WALLET b
+               |on  a.mchnt_cd=b.mchnt_cd) c
+               |group by c.mchnt_cn_nm
+               |) tb
+               |on ta.mchnt_cn_nm=tb.mchnt_cn_nm
+               |
+               |left join
+               |
+               |(select c.mchnt_cn_nm,
+               |sum(c.cnt) as count
+               |from
+               |(select distinct b.mchnt_cn_nm, a.cdhd_usr_id,a.cnt
+               |from
+               |(select cdhd_usr_id,rec_crt_ts,mchnt_cd,count(*) as cnt
+               |from HIVE_PASSIVE_CODE_PAY_TRANS
+               |where rec_crt_ts='$today_dt'
+               |and TRAN_CERTI like '10%' and mchnt_cd is not null and mchnt_cd<>''
+               |and trans_tp='01' and trans_st in ('03','04','05','06','08','09','10','11')
+               |group by cdhd_usr_id,rec_crt_ts,mchnt_cd) a
+               |inner join HIVE_MCHNT_INF_WALLET b
+               |on  a.mchnt_cd=b.mchnt_cd) c
+               |group by c.mchnt_cn_nm ) tc
+               |on ta.mchnt_cn_nm=tc.mchnt_cn_nm
+               |
+               |left join
+               |
+               |(
+               |select c.mchnt_cn_nm,
+               |count(distinct(c.cdhd_usr_id)) as usr_cnt
+               |from
+               |(select distinct  b.mchnt_cn_nm, a.cdhd_usr_id
+               |from
+               |(select distinct(cdhd_usr_id),rec_crt_ts ,mchnt_cd
+               |from HIVE_PASSIVE_CODE_PAY_TRANS
+               |where rec_crt_ts='$today_dt'
+               | and TRAN_CERTI like '10%'  and mchnt_cd is not null and mchnt_cd<>''
+               |and trans_tp='01' and trans_st in ('03','04','05','06','08','09','10','11')) a
+               |inner join HIVE_MCHNT_INF_WALLET b
+               |on  a.mchnt_cd=b.mchnt_cd)c
+               |group by c.mchnt_cn_nm ) td
+               |on ta.mchnt_cn_nm=td.mchnt_cn_nm
+               |
+               |left join
+               |
+               |(select
+               |c.mchnt_cn_nm,
+               |sum(c.cnt) as count,
+               |sum(c.trans_at) as amt
+               |from
+               |(select distinct b.mchnt_cn_nm, a.cdhd_usr_id,a.cnt,a.trans_at
+               |from
+               |(select cdhd_usr_id,rec_crt_ts,mchnt_cd,sum(trans_at) as trans_at ,count(*) as cnt
+               |from HIVE_PASSIVE_CODE_PAY_TRANS
+               |where rec_crt_ts='$today_dt'
+               |and TRAN_CERTI like '10%' and mchnt_cd is not null and mchnt_cd<>''
+               |and trans_tp='01' and trans_st in ('04','10')
+               | group by cdhd_usr_id,rec_crt_ts,mchnt_cd) a
+               |inner join HIVE_MCHNT_INF_WALLET b
+               |on  a.mchnt_cd=b.mchnt_cd) c
+               |group by c.mchnt_cn_nm ) te
+               |on ta.mchnt_cn_nm=te.mchnt_cn_nm
+               |
+               |left join
+               |
+               |(select c.mchnt_cn_nm,
+               |count(distinct(c.cdhd_usr_id)) as usr_cnt
+               |from
+               |(select distinct b.mchnt_cn_nm, a.cdhd_usr_id
+               |from
+               |(select distinct (cdhd_usr_id),rec_crt_ts ,mchnt_cd
+               |from HIVE_PASSIVE_CODE_PAY_TRANS
+               |where rec_crt_ts='$today_dt'
+               |and TRAN_CERTI like '10%'  and mchnt_cd is not null and mchnt_cd<>''
+               |and trans_tp='01' and trans_st in ('04','10')) a
+               |inner join HIVE_MCHNT_INF_WALLET b
+               |on  a.mchnt_cd=b.mchnt_cd)c
+               |group by c.mchnt_cn_nm ) tf
+               |on ta.mchnt_cn_nm=tf.mchnt_cn_nm
+               |order by tc.count desc limit 20
+               |
+               |) final
+               | """.stripMargin)
+          println(s"#### JOB_DM_22 spark sql 清洗[$today_dt]数据完成时间为:" + DateUtils.getCurrentSystemTime())
+
+          if (!Option(results).isEmpty) {
+            results.save2Mysql("dm_swept_merchant")
+            println(s"#### JOB_DM_22 [$today_dt]数据插入完成时间为：" + DateUtils.getCurrentSystemTime()
+            )
+          } else {
+            println(s"#### JOB_DM_22 spark sql 清洗[$today_dt]数据无结果集！")
+          }
+          today_dt = DateUtils.addOneDay(today_dt)
+        }
+      }
+    }
+  }
+
+
+  /**
+    * JOB_DM_23 20161215
+    * dm_swept_resp_code->hive_passive_code_pay_trans
+    * Code by Xue
+    *
+    * @param sqlContext
+    * @return
+    */
+  def JOB_DM_23(implicit sqlContext: HiveContext, start_dt: String, end_dt: String, interval: Int) = {
+    println("###JOB_DM_23(dm_swept_resp_code->hive_passive_code_pay_trans)")
+    DateUtils.timeCost("JOB_DM_23") {
+      UPSQL_JDBC.delete(s"dm_swept_resp_code", "report_dt", start_dt, end_dt)
+      println("#### JOB_DM_23 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
+      var today_dt = start_dt
+      if (interval > 0) {
+        println(s"#### JOB_DM_23  spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
+        sqlContext.sql(s"use $hive_dbname")
+        for (i <- 0 to interval) {
+          val results = sqlContext.sql(
+            s"""
+               |select
+               |ta.resp_code as RESP_CODE,
+               |'$today_dt' as REPORT_DT,
+               |count(distinct ta.trans_seq) as SWEEP_USR_NUM,
+               |sum(ta.trans_at) as SWEEP_NUM
+               |from HIVE_PASSIVE_CODE_PAY_TRANS ta
+               |where ta.rec_crt_ts='$today_dt'
+               |and ta.TRAN_CERTI like '10%' and ta.mchnt_cd is not null and ta.mchnt_cd<>''
+               |and length(trim(ta.resp_code))=2
+               |group by ta.resp_code
+               | """.stripMargin)
+          println(s"#### JOB_DM_23 spark sql 清洗[$today_dt]数据完成时间为:" + DateUtils.getCurrentSystemTime())
+
+          if (!Option(results).isEmpty) {
+            results.save2Mysql("dm_swept_resp_code")
+            println(s"#### JOB_DM_23 [$today_dt]数据插入完成时间为：" + DateUtils.getCurrentSystemTime()
+            )
+          } else {
+            println(s"#### JOB_DM_23 spark sql 清洗[$today_dt]数据无结果集！")
+          }
+          today_dt = DateUtils.addOneDay(today_dt)
         }
       }
     }
@@ -2831,6 +3527,348 @@ object SparkHive2Mysql {
         println(s"#### JOB_DM_31 数据插入完成时间为：" + DateUtils.getCurrentSystemTime())
       }else{
         println(s"#### JOB_DM_31 spark sql 清洗后数据无结果集！")
+      }
+    }
+  }
+
+
+  /**
+    * JOB_DM_32 20161215
+    * dm_disc_tkt_act_mobile_loc_dly->hive_acc_trans
+    * Code by Xue
+    *
+    * @param sqlContext
+    * @return
+    */
+  def JOB_DM_32(implicit sqlContext: HiveContext, start_dt: String, end_dt: String, interval: Int) = {
+    println("###JOB_DM_32(dm_disc_tkt_act_mobile_loc_dly->hive_acc_trans)")
+    DateUtils.timeCost("JOB_DM_32") {
+      UPSQL_JDBC.delete(s"dm_disc_tkt_act_mobile_loc_dly", "report_dt", start_dt, end_dt)
+      println("#### JOB_DM_32 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
+      println(s"#### JOB_DM_32  spark sql 清洗数据开始时间为:" + DateUtils.getCurrentSystemTime())
+      sqlContext.sql(s"use $hive_dbname")
+      val results = sqlContext.sql(
+        s"""
+           |SELECT
+           |    A.PHONE_LOCATION as MOBILE_LOC,
+           |    A.TRANS_DT as REPORT_DT,
+           |    A.TRANSCNT as TRANS_CNT,
+           |    B.SUCTRANSCNT as SUC_TRANS_CNT,
+           |    B.TRANSAT as TRANS_AT,
+           |    B.DISCOUNTAT as DISCOUNT_AT,
+           |    B.transUsrCnt as TRANS_USR_CNT,
+           |    B.TRANSCARDCNT as TRANS_CARD_CNT
+           |FROM
+           |    (
+           |        SELECT
+           |            PRI_ACCT.PHONE_LOCATION,
+           |            TRANS.TRANS_DT,
+           |            COUNT(*) AS TRANSCNT
+           |        FROM
+           |            HIVE_ACC_TRANS TRANS
+           |        LEFT JOIN
+           |            HIVE_TICKET_BILL_BAS_INF BILL
+           |        ON
+           |            (
+           |                TRANS.BILL_ID=BILL.BILL_ID)
+           |        LEFT JOIN
+           |            HIVE_PRI_ACCT_INF PRI_ACCT
+           |        ON
+           |            (
+           |                TRANS.CDHD_USR_ID = PRI_ACCT.CDHD_USR_ID)
+           |        WHERE
+           |            TRANS.UM_TRANS_ID IN ('AC02000065','AC02000063')
+           |        AND BILL.BILL_SUB_TP IN ('01','03')
+           |        AND TRANS.PART_TRANS_DT >= '$start_dt'
+           |        AND TRANS.PART_TRANS_DT <= '$end_dt'
+           |        GROUP BY
+           |            PRI_ACCT.PHONE_LOCATION,
+           |            TRANS.TRANS_DT) A
+           |LEFT JOIN
+           |    (
+           |        SELECT
+           |            PRI_ACCT.PHONE_LOCATION,
+           |            TRANS.TRANS_DT,
+           |            COUNT(*) AS SUCTRANSCNT,
+           |            SUM(TRANS.TRANS_AT) AS TRANSAT,
+           |            SUM(TRANS.DISCOUNT_AT)          AS DISCOUNTAT,
+           |            COUNT(DISTINCT TRANS.CDHD_USR_ID) AS TRANSUSRCNT,
+           |            COUNT(DISTINCT TRANS.PRI_ACCT_NO) AS TRANSCARDCNT
+           |        FROM
+           |            HIVE_ACC_TRANS TRANS
+           |        LEFT JOIN
+           |            HIVE_TICKET_BILL_BAS_INF BILL
+           |        ON
+           |            (
+           |                TRANS.BILL_ID=BILL.BILL_ID)
+           |        LEFT JOIN
+           |            HIVE_PRI_ACCT_INF PRI_ACCT
+           |        ON
+           |            (
+           |                TRANS.CDHD_USR_ID = PRI_ACCT.CDHD_USR_ID)
+           |        WHERE
+           |            TRANS.SYS_DET_CD = 'S'
+           |        AND TRANS.UM_TRANS_ID IN ('AC02000065','AC02000063')
+           |        AND BILL.BILL_SUB_TP IN ('01','03')
+           |        AND TRANS.PART_TRANS_DT >= '$start_dt'
+           |        AND TRANS.PART_TRANS_DT <= '$end_dt'
+           |        GROUP BY PRI_ACCT.PHONE_LOCATION, TRANS.TRANS_DT
+           |		)B
+           |ON
+           |    (
+           |        A.PHONE_LOCATION = B.PHONE_LOCATION
+           |    AND A.TRANS_DT = B.TRANS_DT )
+           |
+               | """.stripMargin)
+      println(s"#### JOB_DM_32 spark sql 清洗数据完成时间为:" + DateUtils.getCurrentSystemTime())
+
+      if (!Option(results).isEmpty) {
+        results.save2Mysql("dm_disc_tkt_act_mobile_loc_dly")
+        println(s"#### JOB_DM_32 数据插入完成时间为：" + DateUtils.getCurrentSystemTime()
+        )
+      } else {
+        println(s"#### JOB_DM_32 spark sql 清洗数据无结果集！")
+      }
+    }
+  }
+
+
+  /**
+    * JOB_DM_33 20161216
+    * dm_disc_tkt_act_link_tp_dly->hive_acc_trans
+    * Code by Xue
+    *
+    * @param sqlContext
+    * @return
+    */
+  def JOB_DM_33(implicit sqlContext: HiveContext, start_dt: String, end_dt: String, interval: Int) = {
+    println("###JOB_DM_33(dm_disc_tkt_act_link_tp_dly->hive_acc_trans)")
+    DateUtils.timeCost("JOB_DM_33") {
+      UPSQL_JDBC.delete(s"dm_disc_tkt_act_link_tp_dly", "report_dt", start_dt, end_dt)
+      println("#### JOB_DM_33 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
+      println(s"#### JOB_DM_33  spark sql 清洗数据开始时间为:" + DateUtils.getCurrentSystemTime())
+      sqlContext.sql(s"use $hive_dbname")
+      val results = sqlContext.sql(
+        s"""
+           |SELECT
+           |    A.INS_ID_CD as LINK_TP_NM,
+           |    A.SYS_SETTLE_DT as REPORT_DT,
+           |    A.TRANSCNT AS TRANS_CNT,
+           |    B.SUCTRANSCNT as SUC_TRANS_CNT,
+           |    B.TRANSAT  as TRANS_AT,
+           |    B.DISCOUNTAT as DISCOUNT_AT,
+           |    B.TRANSUSRCNT AS TRANS_USR_CNT,
+           |    B.CARDCNT as TRANS_CARD_CNT
+           |
+               |FROM
+           |    (
+           |        SELECT
+           |            CASE
+           |                WHEN TRANS.FWD_INS_ID_CD IN ('00097310',
+           |                                             '00093600',
+           |                                             '00095210',
+           |                                             '00098700',
+           |                                             '00098500',
+           |                                             '00097700',
+           |                                             '00096400',
+           |                                             '00096500',
+           |                                             '00155800',
+           |                                             '00095840',
+           |                                             '00097000',
+           |                                             '00085500',
+           |                                             '00096900',
+           |                                             '00093930',
+           |                                             '00094200',
+           |                                             '00093900',
+           |                                             '00096100',
+           |                                             '00092210',
+           |                                             '00092220',
+           |                                             '00092900',
+           |                                             '00091600',
+           |                                             '00092400',
+           |                                             '00098800',
+           |                                             '00098200',
+           |                                             '00097900',
+           |                                             '00091900',
+           |                                             '00092600',
+           |                                             '00091200',
+           |                                             '00093320',
+           |                                             '00031000',
+           |                                             '00094500',
+           |                                             '00094900',
+           |                                             '00091100',
+           |                                             '00094520',
+           |                                             '00093000',
+           |                                             '00093310')
+           |                THEN '直连'
+           |                ELSE '间连'
+           |            END AS INS_ID_CD,
+           |            TRANS.SYS_SETTLE_DT,
+           |            COUNT(*) AS TRANSCNT
+           |        FROM
+           |            HIVE_ACC_TRANS TRANS
+           |        WHERE
+           |            TRANS.SYS_SETTLE_DT >= '$start_dt'
+           |        AND TRANS.SYS_SETTLE_DT <= '$end_dt'
+           |        GROUP BY
+           |            CASE
+           |                WHEN TRANS.FWD_INS_ID_CD IN ('00097310',
+           |                                             '00093600',
+           |                                             '00095210',
+           |                                             '00098700',
+           |                                             '00098500',
+           |                                             '00097700',
+           |                                             '00096400',
+           |                                             '00096500',
+           |                                             '00155800',
+           |                                             '00095840',
+           |                                             '00097000',
+           |                                             '00085500',
+           |                                             '00096900',
+           |                                             '00093930',
+           |                                             '00094200',
+           |                                             '00093900',
+           |                                             '00096100',
+           |                                             '00092210',
+           |                                             '00092220',
+           |                                             '00092900',
+           |                                             '00091600',
+           |                                             '00092400',
+           |                                             '00098800',
+           |                                             '00098200',
+           |                                             '00097900',
+           |                                             '00091900',
+           |                                             '00092600',
+           |                                             '00091200',
+           |                                             '00093320',
+           |                                             '00031000',
+           |                                             '00094500',
+           |                                             '00094900',
+           |                                             '00091100',
+           |                                             '00094520',
+           |                                             '00093000',
+           |                                             '00093310')
+           |                THEN '直连'
+           |                ELSE '间连'
+           |            END,
+           |            TRANS.SYS_SETTLE_DT) A
+           |LEFT JOIN
+           |    (
+           |        SELECT
+           |            CASE
+           |                WHEN TRANS.FWD_INS_ID_CD IN ('00097310',
+           |                                             '00093600',
+           |                                             '00095210',
+           |                                             '00098700',
+           |                                             '00098500',
+           |                                             '00097700',
+           |                                             '00096400',
+           |                                             '00096500',
+           |                                             '00155800',
+           |                                             '00095840',
+           |                                             '00097000',
+           |                                             '00085500',
+           |                                             '00096900',
+           |                                             '00093930',
+           |                                             '00094200',
+           |                                             '00093900',
+           |                                             '00096100',
+           |                                             '00092210',
+           |                                             '00092220',
+           |                                             '00092900',
+           |                                             '00091600',
+           |                                             '00092400',
+           |                                             '00098800',
+           |                                             '00098200',
+           |                                             '00097900',
+           |                                             '00091900',
+           |                                             '00092600',
+           |                                             '00091200',
+           |                                             '00093320',
+           |                                             '00031000',
+           |                                             '00094500',
+           |                                             '00094900',
+           |                                             '00091100',
+           |                                             '00094520',
+           |                                             '00093000',
+           |                                             '00093310')
+           |                THEN '直连'
+           |                ELSE '间连'
+           |            END AS INS_ID_CD,
+           |            TRANS.SYS_SETTLE_DT,
+           |            COUNT(*)          AS SUCTRANSCNT,
+           |            SUM(TRANS.TRANS_TOT_AT) AS TRANSAT,
+           |            SUM(CAST((
+           |                    CASE TRIM(TRANS.DISCOUNT_AT)
+           |                        WHEN ''
+           |                        THEN '000000000000'
+           |                        ELSE TRIM(TRANS.DISCOUNT_AT)
+           |                    END) AS BIGINT))          AS DISCOUNTAT,
+           |            COUNT(DISTINCT TRANS.CDHD_USR_ID) AS TRANSUSRCNT,
+           |            COUNT(DISTINCT TRANS.PRI_ACCT_NO)       AS CARDCNT
+           |        FROM
+           |            HIVE_ACC_TRANS TRANS
+           |        WHERE
+           |            TRANS.CHSWT_RESP_CD='00'
+           |        AND TRANS.SYS_SETTLE_DT >= '$start_dt'
+           |        AND TRANS.SYS_SETTLE_DT <= '$end_dt'
+           |        GROUP BY
+           |            CASE
+           |                WHEN TRANS.FWD_INS_ID_CD IN ('00097310',
+           |                                             '00093600',
+           |                                             '00095210',
+           |                                             '00098700',
+           |                                             '00098500',
+           |                                             '00097700',
+           |                                             '00096400',
+           |                                             '00096500',
+           |                                             '00155800',
+           |                                             '00095840',
+           |                                             '00097000',
+           |                                             '00085500',
+           |                                             '00096900',
+           |                                             '00093930',
+           |                                             '00094200',
+           |                                             '00093900',
+           |                                             '00096100',
+           |                                             '00092210',
+           |                                             '00092220',
+           |                                             '00092900',
+           |                                             '00091600',
+           |                                             '00092400',
+           |                                             '00098800',
+           |                                             '00098200',
+           |                                             '00097900',
+           |                                             '00091900',
+           |                                             '00092600',
+           |                                             '00091200',
+           |                                             '00093320',
+           |                                             '00031000',
+           |                                             '00094500',
+           |                                             '00094900',
+           |                                             '00091100',
+           |                                             '00094520',
+           |                                             '00093000',
+           |                                             '00093310')
+           |                THEN '直连'
+           |                ELSE '间连'
+           |            END,
+           |            TRANS.SYS_SETTLE_DT) B
+           |ON
+           |    A.INS_ID_CD=B.INS_ID_CD
+           |AND A.SYS_SETTLE_DT = B.SYS_SETTLE_DT
+           |ORDER BY
+           |    A.TRANSCNT DESC
+           |
+               | """.stripMargin)
+      println(s"#### JOB_DM_33 spark sql 清洗数据完成时间为:" + DateUtils.getCurrentSystemTime())
+
+      if (!Option(results).isEmpty) {
+        results.save2Mysql("dm_disc_tkt_act_link_tp_dly")
+        println(s"#### JOB_DM_33 数据插入完成时间为：" + DateUtils.getCurrentSystemTime()
+        )
+      } else {
+        println(s"#### JOB_DM_33 spark sql 清洗数据无结果集！")
       }
     }
   }
