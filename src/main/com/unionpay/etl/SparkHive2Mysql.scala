@@ -96,8 +96,9 @@ object SparkHive2Mysql {
       case "JOB_DM_27" =>JOB_DM_27(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ  无数据（原表有数据）依赖源表中hive_mchnt_tp和hive_mchnt_tp_grp无数据
       case "JOB_DM_30" =>JOB_DM_30(sqlContext,start_dt,end_dt) //CODE BY TZQ  [kryo序列化缓存溢出，未解决]
       case "JOB_DM_31" =>JOB_DM_31(sqlContext,start_dt,end_dt) //CODE BY TZQ  [主键有空值，无法插入数据库,现在代码里面讲主键空值过滤后可通过,待有有效数据后要删除where条件内容]
-      case "JOB_DM_32" =>JOB_DM_32(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP   already formatted
+      //case "JOB_DM_32" =>JOB_DM_32(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP   测试报错，带修正
       case "JOB_DM_33" =>JOB_DM_33(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP   already formatted
+
       case _ => println("#### No Case Job,Please Input JobName")
     }
 
