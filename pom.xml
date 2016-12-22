@@ -31,7 +31,7 @@
         <groupId>org.scala-lang</groupId>
         <artifactId>scala-library</artifactId>
         <version>2.10.4</version>
-    </dependency>
+    </dependency>c
     <dependency>
         <groupId>org.apache.spark</groupId>
         <artifactId>spark-sql_2.10</artifactId>
