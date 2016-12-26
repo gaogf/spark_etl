@@ -5517,7 +5517,7 @@ object SparkDB22Hive {
              |log.bill_id                  ,
              |log.bill_tp                  ,
              |log.bill_bat_no              ,
-             |log.bill_inf                 ,
+             |NULL as bill_inf             ,
              |log.card_no                  ,
              |log.proc_cd                  ,
              |log.trans_at                 ,
@@ -5539,13 +5539,13 @@ object SparkDB22Hive {
              |log.card_accptr_term_id      ,
              |log.card_accptr_cd           ,
              |log.card_accptr_nm_addr      ,
-             |log.addn_private_data        ,
+             |NULL as addn_private_data    ,
              |log.udf_fld                  ,
              |log.addn_at                  ,
              |log.orig_data_elemnt         ,
              |log.acct_id_1                ,
              |log.acct_id_2                ,
-             |log.resv_fld                 ,
+             |NULL as resv_fld             ,
              |log.cdhd_auth_inf            ,
              |log.sys_settle_dt            ,
              |log.recncl_in                ,
@@ -5557,7 +5557,7 @@ object SparkDB22Hive {
              |log.sec_ctrl_inf             ,
              |log.card_seq                 ,
              |log.rec_upd_ts               ,
-             |log.dtl_inq_data             ,
+             |NULL as dtl_inq_data         ,
              |concat_ws('-',substr(log.msg_settle_dt,1,4),substr(log.msg_settle_dt,5,2),substr(log.msg_settle_dt,7,2)) as p_settle_dt
              |from db2_viw_chacc_acc_trans_log log
         """.stripMargin)
