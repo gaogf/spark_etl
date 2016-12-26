@@ -64,12 +64,6 @@ object SparkHive2Mysql {
       case "JOB_DM_75"  => JOB_DM_75(sqlContext,start_dt,end_dt)   //CODE BY XTP   already formatted
       case "JOB_DM_76"  => JOB_DM_76(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ
       case "JOB_DM_78"  => JOB_DM_78(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP   already formatted
-      case "JOB_DM_79"  => JOB_DM_79(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP   already formatted
-      case "JOB_DM_80"  => JOB_DM_80(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP   already formatted
-      case "JOB_DM_81"  => JOB_DM_81(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP   already formatted
-      case "JOB_DM_82"  => JOB_DM_82(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP   already formatted
-      case "JOB_DM_83"  => JOB_DM_83(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP   already formatted
-      case "JOB_DM_84"  => JOB_DM_84(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP   already formatted
       case "JOB_DM_86"  => JOB_DM_86(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP   already formatted
       case "JOB_DM_87"  => JOB_DM_87(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ
 
@@ -113,6 +107,13 @@ object SparkHive2Mysql {
       case "JOB_DM_39" =>JOB_DM_39(sqlContext,start_dt,end_dt)   //CODE BY TZQ  [无数据]
       case "JOB_DM_40" =>JOB_DM_40(sqlContext,start_dt,end_dt)   //CODE BY TZQ  [去空处理，待数据完整后去除]
       case "JOB_DM_41" =>JOB_DM_41(sqlContext,start_dt,end_dt)   //CODE BY TZQ  [去空处理，待数据完整后去除]
+      case "JOB_DM_79"  => JOB_DM_79(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP   already formatted
+      case "JOB_DM_80"  => JOB_DM_80(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP   already formatted
+      case "JOB_DM_81"  => JOB_DM_81(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP   already formatted
+      case "JOB_DM_82"  => JOB_DM_82(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP   already formatted
+      case "JOB_DM_83"  => JOB_DM_83(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP   already formatted
+      case "JOB_DM_84"  => JOB_DM_84(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP   already formatted
+      case "JOB_DM_85"  => JOB_DM_85(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP   already formatted
 
       case _ => println("#### No Case Job,Please Input JobName")
     }
@@ -7590,7 +7591,7 @@ object SparkHive2Mysql {
 
 
   /**
-    * JOB_DM_64 20161219
+    * JOB_DM_84 20161219
     * dm_main_sweep_area->hive_mchnt_inf_wallet,hive_active_code_pay_trans
     * Code by Xue
     *
@@ -7725,7 +7726,51 @@ object SparkHive2Mysql {
             results.save2Mysql("dm_main_sweep_area")
             println(s"#### JOB_DM_84 [$today_dt]数据插入完成时间为：" + DateUtils.getCurrentSystemTime())
           } else {
-            println(s"#### JOB_DM_64 spark sql 清洗[$today_dt]数据无结果集！")
+            println(s"#### JOB_DM_84 spark sql 清洗[$today_dt]数据无结果集！")
+          }
+          today_dt = DateUtils.addOneDay(today_dt)
+        }
+      }
+    }
+  }
+
+
+  /**
+    * JOB_DM_85 20161226
+    * dm_main_sweep_resp_code->hive_active_code_pay_trans
+    * Code by Xue
+    *
+    * @param sqlContext
+    * @return
+    */
+  def JOB_DM_85(implicit sqlContext: HiveContext, start_dt: String, end_dt: String, interval: Int) = {
+    println("###JOB_DM_85(dm_main_sweep_resp_code->hive_active_code_pay_trans)")
+    DateUtils.timeCost("JOB_DM_85") {
+      UPSQL_JDBC.delete(s"dm_main_sweep_resp_code", "report_dt", start_dt, end_dt)
+      println("#### JOB_DM_85 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
+      var today_dt = start_dt
+      if (interval > 0) {
+        println(s"#### JOB_DM_85  spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
+        sqlContext.sql(s"use $hive_dbname")
+        for (i <- 0 to interval) {
+          val results = sqlContext.sql(
+            s"""
+               |SELECT
+               |RESP_CD as RESP_CD,
+               |TO_DATE(REC_CRT_TS) as report_dt,
+               |COUNT(*) AS  tran_cnt,
+               |sum(trans_at) as trans_at
+               |FROM HIVE_ACTIVE_CODE_PAY_TRANS
+               |WHERE  length(RESP_CD)=2  and  TO_DATE(REC_CRT_TS)>='$today_dt'  and  TO_DATE(REC_CRT_TS)<= '$today_dt'
+               |GROUP BY RESP_CD,TO_DATE(REC_CRT_TS)
+               | """.stripMargin)
+          println(s"#### JOB_DM_85 spark sql 清洗[$today_dt]数据完成时间为:" + DateUtils.getCurrentSystemTime())
+
+          if (!Option(results).isEmpty) {
+            results.save2Mysql("dm_main_sweep_resp_code")
+            println(s"#### JOB_DM_85 [$today_dt]数据插入完成时间为：" + DateUtils.getCurrentSystemTime())
+          } else {
+            println(s"#### JOB_DM_85 spark sql 清洗[$today_dt]数据无结果集！")
           }
           today_dt = DateUtils.addOneDay(today_dt)
         }
