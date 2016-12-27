@@ -64,6 +64,12 @@ object SparkHive2Mysql {
       case "JOB_DM_75"  => JOB_DM_75(sqlContext,start_dt,end_dt)   //CODE BY XTP   already formatted
       case "JOB_DM_76"  => JOB_DM_76(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ
       case "JOB_DM_78"  => JOB_DM_78(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP   already formatted
+      case "JOB_DM_79"  => JOB_DM_79(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP   already formatted
+      case "JOB_DM_80"  => JOB_DM_80(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP   already formatted
+      case "JOB_DM_81"  => JOB_DM_81(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP   already formatted
+      case "JOB_DM_82"  => JOB_DM_82(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP   already formatted
+      case "JOB_DM_83"  => JOB_DM_83(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP   already formatted
+      case "JOB_DM_84"  => JOB_DM_84(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP   already formatted
       case "JOB_DM_86"  => JOB_DM_86(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP   already formatted
       case "JOB_DM_87"  => JOB_DM_87(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ
 
@@ -79,34 +85,36 @@ object SparkHive2Mysql {
       case "JOB_DM_54" =>JOB_DM_54(sqlContext,start_dt,end_dt)   //CODE BY XTP 无数据   already formatted
       case "JOB_DM_10" =>JOB_DM_10(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ
       case "JOB_DM_11" =>JOB_DM_11(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ
-      case "JOB_DM_12" =>JOB_DM_12(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ  有数据，测试9/8-9/9两天 依赖源表HIVE_TICKET_BILL_ACCT_ADJ_TASK中无数据
-      case "JOB_DM_13" =>JOB_DM_13(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ  有数据，依赖源表HIVE_TICKET_BILL_ACCT_ADJ_TASk无数据
-      case "JOB_DM_14" =>JOB_DM_14(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ  无数据, 源表HIVE_BILL_ORDER_TRANS,HIVE_BILL_SUB_ORDER_TRANS无数据
-      case "JOB_DM_15" =>JOB_DM_15(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ  无数据, 同DM14
-      case "JOB_DM_16" =>JOB_DM_16(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ  无数据, 同DM14
-      case "JOB_DM_17" =>JOB_DM_17(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ  无数据, 同DM14
+      case "JOB_DM_12" =>JOB_DM_12(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ  [有数据，测试9/8-9/9两天 依赖源表HIVE_TICKET_BILL_ACCT_ADJ_TASK中无数据]
+      case "JOB_DM_13" =>JOB_DM_13(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ  [有数据，依赖源表HIVE_TICKET_BILL_ACCT_ADJ_TASk无数据]
+      case "JOB_DM_14" =>JOB_DM_14(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ  [无数据, 源表HIVE_BILL_ORDER_TRANS,HIVE_BILL_SUB_ORDER_TRANS无数据]
+      case "JOB_DM_15" =>JOB_DM_15(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ  [无数据, 同DM14]
+      case "JOB_DM_16" =>JOB_DM_16(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ  [无数据, 同DM14]
+      case "JOB_DM_17" =>JOB_DM_17(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ  [无数据, 同DM14]
       case "JOB_DM_18" =>JOB_DM_18(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP   already formatted
       case "JOB_DM_19" =>JOB_DM_19(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP   already formatted
       case "JOB_DM_20" =>JOB_DM_20(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP   already formatted
       case "JOB_DM_21" =>JOB_DM_21(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP   already formatted
       case "JOB_DM_22" =>JOB_DM_22(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP   already formatted
       case "JOB_DM_23" =>JOB_DM_23(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP   already formatted
-      case "JOB_DM_24" =>JOB_DM_24(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ  无数据（原表有数据）
-      case "JOB_DM_25" =>JOB_DM_25(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ  无数据（原表有数据）
-      case "JOB_DM_26" =>JOB_DM_26(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ  无数据（原表有数据）
-      case "JOB_DM_27" =>JOB_DM_27(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ  无数据（原表有数据）依赖源表中hive_mchnt_tp和hive_mchnt_tp_grp无数据
-      case "JOB_DM_30" =>JOB_DM_30(sqlContext,start_dt,end_dt) //CODE BY TZQ  [kryo序列化缓存溢出，待解决]
+      case "JOB_DM_24" =>JOB_DM_24(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ  [测试通过，无数据（原表有数据）]
+      case "JOB_DM_25" =>JOB_DM_25(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ  [测试通过，无数据（原表有数据）]
+      case "JOB_DM_26" =>JOB_DM_26(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ  [测试通过，无数据（原表有数据）]
+      case "JOB_DM_27" =>JOB_DM_27(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ  [测试通过，无数据（原表有数据）依赖源表中hive_mchnt_tp和hive_mchnt_tp_grp无数据]
+      case "JOB_DM_30" =>JOB_DM_30(sqlContext,start_dt,end_dt) //CODE BY TZQ  [测试未通过，kryo序列化缓存溢出，待解决]
       case "JOB_DM_31" =>JOB_DM_31(sqlContext,start_dt,end_dt) //CODE BY TZQ  [主键有空值，无法插入数据库,现在代码里面讲主键空值过滤后可通过,待有有效数据后要删除where条件内容]
       //case "JOB_DM_32" =>JOB_DM_32(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP   测试报错，带修正
       case "JOB_DM_33" =>JOB_DM_33(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP   already formatted
-      case "JOB_DM_34" =>JOB_DM_34(sqlContext,start_dt,end_dt)   //CODE BY TZQ  [无数据]
-      case "JOB_DM_35" =>JOB_DM_35(sqlContext,start_dt,end_dt)   //CODE BY TZQ  [无数据]
-      case "JOB_DM_36" =>JOB_DM_36(sqlContext,start_dt,end_dt)   //CODE BY TZQ  [kryo序列化缓存溢出，待解决]
-      case "JOB_DM_37" =>JOB_DM_37(sqlContext,start_dt,end_dt)   //CODE BY TZQ  [无数据]
-      case "JOB_DM_38" =>JOB_DM_38(sqlContext,start_dt,end_dt)   //CODE BY TZQ  [kryo序列化缓存溢出，待解决]
-      case "JOB_DM_39" =>JOB_DM_39(sqlContext,start_dt,end_dt)   //CODE BY TZQ  [无数据]
-      case "JOB_DM_40" =>JOB_DM_40(sqlContext,start_dt,end_dt)   //CODE BY TZQ  [去空处理，待数据完整后去除]
-      case "JOB_DM_41" =>JOB_DM_41(sqlContext,start_dt,end_dt)   //CODE BY TZQ  [去空处理，待数据完整后去除]
+      case "JOB_DM_34" =>JOB_DM_34(sqlContext,start_dt,end_dt)   //CODE BY TZQ  [测试通过，无数据]
+      case "JOB_DM_35" =>JOB_DM_35(sqlContext,start_dt,end_dt)   //CODE BY TZQ  [测试通过，无数据]
+      case "JOB_DM_36" =>JOB_DM_36(sqlContext,start_dt,end_dt)   //CODE BY TZQ  [测试未通过，kryo序列化缓存溢出，待解决]
+      case "JOB_DM_37" =>JOB_DM_37(sqlContext,start_dt,end_dt)   //CODE BY TZQ  [测试通过，无数据，依赖表HIVE_MCHNT_TP，HIVE_MCHNT_TP_GRP无数据]
+      case "JOB_DM_38" =>JOB_DM_38(sqlContext,start_dt,end_dt)   //CODE BY TZQ  [测试未通过，kryo序列化缓存溢出，待解决]
+      case "JOB_DM_39" =>JOB_DM_39(sqlContext,start_dt,end_dt)   //CODE BY TZQ  [测试通过，无数据]
+      case "JOB_DM_40" =>JOB_DM_40(sqlContext,start_dt,end_dt)   //CODE BY TZQ  [测试通过 去空处理，待数据完整后去除]
+      case "JOB_DM_41" =>JOB_DM_41(sqlContext,start_dt,end_dt)   //CODE BY TZQ  [测试通过 去空处理，待数据完整后去除]
+      case "JOB_DM_42" =>JOB_DM_42(sqlContext,start_dt,end_dt)   //CODE BY TZQ  [无数据，WHERE条件中进行了空值过滤]
+      case "JOB_DM_43" =>JOB_DM_43(sqlContext,start_dt,end_dt)   //CODE BY TZQ  [测试通过]
       case "JOB_DM_79"  => JOB_DM_79(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP   already formatted
       case "JOB_DM_80"  => JOB_DM_80(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP   already formatted
       case "JOB_DM_81"  => JOB_DM_81(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP   already formatted
@@ -115,6 +123,9 @@ object SparkHive2Mysql {
       case "JOB_DM_84"  => JOB_DM_84(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP   already formatted
       case "JOB_DM_85"  => JOB_DM_85(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP   already formatted
 
+
+      case "JOB_DM_88"  => JOB_DM_88(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ  [测试通过，暂无数据]
+      case "JOB_DM_89"  => JOB_DM_89(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ  [测试通过，暂无数据]
       case _ => println("#### No Case Job,Please Input JobName")
     }
 
