@@ -5467,6 +5467,7 @@ object SparkDB22Hive {
              |concat_ws('-',substr(dtl.trans_dt,1,4),substr(dtl.trans_dt,5,2),substr(dtl.trans_dt,7,2)) as p_trans_dt
              |from db2_viw_chacc_acc_trans_dtl dtl
            """.stripMargin)
+        println("#### JOB_HV_80 动态分区插入hive_trans_dtl 成功！")
       }else{
         println("#### db2_viw_chacc_acc_trans_dtl 表中无数据！")
       }
@@ -5561,6 +5562,7 @@ object SparkDB22Hive {
              |concat_ws('-',substr(log.msg_settle_dt,1,4),substr(log.msg_settle_dt,5,2),substr(log.msg_settle_dt,7,2)) as p_settle_dt
              |from db2_viw_chacc_acc_trans_log log
         """.stripMargin)
+        println("#### JOB_HV_81 动态分区插入hive_trans_log 成功！")
       }else{
         println("#### db2_viw_chacc_acc_trans_log 表中无数据！")
       }
@@ -5674,6 +5676,7 @@ object SparkDB22Hive {
              |concat_ws('-',substr(log.trans_dt,1,4),substr(log.trans_dt,5,2),substr(log.trans_dt,7,2)) as p_trans_dt
              |from db2_viw_chmgm_swt_log log
         """.stripMargin)
+        println("#### JOB_HV_82 动态分区插入hive_swt_log 成功！")
       }else{
         println("#### db2_viw_chmgm_swt_log 表中无数据！")
       }
