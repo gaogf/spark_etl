@@ -33,6 +33,7 @@ object SparkUPH2H {
     val rowParams=UPSQL_TIMEPARAMS_JDBC.readTimeParams(sqlContext)
     val start_dt=DateUtils.getYesterdayByJob(rowParams.getString(0))  //获取开始日期：start_dt-1
     val end_dt=rowParams.getString(1)//结束日期
+    val interval=DateUtils.getIntervalDays(start_dt,end_dt).toInt
 
     println(s"#### SparkUPH2H 数据抽取的起始日期为: $start_dt --  $end_dt")
 
@@ -53,8 +54,9 @@ object SparkUPH2H {
       /**
         * 指标套表job
         */
-      case "JOB_HV_41"  => JOB_HV_41(sqlContext,end_dt) //CODE BY XTP   already formatted
+      case "JOB_HV_41"  => JOB_HV_41(sqlContext, start_dt, end_dt, interval) //CODE BY XTP   already formatted
       case "JOB_HV_50"  =>  JOB_HV_50(sqlContext,start_dt,end_dt) //CODE BY XTP
+      case "JOB_HV_51"  =>  JOB_HV_51(sqlContext,start_dt,end_dt) //CODE BY XTP
       case "JOB_HV_58"  =>  JOB_HV_58(sqlContext,start_dt,end_dt) //CODE BY XTP
       case "JOB_HV_59"  =>  JOB_HV_59(sqlContext,start_dt,end_dt) //CODE BY XTP
       case "JOB_HV_60"  =>  JOB_HV_60(sqlContext,start_dt,end_dt) //CODE BY XTP
@@ -298,228 +300,231 @@ object SparkUPH2H {
     * @author Xue
     * @param sqlContext
     */
-    def JOB_HV_41(implicit sqlContext: HiveContext,end_dt: String) {
-    println("#### JOB_HV_41(rtdtrs_dtl_achis -> hive_achis_trans)")
+  def JOB_HV_41(implicit sqlContext: HiveContext,start_dt:String,end_dt: String, interval: Int) {
+    println("#### JOB_HV_41(rtdtrs_dtl_cups -> hive_cups_trans)")
 
-    val today_dt = end_dt
-    println("#### JOB_HV_41 增量抽取的时间范围为: " + end_dt)
-    DateUtils.timeCost("JOB_HV_41") {
-      val df = sqlContext.read.parquet(s"$up_namenode/$up_hivedataroot/incident/ods/hive_cups_trans/part_settle_dt=$today_dt")
-      println(s"#### JOB_HV_41 read $up_namenode/ 数据完成时间为:" + DateUtils.getCurrentSystemTime())
+    var today_dt = start_dt
+    if (interval > 0) {
+      println("#### JOB_HV_41 增量抽取的时间范围为: "+start_dt+ "-"+ end_dt)
+      DateUtils.timeCost("JOB_HV_41") {
+        val df = sqlContext.read.parquet(s"$up_namenode/$up_hivedataroot/incident/ods/hive_cups_trans/part_settle_dt=$today_dt")
+        println(s"#### JOB_HV_41 read $up_namenode/ 数据完成时间为:" + DateUtils.getCurrentSystemTime())
 
-      df.registerTempTable("spark_hive_cups_trans")
-      println("#### JOB_HV_41 registerTempTable--spark_hive_cups_trans 完成的系统时间为:" + DateUtils.getCurrentSystemTime())
+        df.registerTempTable("spark_hive_cups_trans")
+        println("#### JOB_HV_41 registerTempTable--spark_hive_cups_trans 完成的系统时间为:" + DateUtils.getCurrentSystemTime())
 
-      if (!Option(df).isEmpty) {
-        sqlContext.sql(s"use $hive_dbname")
-        sqlContext.sql(
-          s"""
-             |insert overwrite table hive_achis_trans partition (part_settle_dt)
-             |select
-             |settle_dt             ,
-             |pri_key               ,
-             |log_cd                ,
-             |settle_tp             ,
-             |settle_cycle          ,
-             |block_id              ,
-             |orig_key              ,
-             |related_key           ,
-             |trans_fwd_st          ,
-             |trans_rcv_st          ,
-             |sms_dms_conv_in       ,
-             |fee_in                ,
-             |cross_dist_in         ,
-             |orig_acpt_sdms_in     ,
-             |tfr_in_in             ,
-             |trans_md              ,
-             |source_region_cd      ,
-             |dest_region_cd        ,
-             |cups_card_in          ,
-             |cups_sig_card_in      ,
-             |card_class            ,
-             |card_attr             ,
-             |sti_in                ,
-             |trans_proc_in         ,
-             |acq_ins_id_cd         ,
-             |acq_ins_tp            ,
-             |fwd_ins_id_cd         ,
-             |fwd_ins_tp            ,
-             |rcv_ins_id_cd         ,
-             |rcv_ins_tp            ,
-             |iss_ins_id_cd         ,
-             |iss_ins_tp            ,
-             |related_ins_id_cd     ,
-             |related_ins_tp        ,
-             |acpt_ins_id_cd        ,
-             |acpt_ins_tp           ,
-             |pri_acct_no           ,
-             |pri_acct_no_conv      ,
-             |sys_tra_no            ,
-             |sys_tra_no_conv       ,
-             |sw_sys_tra_no         ,
-             |auth_dt               ,
-             |auth_id_resp_cd       ,
-             |resp_cd1              ,
-             |resp_cd2              ,
-             |resp_cd3              ,
-             |resp_cd4              ,
-             |cu_trans_st           ,
-             |sti_takeout_in        ,
-             |trans_id              ,
-             |trans_tp              ,
-             |trans_chnl            ,
-             |card_media            ,
-             |card_media_proc_md    ,
-             |card_brand            ,
-             |expire_seg            ,
-             |trans_id_conv         ,
-             |settle_mon            ,
-             |settle_d              ,
-             |orig_settle_dt        ,
-             |settle_fwd_ins_id_cd  ,
-             |settle_rcv_ins_id_cd  ,
-             |trans_at              ,
-             |orig_trans_at         ,
-             |trans_conv_rt         ,
-             |trans_curr_cd         ,
-             |cdhd_fee_at           ,
-             |cdhd_fee_conv_rt      ,
-             |cdhd_fee_acct_curr_cd ,
-             |repl_at               ,
-             |exp_snd_chnl          ,
-             |confirm_exp_chnl      ,
-             |extend_inf            ,
-             |conn_md               ,
-             |msg_tp                ,
-             |msg_tp_conv           ,
-             |card_bin              ,
-             |related_card_bin      ,
-             |trans_proc_cd         ,
-             |trans_proc_cd_conv    ,
-             |tfr_dt_tm             ,
-             |loc_trans_tm          ,
-             |loc_trans_dt          ,
-             |conv_dt               ,
-             |mchnt_tp              ,
-             |pos_entry_md_cd       ,
-             |card_seq              ,
-             |pos_cond_cd           ,
-             |pos_cond_cd_conv      ,
-             |retri_ref_no          ,
-             |term_id               ,
-             |term_tp               ,
-             |mchnt_cd              ,
-             |card_accptr_nm_addr   ,
-             |ic_data               ,
-             |rsn_cd                ,
-             |addn_pos_inf          ,
-             |orig_msg_tp           ,
-             |orig_msg_tp_conv      ,
-             |orig_sys_tra_no       ,
-             |orig_sys_tra_no_conv  ,
-             |orig_tfr_dt_tm        ,
-             |related_trans_id      ,
-             |related_trans_chnl    ,
-             |orig_trans_id         ,
-             |orig_trans_id_conv    ,
-             |orig_trans_chnl       ,
-             |orig_card_media       ,
-             |orig_card_media_proc_m,
-             |tfr_in_acct_no        ,
-             |tfr_out_acct_no       ,
-             |cups_resv             ,
-             |ic_flds               ,
-             |cups_def_fld          ,
-             |spec_settle_in        ,
-             |settle_trans_id       ,
-             |spec_mcc_in           ,
-             |iss_ds_settle_in      ,
-             |acq_ds_settle_in      ,
-             |settle_bmp            ,
-             |upd_in                ,
-             |exp_rsn_cd            ,
-             |to_ts                 ,
-             |resnd_num             ,
-             |pri_cycle_no          ,
-             |alt_cycle_no          ,
-             |corr_pri_cycle_no     ,
-             |corr_alt_cycle_no     ,
-             |disc_in               ,
-             |vfy_rslt              ,
-             |vfy_fee_cd            ,
-             |orig_disc_in          ,
-             |orig_disc_curr_cd     ,
-             |fwd_settle_at         ,
-             |rcv_settle_at         ,
-             |fwd_settle_conv_rt    ,
-             |rcv_settle_conv_rt    ,
-             |fwd_settle_curr_cd    ,
-             |rcv_settle_curr_cd    ,
-             |disc_cd               ,
-             |allot_cd              ,
-             |total_disc_at         ,
-             |fwd_orig_settle_at    ,
-             |rcv_orig_settle_at    ,
-             |vfy_fee_at            ,
-             |sp_mchnt_cd           ,
-             |acct_ins_id_cd        ,
-             |iss_ins_id_cd1        ,
-             |iss_ins_id_cd2        ,
-             |iss_ins_id_cd3        ,
-             |iss_ins_id_cd4        ,
-             |mchnt_ins_id_cd1      ,
-             |mchnt_ins_id_cd2      ,
-             |mchnt_ins_id_cd3      ,
-             |mchnt_ins_id_cd4      ,
-             |term_ins_id_cd1       ,
-             |term_ins_id_cd2       ,
-             |term_ins_id_cd3       ,
-             |term_ins_id_cd4       ,
-             |term_ins_id_cd5       ,
-             |acpt_cret_disc_at     ,
-             |acpt_debt_disc_at     ,
-             |iss1_cret_disc_at     ,
-             |iss1_debt_disc_at     ,
-             |iss2_cret_disc_at     ,
-             |iss2_debt_disc_at     ,
-             |iss3_cret_disc_at     ,
-             |iss3_debt_disc_at     ,
-             |iss4_cret_disc_at     ,
-             |iss4_debt_disc_at     ,
-             |mchnt1_cret_disc_at   ,
-             |mchnt1_debt_disc_at   ,
-             |mchnt2_cret_disc_at   ,
-             |mchnt2_debt_disc_at   ,
-             |mchnt3_cret_disc_at   ,
-             |mchnt3_debt_disc_at   ,
-             |mchnt4_cret_disc_at   ,
-             |mchnt4_debt_disc_at   ,
-             |term1_cret_disc_at    ,
-             |term1_debt_disc_at    ,
-             |term2_cret_disc_at    ,
-             |term2_debt_disc_at    ,
-             |term3_cret_disc_at    ,
-             |term3_debt_disc_at    ,
-             |term4_cret_disc_at    ,
-             |term4_debt_disc_at    ,
-             |term5_cret_disc_at    ,
-             |term5_debt_disc_at    ,
-             |pay_in                ,
-             |exp_id                ,
-             |vou_in                ,
-             |orig_log_cd           ,
-             |related_log_cd        ,
-             |mdc_key               ,
-             |rec_upd_ts            ,
-             |rec_crt_ts            ,
-             |hp_settle_dt          ,
-             |hp_settle_dt
-             |from
-             |spark_hive_achis_trans
+        if (!Option(df).isEmpty) {
+          sqlContext.sql(s"use $hive_dbname")
+          sqlContext.sql(
+            s"""
+               |insert overwrite table hive_cups_trans partition (part_settle_dt)
+               |select
+               |settle_dt                        ,
+               |pri_key                          ,
+               |log_cd                           ,
+               |settle_tp                        ,
+               |settle_cycle                     ,
+               |block_id                         ,
+               |orig_key                         ,
+               |related_key                      ,
+               |trans_fwd_st                     ,
+               |trans_rcv_st                     ,
+               |sms_dms_conv_in                  ,
+               |fee_in                           ,
+               |cross_dist_in                    ,
+               |orig_acpt_sdms_in                ,
+               |tfr_in_in                        ,
+               |trans_md                         ,
+               |source_region_cd                 ,
+               |dest_region_cd                   ,
+               |cups_card_in                     ,
+               |cups_sig_card_in                 ,
+               |card_class                       ,
+               |card_attr                        ,
+               |sti_in                           ,
+               |trans_proc_in                    ,
+               |acq_ins_id_cd                    ,
+               |acq_ins_tp                       ,
+               |fwd_ins_id_cd                    ,
+               |fwd_ins_tp                       ,
+               |rcv_ins_id_cd                    ,
+               |rcv_ins_tp                       ,
+               |iss_ins_id_cd                    ,
+               |iss_ins_tp                       ,
+               |related_ins_id_cd                ,
+               |related_ins_tp                   ,
+               |acpt_ins_id_cd                   ,
+               |acpt_ins_tp                      ,
+               |pri_acct_no                      ,
+               |pri_acct_no_conv                 ,
+               |sys_tra_no                       ,
+               |sys_tra_no_conv                  ,
+               |sw_sys_tra_no                    ,
+               |auth_dt                          ,
+               |auth_id_resp_cd                  ,
+               |resp_cd1                         ,
+               |resp_cd2                         ,
+               |resp_cd3                         ,
+               |resp_cd4                         ,
+               |cu_trans_st                      ,
+               |sti_takeout_in                   ,
+               |trans_id                         ,
+               |trans_tp                         ,
+               |trans_chnl                       ,
+               |card_media                       ,
+               |card_media_proc_md               ,
+               |card_brand                       ,
+               |expire_seg                       ,
+               |trans_id_conv                    ,
+               |settle_mon                       ,
+               |settle_d                         ,
+               |orig_settle_dt                   ,
+               |settle_fwd_ins_id_cd             ,
+               |settle_rcv_ins_id_cd             ,
+               |trans_at                         ,
+               |orig_trans_at                    ,
+               |trans_conv_rt                    ,
+               |trans_curr_cd                    ,
+               |cdhd_fee_at                      ,
+               |cdhd_fee_conv_rt                 ,
+               |cdhd_fee_acct_curr_cd            ,
+               |repl_at                          ,
+               |exp_snd_chnl                     ,
+               |confirm_exp_chnl                 ,
+               |extend_inf                       ,
+               |conn_md                          ,
+               |msg_tp                           ,
+               |msg_tp_conv                      ,
+               |card_bin                         ,
+               |related_card_bin                 ,
+               |trans_proc_cd                    ,
+               |trans_proc_cd_conv               ,
+               |tfr_dt_tm                        ,
+               |loc_trans_tm                     ,
+               |loc_trans_dt                     ,
+               |conv_dt                          ,
+               |mchnt_tp                         ,
+               |pos_entry_md_cd                  ,
+               |card_seq                         ,
+               |pos_cond_cd                      ,
+               |pos_cond_cd_conv                 ,
+               |retri_ref_no                     ,
+               |term_id                          ,
+               |term_tp                          ,
+               |mchnt_cd                         ,
+               |card_accptr_nm_addr              ,
+               |ic_data                          ,
+               |rsn_cd                           ,
+               |addn_pos_inf                     ,
+               |orig_msg_tp                      ,
+               |orig_msg_tp_conv                 ,
+               |orig_sys_tra_no                  ,
+               |orig_sys_tra_no_conv             ,
+               |orig_tfr_dt_tm                   ,
+               |related_trans_id                 ,
+               |related_trans_chnl               ,
+               |orig_trans_id                    ,
+               |orig_trans_id_conv               ,
+               |orig_trans_chnl                  ,
+               |orig_card_media                  ,
+               |orig_card_media_proc_md          ,
+               |tfr_in_acct_no                   ,
+               |tfr_out_acct_no                  ,
+               |cups_resv                        ,
+               |ic_flds                          ,
+               |cups_def_fld                     ,
+               |spec_settle_in                   ,
+               |settle_trans_id                  ,
+               |spec_mcc_in                      ,
+               |iss_ds_settle_in                 ,
+               |acq_ds_settle_in                 ,
+               |settle_bmp                       ,
+               |upd_in                           ,
+               |exp_rsn_cd                       ,
+               |to_ts                            ,
+               |resnd_num                        ,
+               |pri_cycle_no                     ,
+               |alt_cycle_no                     ,
+               |corr_pri_cycle_no                ,
+               |corr_alt_cycle_no                ,
+               |disc_in                          ,
+               |vfy_rslt                         ,
+               |vfy_fee_cd                       ,
+               |orig_disc_in                     ,
+               |orig_disc_curr_cd                ,
+               |fwd_settle_at                    ,
+               |rcv_settle_at                    ,
+               |fwd_settle_conv_rt               ,
+               |rcv_settle_conv_rt               ,
+               |fwd_settle_curr_cd               ,
+               |rcv_settle_curr_cd               ,
+               |disc_cd                          ,
+               |allot_cd                         ,
+               |total_disc_at                    ,
+               |fwd_orig_settle_at               ,
+               |rcv_orig_settle_at               ,
+               |vfy_fee_at                       ,
+               |sp_mchnt_cd                      ,
+               |acct_ins_id_cd                   ,
+               |iss_ins_id_cd1                   ,
+               |iss_ins_id_cd2                   ,
+               |iss_ins_id_cd3                   ,
+               |iss_ins_id_cd4                   ,
+               |mchnt_ins_id_cd1                 ,
+               |mchnt_ins_id_cd2                 ,
+               |mchnt_ins_id_cd3                 ,
+               |mchnt_ins_id_cd4                 ,
+               |term_ins_id_cd1                  ,
+               |term_ins_id_cd2                  ,
+               |term_ins_id_cd3                  ,
+               |term_ins_id_cd4                  ,
+               |term_ins_id_cd5                  ,
+               |acpt_cret_disc_at                ,
+               |acpt_debt_disc_at                ,
+               |iss1_cret_disc_at                ,
+               |iss1_debt_disc_at                ,
+               |iss2_cret_disc_at                ,
+               |iss2_debt_disc_at                ,
+               |iss3_cret_disc_at                ,
+               |iss3_debt_disc_at                ,
+               |iss4_cret_disc_at                ,
+               |iss4_debt_disc_at                ,
+               |mchnt1_cret_disc_at              ,
+               |mchnt1_debt_disc_at              ,
+               |mchnt2_cret_disc_at              ,
+               |mchnt2_debt_disc_at              ,
+               |mchnt3_cret_disc_at              ,
+               |mchnt3_debt_disc_at              ,
+               |mchnt4_cret_disc_at              ,
+               |mchnt4_debt_disc_at              ,
+               |term1_cret_disc_at               ,
+               |term1_debt_disc_at               ,
+               |term2_cret_disc_at               ,
+               |term2_debt_disc_at               ,
+               |term3_cret_disc_at               ,
+               |term3_debt_disc_at               ,
+               |term4_cret_disc_at               ,
+               |term4_debt_disc_at               ,
+               |term5_cret_disc_at               ,
+               |term5_debt_disc_at               ,
+               |pay_in                           ,
+               |exp_id                           ,
+               |vou_in                           ,
+               |orig_log_cd                      ,
+               |related_log_cd                   ,
+               |mdc_key                          ,
+               |rec_upd_ts                       ,
+               |rec_crt_ts                       ,
+               |hp_settle_dt                     ,
+               |hp_settle_dt
+               |from
+               |spark_hive_cups_trans
            """.stripMargin)
-        println("#### JOB_HV_41 分区数据插入完成的时间为：" + DateUtils.getCurrentSystemTime())
-      } else {
-        println(s"#### JOB_HV_41 read $up_namenode/ 无数据！")
+          println("#### JOB_HV_41 分区数据插入完成的时间为：" + DateUtils.getCurrentSystemTime())
+        } else {
+          println(s"#### JOB_HV_41 read $up_namenode/ 无数据！")
+        }
+        today_dt = DateUtils.addOneDay(today_dt)
       }
     }
   }
@@ -608,6 +613,55 @@ object SparkUPH2H {
         }
       }
     }
+
+
+  /**
+    * hive-job-51 2016-12-27
+    * org_tdapp_tappevent to hive_org_tdapp_tappevent
+    *
+    * @author Xue
+    * @param sqlContext
+    */
+  def JOB_HV_51(implicit sqlContext: HiveContext,start_dt: String,end_dt:String) = {
+    val start = LocalDate.parse(start_dt, dateFormatter)
+    val end = LocalDate.parse(end_dt, dateFormatter)
+    val days = Days.daysBetween(start, end).getDays
+    for (day <- 0 to days) {
+      val currentDay = (start.plusDays(day).toString(dateFormatter))
+      println("######JOB_HV_51######")
+      val df = sqlContext.read.parquet(s"$up_namenode/$up_hivedataroot/incident/td/hive_org_tdapp_tappevent/part_updays=$currentDay")
+      println(s"###### read $up_namenode/ successful ######")
+      df.registerTempTable("spark_hive_org_tdapp_tappevent")
+
+      val daytime:DataFrame = sqlContext.sql(
+        s"""
+           |select distinct
+           |daytime
+           |from spark_hive_org_tdapp_tappevent
+            """.stripMargin
+      )
+      val times = daytime.select("daytime").rdd.map(r => r(0).asInstanceOf[String]).collect().toList
+
+      increase_ListBuffer(times)
+
+      def increase_ListBuffer(list:List[String]) {
+
+        for(element <- list){
+          val dt = DateTime.parse(element,dateFormat_2)
+          val days = element
+          val days_fmt = dateFormatter.print(dt)
+
+          sqlContext.sql(s"use $hive_dbname")
+          sqlContext.sql(s"alter table hive_org_tdapp_tappevent drop partition (part_daytime='$days_fmt',part_updays='$currentDay')")
+          println(s"alter table hive_org_tdapp_tappevent drop partition (part_daytime='$days_fmt',part_updays='$currentDay') successfully!")
+
+          sqlContext.sql(s"insert into hive_org_tdapp_tappevent partition (part_daytime='$days_fmt',part_updays='$currentDay') select * from spark_hive_org_tdapp_tappevent hott where hott.daytime='$days'")
+          println(s"insert into hive_org_tdapp_tappevent partition (part_daytime='$days_fmt',part_updays='$currentDay') successfully!")
+
+        }
+      }
+    }
+  }
 
 
   /**
