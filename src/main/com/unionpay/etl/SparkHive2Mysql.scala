@@ -4917,6 +4917,134 @@ object SparkHive2Mysql {
     }
   }
 
+
+  /**
+    * JobName: JOB_DM_42
+    * Feature:DM_SWT_PNT_MOBILE_LOC_DLY
+    * NOTICE: WHERE条件中进行了手动空值过滤
+    * @author tzq
+    * @time 2016-12-27
+    * @param sqlContext
+    * @param start_dt
+    * @param end_dt
+    */
+  def JOB_DM_42 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
+    println("###JOB_DM_42(DM_SWT_PNT_MOBILE_LOC_DLY )### "+DateUtils.getCurrentSystemTime())
+    DateUtils.timeCost("JOB_DM_42"){
+      UPSQL_JDBC.delete(s"DM_SWT_PNT_MOBILE_LOC_DLY ","REPORT_DT",start_dt,end_dt)
+      println( "#### JOB_DM_42 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
+
+      println(s"#### JOB_DM_42 spark sql 清洗数据开始时间为:" + DateUtils.getCurrentSystemTime())
+      sqlContext.sql(s"use $hive_dbname")
+      val results =sqlContext.sql(
+        s"""
+           |SELECT
+           |    PRI_ACCT.PHONE_LOCATION  as MOBILE_LOC,
+           |    SWT.TRANS_DT             as REPORT_DT,
+           |    COUNT(*)                 as TRANS_CNT,
+           |    SUM(
+           |        CASE
+           |            WHEN SUBSTR(SWT.TRANS_ST,1,1)='1'
+           |            THEN 1
+           |            ELSE 0
+           |        END )                        AS SUC_TRANS_CNT,
+           |    SUM(TRANS_TOT_AT)                AS TRANS_AT,
+           |    SUM(REQ_TRANS_AT)                AS POINT_AT,
+           |    COUNT(DISTINCT SWT.USR_ID)       AS TRANS_USR_CNT,
+           |    COUNT(DISTINCT SWT.PRI_ACCT_NO)  AS TRANS_CARD_CNT
+           |FROM
+           |    HIVE_SWITCH_POINT_TRANS SWT
+           |LEFT JOIN
+           |    HIVE_PRI_ACCT_INF PRI_ACCT
+           |ON
+           |    (
+           |        SWT.USR_ID = PRI_ACCT.CDHD_USR_ID)
+           |WHERE
+           |    SWT.PART_TRANS_DT>='$start_dt'
+           |AND SWT.PART_TRANS_DT<='$end_dt'
+           |AND SWT.TRANS_TP='S370000000'
+           |AND PRI_ACCT.PHONE_LOCATION IS NOT NULL
+           |GROUP BY
+           |    PRI_ACCT.PHONE_LOCATION,
+           |    SWT.TRANS_DT
+           |
+          """.stripMargin)
+      println(s"#### JOB_DM_42 spark sql 清洗数据完成时间为:" + DateUtils.getCurrentSystemTime())
+
+      println(s"###JOB_DM_42------ results:"+results.count())
+      if(!Option(results).isEmpty){
+        results.save2Mysql("DM_SWT_PNT_MOBILE_LOC_DLY")
+        println(s"#### JOB_DM_42 数据插入完成时间为：" + DateUtils.getCurrentSystemTime())
+      }else{
+        println(s"#### JOB_DM_42 spark sql 清洗后数据无结果集！")
+      }
+    }
+  }
+  /**
+    * JobName: JOB_DM_43
+    * Feature:DM_SWT_PNT_ISS_INS_DLY
+    * Notice:where中过滤条件待有数据时候去除
+    *
+    * @author tzq
+    * @time 2016-12-26
+    * @param sqlContext
+    * @param start_dt
+    * @param end_dt
+    */
+  def JOB_DM_43(implicit sqlContext: HiveContext, start_dt: String, end_dt: String) = {
+    println("###JOB_DM_43(DM_SWT_PNT_ISS_INS_DLY )### " + DateUtils.getCurrentSystemTime())
+    DateUtils.timeCost("JOB_DM_43") {
+      UPSQL_JDBC.delete(s"DM_SWT_PNT_ISS_INS_DLY ", "REPORT_DT", start_dt, end_dt)
+      println("#### JOB_DM_43 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
+
+      println(s"#### JOB_DM_43 spark sql 清洗数据开始时间为:" + DateUtils.getCurrentSystemTime())
+      sqlContext.sql(s"use $hive_dbname")
+      val results = sqlContext.sql(
+        s"""
+           |SELECT
+           |    CB.ISS_INS_CN_NM       AS   ISS_INS_NM,
+           |    SWT.TRANS_DT           AS   REPORT_DT,
+           |    COUNT(*)               AS   TRANS_CNT,
+           |    SUM(
+           |        CASE
+           |            WHEN SUBSTR(SWT.TRANS_ST,1,1)='1'
+           |            THEN 1
+           |            ELSE 0
+           |        END )                       AS SUC_TRANS_CNT,
+           |    SUM(TRANS_TOT_AT)               AS TRANS_AT,
+           |    SUM(REQ_TRANS_AT)               AS POINT_AT,
+           |    COUNT(DISTINCT SWT.USR_ID)      AS TRANS_USR_CNT,
+           |    COUNT(DISTINCT SWT.PRI_ACCT_NO) AS TRANS_CARD_CNT
+           |FROM
+           |    HIVE_SWITCH_POINT_TRANS SWT
+           |LEFT JOIN
+           |    HIVE_CARD_BIN CB
+           |ON
+           |    (
+           |        SWT.CARD_BIN = CB.CARD_BIN)
+           |WHERE
+           |    SWT.PART_TRANS_DT>= '$start_dt'
+           |AND SWT.PART_TRANS_DT<= '$end_dt'
+           |AND SWT.TRANS_TP='S370000000'
+           |AND CB.ISS_INS_CN_NM IS NOT NULL
+           |GROUP BY
+           |    CB.ISS_INS_CN_NM,
+           |    SWT.TRANS_DT
+           |
+          """.stripMargin)
+      println(s"#### JOB_DM_43 spark sql 清洗数据完成时间为:" + DateUtils.getCurrentSystemTime())
+
+      println(s"###JOB_DM_43------ results:" + results.count())
+      if (!Option(results).isEmpty) {
+        results.save2Mysql("DM_SWT_PNT_ISS_INS_DLY")
+        println(s"#### JOB_DM_43 数据插入完成时间为：" + DateUtils.getCurrentSystemTime())
+      } else {
+        println(s"#### JOB_DM_43 spark sql 清洗后数据无结果集！")
+      }
+    }
+  }
+
+
   /**
     * JOB_DM_54/10-14
     * dm_val_tkt_act_mchnt_tp_dly->hive_bill_order_trans,hive_bill_sub_order_trans
@@ -8391,6 +8519,161 @@ object SparkHive2Mysql {
 
   }
 
+  /**
+    * JobName: JOB_DM_88
+    * Feature: DM_UNIONPAY_RED_DOMAIN_BRANCH
+    * @author tzq
+    * @time 2016-12-26
+    * @param sqlContext
+    * @param start_dt
+    * @param end_dt
+    * @param interval
+    */
+  def JOB_DM_88 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String,interval:Int) = {
+    println("###JOB_DM_88(DM_UNIONPAY_RED_DOMAIN_BRANCH)### "+DateUtils.getCurrentSystemTime())
+    DateUtils.timeCost("JOB_DM_88"){
+      UPSQL_JDBC.delete(s"DM_UNIONPAY_RED_DOMAIN_BRANCH","REPORT_DT",start_dt,end_dt)
+      println( "#### JOB_DM_88 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
+      var today_dt=start_dt
+      if(interval>=0 ){
+        sqlContext.sql(s"use $hive_dbname")
+        for(i <- 0 to interval){
+          println(s"#### JOB_DM_88 spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
+          val results =sqlContext.sql(
+            s"""
+               |SELECT
+               |A.ACCESS_NM AS CHAN_NM,
+               |A.STARTTIME_DAY AS REPORT_DT,
+               |COUNT(case when EVENTID='registerSubmit' then A.TDUSERID END) AS ACC_NUM,
+               |COUNT(distinct(case when EVENTID='registerSubmit' then A.TDUSERID END)) AS ACC_DEVC_NUM,
+               |COUNT(case when EVENTID='registerSubmit' then A.RELATE_ID END) AS SUBMIT_NUM,
+               |COUNT(distinct(case when EVENTID='registerSubmit' then A.RELATE_ID END)) AS SUBMIT_DEVC_NUM,
+               |COUNT(case when EVENTID='registerSuccess' then A.TDUSERID END) AS REG_SCC_NUM,
+               |COUNT(distinct(case when EVENTID='registerSuccess' then A.TDUSERID END)) AS REG_SCC_SUBMIT_USR_NUM,
+               |COUNT(distinct(case when EVENTID='registerSuccess' then A.RELATE_ID END)) AS REG_SCC_USR_NUM
+               |FROM(
+               |SELECT
+               |TDAPP.TDUSERID,
+               |TDAPP.EVENTID,
+               |TD.RELATE_ID,
+               |TDAPP.STARTTIME_DAY,
+               |SOUR.ACCESS_NM
+               |FROM
+               |(SELECT
+               |TDUSERID, EVENTID,EVENTCOUNT,PARTNERID,STARTTIME_DAY,
+               |from_unixtime(STARTTIME,'yyyy-MM-dd HH:mm:ss') as STARTTIME
+               |FROM HIVE_ORG_TDAPP_TAPPEVENT
+               |WHERE STARTTIME_DAY>='$today_dt' AND STARTTIME_DAY<='$today_dt'
+               |and EVENTID in ('registerApply','registerSubmit','registerSuccess') ) TDAPP
+               |LEFT JOIN
+               |(SELECT
+               |TDUSER_ID ,
+               |RELATE_ID ,
+               |START_DT ,
+               |END_DT
+               |FROM HIVE_USE_TD_D
+               |) TD
+               |ON TDAPP.TDUSERID=TD.TDUSER_ID
+               |LEFT JOIN HIVE_INF_SOURCE_DTL SOUR
+               |ON TDAPP.PARTNERID=SOUR.ACCESS_ID
+               |WHERE TDAPP.STARTTIME BETWEEN START_DT AND END_DT
+               |) A
+               |GROUP BY A.ACCESS_NM,A.STARTTIME_DAY
+               |
+          """.stripMargin)
+          println(s"#### JOB_DM_88 spark sql 清洗[$today_dt]数据完成时间为:" + DateUtils.getCurrentSystemTime())
+
+          println(s"###JOB_DM_88------$today_dt results:"+results.count())
+          if(!Option(results).isEmpty){
+            results.save2Mysql("DM_UNIONPAY_RED_DOMAIN_BRANCH")
+            println(s"#### JOB_DM_88 [$today_dt]数据插入完成时间为：" + DateUtils.getCurrentSystemTime())
+          }else{
+            println(s"#### JOB_DM_88 spark sql 清洗[$today_dt]数据无结果集！")
+          }
+          today_dt=DateUtils.addOneDay(today_dt)
+        }
+      }
+    }
+  }
+
+
+
+  /**
+    * JobName: JOB_DM_89
+    * Feature: DM_USR_REGISTER_PHOEN_AREA
+    * @author tzq
+    * @time 2016-12-26
+    * @param sqlContext
+    * @param start_dt
+    * @param end_dt
+    * @param interval
+    */
+  def JOB_DM_89 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String,interval:Int) = {
+    println("###JOB_DM_89(DM_USR_REGISTER_PHOEN_AREA)### "+DateUtils.getCurrentSystemTime())
+    DateUtils.timeCost("JOB_DM_89"){
+      UPSQL_JDBC.delete(s"DM_USR_REGISTER_PHOEN_AREA","REPORT_DT",start_dt,end_dt)
+      println( "#### JOB_DM_89 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
+      var today_dt=start_dt
+      if(interval>=0 ){
+        sqlContext.sql(s"use $hive_dbname")
+        for(i <- 0 to interval){
+          println(s"#### JOB_DM_89 spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
+          val results =sqlContext.sql(
+            s"""
+               |SELECT
+               |A.PHONE_LOCATION AS AREA_NM,
+               |A.STARTTIME_DAY AS REPORT_DT,
+               |COUNT(case when EVENTID='registerSubmit' then A.TDUSERID END) AS ACC_NUM,
+               |COUNT(distinct(case when EVENTID='registerSubmit' then A.TDUSERID END)) AS ACC_DEVC_NUM,
+               |COUNT(case when EVENTID='registerSubmit' then A.RELATE_ID END) AS SUBMIT_NUM,
+               |COUNT(distinct(case when EVENTID='registerSubmit' then A.RELATE_ID END)) AS SUBMIT_DEVC_NUM,
+               |COUNT(case when EVENTID='registerSuccess' then A.TDUSERID END) AS REG_SCC_NUM,
+               |COUNT(distinct(case when EVENTID='registerSuccess' then A.TDUSERID END)) AS REG_SCC_SUBMIT_USR_NUM,
+               |COUNT(distinct(case when EVENTID='registerSuccess' then A.RELATE_ID END)) AS REG_SCC_USR_NUM
+               |FROM(
+               |SELECT
+               |TDAPP.TDUSERID,
+               |TDAPP.EVENTID,
+               |TD.RELATE_ID,
+               |TDAPP.STARTTIME_DAY,
+               |PRI.PHONE_LOCATION
+               |FROM
+               |(SELECT
+               |TDUSERID, EVENTID,EVENTCOUNT,PARTNERID,STARTTIME_DAY,
+               |from_unixtime(STARTTIME,'yyyy-MM-dd HH:mm:ss') as STARTTIME
+               |FROM HIVE_ORG_TDAPP_TAPPEVENT
+               |WHERE STARTTIME_DAY>='$today_dt' AND STARTTIME_DAY<='$today_dt'
+               |and EVENTID in ('registerApply','registerSubmit','registerSuccess') ) TDAPP
+               |LEFT JOIN
+               |(SELECT
+               |TDUSER_ID ,
+               |RELATE_ID ,
+               |START_DT ,
+               |END_DT
+               |FROM HIVE_USE_TD_D
+               |) TD
+               |ON TDAPP.TDUSERID=TD.TDUSER_ID
+               |LEFT JOIN HIVE_PRI_ACCT_INF PRI
+               |ON TD.RELATE_ID=PRI.RELATE_ID
+               |WHERE TDAPP.STARTTIME BETWEEN START_DT AND END_DT
+               |) A
+               |GROUP BY A.PHONE_LOCATION,A.STARTTIME_DAY
+               |
+          """.stripMargin)
+          println(s"#### JOB_DM_89 spark sql 清洗[$today_dt]数据完成时间为:" + DateUtils.getCurrentSystemTime())
+
+          println(s"###JOB_DM_89------$today_dt results:"+results.count())
+          if(!Option(results).isEmpty){
+            results.save2Mysql("DM_USR_REGISTER_PHOEN_AREA")
+            println(s"#### JOB_DM_89 [$today_dt]数据插入完成时间为：" + DateUtils.getCurrentSystemTime())
+          }else{
+            println(s"#### JOB_DM_89 spark sql 清洗[$today_dt]数据无结果集！")
+          }
+          today_dt=DateUtils.addOneDay(today_dt)
+        }
+      }
+    }
+  }
 }
 
 // ## END LINE ##
