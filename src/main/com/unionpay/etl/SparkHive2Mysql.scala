@@ -115,6 +115,8 @@ object SparkHive2Mysql {
       case "JOB_DM_41" =>JOB_DM_41(sqlContext,start_dt,end_dt)   //CODE BY TZQ  [测试通过 去空处理，待数据完整后去除]
       case "JOB_DM_42" =>JOB_DM_42(sqlContext,start_dt,end_dt)   //CODE BY TZQ  [无数据，WHERE条件中进行了空值过滤]
       case "JOB_DM_43" =>JOB_DM_43(sqlContext,start_dt,end_dt)   //CODE BY TZQ  [测试通过]
+      case "JOB_DM_49" =>JOB_DM_49(sqlContext,start_dt,end_dt)   //CODE BY TZQ  [测试通过 2条]
+      case "JOB_DM_50" =>JOB_DM_50(sqlContext,start_dt,end_dt)   //CODE BY TZQ  [测试失败，超时，待解决]
       case "JOB_DM_79"  => JOB_DM_79(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP   already formatted
       case "JOB_DM_80"  => JOB_DM_80(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP   already formatted
       case "JOB_DM_81"  => JOB_DM_81(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP   already formatted
@@ -126,6 +128,8 @@ object SparkHive2Mysql {
 
       case "JOB_DM_88"  => JOB_DM_88(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ  [测试通过，暂无数据]
       case "JOB_DM_89"  => JOB_DM_89(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ  [测试通过，暂无数据]
+      case "JOB_DM_92"  => JOB_DM_92(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ  [测试完成]
+      case "JOB_DM_93"  => JOB_DM_93(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ  [测试完成]
       case _ => println("#### No Case Job,Please Input JobName")
     }
 
@@ -5045,6 +5049,209 @@ object SparkHive2Mysql {
   }
 
 
+
+  /**
+    * JobName: JOB_DM_49
+    * Feature:DM_BUSS_DIST_PNT_ONLINE_POINT_DLY
+    * Notice:
+    *
+    * @author tzq
+    * @time 2016-12-26
+    * @param sqlContext
+    * @param start_dt
+    * @param end_dt
+    */
+  def JOB_DM_49(implicit sqlContext: HiveContext, start_dt: String, end_dt: String) = {
+    println("###JOB_DM_49(DM_BUSS_DIST_PNT_ONLINE_POINT_DLY )### " + DateUtils.getCurrentSystemTime())
+    DateUtils.timeCost("JOB_DM_49") {
+      UPSQL_JDBC.delete(s"DM_BUSS_DIST_PNT_ONLINE_POINT_DLY ", "REPORT_DT", start_dt, end_dt)
+      println("#### JOB_DM_49 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
+
+      println(s"#### JOB_DM_49 spark sql 清洗数据开始时间为:" + DateUtils.getCurrentSystemTime())
+      sqlContext.sql(s"use $hive_dbname")
+      val results = sqlContext.sql(
+        s"""
+           |SELECT
+           |    BD.CHARA_ACCT_NM                     AS BUSS_DIST_NM,
+           |    TRANS.TRANS_DT                       AS REPORT_DT,
+           |    COUNT(1)                             AS SUC_TRANS_CNT,
+           |    SUM(TRANS.TRANS_AT)                  AS POINT_AT,
+           |    COUNT(DISTINCT TRANS.CDHD_USR_ID)    AS TRANS_USR_CNT
+           |FROM
+           |    HIVE_ONLINE_POINT_TRANS TRANS
+           |LEFT JOIN
+           |    HIVE_BUSS_DIST BD
+           |ON
+           |    (
+           |        TRANS.CHARA_ACCT_TP = BD.CHARA_ACCT_TP)
+           |WHERE
+           |    TRANS.CHARA_ACCT_TP IS NOT NULL
+           |AND TRANS.PART_TRANS_DT >= '$start_dt'
+           |AND TRANS.PART_TRANS_DT <= '$end_dt'
+           |AND TRANS.STATUS = '1'
+           |GROUP BY
+           |    BD.CHARA_ACCT_NM,
+           |    TRANS.TRANS_DT
+           |
+           |
+           |
+          """.stripMargin)
+      println(s"#### JOB_DM_49 spark sql 清洗数据完成时间为:" + DateUtils.getCurrentSystemTime())
+
+      println(s"###JOB_DM_49------ results:" + results.count())
+      if (!Option(results).isEmpty) {
+        results.save2Mysql("DM_BUSS_DIST_PNT_ONLINE_POINT_DLY")
+        println(s"#### JOB_DM_49 数据插入完成时间为：" + DateUtils.getCurrentSystemTime())
+      } else {
+        println(s"#### JOB_DM_49 spark sql 清洗后数据无结果集！")
+      }
+    }
+  }
+  /**
+    * JobName: JOB_DM_50
+    * Feature:DM_VAL_TKT_ACT_BRANCH_DLY
+    * Notice:
+    *
+    * @author tzq
+    * @time 2016-12-26
+    * @param sqlContext
+    * @param start_dt
+    * @param end_dt
+    */
+  def JOB_DM_50(implicit sqlContext: HiveContext, start_dt: String, end_dt: String) = {
+    println("###JOB_DM_50(DM_VAL_TKT_ACT_BRANCH_DLY )### " + DateUtils.getCurrentSystemTime())
+    DateUtils.timeCost("JOB_DM_50") {
+      UPSQL_JDBC.delete(s"DM_VAL_TKT_ACT_BRANCH_DLY ", "REPORT_DT", start_dt, end_dt)
+      println("#### JOB_DM_50 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
+
+      println(s"#### JOB_DM_50 spark sql 清洗数据开始时间为:" + DateUtils.getCurrentSystemTime())
+      sqlContext.sql(s"use $hive_dbname")
+      val results = sqlContext.sql(
+        s"""
+           |
+           |SELECT
+           |    A.CUP_BRANCH_INS_ID_NM   AS CUP_BRANCH_INS_ID_NM,
+           |    A.TRANS_DT               AS REPORT_DT,
+           |    A.TRANSCNT               AS TRANS_CNT,
+           |    C.SUCTRANSCNT            AS SUC_TRANS_CNT,
+           |    C.BILL_ORIGINAL_PRICE    AS BILL_ORIGINAL_PRICE,
+           |    C.BILL_PRICE             AS BILL_PRICE,
+           |    A.TRANSUSRCNT            AS TRANS_USR_CNT,
+           |    B.PAYUSRCNT              AS PAY_USR_CNT,
+           |    C.PAYSUCUSRCNT           AS PAY_SUC_USR_CNT
+           |FROM
+           |    (
+           |        SELECT
+           |            BILL.CUP_BRANCH_INS_ID_NM,
+           |            TRANS.TRANS_DT,
+           |            COUNT(1)                    AS TRANSCNT,
+           |            COUNT(DISTINCT CDHD_USR_ID) AS TRANSUSRCNT
+           |        FROM
+           |            HIVE_BILL_ORDER_TRANS TRANS
+           |        LEFT JOIN
+           |            HIVE_BILL_SUB_ORDER_TRANS SUB_TRANS
+           |        ON
+           |            (
+           |                TRANS.BILL_ORDER_ID = SUB_TRANS.BILL_ORDER_ID)
+           |        LEFT JOIN
+           |            HIVE_TICKET_BILL_BAS_INF BILL
+           |        ON
+           |            (
+           |                SUB_TRANS.BILL_ID=BILL.BILL_ID)
+           |        WHERE
+           |            BILL.BILL_SUB_TP <> '08'
+           |        AND TRANS.PART_TRANS_DT >= '$start_dt'
+           |        AND TRANS.PART_TRANS_DT <= '$end_dt'
+           |        GROUP BY
+           |            BILL.CUP_BRANCH_INS_ID_NM,
+           |            TRANS.TRANS_DT) A
+           |LEFT JOIN
+           |    (
+           |        SELECT
+           |            BILL.CUP_BRANCH_INS_ID_NM,
+           |            TRANS.TRANS_DT,
+           |            COUNT(DISTINCT CDHD_USR_ID) AS PAYUSRCNT
+           |        FROM
+           |            HIVE_BILL_ORDER_TRANS TRANS
+           |        LEFT JOIN
+           |            HIVE_BILL_SUB_ORDER_TRANS SUB_TRANS
+           |        ON
+           |            (
+           |                TRANS.BILL_ORDER_ID = SUB_TRANS.BILL_ORDER_ID)
+           |        LEFT JOIN
+           |            HIVE_TICKET_BILL_BAS_INF BILL
+           |        ON
+           |            (
+           |                SUB_TRANS.BILL_ID=BILL.BILL_ID)
+           |        WHERE
+           |            BILL.BILL_SUB_TP <> '08'
+           |        AND TRANS.ORDER_ST IN ('00',
+           |                               '01',
+           |                               '02',
+           |                               '03',
+           |                               '04')
+           |        AND TRANS.PART_TRANS_DT >= '$start_dt'
+           |        AND TRANS.PART_TRANS_DT <= '$end_dt'
+           |        GROUP BY
+           |            BILL.CUP_BRANCH_INS_ID_NM,
+           |            TRANS.TRANS_DT) B
+           |ON
+           |    (
+           |        A.CUP_BRANCH_INS_ID_NM = B.CUP_BRANCH_INS_ID_NM
+           |    AND A.TRANS_DT = B.TRANS_DT)
+           |LEFT JOIN
+           |    (
+           |        SELECT
+           |            BILL.CUP_BRANCH_INS_ID_NM,
+           |            TRANS.TRANS_DT,
+           |            COUNT(1)                      AS SUCTRANSCNT,
+           |            SUM(BILL.BILL_ORIGINAL_PRICE) AS BILL_ORIGINAL_PRICE,
+           |            SUM(BILL.BILL_PRICE)          AS BILL_PRICE,
+           |            COUNT(DISTINCT CDHD_USR_ID)   AS PAYSUCUSRCNT
+           |        FROM
+           |            HIVE_BILL_ORDER_TRANS TRANS
+           |        LEFT JOIN
+           |            HIVE_BILL_SUB_ORDER_TRANS SUB_TRANS
+           |        ON
+           |            (
+           |                TRANS.BILL_ORDER_ID = SUB_TRANS.BILL_ORDER_ID)
+           |        LEFT JOIN
+           |            HIVE_TICKET_BILL_BAS_INF BILL
+           |        ON
+           |            (
+           |                SUB_TRANS.BILL_ID=BILL.BILL_ID)
+           |        WHERE
+           |            BILL.BILL_SUB_TP <> '08'
+           |        AND TRANS.ORDER_ST = '00'
+           |        AND TRANS.PART_TRANS_DT >= '$start_dt'
+           |        AND TRANS.PART_TRANS_DT <= '$end_dt'
+           |        GROUP BY
+           |            BILL.CUP_BRANCH_INS_ID_NM,
+           |            TRANS.TRANS_DT) C
+           |ON
+           |    (
+           |        A.CUP_BRANCH_INS_ID_NM = C.CUP_BRANCH_INS_ID_NM
+           |    AND A.TRANS_DT = C.TRANS_DT)
+           |
+           |
+           |
+          """.stripMargin)
+      println(s"#### JOB_DM_50 spark sql 清洗数据完成时间为:" + DateUtils.getCurrentSystemTime())
+
+      println(s"###JOB_DM_50------ results:" + results.count())
+      if (!Option(results).isEmpty) {
+        results.save2Mysql("DM_VAL_TKT_ACT_BRANCH_DLY")
+        println(s"#### JOB_DM_50 数据插入完成时间为：" + DateUtils.getCurrentSystemTime())
+      } else {
+        println(s"#### JOB_DM_50 spark sql 清洗后数据无结果集！")
+      }
+    }
+  }
+
+
+
+
+
   /**
     * JOB_DM_54/10-14
     * dm_val_tkt_act_mchnt_tp_dly->hive_bill_order_trans,hive_bill_sub_order_trans
@@ -8674,6 +8881,309 @@ object SparkHive2Mysql {
       }
     }
   }
-}
 
+  /**
+    * JobName: JOB_DM_92
+    * Feature: DM_ACPT_DIRECT_TRAN_STANDARD
+    * @author tzq
+    * @time 2016-12-28
+    * @param sqlContext
+    * @param start_dt
+    * @param end_dt
+    * @param interval
+    */
+  def JOB_DM_92 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String,interval:Int) = {
+    println("###JOB_DM_92(DM_ACPT_DIRECT_TRAN_STANDARD)### "+DateUtils.getCurrentSystemTime())
+    DateUtils.timeCost("JOB_DM_92"){
+      UPSQL_JDBC.delete(s"DM_ACPT_DIRECT_TRAN_STANDARD","REPORT_DT",start_dt,end_dt)
+      println( "#### JOB_DM_92 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
+      var today_dt=start_dt
+      if(interval>=0 ){
+        sqlContext.sql(s"use $hive_dbname")
+        for(i <- 0 to interval){
+          println(s"#### JOB_DM_92 spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
+          val results =sqlContext.sql(
+            s"""
+               |SELECT
+               |PROJECT_NAME         AS PROJECT_NAME,
+               |IF_HCE               AS IF_HCE,
+               |REPORT_DT            AS REPORT_DT,
+               |sum(TRAN_CNT)        AS TRAN_CNT,
+               |sum(TRAN_SUCC_CNT)   AS TRAN_SUCC_CNT,
+               |sum(TRAN_SUCC_AT)    AS TRAN_SUCC_AT,
+               |sum(DISCOUNT_AT)     AS DISCOUNT_AT,
+               |sum(TRAN_USR_NUM )   AS TRAN_USR_NUM,
+               |sum(TRAN_CARD_NUM)   AS TRAN_CARD_NUM
+               |FROM
+               |(SELECT
+               |A.PROJECT_NAME,
+               |A.IF_HCE,
+               |A.REPORT_DT,
+               |A.TRAN_CNT ,
+               |B.TRAN_SUCC_CNT,
+               |B.TRAN_SUCC_AT,
+               |B.DISCOUNT_AT,
+               |B.TRAN_USR_NUM ,
+               |B.TRAN_CARD_NUM
+               |FROM
+               |(SELECT
+               |case when fwd_ins_id_cd in ('00097310','00093600','00095210','00098700','00098500','00097700',
+               |'00096400','00096500','00155800','00095840','00097000','00085500','00096900','00093930',
+               |'00094200','00093900','00096100','00092210','00092220','00092900','00091600','00092400',
+               |'00098800','00098200','00097900','00091900','00092600','00091200','00093320','00031000',
+               |'00094500','00094900','00091100','00094520','00093000','00093310') then '直联' else '间联' end as PROJECT_NAME,
+               |CASE WHEN substr(UDF_FLD,31,2) in ('01','02','03','04','05') THEN '仅限云闪付' ELSE '非仅限云闪付' END AS IF_HCE,
+               |TO_DATE(TRANS_DT) AS REPORT_DT,
+               |count(*) AS TRAN_CNT
+               |FROM HIVE_ACC_TRANS
+               |WHERE TO_DATE(TRANS_DT)>='$today_dt' AND TO_DATE(TRANS_DT)<='$today_dt'
+               |and bill_nm not like '%机场%' and bill_nm not like '%住两晚送一晚%'
+               |and bill_nm not like '%测试%' and bill_nm not like '%验证%' and bill_id <>'Z00000000020415'
+               |and bill_id<>'Z00000000020878' and bill_nm not like '%满2元减1%' and bill_nm not like '%满2分减1分%'
+               |and bill_nm not like '%满2减1%' and bill_nm not like '%满2抵1%' and bill_nm not like '测%'
+               |GROUP BY case when fwd_ins_id_cd in ('00097310','00093600','00095210','00098700','00098500','00097700',
+               |'00096400','00096500','00155800','00095840','00097000','00085500','00096900','00093930',
+               |'00094200','00093900','00096100','00092210','00092220','00092900','00091600','00092400',
+               |'00098800','00098200','00097900','00091900','00092600','00091200','00093320','00031000',
+               |'00094500','00094900','00091100','00094520','00093000','00093310') then '直联' else '间联' end ,
+               |CASE WHEN substr(UDF_FLD,31,2) in ('01','02','03','04','05') THEN '仅限云闪付' ELSE '非仅限云闪付' END,
+               |TO_DATE(TRANS_DT) ) A
+               |LEFT JOIN
+               |(SELECT
+               |case when fwd_ins_id_cd in ('00097310','00093600','00095210','00098700','00098500','00097700',
+               |'00096400','00096500','00155800','00095840','00097000','00085500','00096900','00093930',
+               |'00094200','00093900','00096100','00092210','00092220','00092900','00091600','00092400',
+               |'00098800','00098200','00097900','00091900','00092600','00091200','00093320','00031000',
+               |'00094500','00094900','00091100','00094520','00093000','00093310') then '直联' else '间联' end as PROJECT_NAME,
+               |CASE WHEN substr(UDF_FLD,31,2) in ('01','02','03','04','05') THEN '仅限云闪付' ELSE '非仅限云闪付' END AS IF_HCE,
+               |TO_DATE(TRANS_DT) AS REPORT_DT,
+               |count(*) AS TRAN_SUCC_CNT,
+               |SUM(trans_at) AS TRAN_SUCC_AT,
+               |SUM(DISCOUNT_AT) AS DISCOUNT_AT,
+               |COUNT(CDHD_USR_ID) AS TRAN_USR_NUM ,
+               |COUNT(CARD_NO) AS TRAN_CARD_NUM
+               |FROM HIVE_ACC_TRANS
+               |WHERE TO_DATE(TRANS_DT)>='$today_dt' AND TO_DATE(TRANS_DT)<='$today_dt'
+               |and sys_det_cd='S'
+               |and bill_nm not like '%机场%' and bill_nm not like '%住两晚送一晚%'
+               |and bill_nm not like '%测试%' and bill_nm not like '%验证%' and bill_id <>'Z00000000020415'
+               |and bill_id<>'Z00000000020878' and bill_nm not like '%满2元减1%' and bill_nm not like '%满2分减1分%'
+               |and bill_nm not like '%满2减1%' and bill_nm not like '%满2抵1%' and bill_nm not like '测%'
+               |GROUP BY case when fwd_ins_id_cd in ('00097310','00093600','00095210','00098700','00098500','00097700',
+               |'00096400','00096500','00155800','00095840','00097000','00085500','00096900','00093930',
+               |'00094200','00093900','00096100','00092210','00092220','00092900','00091600','00092400',
+               |'00098800','00098200','00097900','00091900','00092600','00091200','00093320','00031000',
+               |'00094500','00094900','00091100','00094520','00093000','00093310') then '直联' else '间联' end ,
+               |CASE WHEN substr(UDF_FLD,31,2) in ('01','02','03','04','05') THEN '仅限云闪付' ELSE '非仅限云闪付' END,
+               |TO_DATE(TRANS_DT) ) B
+               |ON A.PROJECT_NAME=B.PROJECT_NAME AND A.IF_HCE=B.IF_HCE AND A.REPORT_DT=B.REPORT_DT
+               |
+ |union all
+               |
+ |SELECT
+               |A.PROJECT_NAME,
+               |A.IF_HCE,
+               |A.REPORT_DT,
+               |A.TRAN_CNT ,
+               |B.TRAN_SUCC_CNT,
+               |B.TRAN_SUCC_AT,
+               |B.DISCOUNT_AT,
+               |B.TRAN_USR_NUM ,
+               |B.TRAN_CARD_NUM
+               |FROM
+               |(SELECT
+               |case when internal_trans_tp='C00022' then '1.0 规范'
+               |when internal_trans_tp='C20022' then '2.0 规范' else '--' end as PROJECT_NAME ,
+               |CASE WHEN substr(UDF_FLD,31,2) in ('01','02','03','04','05') THEN '仅限云闪付' ELSE '非仅限云闪付' END AS IF_HCE,
+               |TO_DATE(TRANS_DT) AS REPORT_DT,
+               |count(*) AS TRAN_CNT
+               |FROM HIVE_ACC_TRANS
+               |WHERE TO_DATE(TRANS_DT)>='$today_dt' AND TO_DATE(TRANS_DT)<='$today_dt'
+               |and bill_nm not like '%机场%' and bill_nm not like '%住两晚送一晚%'
+               |and bill_nm not like '%测试%' and bill_nm not like '%验证%' and bill_id <>'Z00000000020415'
+               |and bill_id<>'Z00000000020878' and bill_nm not like '%满2元减1%' and bill_nm not like '%满2分减1分%'
+               |and bill_nm not like '%满2减1%' and bill_nm not like '%满2抵1%' and bill_nm not like '测%'
+               |GROUP BY case when internal_trans_tp='C00022' then '1.0 规范'
+               |when internal_trans_tp='C20022' then '2.0 规范' else '--' end,
+               |CASE WHEN substr(UDF_FLD,31,2) in ('01','02','03','04','05') THEN '仅限云闪付' ELSE '非仅限云闪付' END,
+               |TO_DATE(TRANS_DT) ) A
+               |LEFT JOIN
+               |(SELECT
+               |case when internal_trans_tp='C00022' then '1.0 规范'
+               |when internal_trans_tp='C20022' then '2.0 规范' else '--' end as PROJECT_NAME,
+               |CASE WHEN substr(UDF_FLD,31,2) in ('01','02','03','04','05') THEN '仅限云闪付' ELSE '非仅限云闪付' END AS IF_HCE,
+               |TO_DATE(TRANS_DT) AS REPORT_DT,
+               |count(*) AS TRAN_SUCC_CNT,
+               |SUM(trans_at) AS TRAN_SUCC_AT,
+               |SUM(DISCOUNT_AT) AS DISCOUNT_AT,
+               |COUNT(CDHD_USR_ID) AS TRAN_USR_NUM ,
+               |COUNT(CARD_NO) AS TRAN_CARD_NUM
+               |FROM HIVE_ACC_TRANS
+               |WHERE TO_DATE(TRANS_DT)>='$today_dt' AND TO_DATE(TRANS_DT)<='$today_dt'
+               |and sys_det_cd='S'
+               |and bill_nm not like '%机场%' and bill_nm not like '%住两晚送一晚%'
+               |and bill_nm not like '%测试%' and bill_nm not like '%验证%' and bill_id <>'Z00000000020415'
+               |and bill_id<>'Z00000000020878' and bill_nm not like '%满2元减1%' and bill_nm not like '%满2分减1分%'
+               |and bill_nm not like '%满2减1%' and bill_nm not like '%满2抵1%' and bill_nm not like '测%'
+               |GROUP BY case when internal_trans_tp='C00022' then '1.0 规范'
+               |when internal_trans_tp='C20022' then '2.0 规范' else '--' end ,
+               |CASE WHEN substr(UDF_FLD,31,2) in ('01','02','03','04','05') THEN '仅限云闪付' ELSE '非仅限云闪付' END,
+               |TO_DATE(TRANS_DT)) B
+               |ON A.PROJECT_NAME=B.PROJECT_NAME AND A.IF_HCE=B.IF_HCE AND A.REPORT_DT=B.REPORT_DT
+               |
+ |UNION ALL
+               |
+ |SELECT
+               |A.PROJECT_NAME,
+               |A.IF_HCE,
+               |A.REPORT_DT,
+               |A.TRAN_CNT ,
+               |B.TRAN_SUCC_CNT,
+               |B.TRAN_SUCC_AT,
+               |B.DISCOUNT_AT,
+               |B.TRAN_USR_NUM ,
+               |B.TRAN_CARD_NUM
+               |FROM
+               |(SELECT
+               |case when internal_trans_tp='C00023' then '终端不改造' else '终端改造' end as PROJECT_NAME ,
+               |CASE WHEN substr(UDF_FLD,31,2) in ('01','02','03','04','05') THEN '仅限云闪付' ELSE '非仅限云闪付' END AS IF_HCE,
+               |TO_DATE(TRANS_DT) AS REPORT_DT,
+               |count(*) AS TRAN_CNT
+               |FROM HIVE_ACC_TRANS
+               |WHERE TO_DATE(TRANS_DT)>='$today_dt' AND TO_DATE(TRANS_DT)<='$today_dt'
+               |and bill_nm not like '%机场%' and bill_nm not like '%住两晚送一晚%'
+               |and bill_nm not like '%测试%' and bill_nm not like '%验证%' and bill_id <>'Z00000000020415'
+               |and bill_id<>'Z00000000020878' and bill_nm not like '%满2元减1%' and bill_nm not like '%满2分减1分%'
+               |and bill_nm not like '%满2减1%' and bill_nm not like '%满2抵1%' and bill_nm not like '测%'
+               |GROUP BY case when internal_trans_tp='C00023' then '终端不改造' else '终端改造' end ,
+               |CASE WHEN substr(UDF_FLD,31,2) in ('01','02','03','04','05') THEN '仅限云闪付' ELSE '非仅限云闪付' END,
+               |TO_DATE(TRANS_DT) ) A
+               |LEFT JOIN
+               |(SELECT
+               |case when internal_trans_tp='C00023' then '终端不改造' else '终端改造' end as PROJECT_NAME,
+               |CASE WHEN substr(UDF_FLD,31,2) in ('01','02','03','04','05') THEN '仅限云闪付' ELSE '非仅限云闪付' END AS IF_HCE,
+               |TO_DATE(TRANS_DT) AS REPORT_DT,
+               |count(*) AS TRAN_SUCC_CNT,
+               |SUM(trans_at) AS TRAN_SUCC_AT,
+               |SUM(DISCOUNT_AT) AS DISCOUNT_AT,
+               |COUNT(CDHD_USR_ID) AS TRAN_USR_NUM ,
+               |COUNT(CARD_NO) AS TRAN_CARD_NUM
+               |FROM HIVE_ACC_TRANS
+               |WHERE TO_DATE(TRANS_DT)>='$today_dt' AND TO_DATE(TRANS_DT)<='$today_dt'
+               |and sys_det_cd='S'
+               |and bill_nm not like '%机场%' and bill_nm not like '%住两晚送一晚%'
+               |and bill_nm not like '%测试%' and bill_nm not like '%验证%' and bill_id <>'Z00000000020415'
+               |and bill_id<>'Z00000000020878' and bill_nm not like '%满2元减1%' and bill_nm not like '%满2分减1分%'
+               |and bill_nm not like '%满2减1%' and bill_nm not like '%满2抵1%' and bill_nm not like '测%'
+               |GROUP BY case when internal_trans_tp='C00023' then '终端不改造' else '终端改造' end ,
+               |CASE WHEN substr(UDF_FLD,31,2) in ('01','02','03','04','05') THEN '仅限云闪付' ELSE '非仅限云闪付' END,
+               |TO_DATE(TRANS_DT)) B
+               |ON A.PROJECT_NAME=B.PROJECT_NAME AND A.IF_HCE=B.IF_HCE AND A.REPORT_DT=B.REPORT_DT
+               |) t1
+               |group by PROJECT_NAME, IF_HCE,REPORT_DT
+               |
+               |
+          """.stripMargin)
+          println(s"#### JOB_DM_92 spark sql 清洗[$today_dt]数据完成时间为:" + DateUtils.getCurrentSystemTime())
+
+          println(s"###JOB_DM_92------$today_dt results:"+results.count())
+          if(!Option(results).isEmpty){
+            results.save2Mysql("DM_ACPT_DIRECT_TRAN_STANDARD")
+            println(s"#### JOB_DM_92 [$today_dt]数据插入完成时间为：" + DateUtils.getCurrentSystemTime())
+          }else{
+            println(s"#### JOB_DM_92 spark sql 清洗[$today_dt]数据无结果集！")
+          }
+          today_dt=DateUtils.addOneDay(today_dt)
+        }
+      }
+    }
+  }
+  /**
+    * JobName: JOB_DM_93
+    * Feature: DM_COUPON_ACPT_PHONE_AREA
+    * @author tzq
+    * @time 2016-12-28
+    * @param sqlContext
+    * @param start_dt
+    * @param end_dt
+    * @param interval
+    */
+  def JOB_DM_93 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String,interval:Int) = {
+    println("###JOB_DM_93(DM_COUPON_ACPT_PHONE_AREA)### "+DateUtils.getCurrentSystemTime())
+    DateUtils.timeCost("JOB_DM_93"){
+      UPSQL_JDBC.delete(s"DM_COUPON_ACPT_PHONE_AREA","REPORT_DT",start_dt,end_dt)
+      println( "#### JOB_DM_93 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
+      var today_dt=start_dt
+      if(interval>=0 ){
+        sqlContext.sql(s"use $hive_dbname")
+        for(i <- 0 to interval){
+          println(s"#### JOB_DM_93 spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
+          val results =sqlContext.sql(
+            s"""
+               |SELECT
+               |C.PHONE_LOCATION AS AREA_NM,
+               |case when a.IF_HCE is null then b.IF_HCE else a.IF_HCE end AS IF_HCE,
+               |'$today_dt' AS REPORT_DT,
+               |SUM(A.TRAN_CNT) AS TRAN_CNT,
+               |SUM(B.TRAN_SUCC_CNT) AS TRAN_SUCC_CNT,
+               |SUM(B.TRAN_SUCC_AT) AS TRAN_SUCC_AT,
+               |SUM(B.DISCOUNT_AT) AS DISCOUNT_AT,
+               |SUM(B.TRAN_USR_NUM) AS TRAN_USR_NUM,
+               |SUM(B.TRAN_CARD_NUM) AS TRAN_CARD_NUM
+               |FROM
+               |(SELECT PHONE_LOCATION,CDHD_USR_ID FROM HIVE_PRI_ACCT_INF ) C
+               |LEFT JOIN
+               |(SELECT
+               |CDHD_USR_ID,
+               |CASE WHEN substr(UDF_FLD,31,2) in ('01','02','03','04','05') THEN '仅限云闪付' ELSE '非仅限云闪付' END AS IF_HCE,
+               |count(*) AS TRAN_CNT
+               |FROM HIVE_ACC_TRANS
+               |WHERE to_date(TRANS_DT)='$today_dt'
+               |and bill_nm not like '%机场%' and bill_nm not like '%住两晚送一晚%'
+               |and bill_nm not like '%测试%' and bill_nm not like '%验证%' and bill_id <>'Z00000000020415'
+               |and bill_id<>'Z00000000020878' and bill_nm not like '%满2元减1%' and bill_nm not like '%满2分减1分%'
+               |and bill_nm not like '%满2减1%' and bill_nm not like '%满2抵1%' and bill_nm not like '测%'
+               |GROUP BY CDHD_USR_ID,
+               |CASE WHEN substr(UDF_FLD,31,2) in ('01','02','03','04','05') THEN '仅限云闪付' ELSE '非仅限云闪付' END ) A
+               |ON A.CDHD_USR_ID=C.CDHD_USR_ID
+               |LEFT JOIN
+               |(SELECT
+               |CDHD_USR_ID,
+               |CASE WHEN substr(UDF_FLD,31,2) in ('01','02','03','04','05') THEN '仅限云闪付' ELSE '非仅限云闪付' END AS IF_HCE,
+               |count(*) AS TRAN_SUCC_CNT,
+               |SUM(trans_at) AS TRAN_SUCC_AT,
+               |SUM(DISCOUNT_AT) AS DISCOUNT_AT,
+               |COUNT(CDHD_USR_ID) AS TRAN_USR_NUM ,
+               |COUNT(CARD_NO) AS TRAN_CARD_NUM
+               |FROM HIVE_ACC_TRANS
+               |WHERE to_date(TRANS_DT)='$today_dt'
+               |and sys_det_cd='S'
+               |and bill_nm not like '%机场%' and bill_nm not like '%住两晚送一晚%'
+               |and bill_nm not like '%测试%' and bill_nm not like '%验证%' and bill_id <>'Z00000000020415'
+               |and bill_id<>'Z00000000020878' and bill_nm not like '%满2元减1%' and bill_nm not like '%满2分减1分%'
+               |and bill_nm not like '%满2减1%' and bill_nm not like '%满2抵1%' and bill_nm not like '测%'
+               |GROUP BY CDHD_USR_ID,
+               |CASE WHEN substr(UDF_FLD,31,2) in ('01','02','03','04','05') THEN '仅限云闪付' ELSE '非仅限云闪付' END) B
+               |ON C.CDHD_USR_ID=B.CDHD_USR_ID AND A.IF_HCE=B.IF_HCE
+               |GROUP BY C.PHONE_LOCATION,(case when a.IF_HCE is null then b.IF_HCE else a.IF_HCE end)
+               |
+               |
+          """.stripMargin)
+          println(s"#### JOB_DM_93 spark sql 清洗[$today_dt]数据完成时间为:" + DateUtils.getCurrentSystemTime())
+
+          println(s"###JOB_DM_93------$today_dt results:"+results.count())
+          if(!Option(results).isEmpty){
+            results.save2Mysql("DM_COUPON_ACPT_PHONE_AREA")
+            println(s"#### JOB_DM_93 [$today_dt]数据插入完成时间为：" + DateUtils.getCurrentSystemTime())
+          }else{
+            println(s"#### JOB_DM_93 spark sql 清洗[$today_dt]数据无结果集！")
+          }
+          today_dt=DateUtils.addOneDay(today_dt)
+        }
+      }
+    }
+  }
+
+
+}
 // ## END LINE ##
