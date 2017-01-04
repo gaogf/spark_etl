@@ -1334,6 +1334,7 @@ object SparkDB22Hive {
   /**
     * JobName:JOB_HV_9
     * Feature:tbl_chmgm_preferential_mchnt_inf->hive_preferential_mchnt_inf
+    *
     * @author tzq
     * @time 2016-8-23
     * @param sqlContext
@@ -1461,6 +1462,7 @@ object SparkDB22Hive {
   /**
     * JobName:JOB_HV_10
     * Feature:db2.tbl_chmgm_access_bas_inf->hive_access_bas_inf
+    *
     * @author tzq
     * @time 2016-8-23
     * @param sqlContext
@@ -1590,6 +1592,7 @@ object SparkDB22Hive {
   /**
     * JobName:JOB_HV_11
     * Feature:db2.tbl_chacc_ticket_bill_bas_inf->hive_ticket_bill_bas_inf
+    *
     * @author tzq
     * @time 2016-8-23
     * @param sqlContext
@@ -1754,6 +1757,7 @@ object SparkDB22Hive {
   /**
     * JobName:JOB_HV_12
     * Feature:db2.tbl_chmgm_chara_grp_def_bat->hive_chara_grp_def_bat
+    *
     * @author tzq
     * @time 2016-08-23
     * @param sqlContext
@@ -1894,6 +1898,7 @@ object SparkDB22Hive {
   /**
     * JobName:JOB_HV_14
     * Feature:hive_inf_source_dtl->tbl_inf_source_dtl
+    *
     * @time 2016-8-23
     * @author tzq
     * @param sqlContext
@@ -1933,6 +1938,7 @@ object SparkDB22Hive {
   /**
     * JobName:hive-job-15
     * Feature:hive_undefine_store_inf-->  hive_acc_trans + hive_store_term_relation
+    *
     * @author tzq
     * @time 2016-8-23
     * @param sqlContext
@@ -2006,6 +2012,7 @@ object SparkDB22Hive {
   /**
     * JobName:JOB_HV_16
     * Feature:hive_mchnt_inf_wallet->tbl_chmgm_mchnt_inf/TBL_CHMGM_STORE_TERM_RELATION/TBL_CHMGM_ACCESS_BAS_INF
+    *
     * @time 2016-8-23
     * @author tzq
     * @param sqlContext
@@ -2518,6 +2525,7 @@ object SparkDB22Hive {
   /**
     * JobName:JOB_HV_23
     * Feature:db2.tbl_chmgm_brand_inf->hive.hive_brand_inf
+    *
     * @author tzq
     * @time 2016-10-9
     * @param sqlContext
@@ -2682,6 +2690,7 @@ object SparkDB22Hive {
   /**
     * JobName: hive-job-26
     * Feature: db2.tbl_mcmgm_mchnt_tp_grp->hive.hive_mchnt_tp_grp
+    *
     * @author tzq
     * @time 2016-09-18
     * @param sqlContext
@@ -4086,6 +4095,7 @@ object SparkDB22Hive {
   /**
     * JobName:hive-job-37
     * Feature:DB2.tbl_umsvc_filter_app_det-->hive_filter_app_det
+    *
     * @author tzq
     * @time 2016-9-21
     * @param sqlContext
@@ -4142,6 +4152,7 @@ object SparkDB22Hive {
   /**
     * JobName: JOB_HV_38
     * Feature: db2.tbl_umsvc_filter_rule_det->hive.hive_filter_rule_det-->
+    *
     * @author tzq
     * @time 2016-9-21
     * @param sqlContext
@@ -4198,6 +4209,7 @@ object SparkDB22Hive {
   /**
     * JobName: JOB_HV_44
     * Feature: db2.viw_chacc_cdhd_cashier_maktg_reward_dtl->hive.hive_cdhd_cashier_maktg_reward_dtl
+    *
     * @author tzq
     * @time 2016-8-22
     * @param sqlContext
@@ -4585,6 +4597,7 @@ object SparkDB22Hive {
   /**
     *JobName: JOB_HV_48
     *Feature: db2.tbl_umsvc_prize_bas->hive.hive_prize_bas
+    *
     * @author tzq
     * @time 2016-8-29
     * @param sqlContext
@@ -4642,6 +4655,7 @@ object SparkDB22Hive {
   /**
     * JobName: JOB_HV_54
     * Feature: db2.tbl_chacc_cashier_bas_inf->hive.hive_cashier_bas_inf
+    *
     * @author tzq
     * @time 2016-8-29
     * @param sqlContext
@@ -4770,6 +4784,7 @@ object SparkDB22Hive {
   /**
     * JobName: JOB_HV_67
     * Feature: db2.tbl_umtxn_signer_log->hive.Hive_signer_log
+    *
     * @author tzq
     * @time 2016-8-29
     * @param sqlContext
@@ -4812,6 +4827,7 @@ object SparkDB22Hive {
   /**
     * JobName: JOB_HV_68
     * Feature: db2.tbl_umtxn_cashier_point_acct_oper_dtl->hive_cashier_point_acct_oper_dtl
+    *
     * @author tzq
     * @time 2016-8-29
     * @param sqlContext
@@ -4973,6 +4989,7 @@ object SparkDB22Hive {
   /**
     *  JobName: hive-job-72 2016-11-2
     *  Feature: hive_bill_order_aux_inf->viw_chmgm_bill_order_aux_inf
+    *
     * @author tzq
     * @time 2016-8-29
     * @param sqlContext
@@ -5055,6 +5072,7 @@ object SparkDB22Hive {
   /**
     * JobName:  hive-job-73 2016-11-2
     * Feature: hive_bill_sub_order_detail_inf->viw_chmgm_bill_sub_order_detail_inf
+    *
     * @author tzq
     * @time 2016-8-29
     * @param sqlContext
@@ -5506,59 +5524,59 @@ object SparkDB22Hive {
              |insert overwrite table hive_trans_log partition (part_msg_settle_dt)
              |select
              |log.seq_id                   ,
-             |log.trans_tfr_tm             ,
-             |log.sys_tra_no               ,
-             |log.acpt_ins_id_cd           ,
-             |log.fwd_ins_id_cd            ,
-             |log.rcv_ins_id_cd            ,
-             |log.oper_module              ,
-             |log.um_trans_id              ,
-             |log.msg_tp                   ,
-             |log.cdhd_fk                  ,
-             |log.bill_id                  ,
-             |log.bill_tp                  ,
-             |log.bill_bat_no              ,
-             |NULL as bill_inf             ,
-             |log.card_no                  ,
-             |log.proc_cd                  ,
-             |log.trans_at                 ,
-             |log.trans_curr_cd            ,
-             |log.settle_at                ,
-             |log.settle_curr_cd           ,
-             |log.card_accptr_local_tm     ,
-             |log.card_accptr_local_dt     ,
-             |log.expire_dt                ,
-             |log.msg_settle_dt            ,
-             |log.mchnt_tp                 ,
-             |log.pos_entry_md_cd          ,
-             |log.pos_cond_cd              ,
-             |log.pos_pin_capture_cd       ,
-             |log.retri_ref_no             ,
-             |log.auth_id_resp_cd          ,
-             |log.resp_cd                  ,
-             |log.notify_st                ,
-             |log.card_accptr_term_id      ,
-             |log.card_accptr_cd           ,
-             |log.card_accptr_nm_addr      ,
-             |NULL as addn_private_data    ,
+             |trim(log.trans_tfr_tm)           ,
+             |trim(log.sys_tra_no)             ,
+             |trim(log.acpt_ins_id_cd)         ,
+             |trim(log.fwd_ins_id_cd)          ,
+             |trim(log.rcv_ins_id_cd)          ,
+             |trim(log.oper_module)            ,
+             |trim(log.um_trans_id)            ,
+             |trim(log.msg_tp)                 ,
+             |trim(log.cdhd_fk)                ,
+             |trim(log.bill_id)                ,
+             |trim(log.bill_tp)                ,
+             |trim(log.bill_bat_no)            ,
+             |null as bill_inf             ,
+             |trim(log.card_no)                ,
+             |trim(log.proc_cd)                ,
+             |trim(log.trans_at)               ,
+             |trim(log.trans_curr_cd)          ,
+             |trim(log.settle_at)              ,
+             |trim(log.settle_curr_cd)         ,
+             |trim(log.card_accptr_local_tm)   ,
+             |trim(log.card_accptr_local_dt)   ,
+             |trim(log.expire_dt)              ,
+             |trim(log.msg_settle_dt)          ,
+             |trim(log.mchnt_tp)               ,
+             |trim(log.pos_entry_md_cd)        ,
+             |trim(log.pos_cond_cd)            ,
+             |trim(log.pos_pin_capture_cd)     ,
+             |trim(log.retri_ref_no)           ,
+             |trim(log.auth_id_resp_cd)        ,
+             |trim(log.resp_cd)                ,
+             |trim(log.notify_st)              ,
+             |trim(log.card_accptr_term_id)    ,
+             |trim(log.card_accptr_cd)         ,
+             |trim(log.card_accptr_nm_addr)    ,
+             |null as addn_private_data    ,
              |log.udf_fld                  ,
-             |log.addn_at                  ,
+             |trim(log.addn_at)                ,
              |log.orig_data_elemnt         ,
              |log.acct_id_1                ,
              |log.acct_id_2                ,
-             |NULL as resv_fld             ,
+             |null as resv_fld             ,
              |log.cdhd_auth_inf            ,
-             |log.sys_settle_dt            ,
-             |log.recncl_in                ,
-             |log.match_in                 ,
+             |trim(log.sys_settle_dt)          ,
+             |trim(log.recncl_in)              ,
+             |trim(log.match_in)               ,
              |log.trans_proc_start_ts      ,
              |log.trans_proc_end_ts        ,
-             |log.sys_det_cd               ,
-             |log.sys_err_cd               ,
-             |log.sec_ctrl_inf             ,
-             |log.card_seq                 ,
+             |trim(log.sys_det_cd)             ,
+             |trim(log.sys_err_cd)             ,
+             |trim(log.sec_ctrl_inf)           ,
+             |trim(log.card_seq)               ,
              |log.rec_upd_ts               ,
-             |NULL as dtl_inq_data         ,
+             |null as dtl_inq_data         ,
              |concat_ws('-',substr(log.msg_settle_dt,1,4),substr(log.msg_settle_dt,5,2),substr(log.msg_settle_dt,7,2)) as p_settle_dt
              |from db2_viw_chacc_acc_trans_log log
         """.stripMargin)
@@ -5600,79 +5618,79 @@ object SparkDB22Hive {
           s"""
              |insert overwrite table hive_swt_log partition (part_trans_dt)
              |select
-             |log.tfr_dt_tm                ,
-             |log.sys_tra_no               ,
-             |log.acpt_ins_id_cd           ,
-             |log.msg_fwd_ins_id_cd        ,
-             |log.pri_key1                 ,
-             |log.fwd_chnl_head            ,
-             |log.chswt_plat_seq           ,
-             |log.trans_tm                 ,
-             |log.trans_dt                 ,
-             |log.cswt_settle_dt           ,
-             |log.internal_trans_tp        ,
-             |log.settle_trans_id          ,
-             |log.trans_tp                 ,
-             |log.cups_settle_dt           ,
-             |log.msg_tp                   ,
-             |log.pri_acct_no              ,
-             |log.card_bin                 ,
-             |log.proc_cd                  ,
-             |log.req_trans_at             ,
-             |log.resp_trans_at            ,
-             |log.trans_curr_cd            ,
-             |log.trans_tot_at             ,
-             |log.iss_ins_id_cd            ,
-             |log.launch_trans_tm          ,
-             |log.launch_trans_dt          ,
-             |log.mchnt_tp                 ,
-             |log.pos_entry_md_cd          ,
-             |log.card_seq_id              ,
-             |log.pos_cond_cd              ,
-             |log.pos_pin_capture_cd       ,
-             |log.retri_ref_no             ,
-             |log.term_id                  ,
-             |log.mchnt_cd                 ,
-             |log.card_accptr_nm_loc       ,
-             |log.sec_related_ctrl_inf     ,
-             |log.orig_data_elemts         ,
-             |log.rcv_ins_id_cd            ,
-             |log.fwd_proc_in              ,
-             |log.rcv_proc_in              ,
-             |log.proj_tp                  ,
-             |log.usr_id                   ,
-             |log.conv_usr_id              ,
-             |log.trans_st                 ,
-             |null as inq_dtl_req          ,
-             |null as inq_dtl_resp         ,
-             |log.iss_ins_resv             ,
-             |null as ic_flds              ,
-             |log.cups_def_fld             ,
-             |null as id_no                ,
-             |log.cups_resv                ,
-             |log.acpt_ins_resv            ,
-             |log.rout_ins_id_cd           ,
-             |log.sub_rout_ins_id_cd       ,
-             |log.recv_access_resp_cd      ,
-             |log.chswt_resp_cd            ,
-             |log.chswt_err_cd             ,
-             |log.resv_fld1                ,
-             |log.resv_fld2                ,
-             |log.to_ts                    ,
-             |log.rec_upd_ts               ,
-             |log.rec_crt_ts               ,
-             |log.settle_at                ,
-             |log.external_amt             ,
-             |log.discount_at              ,
-             |log.card_pay_at              ,
-             |log.right_purchase_at        ,
-             |log.recv_second_resp_cd      ,
-             |log.req_acpt_ins_resv        ,
-             |NULL as log_id                   ,
-             |NULL as conv_acct_no             ,
-             |NULL as inner_pro_ind            ,
-             |NULL as acct_proc_in             ,
-             |NULL as order_id                 ,
+             |trim(log.tfr_dt_tm)                ,
+             |trim(log.sys_tra_no)               ,
+             |trim(log.acpt_ins_id_cd)           ,
+             |trim(log.msg_fwd_ins_id_cd)        ,
+             |log.pri_key1                       ,
+             |log.fwd_chnl_head                  ,
+             |log.chswt_plat_seq                 ,
+             |trim(log.trans_tm)                 ,
+             |trim(log.trans_dt)                 ,
+             |trim(log.cswt_settle_dt)           ,
+             |trim(log.internal_trans_tp)        ,
+             |trim(log.settle_trans_id)          ,
+             |trim(log.trans_tp)                 ,
+             |trim(log.cups_settle_dt)           ,
+             |trim(log.msg_tp)                   ,
+             |trim(log.pri_acct_no)              ,
+             |trim(log.card_bin)                 ,
+             |trim(log.proc_cd)                  ,
+             |log.req_trans_at                   ,
+             |log.resp_trans_at                  ,
+             |trim(log.trans_curr_cd)            ,
+             |log.trans_tot_at                   ,
+             |trim(log.iss_ins_id_cd)            ,
+             |trim(log.launch_trans_tm)          ,
+             |trim(log.launch_trans_dt)          ,
+             |trim(log.mchnt_tp)                 ,
+             |trim(log.pos_entry_md_cd)          ,
+             |trim(log.card_seq_id)              ,
+             |trim(log.pos_cond_cd)              ,
+             |trim(log.pos_pin_capture_cd)       ,
+             |trim(log.retri_ref_no)             ,
+             |trim(log.term_id)                  ,
+             |trim(log.mchnt_cd)                 ,
+             |trim(log.card_accptr_nm_loc)       ,
+             |trim(log.sec_related_ctrl_inf)     ,
+             |log.orig_data_elemts               ,
+             |trim(log.rcv_ins_id_cd)            ,
+             |trim(log.fwd_proc_in)              ,
+             |trim(log.rcv_proc_in)              ,
+             |trim(log.proj_tp)                  ,
+             |log.usr_id                         ,
+             |log.conv_usr_id                    ,
+             |trim(log.trans_st)                 ,
+             |null as inq_dtl_req                ,
+             |null as inq_dtl_resp               ,
+             |log.iss_ins_resv                   ,
+             |null as ic_flds                    ,
+             |log.cups_def_fld                   ,
+             |null as id_no                      ,
+             |log.cups_resv                      ,
+             |log.acpt_ins_resv                  ,
+             |trim(log.rout_ins_id_cd)           ,
+             |trim(log.sub_rout_ins_id_cd)       ,
+             |trim(log.recv_access_resp_cd)      ,
+             |trim(log.chswt_resp_cd)            ,
+             |trim(log.chswt_err_cd)             ,
+             |log.resv_fld1                      ,
+             |log.resv_fld2                      ,
+             |log.to_ts                          ,
+             |log.rec_upd_ts                     ,
+             |log.rec_crt_ts                     ,
+             |log.settle_at                      ,
+             |log.external_amt                   ,
+             |log.discount_at                    ,
+             |log.card_pay_at                    ,
+             |log.right_purchase_at              ,
+             |trim(log.recv_second_resp_cd)      ,
+             |log.req_acpt_ins_resv              ,
+             |null as log_id                     ,
+             |null as conv_acct_no               ,
+             |null as inner_pro_ind              ,
+             |null as acct_proc_in               ,
+             |null as order_id                   ,
              |concat_ws('-',substr(log.trans_dt,1,4),substr(log.trans_dt,5,2),substr(log.trans_dt,7,2)) as p_trans_dt
              |from db2_viw_chmgm_swt_log log
         """.stripMargin)
