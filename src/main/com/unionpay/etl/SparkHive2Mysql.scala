@@ -4314,15 +4314,15 @@ object SparkHive2Mysql {
       val results =sqlContext.sql(
         s"""
            |SELECT
-           |    A.FIRST_PARA_NM     AS FIRST_IND_NM,
-           |    A.SECOND_PARA_NM    AS SECOND_IND_NM,
-           |    A.TRANS_DT          AS REPORT_DT,
-           |    A.TRANSCNT          AS TRANS_CNT,
-           |    B.SUCTRANSCNT       AS SUC_TRANS_CNT,
-           |    B.TRANSAT           AS TRANS_AT,
-           |    B.DISCOUNTAT        AS DISCOUNT_AT,
-           |    B.TRANSUSRCNT       AS TRANS_USR_CNT,
-           |    B.TRANSCARDCNT      AS TRANS_CARD_CNT
+           |    A.FIRST_PARA_NM    AS FIRST_IND_NM,
+           |    A.SECOND_PARA_NM   AS SECOND_IND_NM,
+           |    A.TRANS_DT         AS REPORT_DT,
+           |    A.TRANSCNT         AS TRANS_CNT,
+           |    B.SUCTRANSCNT      AS SUC_TRANS_CNT,
+           |    B.TRANSAT          AS TRANS_AT,
+           |    B.DISCOUNTAT       AS DISCOUNT_AT,
+           |    B.TRANSUSRCNT      AS TRANS_USR_CNT,
+           |    B.TRANSCARDCNT     AS TRANS_CARD_CNT
            |FROM
            |    (
            |        SELECT
@@ -4359,11 +4359,13 @@ object SparkHive2Mysql {
            |            (
            |                TRANS.BILL_ID=BILL.BILL_ID)
            |        WHERE
-           |            TRANS.UM_TRANS_ID IN ('AC02000065','AC02000063')
+           |            TRANS.UM_TRANS_ID IN ('AC02000065',
+           |                                  'AC02000063')
            |        AND STR.REC_ID IS NOT NULL
-           |        AND BILL.BILL_SUB_TP IN ('01','03')
-           |        AND TRANS.TRANS_DT >= '$start_dt'
-           |        AND TRANS.TRANS_DT <= '$end_dt'
+           |        AND BILL.BILL_SUB_TP IN ('01',
+           |                                 '03')
+           |        AND TRANS.PART_TRANS_DT >= '$start_dt'
+           |        AND TRANS.PART_TRANS_DT <= '$end_dt'
            |        GROUP BY
            |            MP.MCHNT_PARA_CN_NM,
            |            MP1.MCHNT_PARA_CN_NM,
@@ -4414,8 +4416,8 @@ object SparkHive2Mysql {
            |        AND STR.REC_ID IS NOT NULL
            |        AND BILL.BILL_SUB_TP IN ('01',
            |                                 '03')
-           |        AND TRANS.TRANS_DT >= '$start_dt'
-           |        AND TRANS.TRANS_DT <= '$end_dt'
+           |        AND TRANS.PART_TRANS_DT >= '$start_dt'
+           |        AND TRANS.PART_TRANS_DT <= '$end_dt'
            |        GROUP BY
            |            MP.MCHNT_PARA_CN_NM,
            |            MP1.MCHNT_PARA_CN_NM,
@@ -4455,7 +4457,7 @@ object SparkHive2Mysql {
            |            (
            |                SELECT
            |                    MCHNT_CD,
-           |                    MAX(THIRD_PARTY_INS_ID) OVER (PARTITION BY MCHNT_CD)
+           |                    MAX(THIRD_PARTY_INS_ID) OVER (PARTITION BY MCHNT_CD) AS THIRD_PARTY_INS_ID
            |                FROM
            |                    HIVE_STORE_TERM_RELATION) STR1
            |        ON
@@ -4465,7 +4467,7 @@ object SparkHive2Mysql {
            |            HIVE_PREFERENTIAL_MCHNT_INF PMI
            |        ON
            |            (
-           |                STR.THIRD_PARTY_INS_ID = PMI.MCHNT_CD)
+           |                STR1.THIRD_PARTY_INS_ID = PMI.MCHNT_CD)
            |        LEFT JOIN
            |            HIVE_MCHNT_PARA MP
            |        ON
@@ -4487,8 +4489,8 @@ object SparkHive2Mysql {
            |        AND BILL.BILL_SUB_TP IN ('01',
            |                                 '03')
            |        AND STR.REC_ID IS NULL
-           |        AND TRANS.TRANS_DT >= '$start_dt'
-           |        AND TRANS.TRANS_DT <= '$end_dt'
+           |        AND TRANS.PART_TRANS_DT >= '$start_dt'
+           |        AND TRANS.PART_TRANS_DT <= '$end_dt'
            |        GROUP BY
            |            MP.MCHNT_PARA_CN_NM,
            |            MP1.MCHNT_PARA_CN_NM,
@@ -4516,7 +4518,7 @@ object SparkHive2Mysql {
            |            (
            |                SELECT
            |                    MCHNT_CD,
-           |                    MAX(THIRD_PARTY_INS_ID) OVER (PARTITION BY MCHNT_CD)
+           |                    MAX(THIRD_PARTY_INS_ID) OVER (PARTITION BY MCHNT_CD) AS THIRD_PARTY_INS_ID
            |                FROM
            |                    HIVE_STORE_TERM_RELATION) STR1
            |        ON
@@ -4526,7 +4528,7 @@ object SparkHive2Mysql {
            |            HIVE_PREFERENTIAL_MCHNT_INF PMI
            |        ON
            |            (
-           |                STR.THIRD_PARTY_INS_ID = PMI.MCHNT_CD)
+           |                STR1.THIRD_PARTY_INS_ID = PMI.MCHNT_CD)
            |        LEFT JOIN
            |            HIVE_MCHNT_PARA MP
            |        ON
@@ -4549,8 +4551,8 @@ object SparkHive2Mysql {
            |        AND BILL.BILL_SUB_TP IN ('01',
            |                                 '03')
            |        AND STR.REC_ID IS NULL
-           |        AND TRANS.TRANS_DT >= '$start_dt'
-           |        AND TRANS.TRANS_DT <= '$end_dt'
+           |        AND TRANS.PART_TRANS_DT >= '$start_dt'
+           |        AND TRANS.PART_TRANS_DT <= '$end_dt'
            |        GROUP BY
            |            MP.MCHNT_PARA_CN_NM,
            |            MP1.MCHNT_PARA_CN_NM,
@@ -4560,7 +4562,6 @@ object SparkHive2Mysql {
            |        A.FIRST_PARA_NM = B.FIRST_PARA_NM
            |    AND A.SECOND_PARA_NM = B.SECOND_PARA_NM
            |    AND A.TRANS_DT = B.TRANS_DT )
-           |
            |
           """.stripMargin)
       println(s"#### JOB_DM_36 spark sql 清洗数据完成时间为:" + DateUtils.getCurrentSystemTime())
