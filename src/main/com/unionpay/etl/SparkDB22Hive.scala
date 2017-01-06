@@ -3309,6 +3309,7 @@ object SparkDB22Hive {
              |from
              |spark_hive_offline_point_trans
          """.stripMargin)
+        println("#### JOB_HV_29 动态分区插入完成的时间为："+DateUtils.getCurrentSystemTime())
       } else {
         println("#### JOB_HV_29 spark sql 逻辑处理后无数据！")
       }
