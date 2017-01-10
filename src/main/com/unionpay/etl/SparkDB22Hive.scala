@@ -5329,7 +5329,13 @@ object SparkDB22Hive {
              |dtl.pos_entry_md_cd        ,
              |dtl.udf_fld                ,
              |dtl.card_accptr_nm_addr    ,
-             |concat_ws('-',substr(dtl.trans_dt,1,4),substr(dtl.trans_dt,5,2),substr(dtl.trans_dt,7,2)) as p_trans_dt
+             |case
+             |	when
+             |		substr(dtl.trans_dt,1,4) between '0001' and '9999' and substr(dtl.trans_dt,5,2) between '01' and '12' and
+             |		substr(dtl.trans_dt,7,2) between '01' and substr(last_day(concat_ws('-',substr(dtl.trans_dt,1,4),substr(dtl.trans_dt,5,2),substr(dtl.trans_dt,7,2))),9,2)
+             |	then concat_ws('-',substr(dtl.trans_dt,1,4),substr(dtl.trans_dt,5,2),substr(dtl.trans_dt,7,2))
+             |	else substr(dtl.rec_crt_ts,1,10)
+             |end as p_trans_dt
              |from db2_viw_chacc_acc_trans_dtl dtl
            """.stripMargin)
         println("#### JOB_HV_80 动态分区插入hive_trans_dtl 成功！")
@@ -5424,7 +5430,13 @@ object SparkDB22Hive {
              |trim(log.card_seq)               ,
              |log.rec_upd_ts               ,
              |null as dtl_inq_data         ,
-             |concat_ws('-',substr(log.msg_settle_dt,1,4),substr(log.msg_settle_dt,5,2),substr(log.msg_settle_dt,7,2)) as p_settle_dt
+             |case
+             |	when
+             |		substr(log.msg_settle_dt,1,4) between '0001' and '9999' and substr(log.msg_settle_dt,5,2) between '01' and '12' and
+             |		substr(log.msg_settle_dt,7,2) between '01' and substr(last_day(concat_ws('-',substr(log.msg_settle_dt,1,4),substr(log.msg_settle_dt,5,2),substr(log.msg_settle_dt,7,2))),9,2)
+             |	then concat_ws('-',substr(log.msg_settle_dt,1,4),substr(log.msg_settle_dt,5,2),substr(log.msg_settle_dt,7,2))
+             |	else substr(log.rec_upd_ts,1,10)
+             |end as p_settle_dt
              |from db2_viw_chacc_acc_trans_log log
         """.stripMargin)
         println("#### JOB_HV_81 动态分区插入hive_trans_log 成功！")
@@ -5538,7 +5550,13 @@ object SparkDB22Hive {
              |null as inner_pro_ind              ,
              |null as acct_proc_in               ,
              |null as order_id                   ,
-             |concat_ws('-',substr(log.trans_dt,1,4),substr(log.trans_dt,5,2),substr(log.trans_dt,7,2)) as p_trans_dt
+             |case
+             |	when
+             |		substr(log.trans_dt,1,4) between '0001' and '9999' and substr(log.trans_dt,5,2) between '01' and '12' and
+             |		substr(log.trans_dt,7,2) between '01' and substr(last_day(concat_ws('-',substr(log.trans_dt,1,4),substr(log.trans_dt,5,2),substr(log.trans_dt,7,2))),9,2)
+             |	then concat_ws('-',substr(log.trans_dt,1,4),substr(log.trans_dt,5,2),substr(log.trans_dt,7,2))
+             |	else substr(log.rec_crt_ts,1,10)
+             |end as p_trans_dt
              |from db2_viw_chmgm_swt_log log
         """.stripMargin)
         println("#### JOB_HV_82 动态分区插入hive_swt_log 成功！")
