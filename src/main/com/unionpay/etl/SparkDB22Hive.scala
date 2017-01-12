@@ -3425,7 +3425,11 @@ object SparkDB22Hive {
              |body,
              |terminal_id,
              |extend_params,
-             |trans_dt
+             |case
+             |when trans_dt is not null
+             |then trans_dt
+             |else substr(rec_crt_ts,1,10)
+             |end as p_trans_dt
              |from
              |spark_code_pay_tran_dtl
            """.stripMargin)
