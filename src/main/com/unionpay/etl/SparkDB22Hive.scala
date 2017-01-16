@@ -1226,8 +1226,8 @@ object SparkDB22Hive {
       println("#### JOB_HV_8 注册临时表的系统时间为:"+DateUtils.getCurrentSystemTime())
 
       sqlContext.sql(s"use $hive_dbname")
-      val HIVE_ACC_TRANS = sqlContext.sql(s"select * from HIVE_ACC_TRANS where part_trans_dt>='$start_dt' and part_trans_dt<='$end_dt'")
-      HIVE_ACC_TRANS.registerTempTable("HIVE_ACC_TRANS")
+      val hive_trans_dtl = sqlContext.sql(s"select * from hive_trans_dtl where part_trans_dt>='$start_dt' and part_trans_dt<='$end_dt'")
+      hive_trans_dtl.registerTempTable("hive_trans_dtl")
 
 
       val results = sqlContext.sql(
@@ -1265,7 +1265,7 @@ object SparkDB22Hive {
          |CARD_ACCPTR_TERM_ID,
          |CARD_ACCPTR_CD
          |FROM
-         |HIVE_ACC_TRANS
+         |hive_trans_dtl
          |) B
          |ON A.MCHNT_CD = B.CARD_ACCPTR_CD AND A.TERM_ID = B.CARD_ACCPTR_TERM_ID
          |) tempa
@@ -1307,7 +1307,7 @@ object SparkDB22Hive {
          |CARD_ACCPTR_TERM_ID,
          |CARD_ACCPTR_CD
          |FROM
-         |HIVE_ACC_TRANS
+         |hive_trans_dtl
          |) B
          |ON A.MCHNT_CD = B.CARD_ACCPTR_CD AND A.TERM_ID = B.CARD_ACCPTR_TERM_ID
          |) tempb
@@ -5263,7 +5263,7 @@ object SparkDB22Hive {
 
   /**
     * JOB_HV_80/11-30
-    * hive_acc_trans->viw_chacc_acc_trans_dtl
+    * hive_trans_dtl->viw_chacc_acc_trans_dtl
     * Code by Xue
     *
     * @param sqlContext
@@ -5271,7 +5271,7 @@ object SparkDB22Hive {
     * @param end_dt
     */
   def JOB_HV_80 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
-    println("#### JOB_HV_80(hive_acc_trans->viw_chacc_acc_trans_dtl)")
+    println("#### JOB_HV_80(hive_trans_dtl->viw_chacc_acc_trans_dtl)")
 
     DateUtils.timeCost("JOB_HV_80"){
       val start_day = start_dt.replace("-","")

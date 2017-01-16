@@ -75,8 +75,7 @@ object SparkHive2Mysql {
       case "JOB_DM_5"  => JOB_DM_5(sqlContext,start_dt,end_dt,interval)    //CODE BY TZQ
       case "JOB_DM_6"  => JOB_DM_6(sqlContext,start_dt,end_dt,interval)    //CODE BY TZQ
       case "JOB_DM_7"  => JOB_DM_7(sqlContext,start_dt,end_dt,interval)    //CODE BY XTP    
-      case "JOB_DM_8"  => JOB_DM_8(sqlContext,start_dt,end_dt,interval)    //CODE BY XTP    
-      case "JOB_DM_54" =>JOB_DM_54(sqlContext,start_dt,end_dt)   //CODE BY XTP 无数据    
+      case "JOB_DM_8"  => JOB_DM_8(sqlContext,start_dt,end_dt,interval)    //CODE BY XTP
       case "JOB_DM_10" =>JOB_DM_10(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ
       case "JOB_DM_11" =>JOB_DM_11(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ
       case "JOB_DM_12" =>JOB_DM_12(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ  [有数据，测试9/8-9/9两天 依赖源表HIVE_TICKET_BILL_ACCT_ADJ_TASK中无数据]
@@ -120,6 +119,13 @@ object SparkHive2Mysql {
       case "JOB_DM_50" =>JOB_DM_50(sqlContext,start_dt,end_dt)   //CODE BY TZQ  [测试出错，待解决]
       case "JOB_DM_51" =>JOB_DM_51(sqlContext,start_dt,end_dt)   //CODE BY TZQ  [测试出错，待解决]
       case "JOB_DM_52" =>JOB_DM_52(sqlContext,start_dt,end_dt)   //CODE BY TZQ  [测试出错，待解决]
+      case "JOB_DM_53"  => JOB_DM_53(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP   [测试出错，待解决]
+      case "JOB_DM_54" =>JOB_DM_54(sqlContext,start_dt,end_dt)   //CODE BY XTP 无数据
+      case "JOB_DM_56"  => JOB_DM_56(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP   [测试出错，待解决]
+      case "JOB_DM_57"  => JOB_DM_57(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP   [测试出错，待解决]
+      case "JOB_DM_58"  => JOB_DM_58(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP
+      case "JOB_DM_59"  => JOB_DM_59(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP
+      case "JOB_DM_60"  => JOB_DM_60(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP
       case "JOB_DM_79"  => JOB_DM_79(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP
       case "JOB_DM_80"  => JOB_DM_80(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP    
       case "JOB_DM_81"  => JOB_DM_81(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP    
@@ -136,6 +142,7 @@ object SparkHive2Mysql {
       case "JOB_DM_92"  => JOB_DM_92(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ  [测试完成]
       case "JOB_DM_93"  => JOB_DM_93(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ  [测试完成]
       case "JOB_DM_94"  => JOB_DM_94(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ  [测试完成]
+      case "JOB_DM_97"  => JOB_DM_97(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP
       case _ => println("#### No Case Job,Please Input JobName")
     }
 
@@ -6412,6 +6419,240 @@ object SparkHive2Mysql {
 
 
   /**
+    * JOB_DM_53 20170105
+    * dm_val_tkt_act_mchnt_ind_dly->hive_bill_order_trans,hive_bill_sub_order_trans,hive_ticket_bill_bas_inf,hive_preferential_mchnt_inf
+    * Code by Xue
+    *
+    * @param sqlContext
+    * @return
+    */
+  def JOB_DM_53(implicit sqlContext: HiveContext, start_dt: String, end_dt: String, interval: Int) = {
+    println("###JOB_DM_53(dm_val_tkt_act_mchnt_ind_dly->hive_bill_order_trans,hive_bill_sub_order_trans,hive_ticket_bill_bas_inf,hive_preferential_mchnt_inf)")
+    DateUtils.timeCost("JOB_DM_53") {
+      UPSQL_JDBC.delete(s"dm_val_tkt_act_mchnt_ind_dly", "report_dt", start_dt, end_dt)
+      println("#### JOB_DM_53 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
+      println(s"#### JOB_DM_53  spark sql 清洗数据开始时间为:" + DateUtils.getCurrentSystemTime())
+      sqlContext.sql(s"use $hive_dbname")
+
+      println("开始创建临时表Spark_JOB_DM_53_A ")
+      val JOB_DM_53_A =sqlContext.sql(
+        s"""
+           |        SELECT
+           |            MP.MCHNT_PARA_CN_NM  AS FIRST_PARA_NM,
+           |            MP1.MCHNT_PARA_CN_NM AS SECOND_PARA_NM,
+           |            TRANS.TRANS_DT,
+           |            COUNT(1) AS TRANSCNT,
+           |            COUNT(DISTINCT TRANS.CDHD_USR_ID) AS TRANSUSRCNT
+           |        FROM
+           |            HIVE_BILL_ORDER_TRANS TRANS
+           |        LEFT JOIN
+           |            HIVE_BILL_SUB_ORDER_TRANS SUB_TRANS
+           |        ON
+           |            (
+           |                TRANS.BILL_ORDER_ID = SUB_TRANS.BILL_ORDER_ID)
+           |        LEFT JOIN
+           |            HIVE_TICKET_BILL_BAS_INF BILL
+           |        ON
+           |            (
+           |                SUB_TRANS.BILL_ID=BILL.BILL_ID)
+           |        INNER JOIN
+           |            (
+           |                SELECT
+           |                    MCHNT_CD,
+           |                    MAX(THIRD_PARTY_INS_ID) OVER (PARTITION BY MCHNT_CD) AS THIRD_PARTY_INS_ID
+           |                FROM
+           |                    HIVE_STORE_TERM_RELATION) STR
+           |        ON
+           |            (
+           |                TRANS.MCHNT_CD = STR.MCHNT_CD)
+           |        LEFT JOIN
+           |            HIVE_PREFERENTIAL_MCHNT_INF PMI
+           |        ON
+           |            (
+           |                STR.THIRD_PARTY_INS_ID = PMI.MCHNT_CD)
+           |        LEFT JOIN
+           |            HIVE_MCHNT_PARA MP
+           |        ON
+           |            (
+           |                PMI.MCHNT_FIRST_PARA = MP.MCHNT_PARA_ID)
+           |        LEFT JOIN
+           |            HIVE_MCHNT_PARA MP1
+           |        ON
+           |            (
+           |                PMI.MCHNT_SECOND_PARA = MP1.MCHNT_PARA_ID)
+           |        WHERE
+           |            BILL.BILL_SUB_TP <> '08'
+           |        AND TRANS.PART_TRANS_DT >= '$start_dt'
+           |        AND TRANS.PART_TRANS_DT <= '$end_dt'
+           |        GROUP BY
+           |            MP.MCHNT_PARA_CN_NM,
+           |            MP1.MCHNT_PARA_CN_NM,
+           |            TRANS.TRANS_DT
+           """.stripMargin)
+      JOB_DM_53_A.registerTempTable("Spark_JOB_DM_53_A")
+      println("Spark_JOB_DM_53_A 临时表创建成功")
+
+      val JOB_DM_53_B =sqlContext.sql(
+        s"""
+           |SELECT
+           |            MP.MCHNT_PARA_CN_NM  AS FIRST_PARA_NM,
+           |            MP1.MCHNT_PARA_CN_NM AS SECOND_PARA_NM,
+           |            TRANS.TRANS_DT,
+           |            COUNT(DISTINCT TRANS.CDHD_USR_ID) AS PAYUSRCNT
+           |        FROM
+           |            HIVE_BILL_ORDER_TRANS TRANS
+           |        LEFT JOIN
+           |            HIVE_BILL_SUB_ORDER_TRANS SUB_TRANS
+           |        ON
+           |            (
+           |                TRANS.BILL_ORDER_ID = SUB_TRANS.BILL_ORDER_ID)
+           |        LEFT JOIN
+           |            HIVE_TICKET_BILL_BAS_INF BILL
+           |        ON
+           |            (
+           |                SUB_TRANS.BILL_ID=BILL.BILL_ID)
+           |        INNER JOIN
+           |            (
+           |                SELECT
+           |                    MCHNT_CD,
+           |                    MAX(THIRD_PARTY_INS_ID) OVER (PARTITION BY MCHNT_CD) AS THIRD_PARTY_INS_ID
+           |                FROM
+           |                    HIVE_STORE_TERM_RELATION) STR
+           |        ON
+           |            (
+           |                TRANS.MCHNT_CD = STR.MCHNT_CD)
+           |        LEFT JOIN
+           |            HIVE_PREFERENTIAL_MCHNT_INF PMI
+           |        ON
+           |            (
+           |                STR.THIRD_PARTY_INS_ID = PMI.MCHNT_CD)
+           |        LEFT JOIN
+           |            HIVE_MCHNT_PARA MP
+           |        ON
+           |            (
+           |                PMI.MCHNT_FIRST_PARA = MP.MCHNT_PARA_ID)
+           |        LEFT JOIN
+           |            HIVE_MCHNT_PARA MP1
+           |        ON
+           |            (
+           |                PMI.MCHNT_SECOND_PARA = MP1.MCHNT_PARA_ID)
+           |        WHERE
+           |            BILL.BILL_SUB_TP <> '08'
+           |        AND TRANS.ORDER_ST IN ('00',
+           |                               '01',
+           |                               '02',
+           |                               '03',
+           |                               '04')
+           |        AND TRANS.PART_TRANS_DT >= '$start_dt'
+           |        AND TRANS.PART_TRANS_DT <= '$end_dt'
+           |        GROUP BY
+           |            MP.MCHNT_PARA_CN_NM,
+           |            MP1.MCHNT_PARA_CN_NM,
+           |            TRANS.TRANS_DT
+           """.stripMargin)
+      JOB_DM_53_B.registerTempTable("Spark_JOB_DM_53_B")
+
+      val JOB_DM_53_C =sqlContext.sql(
+        s"""
+           |SELECT
+           |            MP.MCHNT_PARA_CN_NM  AS FIRST_PARA_NM,
+           |            MP1.MCHNT_PARA_CN_NM AS SECOND_PARA_NM,
+           |            TRANS.TRANS_DT,
+           |            COUNT(1)                          AS SUCTRANSCNT,
+           |            SUM(BILL.BILL_ORIGINAL_PRICE)     AS BILL_ORIGINAL_PRICE,
+           |            SUM(BILL.BILL_PRICE)              AS BILL_PRICE,
+           |            COUNT(DISTINCT TRANS.CDHD_USR_ID) AS PAYSUCUSRCNT
+           |        FROM
+           |            HIVE_BILL_ORDER_TRANS TRANS
+           |        LEFT JOIN
+           |            HIVE_BILL_SUB_ORDER_TRANS SUB_TRANS
+           |        ON
+           |            (
+           |                TRANS.BILL_ORDER_ID = SUB_TRANS.BILL_ORDER_ID)
+           |        LEFT JOIN
+           |            HIVE_TICKET_BILL_BAS_INF BILL
+           |        ON
+           |            (
+           |                SUB_TRANS.BILL_ID=BILL.BILL_ID)
+           |        INNER JOIN
+           |            (
+           |                SELECT
+           |                    MCHNT_CD,
+           |                    MAX(THIRD_PARTY_INS_ID) OVER (PARTITION BY MCHNT_CD) AS THIRD_PARTY_INS_ID
+           |                FROM
+           |                    HIVE_STORE_TERM_RELATION) STR
+           |        ON
+           |            (
+           |                TRANS.MCHNT_CD = STR.MCHNT_CD)
+           |        LEFT JOIN
+           |            HIVE_PREFERENTIAL_MCHNT_INF PMI
+           |        ON
+           |            (
+           |                STR.THIRD_PARTY_INS_ID = PMI.MCHNT_CD)
+           |        LEFT JOIN
+           |            HIVE_MCHNT_PARA MP
+           |        ON
+           |            (
+           |                PMI.MCHNT_FIRST_PARA = MP.MCHNT_PARA_ID)
+           |        LEFT JOIN
+           |            HIVE_MCHNT_PARA MP1
+           |        ON
+           |            (
+           |                PMI.MCHNT_SECOND_PARA = MP1.MCHNT_PARA_ID)
+           |        WHERE
+           |            BILL.BILL_SUB_TP <> '08'
+           |        AND TRANS.ORDER_ST = '00'
+           |        AND TRANS.PART_TRANS_DT >= '$start_dt'
+           |        AND TRANS.PART_TRANS_DT <= '$end_dt'
+           |        GROUP BY
+           |            MP.MCHNT_PARA_CN_NM,
+           |            MP1.MCHNT_PARA_CN_NM,
+           |            TRANS.TRANS_DT
+           """.stripMargin)
+      JOB_DM_53_C.registerTempTable("Spark_JOB_DM_53_C")
+
+      val results = sqlContext.sql(
+        s"""
+           |SELECT
+           |    A.FIRST_PARA_NM as FIRST_IND_NM,
+           |    A.SECOND_PARA_NM as SECOND_IND_NM,
+           |    A.TRANS_DT as REPORT_DT,
+           |    A.TRANSCNT as TRANS_CNT,
+           |    C.SUCTRANSCNT as SUC_TRANS_CNT,
+           |    C.BILL_ORIGINAL_PRICE as BILL_ORIGINAL_PRICE,
+           |    C.BILL_PRICE as BILL_PRICE,
+           |    A.TRANSUSRCNT as TRANS_USR_CNT,
+           |    B.PAYUSRCNT as PAY_USR_CNT,
+           |    C.PAYSUCUSRCNT as PAY_SUC_USR_CNT
+           |FROM
+           |    Spark_JOB_DM_53_A A
+           |    LEFT JOIN Spark_JOB_DM_53_B B
+           |    ON
+           |    (
+           |        A.FIRST_PARA_NM = B.FIRST_PARA_NM
+           |    AND A.SECOND_PARA_NM = B.SECOND_PARA_NM
+           |    AND A.TRANS_DT = B.TRANS_DT )
+           |    LEFT JOIN Spark_JOB_DM_53_C C
+           |    ON
+           |    (
+           |        A.FIRST_PARA_NM = C.FIRST_PARA_NM
+           |    AND A.SECOND_PARA_NM = C.SECOND_PARA_NM
+           |    AND A.TRANS_DT = C.TRANS_DT )
+           |	where A.FIRST_PARA_NM is not null and A.SECOND_PARA_NM is not null
+           | """.stripMargin)
+      println(s"#### JOB_DM_53 spark sql 清洗数据完成时间为:" + DateUtils.getCurrentSystemTime())
+
+      if (!Option(results).isEmpty) {
+        results.save2Mysql("dm_val_tkt_act_mchnt_ind_dly")
+        println(s"#### JOB_DM_53 数据插入完成时间为：" + DateUtils.getCurrentSystemTime())
+      } else {
+        println(s"#### JOB_DM_53 spark sql 清洗数据无结果集！")
+      }
+    }
+  }
+
+
+  /**
     * JOB_DM_54/10-14
     * dm_val_tkt_act_mchnt_tp_dly->hive_bill_order_trans,hive_bill_sub_order_trans
     * Code by Xue
@@ -6633,6 +6874,591 @@ object SparkHive2Mysql {
   }
 
 
+  }
+
+
+
+  /**
+    * JOB_DM_56 20170106
+    * dm_disc_act_mchnt_branch_dly->hive_prize_discount_result,hive_mchnt_inf_wallet,hive_branch_acpt_ins_inf
+    * Code by Xue
+    *
+    * @param sqlContext
+    * @return
+    */
+  def JOB_DM_56(implicit sqlContext: HiveContext, start_dt: String, end_dt: String, interval: Int) = {
+    println("###JOB_DM_56(dm_disc_act_mchnt_branch_dly->hive_prize_discount_result,hive_mchnt_inf_wallet,hive_branch_acpt_ins_inf)")
+    DateUtils.timeCost("JOB_DM_56") {
+      UPSQL_JDBC.delete(s"dm_disc_act_mchnt_branch_dly", "report_dt", start_dt, end_dt)
+      println("#### JOB_DM_56 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
+      println(s"#### JOB_DM_56  spark sql 清洗数据开始时间为:" + DateUtils.getCurrentSystemTime())
+      sqlContext.sql(s"use $hive_dbname")
+      val results = sqlContext.sql(
+        s"""
+           |SELECT
+           |    ACPT_INS.CUP_BRANCH_INS_ID_NM as CUP_BRANCH_INS_ID_NM,
+           |    TRANS.SETTLE_DT as ROPORT_DT,
+           |    COUNT(1)                                 AS TRANS_CNT,
+           |    SUM(TRANS.TRANS_POS_AT)                  AS TRANS_AT,
+           |    SUM(TRANS.TRANS_POS_AT - TRANS.TRANS_AT) AS DISCOUNT_AT
+           |FROM
+           |    HIVE_PRIZE_DISCOUNT_RESULT TRANS
+           |LEFT JOIN
+           |    HIVE_MCHNT_INF_WALLET MCHNT
+           |ON
+           |    (
+           |        TRANS.MCHNT_CD=MCHNT.MCHNT_CD)
+           |LEFT JOIN
+           |    HIVE_BRANCH_ACPT_INS_INF ACPT_INS
+           |ON
+           |    (
+           |        ACPT_INS.INS_ID_CD = CONCAT('000',MCHNT.ACPT_INS_ID_CD))
+           |WHERE
+           |    TRANS.PROD_IN = '0'
+           |AND TRANS.PART_SETTLE_DT >= '$start_dt'
+           |AND TRANS.PART_SETTLE_DT <= '$end_dt'
+           |AND ACPT_INS.CUP_BRANCH_INS_ID_NM is not null
+           |GROUP BY
+           |    ACPT_INS.CUP_BRANCH_INS_ID_NM,
+           |    TRANS.SETTLE_DT
+           | """.stripMargin)
+      println(s"#### JOB_DM_56 spark sql 清洗数据完成时间为:" + DateUtils.getCurrentSystemTime())
+      if (!Option(results).isEmpty) {
+        results.save2Mysql("dm_disc_act_mchnt_branch_dly")
+        println(s"#### JOB_DM_56 数据插入完成时间为：" + DateUtils.getCurrentSystemTime())
+      } else {
+        println(s"#### JOB_DM_56 spark sql 清洗数据无结果集！")
+      }
+    }
+  }
+
+
+
+
+  /**
+    * JOB_DM_57 20170106
+    * dm_disc_act_mchnt_tp_dly->hive_prize_discount_result,hive_mchnt_inf_wallet,hive_mchnt_tp,hive_mchnt_tp_grp
+    * Code by Xue
+    *
+    * @param sqlContext
+    * @return
+    */
+  def JOB_DM_57(implicit sqlContext: HiveContext, start_dt: String, end_dt: String, interval: Int) = {
+    println("###JOB_DM_57(dm_disc_act_mchnt_tp_dly->hive_prize_discount_result,hive_mchnt_inf_wallet,hive_mchnt_tp,hive_mchnt_tp_grp)")
+    DateUtils.timeCost("JOB_DM_57") {
+      UPSQL_JDBC.delete(s"dm_disc_act_mchnt_tp_dly", "report_dt", start_dt, end_dt)
+      println("#### JOB_DM_57 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
+      println(s"#### JOB_DM_57  spark sql 清洗数据开始时间为:" + DateUtils.getCurrentSystemTime())
+      sqlContext.sql(s"use $hive_dbname")
+      val results = sqlContext.sql(
+        s"""
+           |SELECT
+           |    TP_GRP.MCHNT_TP_GRP_DESC_CN AS MCHNT_TP_GRP ,
+           |    TP.MCHNT_TP_DESC_CN         AS MCHNT_TP,
+           |    TRANS.SETTLE_DT as 	REPORT_DT,
+           |    COUNT(1)                                 AS TRANS_CNT,
+           |    SUM(TRANS.TRANS_POS_AT)                  AS TRANS_AT,
+           |    SUM(TRANS.TRANS_POS_AT - TRANS.TRANS_AT) AS DISCOUNT_AT
+           |FROM
+           |    HIVE_PRIZE_DISCOUNT_RESULT TRANS
+           |LEFT JOIN
+           |    HIVE_MCHNT_INF_WALLET MCHNT
+           |ON
+           |    (
+           |        TRANS.MCHNT_CD=MCHNT.MCHNT_CD)
+           |LEFT JOIN
+           |    HIVE_MCHNT_TP TP
+           |ON
+           |    MCHNT.MCHNT_TP=TP.MCHNT_TP
+           |LEFT JOIN
+           |    HIVE_MCHNT_TP_GRP TP_GRP
+           |ON
+           |    TP.MCHNT_TP_GRP=TP_GRP.MCHNT_TP_GRP
+           |WHERE
+           |    TRANS.PROD_IN = '0'
+           |AND TRANS.SETTLE_DT >= '$start_dt'
+           |AND TRANS.SETTLE_DT <= '$end_dt'
+           |AND TP_GRP.MCHNT_TP_GRP_DESC_CN is not null  and TP.MCHNT_TP_DESC_CN is not null
+           |GROUP BY
+           |    TP_GRP.MCHNT_TP_GRP_DESC_CN,
+           |    TP.MCHNT_TP_DESC_CN,
+           |    TRANS.SETTLE_DT
+           | """.stripMargin)
+      println(s"#### JOB_DM_57 spark sql 清洗数据完成时间为:" + DateUtils.getCurrentSystemTime())
+      if (!Option(results).isEmpty) {
+        results.save2Mysql("dm_disc_act_mchnt_tp_dly")
+        println(s"#### JOB_DM_57 数据插入完成时间为：" + DateUtils.getCurrentSystemTime())
+      } else {
+        println(s"#### JOB_DM_57 spark sql 清洗数据无结果集！")
+      }
+    }
+  }
+
+
+  /**
+    * JOB_DM_58 20170110
+    * dm_disc_act_iss_ins_dly->hive_prize_discount_result,hive_card_bind_inf
+    * Code by Xue
+    *
+    * @param sqlContext
+    * @return
+    */
+  def JOB_DM_58(implicit sqlContext: HiveContext, start_dt: String, end_dt: String, interval: Int) = {
+    println("###JOB_DM_58(dm_disc_act_iss_ins_dly->hive_prize_discount_result,hive_card_bind_inf)")
+    DateUtils.timeCost("JOB_DM_58") {
+      UPSQL_JDBC.delete(s"dm_disc_act_iss_ins_dly", "report_dt", start_dt, end_dt)
+      println("#### JOB_DM_58 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
+      println(s"#### JOB_DM_58  spark sql 清洗数据开始时间为:" + DateUtils.getCurrentSystemTime())
+      sqlContext.sql(s"use $hive_dbname")
+      val results = sqlContext.sql(
+        s"""
+           |SELECT
+           |    CBI.ISS_INS_CN_NM as ISS_INS_CN_NM,
+           |    TRANS.SETTLE_DT as REPORT_DT,
+           |    COUNT(1)                                 AS TRANS_CNT,
+           |    SUM(TRANS.TRANS_POS_AT)                  AS TRANS_AT,
+           |    SUM(TRANS.TRANS_POS_AT - TRANS.TRANS_AT) AS DISCOUNT_AT
+           |FROM
+           |    HIVE_PRIZE_DISCOUNT_RESULT TRANS
+           |LEFT JOIN
+           |    HIVE_CARD_BIND_INF CBI
+           |ON
+           |    (
+           |        TRANS.PRI_ACCT_NO = SUBSTR(CBI.BIND_CARD_NO,3))
+           |WHERE
+           |    TRANS.PROD_IN = '0'
+           |AND TRANS.PART_SETTLE_DT >= '$start_dt'
+           |AND TRANS.PART_SETTLE_DT <= '$end_dt'
+           |AND CBI.ISS_INS_CN_NM is not null
+           |GROUP BY
+           |    CBI.ISS_INS_CN_NM,
+           |    TRANS.SETTLE_DT
+           | """.stripMargin)
+      println(s"#### JOB_DM_58 spark sql 清洗数据完成时间为:" + DateUtils.getCurrentSystemTime())
+      if (!Option(results).isEmpty) {
+        results.save2Mysql("dm_disc_act_iss_ins_dly")
+        println(s"#### JOB_DM_58 数据插入完成时间为：" + DateUtils.getCurrentSystemTime())
+      } else {
+        println(s"#### JOB_DM_58 spark sql 清洗数据无结果集！")
+      }
+    }
+  }
+
+
+
+  /**
+    * JOB_DM_59 20170110
+    * dm_disc_act_quick_pass_dly->hive_prize_discount_result,hive_discount_bas_inf,hive_filter_app_det,hive_filter_rule_det
+    * Code by Xue
+    *
+    * @param sqlContext
+    * @return
+    */
+  def JOB_DM_59(implicit sqlContext: HiveContext, start_dt: String, end_dt: String, interval: Int) = {
+    println("###JOB_DM_59(dm_disc_act_quick_pass_dly->hive_prize_discount_result,hive_discount_bas_inf,hive_filter_app_det,hive_filter_rule_det)")
+    DateUtils.timeCost("JOB_DM_59") {
+      UPSQL_JDBC.delete(s"dm_disc_act_quick_pass_dly", "report_dt", start_dt, end_dt)
+      println("#### JOB_DM_59 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
+      println(s"#### JOB_DM_59  spark sql 清洗数据开始时间为:" + DateUtils.getCurrentSystemTime())
+      sqlContext.sql(s"use $hive_dbname")
+      val results = sqlContext.sql(
+        s"""
+           |SELECT
+           |    CASE
+           |        WHEN DBI.LOC_ACTIVITY_ID IS NOT NULL
+           |        THEN '仅限云闪付'
+           |        ELSE '非仅限云闪付'
+           |    END AS QUICK_PASS_TP,
+           |    TRANS.SETTLE_DT as REPORT_DT,
+           |    COUNT(1)                                 AS TRANS_CNT,
+           |    SUM(TRANS.TRANS_POS_AT)                  AS TRANS_AT,
+           |    SUM(TRANS.TRANS_POS_AT - TRANS.TRANS_AT) AS DISCOUNT_AT
+           |FROM
+           |    HIVE_PRIZE_DISCOUNT_RESULT TRANS
+           |LEFT JOIN
+           |    (
+           |        SELECT DISTINCT
+           |            A.LOC_ACTIVITY_ID
+           |        FROM
+           |            (
+           |                SELECT DISTINCT
+           |                    BAS.LOC_ACTIVITY_ID
+           |                FROM
+           |                    HIVE_DISCOUNT_BAS_INF BAS
+           |                INNER JOIN
+           |                    HIVE_FILTER_APP_DET APP
+           |                ON
+           |                    BAS.LOC_ACTIVITY_ID=APP.LOC_ACTIVITY_ID
+           |                INNER JOIN
+           |                    HIVE_FILTER_RULE_DET RULE
+           |                ON
+           |                    RULE.RULE_GRP_ID=APP.RULE_GRP_ID
+           |                AND RULE.RULE_GRP_CATA=APP.RULE_GRP_CATA
+           |                WHERE
+           |                    APP.RULE_GRP_CATA='12'
+           |                AND RULE_MIN_VAL IN ('06',
+           |                                     '07',
+           |                                     '08') ) A
+           |        LEFT JOIN
+           |            (
+           |                SELECT DISTINCT
+           |                    BAS.LOC_ACTIVITY_ID
+           |                FROM
+           |                    HIVE_DISCOUNT_BAS_INF BAS
+           |                INNER JOIN
+           |                    HIVE_FILTER_APP_DET APP
+           |                ON
+           |                    BAS.LOC_ACTIVITY_ID=APP.LOC_ACTIVITY_ID
+           |                INNER JOIN
+           |                    HIVE_FILTER_RULE_DET RULE
+           |                ON
+           |                    RULE.RULE_GRP_ID=APP.RULE_GRP_ID
+           |                AND RULE.RULE_GRP_CATA=APP.RULE_GRP_CATA
+           |                WHERE
+           |                    APP.RULE_GRP_CATA='12'
+           |                AND RULE_MIN_VAL IN ('04',
+           |                                     '05',
+           |                                     '09') ) B
+           |        ON
+           |            A.LOC_ACTIVITY_ID=B.LOC_ACTIVITY_ID
+           |        WHERE
+           |            B.LOC_ACTIVITY_ID IS NULL) DBI
+           |ON
+           |    (
+           |        TRANS.AGIO_APP_ID=DBI.LOC_ACTIVITY_ID)
+           |WHERE
+           |    TRANS.PROD_IN = '0'
+           |AND TRANS.PART_SETTLE_DT >= '$start_dt'
+           |AND TRANS.PART_SETTLE_DT <= '$end_dt'
+           |GROUP BY
+           |    CASE
+           |        WHEN DBI.LOC_ACTIVITY_ID IS NOT NULL
+           |        THEN '仅限云闪付'
+           |        ELSE '非仅限云闪付'
+           |    END,
+           |    TRANS.SETTLE_DT
+           | """.stripMargin)
+      println(s"#### JOB_DM_59 spark sql 清洗数据完成时间为:" + DateUtils.getCurrentSystemTime())
+      if (!Option(results).isEmpty) {
+        results.save2Mysql("dm_disc_act_quick_pass_dly")
+        println(s"#### JOB_DM_59 数据插入完成时间为：" + DateUtils.getCurrentSystemTime())
+      } else {
+        println(s"#### JOB_DM_59 spark sql 清洗数据无结果集！")
+      }
+    }
+  }
+
+
+  /**
+    * JOB_DM_60 20170113
+    * dm_disc_tkt_act_acpt_ins_dly->hive_acc_trans,hive_ins_inf
+    * Code by Xue
+    *
+    * @param sqlContext
+    * @return
+    */
+  def JOB_DM_60(implicit sqlContext: HiveContext, start_dt: String, end_dt: String, interval: Int) = {
+    println("###JOB_DM_60(dm_disc_tkt_act_acpt_ins_dly->hive_acc_trans,hive_ins_inf)")
+    DateUtils.timeCost("JOB_DM_60") {
+      UPSQL_JDBC.delete(s"dm_disc_tkt_act_acpt_ins_dly", "report_dt", start_dt, end_dt)
+      println("#### JOB_DM_60 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
+      println(s"#### JOB_DM_60  spark sql 清洗数据开始时间为:" + DateUtils.getCurrentSystemTime())
+      sqlContext.sql(s"use $hive_dbname")
+      val results = sqlContext.sql(
+        s"""
+           |
+           |SELECT
+           |    A.ACPT_INS_ID_CD as ACPT_INS_ID_CD,
+           |    A.INS_CN_NM as ACPT_INS_CN_NM,
+           |    A.SYS_SETTLE_DT as REPORT_DT,
+           |    A.INS_ID_CD as INS_ID_CD,
+           |    A.TERM_UPGRADE_CD as TERM_UPGRADE_CD,
+           |    A.TRANS_NORM_CD as NORM_VER_CD,
+           |    A.TRANSCNT as TRANS_CNT,
+           |    B.SUCTRANSCNT as SUC_TRANS_CNT,
+           |    B.TRANSAT as TRANS_AT,
+           |    B.DISCOUNTAT as DISCOUNT_AT,
+           |    B.TRANSUSRCNT as TRANS_USR_CNT,
+           |    B.CARDCNT as TRANS_CARD_CNT
+           |FROM
+           |    (
+           |        SELECT
+           |            TRANS.ACPT_INS_ID_CD,
+           |            INS.INS_CN_NM,
+           |            TRANS.SYS_SETTLE_DT,
+           |            CASE
+           |                WHEN TRANS.FWD_INS_ID_CD IN ('00097310',
+           |                                             '00093600',
+           |                                             '00095210',
+           |                                             '00098700',
+           |                                             '00098500',
+           |                                             '00097700',
+           |                                             '00096400',
+           |                                             '00096500',
+           |                                             '00155800',
+           |                                             '00095840',
+           |                                             '00097000',
+           |                                             '00085500',
+           |                                             '00096900',
+           |                                             '00093930',
+           |                                             '00094200',
+           |                                             '00093900',
+           |                                             '00096100',
+           |                                             '00092210',
+           |                                             '00092220',
+           |                                             '00092900',
+           |                                             '00091600',
+           |                                             '00092400',
+           |                                             '00098800',
+           |                                             '00098200',
+           |                                             '00097900',
+           |                                             '00091900',
+           |                                             '00092600',
+           |                                             '00091200',
+           |                                             '00093320',
+           |                                             '00031000',
+           |                                             '00094500',
+           |                                             '00094900',
+           |                                             '00091100',
+           |                                             '00094520',
+           |                                             '00093000',
+           |                                             '00093310')
+           |                THEN '直连'
+           |                ELSE '间连'
+           |            END INS_ID_CD,
+           |            CASE
+           |                WHEN TRANS.INTERNAL_TRANS_TP='C00022'
+           |                OR  TRANS.INTERNAL_TRANS_TP='C20022'
+           |                THEN '改造'
+           |                ELSE '终端不改造'
+           |            END TERM_UPGRADE_CD,
+           |            CASE
+           |                WHEN TRANS.INTERNAL_TRANS_TP='C00022'
+           |                THEN '1.0规范'
+           |                WHEN TRANS.INTERNAL_TRANS_TP='C20022'
+           |                THEN '2.0规范'
+           |                ELSE ''
+           |            END         TRANS_NORM_CD,
+           |            COUNT(*) AS TRANSCNT
+           |        FROM
+           |            HIVE_ACC_TRANS TRANS
+           |        LEFT JOIN
+           |            HIVE_INS_INF INS
+           |        ON
+           |            TRANS.ACPT_INS_ID_CD=INS.INS_ID_CD
+           |        WHERE
+           |            TRANS.INTERNAL_TRANS_TP IN ('C00022' ,
+           |                                        'C20022',
+           |                                        'C00023')
+           |        AND TRANS.SYS_SETTLE_DT >= '$start_dt'
+           |        AND TRANS.SYS_SETTLE_DT <= '$end_dt'
+           |        GROUP BY
+           |            TRANS.ACPT_INS_ID_CD ,
+           |            INS.INS_CN_NM,
+           |            TRANS.SYS_SETTLE_DT,
+           |            CASE
+           |                WHEN TRANS.FWD_INS_ID_CD IN ('00097310',
+           |                                             '00093600',
+           |                                             '00095210',
+           |                                             '00098700',
+           |                                             '00098500',
+           |                                             '00097700',
+           |                                             '00096400',
+           |                                             '00096500',
+           |                                             '00155800',
+           |                                             '00095840',
+           |                                             '00097000',
+           |                                             '00085500',
+           |                                             '00096900',
+           |                                             '00093930',
+           |                                             '00094200',
+           |                                             '00093900',
+           |                                             '00096100',
+           |                                             '00092210',
+           |                                             '00092220',
+           |                                             '00092900',
+           |                                             '00091600',
+           |                                             '00092400',
+           |                                             '00098800',
+           |                                             '00098200',
+           |                                             '00097900',
+           |                                             '00091900',
+           |                                             '00092600',
+           |                                             '00091200',
+           |                                             '00093320',
+           |                                             '00031000',
+           |                                             '00094500',
+           |                                             '00094900',
+           |                                             '00091100',
+           |                                             '00094520',
+           |                                             '00093000',
+           |                                             '00093310')
+           |                THEN '直连'
+           |                ELSE '间连'
+           |            END,
+           |            CASE
+           |                WHEN TRANS.INTERNAL_TRANS_TP='C00022'
+           |                OR  TRANS.INTERNAL_TRANS_TP='C20022'
+           |                THEN '改造'
+           |                ELSE '终端不改造'
+           |            END ,
+           |            CASE
+           |                WHEN TRANS.INTERNAL_TRANS_TP='C00022'
+           |                THEN '1.0规范'
+           |                WHEN TRANS.INTERNAL_TRANS_TP='C20022'
+           |                THEN '2.0规范'
+           |                ELSE ''
+           |            END ) A
+           |LEFT JOIN
+           |    (
+           |        SELECT
+           |            TRANS.ACPT_INS_ID_CD ,
+           |            INS.INS_CN_NM,
+           |            TRANS.SYS_SETTLE_DT,
+           |            CASE
+           |                WHEN TRANS.FWD_INS_ID_CD IN ('00097310',
+           |                                             '00093600',
+           |                                             '00095210',
+           |                                             '00098700',
+           |                                             '00098500',
+           |                                             '00097700',
+           |                                             '00096400',
+           |                                             '00096500',
+           |                                             '00155800',
+           |                                             '00095840',
+           |                                             '00097000',
+           |                                             '00085500',
+           |                                             '00096900',
+           |                                             '00093930',
+           |                                             '00094200',
+           |                                             '00093900',
+           |                                             '00096100',
+           |                                             '00092210',
+           |                                             '00092220',
+           |                                             '00092900',
+           |                                             '00091600',
+           |                                             '00092400',
+           |                                             '00098800',
+           |                                             '00098200',
+           |                                             '00097900',
+           |                                             '00091900',
+           |                                             '00092600',
+           |                                             '00091200',
+           |                                             '00093320',
+           |                                             '00031000',
+           |                                             '00094500',
+           |                                             '00094900',
+           |                                             '00091100',
+           |                                             '00094520',
+           |                                             '00093000',
+           |                                             '00093310')
+           |                THEN '直连'
+           |                ELSE '间连'
+           |            END INS_ID_CD,
+           |            CASE
+           |                WHEN TRANS.INTERNAL_TRANS_TP='C00022'
+           |                OR  TRANS.INTERNAL_TRANS_TP='C20022'
+           |                THEN '改造'
+           |                ELSE '终端不改造'
+           |            END TERM_UPGRADE_CD,
+           |            CASE
+           |                WHEN TRANS.INTERNAL_TRANS_TP='C00022'
+           |                THEN '1.0规范'
+           |                WHEN TRANS.INTERNAL_TRANS_TP='C20022'
+           |                THEN '2.0规范'
+           |                ELSE ''
+           |            END               TRANS_NORM_CD,
+           |            COUNT(*)          AS SUCTRANSCNT,
+           |            SUM(TRANS_TOT_AT) AS TRANSAT,
+           |            SUM(TRANS.DISCOUNT_AT)          AS DISCOUNTAT,
+           |            COUNT(DISTINCT TRANS.CDHD_USR_ID) AS TRANSUSRCNT,
+           |            COUNT(DISTINCT PRI_ACCT_NO)       AS CARDCNT
+           |        FROM
+           |            HIVE_ACC_TRANS TRANS
+           |        LEFT JOIN
+           |            HIVE_INS_INF INS
+           |        ON
+           |            TRANS.ACPT_INS_ID_CD=INS.INS_ID_CD
+           |        WHERE
+           |            TRANS.CHSWT_RESP_CD='00'
+           |        AND TRANS.INTERNAL_TRANS_TP IN ('C00022' ,
+           |                                        'C20022',
+           |                                        'C00023')
+           |        AND TRANS.SYS_SETTLE_DT >= '$start_dt'
+           |        AND TRANS.SYS_SETTLE_DT <= '$end_dt'
+           |        GROUP BY
+           |            TRANS.ACPT_INS_ID_CD ,
+           |            INS.INS_CN_NM,
+           |            TRANS.SYS_SETTLE_DT,
+           |            CASE
+           |                WHEN TRANS.FWD_INS_ID_CD IN ('00097310',
+           |                                             '00093600',
+           |                                             '00095210',
+           |                                             '00098700',
+           |                                             '00098500',
+           |                                             '00097700',
+           |                                             '00096400',
+           |                                             '00096500',
+           |                                             '00155800',
+           |                                             '00095840',
+           |                                             '00097000',
+           |                                             '00085500',
+           |                                             '00096900',
+           |                                             '00093930',
+           |                                             '00094200',
+           |                                             '00093900',
+           |                                             '00096100',
+           |                                             '00092210',
+           |                                             '00092220',
+           |                                             '00092900',
+           |                                             '00091600',
+           |                                             '00092400',
+           |                                             '00098800',
+           |                                             '00098200',
+           |                                             '00097900',
+           |                                             '00091900',
+           |                                             '00092600',
+           |                                             '00091200',
+           |                                             '00093320',
+           |                                             '00031000',
+           |                                             '00094500',
+           |                                             '00094900',
+           |                                             '00091100',
+           |                                             '00094520',
+           |                                             '00093000',
+           |                                             '00093310')
+           |                THEN '直连'
+           |                ELSE '间连'
+           |            END,
+           |            CASE
+           |                WHEN TRANS.INTERNAL_TRANS_TP='C00022'
+           |                OR  TRANS.INTERNAL_TRANS_TP='C20022'
+           |                THEN '改造'
+           |                ELSE '终端不改造'
+           |            END ,
+           |            CASE
+           |                WHEN TRANS.INTERNAL_TRANS_TP='C00022'
+           |                THEN '1.0规范'
+           |                WHEN TRANS.INTERNAL_TRANS_TP='C20022'
+           |                THEN '2.0规范'
+           |                ELSE ''
+           |            END ) B
+           |ON
+           |    A.ACPT_INS_ID_CD=B.ACPT_INS_ID_CD
+           |AND A.INS_CN_NM=B.INS_CN_NM
+           |AND A.SYS_SETTLE_DT = B.SYS_SETTLE_DT
+           |AND A.INS_ID_CD = B.INS_ID_CD
+           |AND A.TERM_UPGRADE_CD = B.TERM_UPGRADE_CD
+           |AND A.TRANS_NORM_CD = B.TRANS_NORM_CD
+           | """.stripMargin)
+      println(s"#### JOB_DM_60 spark sql 清洗数据完成时间为:" + DateUtils.getCurrentSystemTime())
+      if (!Option(results).isEmpty) {
+        results.save2Mysql("dm_disc_tkt_act_acpt_ins_dly")
+        println(s"#### JOB_DM_60 数据插入完成时间为：" + DateUtils.getCurrentSystemTime())
+      } else {
+        println(s"#### JOB_DM_60 spark sql 清洗数据无结果集！")
+      }
+    }
   }
 
 
@@ -10661,6 +11487,97 @@ object SparkHive2Mysql {
           }
           today_dt=DateUtils.addOneDay(today_dt)
         }
+      }
+    }
+  }
+
+
+  /**
+    * JOB_DM_97 20170116
+    * dm_coupon_tkt_branch_dly->hive_acc_trans,hive_ticket_bill_bas_inf
+    * Code by Xue
+    *
+    * @param sqlContext
+    * @return
+    */
+  def JOB_DM_97(implicit sqlContext: HiveContext, start_dt: String, end_dt: String, interval: Int) = {
+    println("###JOB_DM_97(dm_coupon_tkt_branch_dly->hive_acc_trans,hive_ticket_bill_bas_inf)")
+    DateUtils.timeCost("JOB_DM_97") {
+      UPSQL_JDBC.delete(s"dm_disc_act_quick_pass_dly", "report_dt", start_dt, end_dt)
+      println("#### JOB_DM_97 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
+      println(s"#### JOB_DM_97  spark sql 清洗数据开始时间为:" + DateUtils.getCurrentSystemTime())
+      sqlContext.sql(s"use $hive_dbname")
+      val results = sqlContext.sql(
+        s"""
+           |SELECT
+           |    A.CUP_BRANCH_INS_ID_NM as CUP_BRANCH_INS_ID_NM,
+           |    A.TRANS_DT as REPORT_DT,
+           |    A.TRANSCNT as TRANS_CNT,
+           |    B.SUCTRANSCNT  as SUC_TRANS_CNT,
+           |    B.TRANSAT as TRANS_AT,
+           |    B.DISCOUNTAT as DISCOUNT_AT,
+           |    B.TRANSUSRCNT as TRANS_USR_CNT,
+           |    B.TRANSCARDCNT as TRANS_CARD_CNT
+           |FROM
+           |    (
+           |        SELECT
+           |            BILL.CUP_BRANCH_INS_ID_NM,
+           |            TRANS.TRANS_DT,
+           |            COUNT(1) AS TRANSCNT
+           |        FROM
+           |            HIVE_ACC_TRANS TRANS
+           |        LEFT JOIN
+           |            HIVE_TICKET_BILL_BAS_INF BILL
+           |        ON
+           |            (
+           |                TRANS.BILL_ID=BILL.BILL_ID)
+           |        WHERE
+           |            TRANS.UM_TRANS_ID IN ('AC02000065',
+           |                                  'AC02000063')
+           |        AND TRANS.BUSS_TP IN ('04','05','06')
+           |        AND TRANS.TRANS_DT >= '$start_dt'
+           |        AND TRANS.TRANS_DT <= '$end_dt'
+           |        GROUP BY
+           |            BILL.CUP_BRANCH_INS_ID_NM,
+           |            TRANS_DT) A
+           |LEFT JOIN
+           |    (
+           |        SELECT
+           |            BILL.CUP_BRANCH_INS_ID_NM,
+           |            TRANS.TRANS_DT,
+           |            COUNT(1) AS SUCTRANSCNT,
+           |            SUM(TRANS.TRANS_AT) AS TRANSAT,
+           |            SUM(TRANS.DISCOUNT_AT)          AS DISCOUNTAT,
+           |            COUNT(DISTINCT TRANS.CDHD_USR_ID) AS TRANSUSRCNT,
+           |            COUNT(DISTINCT TRANS.PRI_ACCT_NO) AS TRANSCARDCNT
+           |        FROM
+           |            HIVE_ACC_TRANS TRANS
+           |        LEFT JOIN
+           |            HIVE_TICKET_BILL_BAS_INF BILL
+           |        ON
+           |            (
+           |                TRANS.BILL_ID=BILL.BILL_ID)
+           |        WHERE
+           |            TRANS.SYS_DET_CD = 'S'
+           |        AND TRANS.UM_TRANS_ID IN ('AC02000065',
+           |                                  'AC02000063')
+           |        AND TRANS.BUSS_TP IN ('04','05','06')
+           |        AND TRANS.TRANS_DT >= '$start_dt'
+           |        AND TRANS.TRANS_DT <= '$end_dt'
+           |        GROUP BY
+           |            BILL.CUP_BRANCH_INS_ID_NM,
+           |            TRANS_DT)B
+           |ON
+           |    (
+           |        A.CUP_BRANCH_INS_ID_NM = B.CUP_BRANCH_INS_ID_NM
+           |    AND A.TRANS_DT = B.TRANS_DT )
+           | """.stripMargin)
+      println(s"#### JOB_DM_97 spark sql 清洗数据完成时间为:" + DateUtils.getCurrentSystemTime())
+      if (!Option(results).isEmpty) {
+        results.save2Mysql("dm_coupon_tkt_branch_dly")
+        println(s"#### JOB_DM_97 数据插入完成时间为：" + DateUtils.getCurrentSystemTime())
+      } else {
+        println(s"#### JOB_DM_97 spark sql 清洗数据无结果集！")
       }
     }
   }
