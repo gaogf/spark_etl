@@ -26,6 +26,7 @@ object SparkHive2Mysql {
       .set("spark.driver.extraJavaOptions","-XX:+UseG1GC -XX:+UseCompressedOops")
       .set("spark.executor.extraJavaOptions","-XX:+UseG1GC -XX:+UseCompressedOops")
 
+
     val sc = new SparkContext(conf)
     sc.setLogLevel("ERROR")
     implicit val sqlContext = new HiveContext(sc)
@@ -43,25 +44,25 @@ object SparkHive2Mysql {
       /**
         * 每日模板job
         */
-      case "JOB_DM_1"  => JOB_DM_1(sqlContext,start_dt,end_dt,interval)    //CODE BY YX
-      case "JOB_DM_3"  => JOB_DM_3(sqlContext,start_dt,end_dt,interval)    //CODE BY YX
-      case "JOB_DM_9"  => JOB_DM_9(sqlContext,start_dt,end_dt,interval)    //CODE BY XTP    
-      case "JOB_DM_55"  => JOB_DM_55(sqlContext,start_dt,end_dt)   //CODE BY TZQ
+      case "JOB_DM_1"  => JOB_DM_1(sqlContext,start_dt,end_dt,interval)     //CODE BY YX
+      case "JOB_DM_3"  => JOB_DM_3(sqlContext,start_dt,end_dt,interval)     //CODE BY YX
+      case "JOB_DM_9"  => JOB_DM_9(sqlContext,start_dt,end_dt,interval)     //CODE BY XTP
+      case "JOB_DM_55"  => JOB_DM_55(sqlContext,start_dt,end_dt)            //CODE BY TZQ
       case "JOB_DM_61"  => JOB_DM_61(sqlContext,start_dt,end_dt,interval)   //CODE BY YX
       case "JOB_DM_62"  => JOB_DM_62(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ
       case "JOB_DM_63"  => JOB_DM_63(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP    
       case "JOB_DM_64"  => JOB_DM_64(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP    
       case "JOB_DM_65"  => JOB_DM_65(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP    
       case "JOB_DM_66"  => JOB_DM_66(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ
-      case "JOB_DM_67"  => JOB_DM_67(sqlContext,start_dt,end_dt)   //CODE BY YX
-      case "JOB_DM_68"  => JOB_DM_68(sqlContext,start_dt,end_dt)   //CODE BY YX
-      case "JOB_DM_69"  => JOB_DM_69(sqlContext,start_dt,end_dt)   //CODE BY TZQ
-      case "JOB_DM_70"  => JOB_DM_70(sqlContext,start_dt,end_dt)   //CODE BY TZQ
-      case "JOB_DM_71"  => JOB_DM_71(sqlContext,start_dt,end_dt)   //CODE BY TZQ
-      case "JOB_DM_72"  => JOB_DM_72(sqlContext,start_dt,end_dt)   //CODE BY YX
-      case "JOB_DM_73"  => JOB_DM_73(sqlContext,start_dt,end_dt)   //CODE BY XTP    
-      case "JOB_DM_74"  => JOB_DM_74(sqlContext,start_dt,end_dt)   //CODE BY XTP    
-      case "JOB_DM_75"  => JOB_DM_75(sqlContext,start_dt,end_dt)   //CODE BY XTP    
+      case "JOB_DM_67"  => JOB_DM_67(sqlContext,start_dt,end_dt)            //CODE BY YX
+      case "JOB_DM_68"  => JOB_DM_68(sqlContext,start_dt,end_dt)            //CODE BY YX
+      case "JOB_DM_69"  => JOB_DM_69(sqlContext,start_dt,end_dt)            //CODE BY TZQ
+      case "JOB_DM_70"  => JOB_DM_70(sqlContext,start_dt,end_dt)            //CODE BY TZQ
+      case "JOB_DM_71"  => JOB_DM_71(sqlContext,start_dt,end_dt)            //CODE BY TZQ
+      case "JOB_DM_72"  => JOB_DM_72(sqlContext,start_dt,end_dt)            //CODE BY YX
+      case "JOB_DM_73"  => JOB_DM_73(sqlContext,start_dt,end_dt)            //CODE BY XTP
+      case "JOB_DM_74"  => JOB_DM_74(sqlContext,start_dt,end_dt)            //CODE BY XTP
+      case "JOB_DM_75"  => JOB_DM_75(sqlContext,start_dt,end_dt)            //CODE BY XTP
       case "JOB_DM_76"  => JOB_DM_76(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ
       case "JOB_DM_78"  => JOB_DM_78(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP
       case "JOB_DM_86"  => JOB_DM_86(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP    
@@ -70,62 +71,71 @@ object SparkHive2Mysql {
       /**
         * 指标套表job
         */
-      case "JOB_DM_2"  => JOB_DM_2(sqlContext,start_dt,end_dt,interval)    //CODE BY XTP    
-      case "JOB_DM_4"  => JOB_DM_4(sqlContext,start_dt,end_dt,interval)    //CODE BY XTP    
-      case "JOB_DM_5"  => JOB_DM_5(sqlContext,start_dt,end_dt,interval)    //CODE BY TZQ
-      case "JOB_DM_6"  => JOB_DM_6(sqlContext,start_dt,end_dt,interval)    //CODE BY TZQ
-      case "JOB_DM_7"  => JOB_DM_7(sqlContext,start_dt,end_dt,interval)    //CODE BY XTP    
-      case "JOB_DM_8"  => JOB_DM_8(sqlContext,start_dt,end_dt,interval)    //CODE BY XTP
-      case "JOB_DM_10" =>JOB_DM_10(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ
-      case "JOB_DM_11" =>JOB_DM_11(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ
-      case "JOB_DM_12" =>JOB_DM_12(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ  [有数据，测试9/8-9/9两天 依赖源表HIVE_TICKET_BILL_ACCT_ADJ_TASK中无数据]
-      case "JOB_DM_13" =>JOB_DM_13(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ  [有数据，依赖源表HIVE_TICKET_BILL_ACCT_ADJ_TASk无数据]
-      case "JOB_DM_14" =>JOB_DM_14(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ  [无数据, 源表HIVE_BILL_ORDER_TRANS,HIVE_BILL_SUB_ORDER_TRANS无数据]
-      case "JOB_DM_15" =>JOB_DM_15(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ  [无数据, 同DM14]
-      case "JOB_DM_16" =>JOB_DM_16(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ  [无数据, 同DM14]
-      case "JOB_DM_17" =>JOB_DM_17(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ  [无数据, 同DM14]
-      case "JOB_DM_18" =>JOB_DM_18(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP    
-      case "JOB_DM_19" =>JOB_DM_19(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP    
-      case "JOB_DM_20" =>JOB_DM_20(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP    
-      case "JOB_DM_21" =>JOB_DM_21(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP    
-      case "JOB_DM_22" =>JOB_DM_22(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP    
-      case "JOB_DM_23" =>JOB_DM_23(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP    
-      case "JOB_DM_24" =>JOB_DM_24(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ  [测试通过，无数据（原表有数据）]
-      case "JOB_DM_25" =>JOB_DM_25(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ  [测试通过，无数据（原表有数据）]
-      case "JOB_DM_26" =>JOB_DM_26(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ  [测试通过，无数据（原表有数据）]
-      case "JOB_DM_27" =>JOB_DM_27(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ  [测试通过，无数据（原表有数据）依赖源表中hive_mchnt_tp和hive_mchnt_tp_grp无数据]
-      case "JOB_DM_28" =>JOB_DM_28(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ  [测试通过]
-      case "JOB_DM_29" =>JOB_DM_29(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ  [测试通过]
-      case "JOB_DM_30" =>JOB_DM_30(sqlContext,start_dt,end_dt) //CODE BY TZQ  [测试未通过，kryo序列化缓存溢出，待解决]
-      case "JOB_DM_31" =>JOB_DM_31(sqlContext,start_dt,end_dt) //CODE BY TZQ  [主键有空值，无法插入数据库,现在代码里面讲主键空值过滤后可通过,待有有效数据后要删除where条件内容]
+      case "JOB_DM_2"  => JOB_DM_2(sqlContext,start_dt,end_dt,interval)     //CODE BY XTP
+      case "JOB_DM_4"  => JOB_DM_4(sqlContext,start_dt,end_dt,interval)     //CODE BY XTP
+      case "JOB_DM_5"  => JOB_DM_5(sqlContext,start_dt,end_dt,interval)     //CODE BY TZQ
+      case "JOB_DM_6"  => JOB_DM_6(sqlContext,start_dt,end_dt,interval)     //CODE BY TZQ
+      case "JOB_DM_7"  => JOB_DM_7(sqlContext,start_dt,end_dt,interval)     //CODE BY XTP
+      case "JOB_DM_8"  => JOB_DM_8(sqlContext,start_dt,end_dt,interval)     //CODE BY XTP
+
+      case "JOB_DM_10" =>JOB_DM_10(sqlContext,start_dt,end_dt,interval)     //CODE BY TZQ
+      case "JOB_DM_11" =>JOB_DM_11(sqlContext,start_dt,end_dt,interval)     //CODE BY TZQ
+      case "JOB_DM_12" =>JOB_DM_12(sqlContext,start_dt,end_dt,interval)     //CODE BY TZQ
+      case "JOB_DM_13" =>JOB_DM_13(sqlContext,start_dt,end_dt,interval)     //CODE BY TZQ
+      case "JOB_DM_14" =>JOB_DM_14(sqlContext,start_dt,end_dt,interval)     //CODE BY TZQ
+      case "JOB_DM_15" =>JOB_DM_15(sqlContext,start_dt,end_dt,interval)     //CODE BY TZQ
+      case "JOB_DM_16" =>JOB_DM_16(sqlContext,start_dt,end_dt,interval)     //CODE BY TZQ
+      case "JOB_DM_17" =>JOB_DM_17(sqlContext,start_dt,end_dt,interval)     //CODE BY TZQ
+
+      case "JOB_DM_18" =>JOB_DM_18(sqlContext,start_dt,end_dt,interval)     //CODE BY XTP
+      case "JOB_DM_19" =>JOB_DM_19(sqlContext,start_dt,end_dt,interval)     //CODE BY XTP
+      case "JOB_DM_20" =>JOB_DM_20(sqlContext,start_dt,end_dt,interval)     //CODE BY XTP
+      case "JOB_DM_21" =>JOB_DM_21(sqlContext,start_dt,end_dt,interval)     //CODE BY XTP
+      case "JOB_DM_22" =>JOB_DM_22(sqlContext,start_dt,end_dt,interval)     //CODE BY XTP
+      case "JOB_DM_23" =>JOB_DM_23(sqlContext,start_dt,end_dt,interval)     //CODE BY XTP
+
+      case "JOB_DM_24" =>JOB_DM_24(sqlContext,start_dt,end_dt,interval)     //CODE BY TZQ
+      case "JOB_DM_25" =>JOB_DM_25(sqlContext,start_dt,end_dt,interval)     //CODE BY TZQ
+      case "JOB_DM_26" =>JOB_DM_26(sqlContext,start_dt,end_dt,interval)     //CODE BY TZQ
+      case "JOB_DM_27" =>JOB_DM_27(sqlContext,start_dt,end_dt,interval)     //CODE BY TZQ
+      case "JOB_DM_28" =>JOB_DM_28(sqlContext,start_dt,end_dt,interval)     //CODE BY TZQ
+      case "JOB_DM_29" =>JOB_DM_29(sqlContext,start_dt,end_dt,interval)     //CODE BY TZQ
+      case "JOB_DM_30" =>JOB_DM_30(sqlContext,start_dt,end_dt,interval)     //CODE BY TZQ
+      case "JOB_DM_31" =>JOB_DM_31(sqlContext,start_dt,end_dt)              //CODE BY TZQ
+
       //case "JOB_DM_32" =>JOB_DM_32(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP   测试报错，带修正
-      case "JOB_DM_33" =>JOB_DM_33(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP    
-      case "JOB_DM_34" =>JOB_DM_34(sqlContext,start_dt,end_dt)   //CODE BY TZQ  [测试通过，无数据]
-      case "JOB_DM_35" =>JOB_DM_35(sqlContext,start_dt,end_dt)   //CODE BY TZQ  [测试通过，无数据]
-      case "JOB_DM_36" =>JOB_DM_36(sqlContext,start_dt,end_dt)   //CODE BY TZQ  [测试未通过，kryo序列化缓存溢出，待解决]
-      case "JOB_DM_37" =>JOB_DM_37(sqlContext,start_dt,end_dt)   //CODE BY TZQ  [测试通过，无数据，依赖表HIVE_MCHNT_TP，HIVE_MCHNT_TP_GRP无数据]
-      case "JOB_DM_38" =>JOB_DM_38(sqlContext,start_dt,end_dt)   //CODE BY TZQ  [测试未通过，kryo序列化缓存溢出，待解决]
-      case "JOB_DM_39" =>JOB_DM_39(sqlContext,start_dt,end_dt)   //CODE BY TZQ  [测试通过，无数据]
-      case "JOB_DM_40" =>JOB_DM_40(sqlContext,start_dt,end_dt)   //CODE BY TZQ  [测试通过 去空处理，待数据完整后去除]
-      case "JOB_DM_41" =>JOB_DM_41(sqlContext,start_dt,end_dt)   //CODE BY TZQ  [测试通过 去空处理，待数据完整后去除]
-      case "JOB_DM_42" =>JOB_DM_42(sqlContext,start_dt,end_dt)   //CODE BY TZQ  [无数据，WHERE条件中进行了空值过滤]
-      case "JOB_DM_43" =>JOB_DM_43(sqlContext,start_dt,end_dt)   //CODE BY TZQ  [测试通过]
-      case "JOB_DM_44" =>JOB_DM_44(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP
-      case "JOB_DM_45" =>JOB_DM_45(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP
-      case "JOB_DM_46" =>JOB_DM_46(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP
-      case "JOB_DM_47" =>JOB_DM_47(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP
-      case "JOB_DM_48" =>JOB_DM_48(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP
-      case "JOB_DM_49" =>JOB_DM_49(sqlContext,start_dt,end_dt)   //CODE BY TZQ  [测试通过 2条]
-      case "JOB_DM_50" =>JOB_DM_50(sqlContext,start_dt,end_dt)   //CODE BY TZQ  [测试出错，待解决]
-      case "JOB_DM_51" =>JOB_DM_51(sqlContext,start_dt,end_dt)   //CODE BY TZQ  [测试出错，待解决]
-      case "JOB_DM_52" =>JOB_DM_52(sqlContext,start_dt,end_dt)   //CODE BY TZQ  [测试出错，待解决]
+      case "JOB_DM_33" =>JOB_DM_33(sqlContext,start_dt,end_dt,interval)     //CODE BY XTP
+
+      case "JOB_DM_34" =>JOB_DM_34(sqlContext,start_dt,end_dt)              //CODE BY TZQ
+      case "JOB_DM_35" =>JOB_DM_35(sqlContext,start_dt,end_dt)              //CODE BY TZQ
+      case "JOB_DM_36" =>JOB_DM_36(sqlContext,start_dt,end_dt)              //CODE BY TZQ  [测试未通过,解决中]
+      case "JOB_DM_37" =>JOB_DM_37(sqlContext,start_dt,end_dt)              //CODE BY TZQ
+      case "JOB_DM_38" =>JOB_DM_38(sqlContext,start_dt,end_dt)              //CODE BY TZQ
+      case "JOB_DM_39" =>JOB_DM_39(sqlContext,start_dt,end_dt,interval)     //CODE BY TZQ
+      case "JOB_DM_40" =>JOB_DM_40(sqlContext,start_dt,end_dt)              //CODE BY TZQ
+      case "JOB_DM_41" =>JOB_DM_41(sqlContext,start_dt,end_dt)              //CODE BY TZQ
+      case "JOB_DM_42" =>JOB_DM_42(sqlContext,start_dt,end_dt)              //CODE BY TZQ
+      case "JOB_DM_43" =>JOB_DM_43(sqlContext,start_dt,end_dt)              //CODE BY TZQ
+
+      case "JOB_DM_44" =>JOB_DM_44(sqlContext,start_dt,end_dt,interval)     //CODE BY XTP
+      case "JOB_DM_45" =>JOB_DM_45(sqlContext,start_dt,end_dt,interval)     //CODE BY XTP
+      case "JOB_DM_46" =>JOB_DM_46(sqlContext,start_dt,end_dt,interval)     //CODE BY XTP
+      case "JOB_DM_47" =>JOB_DM_47(sqlContext,start_dt,end_dt,interval)     //CODE BY XTP
+      case "JOB_DM_48" =>JOB_DM_48(sqlContext,start_dt,end_dt,interval)     //CODE BY XTP
+
+      case "JOB_DM_49" =>JOB_DM_49(sqlContext,start_dt,end_dt)              //CODE BY TZQ
+      case "JOB_DM_50" =>JOB_DM_50(sqlContext,start_dt,end_dt)              //CODE BY TZQ
+      case "JOB_DM_51" =>JOB_DM_51(sqlContext,start_dt,end_dt)              //CODE BY TZQ
+      case "JOB_DM_52" =>JOB_DM_52(sqlContext,start_dt,end_dt)              //CODE BY TZQ
+
       case "JOB_DM_53"  => JOB_DM_53(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP   [测试出错，待解决]
-      case "JOB_DM_54" =>JOB_DM_54(sqlContext,start_dt,end_dt)   //CODE BY XTP 无数据
+      case "JOB_DM_54" =>JOB_DM_54(sqlContext,start_dt,end_dt)              //CODE BY XTP 无数据
       case "JOB_DM_56"  => JOB_DM_56(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP   [测试出错，待解决]
       case "JOB_DM_57"  => JOB_DM_57(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP   [测试出错，待解决]
       case "JOB_DM_58"  => JOB_DM_58(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP
       case "JOB_DM_59"  => JOB_DM_59(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP
       case "JOB_DM_60"  => JOB_DM_60(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP
+
       case "JOB_DM_79"  => JOB_DM_79(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP
       case "JOB_DM_80"  => JOB_DM_80(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP    
       case "JOB_DM_81"  => JOB_DM_81(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP    
@@ -135,18 +145,23 @@ object SparkHive2Mysql {
       case "JOB_DM_85"  => JOB_DM_85(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP    
 
 
-      case "JOB_DM_88"  => JOB_DM_88(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ  [测试通过，暂无数据]
-      case "JOB_DM_89"  => JOB_DM_89(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ  [测试通过，暂无数据]
+      case "JOB_DM_88"  => JOB_DM_88(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ
+      case "JOB_DM_89"  => JOB_DM_89(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ
       case "JOB_DM_90"  => JOB_DM_90(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP
       case "JOB_DM_91"  => JOB_DM_91(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP
-      case "JOB_DM_92"  => JOB_DM_92(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ  [测试完成]
-      case "JOB_DM_93"  => JOB_DM_93(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ  [测试完成]
-      case "JOB_DM_94"  => JOB_DM_94(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ  [测试完成]
+      case "JOB_DM_92"  => JOB_DM_92(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ
+      case "JOB_DM_93"  => JOB_DM_93(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ
+      case "JOB_DM_94"  => JOB_DM_94(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ
+      case "JOB_DM_95"  => JOB_DM_95(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ  [内存溢出,解决中]
+      case "JOB_DM_96"  => JOB_DM_96(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ
       case "JOB_DM_97"  => JOB_DM_97(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP
+
+
       case _ => println("#### No Case Job,Please Input JobName")
     }
 
     sc.stop()
+
 
   }
 
@@ -3531,95 +3546,92 @@ object SparkHive2Mysql {
     * @time 2016-12-15
     * @param sqlContext
     * @param start_dt
-    println("###JOB_DM_30(DM_DISC_TKT_ACT_BRANCH_DLY )### "+DateUtils.getCurrentSystemTime())
     * @param end_dt
     */
-  def JOB_DM_30 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
+  def JOB_DM_30 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String,interval:Int) = {
     DateUtils.timeCost("JOB_DM_30"){
-      UPSQL_JDBC.delete(s"DM_DISC_TKT_ACT_BRANCH_DLY ","REPORT_DT",start_dt,end_dt)
+      UPSQL_JDBC.delete(s"DM_DISC_TKT_ACT_BRANCH_DLY","REPORT_DT",start_dt,end_dt)
       println( "#### JOB_DM_30 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
-
-      println(s"#### JOB_DM_30 spark sql 清洗数据开始时间为:" + DateUtils.getCurrentSystemTime())
-      sqlContext.sql(s"use $hive_dbname")
-      val results =sqlContext.sql(
-        s"""
-           |SELECT
-           |    A.CUP_BRANCH_INS_ID_NM  AS CUP_BRANCH_INS_ID_NM,
-           |    A.TRANS_DT              AS REPORT_DT           ,
-           |    A.TRANSCNT              AS TRANS_CNT           ,
-           |    B.SUCTRANSCNT           AS SUC_TRANS_CNT       ,
-           |    B.TRANSAT               AS TRANS_AT            ,
-           |    B.DISCOUNTAT            AS DISCOUNT_AT         ,
-           |    B.TRANSUSRCNT           AS TRANS_USR_CNT       ,
-           |    B.TRANSCARDCNT          AS TRANS_CARD_CNT
-           |FROM
-           |    (
-           |        SELECT
-           |            BILL.CUP_BRANCH_INS_ID_NM,
-           |            TRANS.TRANS_DT,
-           |            COUNT(1) AS TRANSCNT
-           |        FROM
-           |            HIVE_ACC_TRANS TRANS
-           |        LEFT JOIN
-           |            HIVE_TICKET_BILL_BAS_INF BILL
-           |        ON
-           |            (
-           |                TRANS.BILL_ID=BILL.BILL_ID)
-           |        WHERE
-           |            TRANS.UM_TRANS_ID IN ('AC02000065',
-           |                                  'AC02000063')
-           |        AND BILL.BILL_SUB_TP IN ('01',
-           |                                 '03')
-           |        AND TRANS.PART_TRANS_DT >= '$start_dt'
-           |        AND TRANS.PART_TRANS_DT <= '$end_dt'
-           |        GROUP BY
-           |            BILL.CUP_BRANCH_INS_ID_NM,
-           |            TRANS.TRANS_DT) A
-           |LEFT JOIN
-           |    (
-           |        SELECT
-           |            BILL.CUP_BRANCH_INS_ID_NM,
-           |            TRANS.TRANS_DT,
-           |            COUNT(1) AS SUCTRANSCNT,
-           |            SUM(TRANS.TRANS_AT) AS TRANSAT,
-           |            SUM(TRANS.DISCOUNT_AT) AS DISCOUNTAT,
-           |            COUNT(DISTINCT TRANS.CDHD_USR_ID) AS TRANSUSRCNT,
-           |            COUNT(DISTINCT TRANS.PRI_ACCT_NO) AS TRANSCARDCNT
-           |        FROM
-           |            HIVE_ACC_TRANS TRANS
-           |        LEFT JOIN
-           |            HIVE_TICKET_BILL_BAS_INF BILL
-           |        ON
-           |            (
-           |                TRANS.BILL_ID=BILL.BILL_ID)
-           |        WHERE
-           |            TRANS.SYS_DET_CD = 'S'
-           |        AND TRANS.UM_TRANS_ID IN ('AC02000065',
-           |                                  'AC02000063')
-           |        AND BILL.BILL_SUB_TP IN ('01',
-           |                                 '03')
-           |        AND TRANS.PART_TRANS_DT >= '$start_dt'
-           |        AND TRANS.PART_TRANS_DT <= '$end_dt'
-           |        GROUP BY
-           |            BILL.CUP_BRANCH_INS_ID_NM,
-           |            TRANS.TRANS_DT)B
-           |ON
-           |    (
-           |        A.CUP_BRANCH_INS_ID_NM = B.CUP_BRANCH_INS_ID_NM
-           |    AND A.TRANS_DT = B.TRANS_DT )
-           |
+      var today_dt=start_dt
+      if(interval>=0 ){
+        sqlContext.sql(s"use $hive_dbname")
+        for(i <- 0 to interval){
+          println(s"#### JOB_DM_30 spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
+          val results =sqlContext.sql(
+            s"""
+               |SELECT
+               |    A.CUP_BRANCH_INS_ID_NM  AS CUP_BRANCH_INS_ID_NM,
+               |    A.TRANS_DT              AS REPORT_DT           ,
+               |    A.TRANSCNT              AS TRANS_CNT           ,
+               |    B.SUCTRANSCNT           AS SUC_TRANS_CNT       ,
+               |    B.TRANSAT               AS TRANS_AT            ,
+               |    B.DISCOUNTAT            AS DISCOUNT_AT         ,
+               |    B.TRANSUSRCNT           AS TRANS_USR_CNT       ,
+               |    B.TRANSCARDCNT          AS TRANS_CARD_CNT
+               |FROM
+               |    (
+               |        SELECT
+               |            BILL.CUP_BRANCH_INS_ID_NM,
+               |            TRANS.TRANS_DT,
+               |            COUNT(1) AS TRANSCNT
+               |        FROM
+               |            HIVE_ACC_TRANS TRANS
+               |        LEFT JOIN
+               |            HIVE_TICKET_BILL_BAS_INF BILL
+               |        ON
+               |            (
+               |                TRANS.BILL_ID=BILL.BILL_ID)
+               |        WHERE
+               |            TRANS.UM_TRANS_ID IN ('AC02000065',
+               |                                  'AC02000063')
+               |        AND BILL.BILL_SUB_TP IN ('01', '03')
+               |        AND TRANS.PART_TRANS_DT = '$today_dt'
+               |        GROUP BY
+               |            BILL.CUP_BRANCH_INS_ID_NM,
+               |            TRANS.TRANS_DT) A
+               |LEFT JOIN
+               |    (
+               |        SELECT
+               |            BILL.CUP_BRANCH_INS_ID_NM,
+               |            TRANS.TRANS_DT,
+               |            COUNT(1) AS SUCTRANSCNT,
+               |            SUM(TRANS.TRANS_AT) AS TRANSAT,
+               |            SUM(TRANS.DISCOUNT_AT) AS DISCOUNTAT,
+               |            COUNT(DISTINCT TRANS.CDHD_USR_ID) AS TRANSUSRCNT,
+               |            COUNT(DISTINCT TRANS.PRI_ACCT_NO) AS TRANSCARDCNT
+               |        FROM
+               |            HIVE_ACC_TRANS TRANS
+               |        LEFT JOIN
+               |            HIVE_TICKET_BILL_BAS_INF BILL
+               |        ON
+               |            (
+               |                TRANS.BILL_ID=BILL.BILL_ID)
+               |        WHERE
+               |            TRANS.SYS_DET_CD = 'S'
+               |        AND TRANS.UM_TRANS_ID IN ('AC02000065','AC02000063')
+               |        AND BILL.BILL_SUB_TP IN ('01','03')
+               |        AND TRANS.PART_TRANS_DT = '$today_dt'
+               |        GROUP BY
+               |            BILL.CUP_BRANCH_INS_ID_NM,
+               |            TRANS.TRANS_DT)B
+               |ON
+               |A.CUP_BRANCH_INS_ID_NM = B.CUP_BRANCH_INS_ID_NM AND A.TRANS_DT = B.TRANS_DT
+               |WHERE A.TRANS_DT ='$today_dt'
+               |
           """.stripMargin)
-      println(s"#### JOB_DM_30 spark sql 清洗数据完成时间为:" + DateUtils.getCurrentSystemTime())
 
-      println(s"###JOB_DM_30-------- results:"+results.count())
-      if(!Option(results).isEmpty){
-        results.save2Mysql("DM_DISC_TKT_ACT_BRANCH_DLY ")
-        println(s"#### JOB_DM_30 数据插入完成时间为：" + DateUtils.getCurrentSystemTime())
-      }else{
-        println(s"#### JOB_DM_30 spark sql 清洗后数据无结果集！")
+          println(s"#### JOB_DM_30 spark sql 清洗[$today_dt]数据完成时间为:" + DateUtils.getCurrentSystemTime())
+//        println(s"###JOB_DM_30------$today_dt results:"+results.count())
+          if(!Option(results).isEmpty){
+            println(s"#### JOB_DM_30 [$today_dt]数据插入开始时间为：" + DateUtils.getCurrentSystemTime())
+            results.save2Mysql("DM_DISC_TKT_ACT_BRANCH_DLY")
+            println(s"#### JOB_DM_30 [$today_dt]数据插入完成时间为：" + DateUtils.getCurrentSystemTime())
+          }else{
+            println(s"#### JOB_DM_30 spark sql 清洗[$today_dt]数据无结果集！")
+          }
+          today_dt=DateUtils.addOneDay(today_dt)
+        }
       }
-
-
     }
   }
 
@@ -4304,6 +4316,7 @@ object SparkHive2Mysql {
   /**
     * JobName: JOB_DM_36
     * Feature:DM_DISC_TKT_ACT_MCHNT_IND_DLY
+    * NOTE: 添加过滤条件 WHERE A.FIRST_PARA_NM IS NOT NULL
     * @author tzq
     * @time 2016-12-21
     * @param sqlContext
@@ -4311,7 +4324,7 @@ object SparkHive2Mysql {
     * @param end_dt
     */
   def JOB_DM_36 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
-    println("###JOB_DM_36(DM_DISC_TKT_ACT_MCHNT_IND_DLY )### "+DateUtils.getCurrentSystemTime())
+    println("#### JOB_DM_36(DM_DISC_TKT_ACT_MCHNT_IND_DLY )### "+DateUtils.getCurrentSystemTime())
     DateUtils.timeCost("JOB_DM_36"){
       UPSQL_JDBC.delete(s"DM_DISC_TKT_ACT_MCHNT_IND_DLY ","REPORT_DT",start_dt,end_dt)
       println( "#### JOB_DM_36 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
@@ -4569,6 +4582,7 @@ object SparkHive2Mysql {
            |        A.FIRST_PARA_NM = B.FIRST_PARA_NM
            |    AND A.SECOND_PARA_NM = B.SECOND_PARA_NM
            |    AND A.TRANS_DT = B.TRANS_DT )
+           |WHERE A.FIRST_PARA_NM IS NOT NULL
            |
           """.stripMargin)
       println(s"#### JOB_DM_36 spark sql 清洗数据完成时间为:" + DateUtils.getCurrentSystemTime())
@@ -4737,6 +4751,7 @@ object SparkHive2Mysql {
   /**
     * JobName: JOB_DM_38
     * Feature:DM_DISC_TKT_ACT_ISS_INS_DLY
+    * notice: 主键空值已经过滤 WHERE A.ISS_INS_CN_NM IS NOT NULL
     * @author tzq
     * @time 2016-12-22
     * @param sqlContext
@@ -4820,10 +4835,8 @@ object SparkHive2Mysql {
            |            CBI.ISS_INS_CN_NM,
            |            TRANS_DT)B
            |ON
-           |    (
-           |        A.ISS_INS_CN_NM = B.ISS_INS_CN_NM
-           |    AND A.TRANS_DT = B.TRANS_DT )
-           |
+           |A.ISS_INS_CN_NM = B.ISS_INS_CN_NM AND A.TRANS_DT = B.TRANS_DT
+           |WHERE A.ISS_INS_CN_NM IS NOT NULL
            |
           """.stripMargin)
       println(s"#### JOB_DM_38 spark sql 清洗数据完成时间为:" + DateUtils.getCurrentSystemTime())
@@ -4849,115 +4862,119 @@ object SparkHive2Mysql {
     * @param start_dt
     * @param end_dt
     */
-  def JOB_DM_39 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
+  def JOB_DM_39 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String,interval:Int) = {
     println("###JOB_DM_39(DM_DISC_TKT_ACT_BRAND_INF_DLY )### "+DateUtils.getCurrentSystemTime())
     DateUtils.timeCost("JOB_DM_39"){
       UPSQL_JDBC.delete(s"DM_DISC_TKT_ACT_BRAND_INF_DLY ","REPORT_DT",start_dt,end_dt)
 
       println( "#### JOB_DM_39 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
 
-      println(s"#### JOB_DM_39 spark sql 清洗数据开始时间为:" + DateUtils.getCurrentSystemTime())
-      sqlContext.sql(s"use $hive_dbname")
-      val results =sqlContext.sql(
-        s"""
-           |SELECT
-           |    A.BRAND_NM        AS BRAND_NM,
-           |    A.TRANS_DT        AS REPORT_DT,
-           |    A.TRANSCNT        AS TRANS_CNT,
-           |    B.SUCTRANSCNT     AS SUC_TRANS_CNT,
-           |    B.TRANSAT         AS TRANS_AT,
-           |    B.DISCOUNTAT      AS DISCOUNT_AT,
-           |    B.TRANSUSRCNT     AS TRANS_USR_CNT,
-           |    B.TRANSCARDCNT    AS TRANS_CARD_CNT
-           |FROM
-           |    (
-           |        SELECT
-           |            SUBSTR(BRAND.BRAND_NM,1,42) AS BRAND_NM,
-           |            TRANS.TRANS_DT,
-           |            COUNT(1) AS TRANSCNT
-           |        FROM
-           |            HIVE_ACC_TRANS TRANS
-           |        INNER JOIN
-           |            HIVE_TICKET_BILL_BAS_INF BILL
-           |        ON
-           |            TRANS.BILL_ID=BILL.BILL_ID
-           |        LEFT JOIN
-           |            HIVE_CHARA_GRP_DEF_BAT CHARA_GRP
-           |        ON
-           |            BILL.CHARA_GRP_CD=CHARA_GRP.CHARA_GRP_CD
-           |        INNER JOIN
-           |            HIVE_PREFERENTIAL_MCHNT_INF PRE_MCHNT
-           |        ON
-           |            PRE_MCHNT.MCHNT_CD=CHARA_GRP.CHARA_DATA
-           |        INNER JOIN
-           |            HIVE_BRAND_INF BRAND
-           |        ON
-           |            PRE_MCHNT.BRAND_ID=BRAND.BRAND_ID
-           |        WHERE
-           |            TRANS.UM_TRANS_ID IN ('AC02000065', 'AC02000063')
-           |        AND BILL.BILL_SUB_TP IN ('01', '03')
-           |        AND TRANS.PART_TRANS_DT >= '$start_dt'
-           |        AND TRANS.PART_TRANS_DT <= '$end_dt'
-           |        GROUP BY
-           |            SUBSTR(BRAND.BRAND_NM,1,42),
-           |            TRANS_DT) A
-           |LEFT JOIN
-           |    (
-           |        SELECT
-           |            SUBSTR(BRAND.BRAND_NM,1,42) AS BRAND_NM,
-           |            TRANS.TRANS_DT,
-           |            COUNT(1) AS SUCTRANSCNT,
-           |            SUM(TRANS.TRANS_AT) AS TRANSAT,
-           |            SUM(TRANS.DISCOUNT_AT)          AS DISCOUNTAT,
-           |            COUNT(DISTINCT TRANS.CDHD_USR_ID) AS TRANSUSRCNT,
-           |            COUNT(DISTINCT TRANS.PRI_ACCT_NO) AS TRANSCARDCNT
-           |        FROM
-           |            HIVE_ACC_TRANS TRANS
-           |        INNER JOIN
-           |            HIVE_TICKET_BILL_BAS_INF BILL
-           |        ON
-           |            TRANS.BILL_ID=BILL.BILL_ID
-           |        LEFT JOIN
-           |            HIVE_CHARA_GRP_DEF_BAT CHARA_GRP
-           |        ON
-           |            BILL.CHARA_GRP_CD=CHARA_GRP.CHARA_GRP_CD
-           |        INNER JOIN
-           |            HIVE_PREFERENTIAL_MCHNT_INF PRE_MCHNT
-           |        ON
-           |            PRE_MCHNT.MCHNT_CD=CHARA_GRP.CHARA_DATA
-           |        INNER JOIN
-           |            HIVE_BRAND_INF BRAND
-           |        ON
-           |            PRE_MCHNT.BRAND_ID=BRAND.BRAND_ID
-           |        WHERE
-           |            TRANS.SYS_DET_CD = 'S'
-           |        AND TRANS.UM_TRANS_ID IN ('AC02000065',
-           |                                  'AC02000063')
-           |        AND BILL.BILL_SUB_TP IN ('01',
-           |                                 '03')
-           |        AND TRANS.PART_TRANS_DT >= '$start_dt'
-           |        AND TRANS.PART_TRANS_DT <= '$end_dt'
-           |        GROUP BY
-           |            SUBSTR(BRAND.BRAND_NM,1,42),
-           |            TRANS_DT)B
-           |ON
-           |    (
-           |        A.BRAND_NM = B.BRAND_NM
-           |    AND A.TRANS_DT = B.TRANS_DT )
-           |order by a.transCnt desc limit 10
-           |
-           |
-           |
+      var today_dt=start_dt
+      if(interval>=0 ){
+        sqlContext.sql(s"use $hive_dbname")
+        for(i <- 0 to interval){
+          println(s"#### JOB_DM_39 spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
+          val results =sqlContext.sql(
+            s"""
+               |SELECT
+               |    A.BRAND_NM  AS BRAND_NM,
+               |    A.TRANS_DT  AS REPORT_DT,
+               |    A.TRANSCNT  AS TRANS_CNT,
+               |    B.SUCTRANSCNT  AS SUC_TRANS_CNT,
+               |    B.TRANSAT  AS TRANS_AT,
+               |    B.DISCOUNTAT  AS DISCOUNT_AT,
+               |    B.TRANSUSRCNT  AS TRANS_USR_CNT,
+               |    B.TRANSCARDCNT  AS TRANS_CARD_CNT
+               |FROM
+               |    (
+               |        SELECT
+               |            SUBSTR(BRAND.BRAND_NM,1,42) AS BRAND_NM,
+               |            TRANS.TRANS_DT,
+               |            COUNT(1) AS TRANSCNT
+               |        FROM
+               |            HIVE_ACC_TRANS TRANS
+               |        INNER JOIN
+               |            HIVE_TICKET_BILL_BAS_INF BILL
+               |        ON
+               |            TRANS.BILL_ID=BILL.BILL_ID
+               |        LEFT JOIN
+               |            HIVE_CHARA_GRP_DEF_BAT CHARA_GRP
+               |        ON
+               |            BILL.CHARA_GRP_CD=CHARA_GRP.CHARA_GRP_CD
+               |        INNER JOIN
+               |            HIVE_PREFERENTIAL_MCHNT_INF PRE_MCHNT
+               |        ON
+               |            PRE_MCHNT.MCHNT_CD=CHARA_GRP.CHARA_DATA
+               |        INNER JOIN
+               |            HIVE_BRAND_INF BRAND
+               |        ON
+               |            PRE_MCHNT.BRAND_ID=BRAND.BRAND_ID
+               |        WHERE
+               |            TRANS.UM_TRANS_ID IN ('AC02000065',
+               |                                  'AC02000063')
+               |        AND BILL.BILL_SUB_TP IN ('01',
+               |                                 '03')
+               |        AND TRANS.PART_TRANS_DT ='$today_dt'
+               |        GROUP BY
+               |            SUBSTR(BRAND.BRAND_NM,1,42),
+               |            TRANS_DT) A
+               |LEFT JOIN
+               |    (
+               |        SELECT
+               |            SUBSTR(BRAND.BRAND_NM,1,42) AS BRAND_NM,
+               |            TRANS.TRANS_DT,
+               |            COUNT(1) AS SUCTRANSCNT,
+               |            SUM(TRANS.TRANS_AT) AS TRANSAT,
+               |            SUM(TRANS.DISCOUNT_AT)          AS DISCOUNTAT,
+               |            COUNT(DISTINCT TRANS.CDHD_USR_ID) AS TRANSUSRCNT,
+               |            COUNT(DISTINCT TRANS.PRI_ACCT_NO) AS TRANSCARDCNT
+               |        FROM
+               |            HIVE_ACC_TRANS TRANS
+               |        INNER JOIN
+               |            HIVE_TICKET_BILL_BAS_INF BILL
+               |        ON
+               |            TRANS.BILL_ID=BILL.BILL_ID
+               |        LEFT JOIN
+               |            HIVE_CHARA_GRP_DEF_BAT CHARA_GRP
+               |        ON
+               |            BILL.CHARA_GRP_CD=CHARA_GRP.CHARA_GRP_CD
+               |        INNER JOIN
+               |            HIVE_PREFERENTIAL_MCHNT_INF PRE_MCHNT
+               |        ON
+               |            PRE_MCHNT.MCHNT_CD=CHARA_GRP.CHARA_DATA
+               |        INNER JOIN
+               |            HIVE_BRAND_INF BRAND
+               |        ON
+               |            PRE_MCHNT.BRAND_ID=BRAND.BRAND_ID
+               |        WHERE
+               |            TRANS.SYS_DET_CD = 'S'
+               |        AND TRANS.UM_TRANS_ID IN ('AC02000065',
+               |                                  'AC02000063')
+               |        AND BILL.BILL_SUB_TP IN ('01',
+               |                                 '03')
+               |        AND TRANS.PART_TRANS_DT = '$today_dt'
+               |        GROUP BY
+               |            SUBSTR(BRAND.BRAND_NM,1,42),
+               |            TRANS_DT)B
+               |ON A.BRAND_NM = B.BRAND_NM AND A.TRANS_DT = B.TRANS_DT
+               |where A.TRANS_DT='$today_dt'
+               |order by A.TRANSCNT desc limit 10
+               |
           """.stripMargin)
-      println(s"#### JOB_DM_39 spark sql 清洗数据完成时间为:" + DateUtils.getCurrentSystemTime())
+          println(s"#### JOB_DM_39 spark sql 清洗[$today_dt]数据完成时间为:" + DateUtils.getCurrentSystemTime())
 
-      println(s"###JOB_DM_39------ results:"+results.count())
-      if(!Option(results).isEmpty){
-        results.save2Mysql("DM_DISC_TKT_ACT_BRAND_INF_DLY")
-        println(s"#### JOB_DM_39 数据插入完成时间为：" + DateUtils.getCurrentSystemTime())
-      }else{
-        println(s"#### JOB_DM_39 spark sql 清洗后数据无结果集！")
+//          println(s"###JOB_DM_39------$today_dt results:"+results.count())
+          if(!Option(results).isEmpty){
+            println(s"#### JOB_DM_39 [$today_dt]数据插入开始时间为：" + DateUtils.getCurrentSystemTime())
+            results.save2Mysql("DM_DISC_TKT_ACT_BRAND_INF_DLY")
+            println(s"#### JOB_DM_39 [$today_dt]数据插入完成时间为：" + DateUtils.getCurrentSystemTime())
+          }else{
+            println(s"#### JOB_DM_39 spark sql 清洗[$today_dt]数据无结果集！")
+          }
+          today_dt=DateUtils.addOneDay(today_dt)
+        }
       }
+
     }
   }
 
@@ -10788,8 +10805,6 @@ object SparkHive2Mysql {
     }
   }
 
-
-
   /**
     * JobName: JOB_DM_89
     * Feature: DM_USR_REGISTER_PHOEN_AREA
@@ -11492,6 +11507,252 @@ object SparkHive2Mysql {
   }
 
 
+
+
+  /**
+    * JobName: JOB_DM_95
+    * Feature: DM_COUPON_TKT_MCHNT_TP_DLY
+    * @author tzq
+    * @time 2017-1-13
+    * @param sqlContext
+    * @param start_dt
+    * @param end_dt
+    * @param interval
+    */
+  def JOB_DM_95 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String,interval:Int) = {
+    println("###JOB_DM_95(DM_COUPON_TKT_MCHNT_TP_DLY)### "+DateUtils.getCurrentSystemTime())
+    DateUtils.timeCost("JOB_DM_95"){
+      UPSQL_JDBC.delete(s"DM_COUPON_TKT_MCHNT_TP_DLY","REPORT_DT",start_dt,end_dt)
+      println( "#### JOB_DM_95 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
+      var today_dt=start_dt
+      if(interval>=0 ){
+        sqlContext.sql(s"use $hive_dbname")
+        for(i <- 0 to interval){
+          println(s"#### JOB_DM_95 spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
+          val results =sqlContext.sql(
+            s"""
+               |SELECT
+               |    A.GRP_NM   AS MCHNT_TP_GRP,
+               |    A.TP_NM   AS MCHNT_TP,
+               |    A.TRANS_DT   AS REPORT_DT,
+               |    A.TRANSCNT   AS TRANS_CNT,
+               |    B.SUCTRANSCNT   AS SUC_TRANS_CNT,
+               |    B.TRANSAT   AS TRANS_AT,
+               |    B.DISCOUNTAT   AS DISCOUNT_AT,
+               |    B.USRCNT   AS TRANS_USR_CNT,
+               |    B.CARDCNT    AS TRANS_CARD_CNT
+               |FROM
+               |    (
+               |        SELECT
+               |            A1.GRP_NM   AS GRP_NM,
+               |            A1.TP_NM    AS TP_NM,
+               |            A1.TRANS_DT AS TRANS_DT,
+               |            COUNT(*)    AS TRANSCNT
+               |        FROM
+               |            (
+               |                SELECT
+               |                    TP_GRP.MCHNT_TP_GRP_DESC_CN AS GRP_NM,
+               |                    TP.MCHNT_TP_DESC_CN         AS TP_NM,
+               |                    TRANS.TRANS_DT              AS TRANS_DT,
+               |                    TRANS.TRANS_AT,
+               |                    TRANS.DISCOUNT_AT,
+               |                    TRANS.CDHD_USR_ID,
+               |                    TRANS.PRI_ACCT_NO
+               |                FROM
+               |                    HIVE_ACC_TRANS TRANS
+               |                INNER JOIN
+               |                    HIVE_MCHNT_INF_WALLET MCHNT
+               |                ON
+               |                    TRANS.MCHNT_CD=MCHNT.MCHNT_CD
+               |                LEFT JOIN
+               |                    HIVE_MCHNT_TP TP
+               |                ON
+               |                    MCHNT.MCHNT_TP=TP.MCHNT_TP
+               |                LEFT JOIN
+               |                    HIVE_MCHNT_TP_GRP TP_GRP
+               |                ON
+               |                    TP.MCHNT_TP_GRP=TP_GRP.MCHNT_TP_GRP
+               |                WHERE
+               |                    TRANS.UM_TRANS_ID IN ('AC02000065',
+               |                                          'AC02000063')
+               |                AND TRANS.BUSS_TP IN ('04',
+               |                                      '05',
+               |                                      '06')
+               |                AND TRANS.PART_TRANS_DT= '$today_dt'
+               |                 ) A1
+               |        GROUP BY
+               |            A1.GRP_NM,
+               |            A1.TP_NM,
+               |            A1.TRANS_DT ) A
+               |LEFT JOIN
+               |    (
+               |        SELECT
+               |            B1.GRP_NM                      AS GRP_NM,
+               |            B1.TP_NM                       AS TP_NM,
+               |            B1.TRANS_DT                    AS TRANS_DT,
+               |            COUNT(*)                       AS SUCTRANSCNT,
+               |            SUM(B1.TRANS_AT)               AS TRANSAT,
+               |            SUM(B1.DISCOUNT_AT)            AS DISCOUNTAT,
+               |            COUNT(DISTINCT B1.CDHD_USR_ID) AS USRCNT,
+               |            COUNT(DISTINCT B1.PRI_ACCT_NO) AS CARDCNT
+               |        FROM
+               |            (
+               |                SELECT
+               |                    TP_GRP.MCHNT_TP_GRP_DESC_CN AS GRP_NM ,
+               |                    TP.MCHNT_TP_DESC_CN         AS TP_NM,
+               |                    TRANS.TRANS_DT,
+               |                    TRANS.TRANS_AT,
+               |                    TRANS.DISCOUNT_AT,
+               |                    TRANS.CDHD_USR_ID,
+               |                    TRANS.PRI_ACCT_NO
+               |                FROM
+               |                    HIVE_ACC_TRANS TRANS
+               |                INNER JOIN
+               |                    HIVE_MCHNT_INF_WALLET MCHNT
+               |                ON
+               |                    TRANS.MCHNT_CD=MCHNT.MCHNT_CD
+               |                LEFT JOIN
+               |                    HIVE_MCHNT_TP TP
+               |                ON
+               |                    MCHNT.MCHNT_TP=TP.MCHNT_TP
+               |                LEFT JOIN
+               |                    HIVE_MCHNT_TP_GRP TP_GRP
+               |                ON
+               |                    TP.MCHNT_TP_GRP=TP_GRP.MCHNT_TP_GRP
+               |                WHERE
+               |                    TRANS.SYS_DET_CD='S'
+               |                AND TRANS.UM_TRANS_ID IN ('AC02000065',
+               |                                          'AC02000063')
+               |                AND TRANS.BUSS_TP IN ('04', '05','06')
+               |                AND TRANS.PART_TRANS_DT = '$today_dt' ) B1
+               |        GROUP BY
+               |            B1.GRP_NM,
+               |            B1.TP_NM,
+               |            B1.TRANS_DT) B
+               |ON
+               |    A.GRP_NM=B.GRP_NM
+               |AND A.TP_NM=B.TP_NM
+               |AND A.TRANS_DT=B.TRANS_DT
+          """.stripMargin)
+          println(s"#### JOB_DM_95 spark sql 清洗[$today_dt]数据完成时间为:" + DateUtils.getCurrentSystemTime())
+
+          println(s"###JOB_DM_95------$today_dt results:"+results.count())
+          if(!Option(results).isEmpty){
+            results.save2Mysql("DM_COUPON_TKT_MCHNT_TP_DLY")
+            println(s"#### JOB_DM_95 [$today_dt]数据插入完成时间为：" + DateUtils.getCurrentSystemTime())
+          }else{
+            println(s"#### JOB_DM_95 spark sql 清洗[$today_dt]数据无结果集！")
+          }
+          today_dt=DateUtils.addOneDay(today_dt)
+        }
+      }
+    }
+  }
+
+
+  /**
+    * JobName: JOB_DM_96
+    * Feature: DM_COUPON_TKT_ISS_INS_DLY
+    * @author tzq
+    * @time 2017-1-13
+    * @param sqlContext
+    * @param start_dt
+    * @param end_dt
+    * @param interval
+    */
+  def JOB_DM_96 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String,interval:Int) = {
+    println("###JOB_DM_96(DM_COUPON_TKT_ISS_INS_DLY)### "+DateUtils.getCurrentSystemTime())
+    DateUtils.timeCost("JOB_DM_96"){
+      UPSQL_JDBC.delete(s"DM_COUPON_TKT_ISS_INS_DLY","REPORT_DT",start_dt,end_dt)
+      println( "#### JOB_DM_96 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
+      var today_dt=start_dt
+      if(interval>=0 ){
+        sqlContext.sql(s"use $hive_dbname")
+        for(i <- 0 to interval){
+          println(s"#### JOB_DM_96 spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
+          val results =sqlContext.sql(
+            s"""
+               |SELECT
+               |    A.ISS_INS_CN_NM          AS ISS_INS_NM,
+               |    A.TRANS_DT          AS REPORT_DT,
+               |    A.TRANSCNT          AS TRANS_CNT,
+               |    B.SUCTRANSCNT          AS SUC_TRANS_CNT,
+               |    B.TRANSAT          AS TRANS_AT,
+               |    B.DISCOUNTAT          AS DISCOUNT_AT,
+               |    B.TRANSUSRCNT          AS TRANS_USR_CNT,
+               |    B.TRANSCARDCNT          AS TRANS_CARD_CNT
+               |FROM
+               |    (
+               |        SELECT
+               |            CBI.ISS_INS_CN_NM,
+               |            TRANS.TRANS_DT,
+               |            COUNT(1) AS TRANSCNT
+               |        FROM
+               |            HIVE_ACC_TRANS TRANS
+               |        LEFT JOIN
+               |            HIVE_CARD_BIND_INF CBI
+               |        ON
+               |            (
+               |                TRANS.CARD_NO = CBI.BIND_CARD_NO)
+               |        WHERE
+               |            TRANS.UM_TRANS_ID IN ('AC02000065',
+               |                                  'AC02000063')
+               |        AND TRANS.BUSS_TP IN ('04',
+               |                              '05',
+               |                              '06')
+               |        AND TRANS.PART_TRANS_DT = '$today_dt'
+               |        GROUP BY
+               |            CBI.ISS_INS_CN_NM, TRANS_DT) A
+               |LEFT JOIN
+               |    (
+               |        SELECT
+               |            CBI.ISS_INS_CN_NM,
+               |            TRANS.TRANS_DT,
+               |            COUNT(1)                          AS SUCTRANSCNT,
+               |            SUM(TRANS.TRANS_AT)               AS TRANSAT,
+               |            SUM(TRANS.DISCOUNT_AT)            AS DISCOUNTAT,
+               |            COUNT(DISTINCT TRANS.CDHD_USR_ID) AS TRANSUSRCNT,
+               |            COUNT(DISTINCT TRANS.PRI_ACCT_NO) AS TRANSCARDCNT
+               |        FROM
+               |            HIVE_ACC_TRANS TRANS
+               |        LEFT JOIN
+               |            HIVE_CARD_BIND_INF CBI
+               |        ON
+               |            (
+               |                TRANS.CARD_NO = CBI.BIND_CARD_NO)
+               |        WHERE
+               |            TRANS.SYS_DET_CD = 'S'
+               |        AND TRANS.UM_TRANS_ID IN ('AC02000065',
+               |                                  'AC02000063')
+               |        AND TRANS.BUSS_TP IN ('04',
+               |                              '05',
+               |                              '06')
+               |        AND TRANS.PART_TRANS_DT = '$today_dt'
+               |        GROUP BY
+               |            CBI.ISS_INS_CN_NM,
+               |            TRANS_DT)B
+               |ON
+               |    (
+               |        A.ISS_INS_CN_NM = B.ISS_INS_CN_NM
+               |    AND A.TRANS_DT = B.TRANS_DT )
+               |
+               |
+          """.stripMargin)
+          println(s"#### JOB_DM_96 spark sql 清洗[$today_dt]数据完成时间为:" + DateUtils.getCurrentSystemTime())
+
+          println(s"###JOB_DM_96------$today_dt results:"+results.count())
+          if(!Option(results).isEmpty){
+            results.save2Mysql("DM_COUPON_TKT_ISS_INS_DLY")
+            println(s"#### JOB_DM_96 [$today_dt]数据插入完成时间为：" + DateUtils.getCurrentSystemTime())
+          }else{
+            println(s"#### JOB_DM_96 spark sql 清洗[$today_dt]数据无结果集！")
+          }
+          today_dt=DateUtils.addOneDay(today_dt)
+        }
+      }
+    }
+  }
+
   /**
     * JOB_DM_97 20170116
     * dm_coupon_tkt_branch_dly->hive_acc_trans,hive_ticket_bill_bas_inf
@@ -11581,5 +11842,6 @@ object SparkHive2Mysql {
       }
     }
   }
+
 }
 // ## END LINE ##
