@@ -41,7 +41,7 @@ object SparkUPWH2H {
     //      end_dt = args(2)
     //    } else {
     //      println("#### 缺少参数输入")
-    //      println("#### 请指定 SparkDB22Hive 数据抽取的起始日期")
+    //      println("#### 请指定 SparkUPWH2H 数据抽取的起始日期")
     //    }
 
     //val interval=DateUtils.getIntervalDays(start_dt,end_dt).toInt //not use
