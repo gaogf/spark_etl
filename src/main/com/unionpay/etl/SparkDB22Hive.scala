@@ -1215,7 +1215,7 @@ object SparkDB22Hive {
     */
   def JOB_HV_8 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String) =  {
 
-    println("#### JOB_HV_8(tbl_chmgm_store_term_relation,hive_acc_trans -> hive_card_bind_inf)")
+    println("#### JOB_HV_8(tbl_chmgm_store_term_relation,hive_trans_dtl ->hive_store_term_relation )")
     println("#### JOB_HV_8 为全量抽取的表")
 
     DateUtils.timeCost("JOB_HV_8") {
