@@ -63,7 +63,7 @@ object SparkDB22Hive {
 //      println("#### 请指定 SparkDB22Hive 数据抽取的起始日期")
 //    }
 
-    val interval = DateUtils.getIntervalDays(start_dt, end_dt).toInt
+//    val interval = DateUtils.getIntervalDays(start_dt, end_dt).toInt //not use
 
     println(s"#### SparkDB22Hive 数据抽取的起始日期为: $start_dt --  $end_dt")
 
