@@ -93,7 +93,6 @@ object SparkDB22Hive {
       case "JOB_HV_33" => JOB_HV_33(sqlContext, start_dt, end_dt) //CODE BY XTP   already formatted
       case "JOB_HV_36" => JOB_HV_36 //CODE BY YX
       case "JOB_HV_44" => JOB_HV_44 //CODE BY TZQ
-      case "JOB_HV_45" => JOB_HV_45 //CODE BY YX
       case "JOB_HV_46" => JOB_HV_46 //CODE BY XTP   already formatted
       case "JOB_HV_47" => JOB_HV_47 //CODE BY XTP   already formatted
       case "JOB_HV_48" => JOB_HV_48 //CODE BY TZQ
@@ -123,6 +122,7 @@ object SparkDB22Hive {
       case "JOB_HV_35" => JOB_HV_35 //CODE BY XTP
       case "JOB_HV_37" => JOB_HV_37 //CODE BY TZQ
       case "JOB_HV_38" => JOB_HV_38 //CODE BY TZQ
+      case "JOB_HV_45" => JOB_HV_45 //CODE BY YX
       case "JOB_HV_75" => JOB_HV_75 //CODE BY XTP
       case "JOB_HV_76" => JOB_HV_76 //CODE BY XTP
 
