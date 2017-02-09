@@ -3512,11 +3512,15 @@ object SparkDB22Hive {
     * @param sqlContext
     */
   def JOB_HV_34(implicit sqlContext: HiveContext) = {
+    println("###JOB_HV_34(TBL_CHMGM_CHARA_ACCT_DEF_TMP -> HIVE_BUSS_DIST)")
+    println("#### JOB_HV_34 为全量抽取的表")
+
     DateUtils.timeCost("JOB_HV_34"){
-      println("###JOB_HV_34(TBL_CHMGM_CHARA_ACCT_DEF_TMP -> HIVE_BUSS_DIST)")
       sqlContext.sql(s"use $hive_dbname")
       val df = sqlContext.readDB2_MGM(s"$schemas_mgmdb.TBL_CHMGM_CHARA_ACCT_DEF_TMP")
+      println("#### JOB_HV_34 readDB2_MGM 的系统时间为:"+DateUtils.getCurrentSystemTime())
       df.registerTempTable("TBL_CHMGM_CHARA_ACCT_DEF_TMP")
+      println("#### JOB_HV_34 注册临时表的系统时间为:"+DateUtils.getCurrentSystemTime())
       val results = sqlContext.sql(
         """
           |SELECT
@@ -3551,15 +3555,18 @@ object SparkDB22Hive {
           |FROM TBL_CHMGM_CHARA_ACCT_DEF_TMP ta
         """.stripMargin
       )
+      println("#### JOB_HV_34 spark sql 逻辑完成的系统时间为:"+DateUtils.getCurrentSystemTime())
 
-      println("JOB_HV_34------>results:"+results.count())
+      results.registerTempTable("spark_hive_buss_dist")
+      println("#### JOB_HV_34 registerTempTable-- spark_hive_buss_dist完成的系统时间为:"+DateUtils.getCurrentSystemTime())
+
       if(!Option(results).isEmpty){
-        results.registerTempTable("spark_hive_buss_dist")
+        sqlContext.sql(s"use $hive_dbname")
         sqlContext.sql("truncate table hive_buss_dist")
         sqlContext.sql("insert into table hive_buss_dist select * from spark_hive_buss_dist")
-        println("###JOB_HV_36(insert into table hive_buss_dist successful) ")
+        println("#### JOB_HV_34 全量数据插入完成的时间为："+DateUtils.getCurrentSystemTime())
       }else{
-        println("加载的表TBL_CHACC_CDHD_BILL_ACCT_INF中无数据！")
+        println("#### JOB_HV_34 spark sql 逻辑处理后无数据！")
       }
     }
 
@@ -4696,9 +4703,14 @@ object SparkDB22Hive {
     * @param sqlContext
     */
   def JOB_HV_75 (implicit sqlContext: HiveContext) = {
+    println("#### JOB_HV_75(hive_access_static_inf->tbl_chmgm_access_static_inf)")
+    println("#### JOB_HV_75 为全量抽取的表")
+
     DateUtils.timeCost("JOB_HV_75"){
       val df2_1 = sqlContext.readDB2_MGM(s"$schemas_mgmdb.tbl_chmgm_access_static_inf ")
+      println("#### JOB_HV_75 readDB2_MGM 的系统时间为:"+DateUtils.getCurrentSystemTime())
       df2_1.registerTempTable("tbl_chmgm_access_static_inf")
+      println("#### JOB_HV_75 注册临时表的系统时间为:"+DateUtils.getCurrentSystemTime())
 
       val results = sqlContext.sql(
         s"""
@@ -4728,18 +4740,22 @@ object SparkDB22Hive {
            |ta.rec_crt_ts as rec_crt_ts                        ,
            |ta.rec_upd_ts as rec_upd_ts
            |
-         |from tbl_chmgm_access_static_inf ta
+           |from tbl_chmgm_access_static_inf ta
            |
-         | """.stripMargin)
-      println("JOB_HV_75------>results:"+results.count())
+           | """.stripMargin)
+      println("#### JOB_HV_75 spark sql 逻辑完成的系统时间为:"+DateUtils.getCurrentSystemTime())
+
+      results.registerTempTable("spark_hive_access_static_inf")
+      println("#### JOB_HV_75 registerTempTable--spark_hive_access_static_inf 完成的系统时间为:"+DateUtils.getCurrentSystemTime())
+
       if(!Option(results).isEmpty){
-        results.registerTempTable("spark_hive_access_static_inf")
         sqlContext.sql(s"use $hive_dbname")
         sqlContext.sql("truncate table  hive_access_static_inf")
         sqlContext.sql("insert into table hive_access_static_inf select * from spark_hive_access_static_inf")
-        println("insert into table hive_access_static_inf successfully!")
+        println("#### JOB_HV_75 全量数据插入完成的时间为："+DateUtils.getCurrentSystemTime())
       }else{
-        println("加载的表spark_hive_access_static_inf中无数据！")
+        println("#### JOB_HV_75 spark sql 逻辑处理后无数据！")
+
       }
     }
 
@@ -4754,9 +4770,15 @@ object SparkDB22Hive {
     * @param sqlContext
     */
   def JOB_HV_76 (implicit sqlContext: HiveContext) = {
+    println("#### JOB_HV_76(hive_region_cd->tbl_chmgm_region_cd)")
+    println("#### JOB_HV_76 为全量抽取的表")
+
     DateUtils.timeCost("JOB_HV_76"){
       val df2_1 = sqlContext.readDB2_MGM(s"$schemas_mgmdb.tbl_chmgm_region_cd ")
+      println("#### JOB_HV_76 readDB2_MGM 的系统时间为:"+DateUtils.getCurrentSystemTime())
+
       df2_1.registerTempTable("tbl_chmgm_region_cd")
+      println("#### JOB_HV_76 注册临时表的系统时间为:"+DateUtils.getCurrentSystemTime())
 
       val results = sqlContext.sql(
         s"""
@@ -4844,18 +4866,21 @@ object SparkDB22Hive {
            |     when ta.prov_region_cd like '88%' then '新疆'
            |end as cup_branch_ins_id_nm
            |
-         |from tbl_chmgm_region_cd ta
+           |from tbl_chmgm_region_cd ta
            |
-         | """.stripMargin)
-      println("JOB_HV_76------>results:"+results.count())
+           | """.stripMargin)
+      println("#### JOB_HV_76 spark sql 逻辑完成的系统时间为:"+DateUtils.getCurrentSystemTime())
+
+      results.registerTempTable("spark_hive_region_cd")
+      println("#### JOB_HV_1 registerTempTable--spark_hive_region_cd 完成的系统时间为:"+DateUtils.getCurrentSystemTime())
+
       if(!Option(results).isEmpty){
-        results.registerTempTable("spark_hive_region_cd")
         sqlContext.sql(s"use $hive_dbname")
         sqlContext.sql("truncate table  hive_region_cd")
         sqlContext.sql("insert into table hive_region_cd select * from spark_hive_region_cd")
-        println("insert into table hive_region_cd successfully!")
+        println("#### JOB_HV_76 全量数据插入完成的时间为："+DateUtils.getCurrentSystemTime())
       }else{
-        println("加载的表spark_hive_region_cd中无数据！")
+        println("#### JOB_HV_76 spark sql 逻辑处理后无数据！")
       }
     }
 
