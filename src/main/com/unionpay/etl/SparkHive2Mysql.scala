@@ -20,11 +20,14 @@ object SparkHive2Mysql {
       .set("spark.serializer","org.apache.spark.serializer.KryoSerializer")
       .set("spark.Kryoserializer.buffer.max","1024m")
       .set("spark.yarn.driver.memoryOverhead","1024")
-      .set("spark.yarn.executor.memoryOverhead","2000")
+      .set("spark.yarn.executor.memoryOverhead","2048")
       .set("spark.newwork.buffer.timeout","300s")
       .set("spark.executor.heartbeatInterval","30s")
       .set("spark.driver.extraJavaOptions","-XX:+UseG1GC -XX:+UseCompressedOops")
       .set("spark.executor.extraJavaOptions","-XX:+UseG1GC -XX:+UseCompressedOops")
+      .set("spark.memory.useLegacyMode","true")
+      .set("spark.sql.shuffle.partitions","200")
+
 
 
     val sc = new SparkContext(conf)
@@ -108,7 +111,7 @@ object SparkHive2Mysql {
 
       case "JOB_DM_34" =>JOB_DM_34(sqlContext,start_dt,end_dt)              //CODE BY TZQ
       case "JOB_DM_35" =>JOB_DM_35(sqlContext,start_dt,end_dt)              //CODE BY TZQ
-      case "JOB_DM_36" =>JOB_DM_36(sqlContext,start_dt,end_dt)              //CODE BY TZQ  [测试未通过,解决中]
+      case "JOB_DM_36" =>JOB_DM_36(sqlContext,start_dt,end_dt,interval)     //CODE BY TZQ  [测试未通过,解决中]
       case "JOB_DM_37" =>JOB_DM_37(sqlContext,start_dt,end_dt)              //CODE BY TZQ
       case "JOB_DM_38" =>JOB_DM_38(sqlContext,start_dt,end_dt)              //CODE BY TZQ
       case "JOB_DM_39" =>JOB_DM_39(sqlContext,start_dt,end_dt,interval)     //CODE BY TZQ
@@ -4323,276 +4326,280 @@ object SparkHive2Mysql {
     * @param start_dt
     * @param end_dt
     */
-  def JOB_DM_36 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
+  def JOB_DM_36 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String,interval:Int) = {
     println("#### JOB_DM_36(DM_DISC_TKT_ACT_MCHNT_IND_DLY )### "+DateUtils.getCurrentSystemTime())
     DateUtils.timeCost("JOB_DM_36"){
       UPSQL_JDBC.delete(s"DM_DISC_TKT_ACT_MCHNT_IND_DLY ","REPORT_DT",start_dt,end_dt)
       println( "#### JOB_DM_36 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
 
-      println(s"#### JOB_DM_36 spark sql 清洗数据开始时间为:" + DateUtils.getCurrentSystemTime())
-      sqlContext.sql(s"use $hive_dbname")
-      val results =sqlContext.sql(
-        s"""
-           |SELECT
-           |    A.FIRST_PARA_NM    AS FIRST_IND_NM,
-           |    A.SECOND_PARA_NM   AS SECOND_IND_NM,
-           |    A.TRANS_DT         AS REPORT_DT,
-           |    A.TRANSCNT         AS TRANS_CNT,
-           |    B.SUCTRANSCNT      AS SUC_TRANS_CNT,
-           |    B.TRANSAT          AS TRANS_AT,
-           |    B.DISCOUNTAT       AS DISCOUNT_AT,
-           |    B.TRANSUSRCNT      AS TRANS_USR_CNT,
-           |    B.TRANSCARDCNT     AS TRANS_CARD_CNT
-           |FROM
-           |    (
-           |        SELECT
-           |            MP.MCHNT_PARA_CN_NM  AS FIRST_PARA_NM,
-           |            MP1.MCHNT_PARA_CN_NM AS SECOND_PARA_NM,
-           |            TRANS.TRANS_DT,
-           |            COUNT(1) AS TRANSCNT
-           |        FROM
-           |            HIVE_ACC_TRANS TRANS
-           |        INNER JOIN
-           |            HIVE_STORE_TERM_RELATION STR
-           |        ON
-           |            (
-           |                TRANS.CARD_ACCPTR_CD = STR.MCHNT_CD
-           |            AND TRANS.CARD_ACCPTR_TERM_ID = STR.TERM_ID)
-           |        LEFT JOIN
-           |            HIVE_PREFERENTIAL_MCHNT_INF PMI
-           |        ON
-           |            (
-           |                STR.THIRD_PARTY_INS_ID = PMI.MCHNT_CD)
-           |        LEFT JOIN
-           |            HIVE_MCHNT_PARA MP
-           |        ON
-           |            (
-           |                PMI.MCHNT_FIRST_PARA = MP.MCHNT_PARA_ID)
-           |        LEFT JOIN
-           |            HIVE_MCHNT_PARA MP1
-           |        ON
-           |            (
-           |                PMI.MCHNT_SECOND_PARA = MP1.MCHNT_PARA_ID)
-           |        LEFT JOIN
-           |            HIVE_TICKET_BILL_BAS_INF BILL
-           |        ON
-           |            (
-           |                TRANS.BILL_ID=BILL.BILL_ID)
-           |        WHERE
-           |            TRANS.UM_TRANS_ID IN ('AC02000065',
-           |                                  'AC02000063')
-           |        AND STR.REC_ID IS NOT NULL
-           |        AND BILL.BILL_SUB_TP IN ('01',
-           |                                 '03')
-           |        AND TRANS.PART_TRANS_DT >= '$start_dt'
-           |        AND TRANS.PART_TRANS_DT <= '$end_dt'
-           |        GROUP BY
-           |            MP.MCHNT_PARA_CN_NM,
-           |            MP1.MCHNT_PARA_CN_NM,
-           |            TRANS_DT) A
-           |LEFT JOIN
-           |    (
-           |        SELECT
-           |            MP.MCHNT_PARA_CN_NM  AS FIRST_PARA_NM,
-           |            MP1.MCHNT_PARA_CN_NM AS SECOND_PARA_NM,
-           |            TRANS.TRANS_DT,
-           |            COUNT(1)                          AS SUCTRANSCNT,
-           |            SUM(TRANS.TRANS_AT)               AS TRANSAT,
-           |            SUM(TRANS.DISCOUNT_AT)            AS DISCOUNTAT,
-           |            COUNT(DISTINCT TRANS.CDHD_USR_ID) AS TRANSUSRCNT,
-           |            COUNT(DISTINCT TRANS.PRI_ACCT_NO) AS TRANSCARDCNT
-           |        FROM
-           |            HIVE_ACC_TRANS TRANS
-           |        INNER JOIN
-           |            HIVE_STORE_TERM_RELATION STR
-           |        ON
-           |            (
-           |                TRANS.CARD_ACCPTR_CD = STR.MCHNT_CD
-           |            AND TRANS.CARD_ACCPTR_TERM_ID = STR.TERM_ID)
-           |        LEFT JOIN
-           |            HIVE_PREFERENTIAL_MCHNT_INF PMI
-           |        ON
-           |            (
-           |                STR.THIRD_PARTY_INS_ID = PMI.MCHNT_CD)
-           |        LEFT JOIN
-           |            HIVE_MCHNT_PARA MP
-           |        ON
-           |            (
-           |                PMI.MCHNT_FIRST_PARA = MP.MCHNT_PARA_ID)
-           |        LEFT JOIN
-           |            HIVE_MCHNT_PARA MP1
-           |        ON
-           |            (
-           |                PMI.MCHNT_SECOND_PARA = MP1.MCHNT_PARA_ID)
-           |        LEFT JOIN
-           |            HIVE_TICKET_BILL_BAS_INF BILL
-           |        ON
-           |            (
-           |                TRANS.BILL_ID=BILL.BILL_ID)
-           |        WHERE
-           |            TRANS.SYS_DET_CD = 'S'
-           |        AND TRANS.UM_TRANS_ID IN ('AC02000065',
-           |                                  'AC02000063')
-           |        AND STR.REC_ID IS NOT NULL
-           |        AND BILL.BILL_SUB_TP IN ('01',
-           |                                 '03')
-           |        AND TRANS.PART_TRANS_DT >= '$start_dt'
-           |        AND TRANS.PART_TRANS_DT <= '$end_dt'
-           |        GROUP BY
-           |            MP.MCHNT_PARA_CN_NM,
-           |            MP1.MCHNT_PARA_CN_NM,
-           |            TRANS_DT)B
-           |ON
-           |    (
-           |        A.FIRST_PARA_NM = B.FIRST_PARA_NM
-           |    AND A.SECOND_PARA_NM = B.SECOND_PARA_NM
-           |    AND A.TRANS_DT = B.TRANS_DT )
-           |UNION ALL
-           |SELECT
-           |    A.FIRST_PARA_NM,
-           |    A.SECOND_PARA_NM,
-           |    A.TRANS_DT,
-           |    A.TRANSCNT,
-           |    B.SUCTRANSCNT,
-           |    B.TRANSAT,
-           |    B.DISCOUNTAT,
-           |    B.TRANSUSRCNT,
-           |    B.TRANSCARDCNT
-           |FROM
-           |    (
-           |        SELECT
-           |            MP.MCHNT_PARA_CN_NM  AS FIRST_PARA_NM,
-           |            MP1.MCHNT_PARA_CN_NM AS SECOND_PARA_NM,
-           |            TRANS.TRANS_DT,
-           |            COUNT(1) AS TRANSCNT
-           |        FROM
-           |            HIVE_ACC_TRANS TRANS
-           |        LEFT JOIN
-           |            HIVE_STORE_TERM_RELATION STR
-           |        ON
-           |            (
-           |                TRANS.CARD_ACCPTR_CD = STR.MCHNT_CD
-           |            AND TRANS.CARD_ACCPTR_TERM_ID = STR.TERM_ID)
-           |        LEFT JOIN
-           |            (
-           |                SELECT
-           |                    MCHNT_CD,
-           |                    MAX(THIRD_PARTY_INS_ID) OVER (PARTITION BY MCHNT_CD) AS THIRD_PARTY_INS_ID
-           |                FROM
-           |                    HIVE_STORE_TERM_RELATION) STR1
-           |        ON
-           |            (
-           |                TRANS.CARD_ACCPTR_CD = STR1.MCHNT_CD)
-           |        LEFT JOIN
-           |            HIVE_PREFERENTIAL_MCHNT_INF PMI
-           |        ON
-           |            (
-           |                STR1.THIRD_PARTY_INS_ID = PMI.MCHNT_CD)
-           |        LEFT JOIN
-           |            HIVE_MCHNT_PARA MP
-           |        ON
-           |            (
-           |                PMI.MCHNT_FIRST_PARA = MP.MCHNT_PARA_ID)
-           |        LEFT JOIN
-           |            HIVE_MCHNT_PARA MP1
-           |        ON
-           |            (
-           |                PMI.MCHNT_SECOND_PARA = MP1.MCHNT_PARA_ID)
-           |        LEFT JOIN
-           |            HIVE_TICKET_BILL_BAS_INF BILL
-           |        ON
-           |            (
-           |                TRANS.BILL_ID=BILL.BILL_ID)
-           |        WHERE
-           |            TRANS.UM_TRANS_ID IN ('AC02000065',
-           |                                  'AC02000063')
-           |        AND BILL.BILL_SUB_TP IN ('01',
-           |                                 '03')
-           |        AND STR.REC_ID IS NULL
-           |        AND TRANS.PART_TRANS_DT >= '$start_dt'
-           |        AND TRANS.PART_TRANS_DT <= '$end_dt'
-           |        GROUP BY
-           |            MP.MCHNT_PARA_CN_NM,
-           |            MP1.MCHNT_PARA_CN_NM,
-           |            TRANS_DT) A
-           |LEFT JOIN
-           |    (
-           |        SELECT
-           |            MP.MCHNT_PARA_CN_NM  AS FIRST_PARA_NM,
-           |            MP1.MCHNT_PARA_CN_NM AS SECOND_PARA_NM,
-           |            TRANS.TRANS_DT,
-           |            COUNT(1)                          AS SUCTRANSCNT,
-           |            SUM(TRANS.TRANS_AT)               AS TRANSAT,
-           |            SUM(TRANS.DISCOUNT_AT)            AS DISCOUNTAT,
-           |            COUNT(DISTINCT TRANS.CDHD_USR_ID) AS TRANSUSRCNT,
-           |            COUNT(DISTINCT TRANS.PRI_ACCT_NO) AS TRANSCARDCNT
-           |        FROM
-           |            HIVE_ACC_TRANS TRANS
-           |        LEFT JOIN
-           |            HIVE_STORE_TERM_RELATION STR
-           |        ON
-           |            (
-           |                TRANS.CARD_ACCPTR_CD = STR.MCHNT_CD
-           |            AND TRANS.CARD_ACCPTR_TERM_ID = STR.TERM_ID)
-           |        LEFT JOIN
-           |            (
-           |                SELECT
-           |                    MCHNT_CD,
-           |                    MAX(THIRD_PARTY_INS_ID) OVER (PARTITION BY MCHNT_CD) AS THIRD_PARTY_INS_ID
-           |                FROM
-           |                    HIVE_STORE_TERM_RELATION) STR1
-           |        ON
-           |            (
-           |                TRANS.CARD_ACCPTR_CD = STR1.MCHNT_CD)
-           |        LEFT JOIN
-           |            HIVE_PREFERENTIAL_MCHNT_INF PMI
-           |        ON
-           |            (
-           |                STR1.THIRD_PARTY_INS_ID = PMI.MCHNT_CD)
-           |        LEFT JOIN
-           |            HIVE_MCHNT_PARA MP
-           |        ON
-           |            (
-           |                PMI.MCHNT_FIRST_PARA = MP.MCHNT_PARA_ID)
-           |        LEFT JOIN
-           |            HIVE_MCHNT_PARA MP1
-           |        ON
-           |            (
-           |                PMI.MCHNT_SECOND_PARA = MP1.MCHNT_PARA_ID)
-           |        LEFT JOIN
-           |            HIVE_TICKET_BILL_BAS_INF BILL
-           |        ON
-           |            (
-           |                TRANS.BILL_ID=BILL.BILL_ID)
-           |        WHERE
-           |            TRANS.SYS_DET_CD = 'S'
-           |        AND TRANS.UM_TRANS_ID IN ('AC02000065',
-           |                                  'AC02000063')
-           |        AND BILL.BILL_SUB_TP IN ('01',
-           |                                 '03')
-           |        AND STR.REC_ID IS NULL
-           |        AND TRANS.PART_TRANS_DT >= '$start_dt'
-           |        AND TRANS.PART_TRANS_DT <= '$end_dt'
-           |        GROUP BY
-           |            MP.MCHNT_PARA_CN_NM,
-           |            MP1.MCHNT_PARA_CN_NM,
-           |            TRANS_DT)B
-           |ON
-           |    (
-           |        A.FIRST_PARA_NM = B.FIRST_PARA_NM
-           |    AND A.SECOND_PARA_NM = B.SECOND_PARA_NM
-           |    AND A.TRANS_DT = B.TRANS_DT )
-           |WHERE A.FIRST_PARA_NM IS NOT NULL
-           |
-          """.stripMargin)
-      println(s"#### JOB_DM_36 spark sql 清洗数据完成时间为:" + DateUtils.getCurrentSystemTime())
+      var today_dt=start_dt
+      if(interval>=0 ){
+        sqlContext.sql(s"use $hive_dbname")
+        for(i <- 0 to interval){
+          println(s"#### JOB_DM_36 spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
 
-      println(s"###JOB_DM_36------ results:"+results.count())
-      if(!Option(results).isEmpty){
-        results.save2Mysql("DM_DISC_TKT_ACT_MCHNT_IND_DLY")
-        println(s"#### JOB_DM_36 数据插入完成时间为：" + DateUtils.getCurrentSystemTime())
-      }else{
-        println(s"#### JOB_DM_36 spark sql 清洗后数据无结果集！")
+          val results =sqlContext.sql(
+            s"""
+               |SELECT
+               |    A.FIRST_PARA_NM    AS FIRST_IND_NM,
+               |    A.SECOND_PARA_NM   AS SECOND_IND_NM,
+               |    A.TRANS_DT         AS REPORT_DT,
+               |    A.TRANSCNT         AS TRANS_CNT,
+               |    B.SUCTRANSCNT      AS SUC_TRANS_CNT,
+               |    B.TRANSAT          AS TRANS_AT,
+               |    B.DISCOUNTAT       AS DISCOUNT_AT,
+               |    B.TRANSUSRCNT      AS TRANS_USR_CNT,
+               |    B.TRANSCARDCNT     AS TRANS_CARD_CNT
+               |FROM
+               |    (
+               |        SELECT
+               |            MP.MCHNT_PARA_CN_NM  AS FIRST_PARA_NM,
+               |            MP1.MCHNT_PARA_CN_NM AS SECOND_PARA_NM,
+               |            TRANS.TRANS_DT,
+               |            COUNT(1) AS TRANSCNT
+               |        FROM
+               |            HIVE_ACC_TRANS TRANS
+               |        INNER JOIN
+               |            HIVE_STORE_TERM_RELATION STR
+               |        ON
+               |            (
+               |                TRANS.CARD_ACCPTR_CD = STR.MCHNT_CD
+               |            AND TRANS.CARD_ACCPTR_TERM_ID = STR.TERM_ID)
+               |        LEFT JOIN
+               |            HIVE_PREFERENTIAL_MCHNT_INF PMI
+               |        ON
+               |            (
+               |                STR.THIRD_PARTY_INS_ID = PMI.MCHNT_CD)
+               |        LEFT JOIN
+               |            HIVE_MCHNT_PARA MP
+               |        ON
+               |            (
+               |                PMI.MCHNT_FIRST_PARA = MP.MCHNT_PARA_ID)
+               |        LEFT JOIN
+               |            HIVE_MCHNT_PARA MP1
+               |        ON
+               |            (
+               |                PMI.MCHNT_SECOND_PARA = MP1.MCHNT_PARA_ID)
+               |        LEFT JOIN
+               |            HIVE_TICKET_BILL_BAS_INF BILL
+               |        ON
+               |            (
+               |                TRANS.BILL_ID=BILL.BILL_ID)
+               |        WHERE
+               |            TRANS.UM_TRANS_ID IN ('AC02000065',
+               |                                  'AC02000063')
+               |        AND STR.REC_ID IS NOT NULL
+               |        AND BILL.BILL_SUB_TP IN ('01',
+               |                                 '03')
+               |        AND TRANS.PART_TRANS_DT = '$today_dt'
+               |        GROUP BY
+               |            MP.MCHNT_PARA_CN_NM,
+               |            MP1.MCHNT_PARA_CN_NM,
+               |            TRANS_DT) A
+               |LEFT JOIN
+               |    (
+               |        SELECT
+               |            MP.MCHNT_PARA_CN_NM  AS FIRST_PARA_NM,
+               |            MP1.MCHNT_PARA_CN_NM AS SECOND_PARA_NM,
+               |            TRANS.TRANS_DT,
+               |            COUNT(1)                          AS SUCTRANSCNT,
+               |            SUM(TRANS.TRANS_AT)               AS TRANSAT,
+               |            SUM(TRANS.DISCOUNT_AT)            AS DISCOUNTAT,
+               |            COUNT(DISTINCT TRANS.CDHD_USR_ID) AS TRANSUSRCNT,
+               |            COUNT(DISTINCT TRANS.PRI_ACCT_NO) AS TRANSCARDCNT
+               |        FROM
+               |            HIVE_ACC_TRANS TRANS
+               |        INNER JOIN
+               |            HIVE_STORE_TERM_RELATION STR
+               |        ON
+               |            (
+               |                TRANS.CARD_ACCPTR_CD = STR.MCHNT_CD
+               |            AND TRANS.CARD_ACCPTR_TERM_ID = STR.TERM_ID)
+               |        LEFT JOIN
+               |            HIVE_PREFERENTIAL_MCHNT_INF PMI
+               |        ON
+               |            (
+               |                STR.THIRD_PARTY_INS_ID = PMI.MCHNT_CD)
+               |        LEFT JOIN
+               |            HIVE_MCHNT_PARA MP
+               |        ON
+               |            (
+               |                PMI.MCHNT_FIRST_PARA = MP.MCHNT_PARA_ID)
+               |        LEFT JOIN
+               |            HIVE_MCHNT_PARA MP1
+               |        ON
+               |            (
+               |                PMI.MCHNT_SECOND_PARA = MP1.MCHNT_PARA_ID)
+               |        LEFT JOIN
+               |            HIVE_TICKET_BILL_BAS_INF BILL
+               |        ON
+               |            (
+               |                TRANS.BILL_ID=BILL.BILL_ID)
+               |        WHERE
+               |            TRANS.SYS_DET_CD = 'S'
+               |        AND TRANS.UM_TRANS_ID IN ('AC02000065',
+               |                                  'AC02000063')
+               |        AND STR.REC_ID IS NOT NULL
+               |        AND BILL.BILL_SUB_TP IN ('01',
+               |                                 '03')
+               |        AND TRANS.PART_TRANS_DT = '$today_dt'
+               |        GROUP BY
+               |            MP.MCHNT_PARA_CN_NM,
+               |            MP1.MCHNT_PARA_CN_NM,
+               |            TRANS_DT)B
+               |ON
+               |    (
+               |        A.FIRST_PARA_NM = B.FIRST_PARA_NM
+               |    AND A.SECOND_PARA_NM = B.SECOND_PARA_NM
+               |    AND A.TRANS_DT = B.TRANS_DT )
+               |UNION ALL
+               |SELECT
+               |    A.FIRST_PARA_NM,
+               |    A.SECOND_PARA_NM,
+               |    A.TRANS_DT,
+               |    A.TRANSCNT,
+               |    B.SUCTRANSCNT,
+               |    B.TRANSAT,
+               |    B.DISCOUNTAT,
+               |    B.TRANSUSRCNT,
+               |    B.TRANSCARDCNT
+               |FROM
+               |    (
+               |        SELECT
+               |            MP.MCHNT_PARA_CN_NM  AS FIRST_PARA_NM,
+               |            MP1.MCHNT_PARA_CN_NM AS SECOND_PARA_NM,
+               |            TRANS.TRANS_DT,
+               |            COUNT(1) AS TRANSCNT
+               |        FROM
+               |            HIVE_ACC_TRANS TRANS
+               |        LEFT JOIN
+               |            HIVE_STORE_TERM_RELATION STR
+               |        ON
+               |            (
+               |                TRANS.CARD_ACCPTR_CD = STR.MCHNT_CD
+               |            AND TRANS.CARD_ACCPTR_TERM_ID = STR.TERM_ID)
+               |        LEFT JOIN
+               |            (
+               |                SELECT
+               |                    MCHNT_CD,
+               |                    MAX(THIRD_PARTY_INS_ID) OVER (PARTITION BY MCHNT_CD) AS THIRD_PARTY_INS_ID
+               |                FROM
+               |                    HIVE_STORE_TERM_RELATION) STR1
+               |        ON
+               |            (
+               |                TRANS.CARD_ACCPTR_CD = STR1.MCHNT_CD)
+               |        LEFT JOIN
+               |            HIVE_PREFERENTIAL_MCHNT_INF PMI
+               |        ON
+               |            (
+               |                STR1.THIRD_PARTY_INS_ID = PMI.MCHNT_CD)
+               |        LEFT JOIN
+               |            HIVE_MCHNT_PARA MP
+               |        ON
+               |            (
+               |                PMI.MCHNT_FIRST_PARA = MP.MCHNT_PARA_ID)
+               |        LEFT JOIN
+               |            HIVE_MCHNT_PARA MP1
+               |        ON
+               |            (
+               |                PMI.MCHNT_SECOND_PARA = MP1.MCHNT_PARA_ID)
+               |        LEFT JOIN
+               |            HIVE_TICKET_BILL_BAS_INF BILL
+               |        ON
+               |            (
+               |                TRANS.BILL_ID=BILL.BILL_ID)
+               |        WHERE
+               |            TRANS.UM_TRANS_ID IN ('AC02000065',
+               |                                  'AC02000063')
+               |        AND BILL.BILL_SUB_TP IN ('01',
+               |                                 '03')
+               |        AND STR.REC_ID IS NULL
+               |        AND TRANS.PART_TRANS_DT = '$today_dt'
+               |        GROUP BY
+               |            MP.MCHNT_PARA_CN_NM,
+               |            MP1.MCHNT_PARA_CN_NM,
+               |            TRANS_DT) A
+               |LEFT JOIN
+               |    (
+               |        SELECT
+               |            MP.MCHNT_PARA_CN_NM  AS FIRST_PARA_NM,
+               |            MP1.MCHNT_PARA_CN_NM AS SECOND_PARA_NM,
+               |            TRANS.TRANS_DT,
+               |            COUNT(1)                          AS SUCTRANSCNT,
+               |            SUM(TRANS.TRANS_AT)               AS TRANSAT,
+               |            SUM(TRANS.DISCOUNT_AT)            AS DISCOUNTAT,
+               |            COUNT(DISTINCT TRANS.CDHD_USR_ID) AS TRANSUSRCNT,
+               |            COUNT(DISTINCT TRANS.PRI_ACCT_NO) AS TRANSCARDCNT
+               |        FROM
+               |            HIVE_ACC_TRANS TRANS
+               |        LEFT JOIN
+               |            HIVE_STORE_TERM_RELATION STR
+               |        ON
+               |            (
+               |                TRANS.CARD_ACCPTR_CD = STR.MCHNT_CD
+               |            AND TRANS.CARD_ACCPTR_TERM_ID = STR.TERM_ID)
+               |        LEFT JOIN
+               |            (
+               |                SELECT
+               |                    MCHNT_CD,
+               |                    MAX(THIRD_PARTY_INS_ID) OVER (PARTITION BY MCHNT_CD) AS THIRD_PARTY_INS_ID
+               |                FROM
+               |                    HIVE_STORE_TERM_RELATION) STR1
+               |        ON
+               |            (
+               |                TRANS.CARD_ACCPTR_CD = STR1.MCHNT_CD)
+               |        LEFT JOIN
+               |            HIVE_PREFERENTIAL_MCHNT_INF PMI
+               |        ON
+               |            (
+               |                STR1.THIRD_PARTY_INS_ID = PMI.MCHNT_CD)
+               |        LEFT JOIN
+               |            HIVE_MCHNT_PARA MP
+               |        ON
+               |            (
+               |                PMI.MCHNT_FIRST_PARA = MP.MCHNT_PARA_ID)
+               |        LEFT JOIN
+               |            HIVE_MCHNT_PARA MP1
+               |        ON
+               |            (
+               |                PMI.MCHNT_SECOND_PARA = MP1.MCHNT_PARA_ID)
+               |        LEFT JOIN
+               |            HIVE_TICKET_BILL_BAS_INF BILL
+               |        ON
+               |            (
+               |                TRANS.BILL_ID=BILL.BILL_ID)
+               |        WHERE
+               |            TRANS.SYS_DET_CD = 'S'
+               |        AND TRANS.UM_TRANS_ID IN ('AC02000065',
+               |                                  'AC02000063')
+               |        AND BILL.BILL_SUB_TP IN ('01',
+               |                                 '03')
+               |        AND STR.REC_ID IS NULL
+               |        AND TRANS.PART_TRANS_DT = '$today_dt'
+               |        GROUP BY
+               |            MP.MCHNT_PARA_CN_NM,
+               |            MP1.MCHNT_PARA_CN_NM,
+               |            TRANS_DT)B
+               |ON
+               |    (
+               |        A.FIRST_PARA_NM = B.FIRST_PARA_NM
+               |    AND A.SECOND_PARA_NM = B.SECOND_PARA_NM
+               |    AND A.TRANS_DT = B.TRANS_DT )
+               |WHERE A.FIRST_PARA_NM IS NOT NULL
+          """.stripMargin)
+
+          println(s"#### JOB_DM_36 spark sql 清洗[$today_dt]数据完成时间为:" + DateUtils.getCurrentSystemTime())
+
+//          println(s"###JOB_DM_36------$today_dt results:"+results.count())
+          if(!Option(results).isEmpty){
+            println(s"#### JOB_DM_36 [$today_dt]数据插入开始时间为：" + DateUtils.getCurrentSystemTime())
+            results.save2Mysql("DM_DISC_TKT_ACT_MCHNT_IND_DLY")
+            println(s"#### JOB_DM_36 [$today_dt]数据插入完成时间为：" + DateUtils.getCurrentSystemTime())
+          }else{
+            println(s"#### JOB_DM_36 spark sql 清洗[$today_dt]数据无结果集！")
+          }
+          today_dt=DateUtils.addOneDay(today_dt)
+        }
       }
     }
   }
