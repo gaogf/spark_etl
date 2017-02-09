@@ -10906,7 +10906,7 @@ object SparkHive2Mysql {
       sqlContext.sql(s"use $hive_dbname")
       val results = sqlContext.sql(
         s"""
-           select
+           |select
            |a.gb_region_nm as device_loc_nm,
            |a.starttime_day as report_dt,
            |count(case when a.eventid='registersubmit' then  a.tduser_id end) as acc_num,
