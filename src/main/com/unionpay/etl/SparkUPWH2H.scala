@@ -60,12 +60,13 @@ object SparkUPWH2H {
       case "JOB_HV_40"  => JOB_HV_40(sqlContext,start_dt,end_dt) //CODE BY TZQ
       case "JOB_HV_42"  => JOB_HV_42(sqlContext,start_dt,end_dt) //CODE BY TZQ
       case "JOB_HV_43"  => JOB_HV_43(sqlContext,start_dt,end_dt)  //CODE BY YX
-      case "JOB_HV_77"  => JOB_HV_77(sqlContext,start_dt,end_dt) //CODE BY TZQ 动态分区插入失败，未解决！
-      case "JOB_HV_78"  => JOB_HV_78(sqlContext,start_dt,end_dt) //CODE BY TZQ
+
 
       /**
         *  指标套表job
         */
+      case "JOB_HV_77"  => JOB_HV_77(sqlContext,start_dt,end_dt) //CODE BY TZQ
+      case "JOB_HV_78"  => JOB_HV_78(sqlContext,start_dt,end_dt) //CODE BY TZQ
 
       case _ => println("#### No Case Job,Please Input JobName")
     }
