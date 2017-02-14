@@ -7051,7 +7051,7 @@ object SparkHive2Mysql {
            |    HIVE_CARD_BIND_INF CBI
            |ON
            |    (
-           |        TRANS.PRI_ACCT_NO = SUBSTR(CBI.BIND_CARD_NO,3))
+           |        TRANS.PRI_ACCT_NO = CBI.BIND_CARD_NO)
            |WHERE
            |    TRANS.PROD_IN = '0'
            |AND TRANS.PART_SETTLE_DT >= '$start_dt'
