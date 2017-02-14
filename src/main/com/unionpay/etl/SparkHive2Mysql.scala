@@ -2110,7 +2110,7 @@ object SparkHive2Mysql {
                |from
                |(select cdhd_usr_id,rec_crt_ts,count(*) as cnt
                |from HIVE_PASSIVE_CODE_PAY_TRANS
-               |where rec_crt_ts='$today_dt'
+               |where to_date(rec_crt_ts)='$today_dt'
                |and TRAN_CERTI like '10%'
                |group by cdhd_usr_id,rec_crt_ts) a
                |inner join HIVE_PRI_ACCT_INF b
@@ -2127,7 +2127,7 @@ object SparkHive2Mysql {
                |FROM
                |( SELECT DISTINCT (cdhd_usr_id), rec_crt_ts
                |FROM  HIVE_PASSIVE_CODE_PAY_TRANS
-               |WHERE  rec_crt_ts='$today_dt'
+               |WHERE  to_date(rec_crt_ts)='$today_dt'
                |AND TRAN_CERTI LIKE '10%') a
                |INNER JOIN  HIVE_PRI_ACCT_INF b
                |ON  a.cdhd_usr_id=b.cdhd_usr_id) c
@@ -2144,7 +2144,7 @@ object SparkHive2Mysql {
                |from
                |(select cdhd_usr_id,rec_crt_ts,count(*) as cnt
                |from HIVE_PASSIVE_CODE_PAY_TRANS
-               |where rec_crt_ts='$today_dt' and TRAN_CERTI like '10%'
+               |where to_date(rec_crt_ts)='$today_dt' and TRAN_CERTI like '10%'
                |and mchnt_cd is not null and mchnt_cd<>'' group by cdhd_usr_id,rec_crt_ts) a
                |inner join HIVE_PRI_ACCT_INF b on a.cdhd_usr_id=b.cdhd_usr_id)c
                |group by c.PHONE_LOCATION ) tempc
@@ -2160,7 +2160,7 @@ object SparkHive2Mysql {
                |from
                |(select distinct(cdhd_usr_id),rec_crt_ts
                |from HIVE_PASSIVE_CODE_PAY_TRANS
-               |where rec_crt_ts='$today_dt'
+               |where to_date(rec_crt_ts)='$today_dt'
                |and TRAN_CERTI like '10%' and mchnt_cd is not null and mchnt_cd<>'') a
                |inner join HIVE_PRI_ACCT_INF b
                |on a.cdhd_usr_id=b.cdhd_usr_id)c
@@ -2177,7 +2177,7 @@ object SparkHive2Mysql {
                |from
                |(select cdhd_usr_id,rec_crt_ts,count(*) as cnt
                |from HIVE_PASSIVE_CODE_PAY_TRANS
-               |where rec_crt_ts='$today_dt'
+               |where to_date(rec_crt_ts)='$today_dt'
                |and TRAN_CERTI like '10%' and mchnt_cd is not null and mchnt_cd<>''
                |and trans_tp='00' and trans_st in ('03','04','05','06','08','09','10','11')
                |group by cdhd_usr_id,rec_crt_ts) a
@@ -2195,7 +2195,7 @@ object SparkHive2Mysql {
                |from
                |(select distinct(cdhd_usr_id),rec_crt_ts
                |from HIVE_PASSIVE_CODE_PAY_TRANS
-               |where rec_crt_ts='$today_dt'
+               |where to_date(rec_crt_ts)='$today_dt'
                | and TRAN_CERTI like '10%'  and mchnt_cd is not null and mchnt_cd<>''
                |and trans_tp='00' and trans_st in ('03','04','05','06','08','09','10','11')) a
                |inner join HIVE_PRI_ACCT_INF b
@@ -2214,7 +2214,7 @@ object SparkHive2Mysql {
                |from
                |(select cdhd_usr_id,rec_crt_ts,sum(trans_at) as trans_at ,count(*) as cnt
                |from HIVE_PASSIVE_CODE_PAY_TRANS
-               |where rec_crt_ts='$today_dt'
+               |where to_date(rec_crt_ts)='$today_dt'
                |and TRAN_CERTI like '10%' and mchnt_cd is not null and mchnt_cd<>''
                |and trans_tp='00' and trans_st in ('04','10')
                | group by cdhd_usr_id,rec_crt_ts) a
@@ -2233,7 +2233,7 @@ object SparkHive2Mysql {
                |from
                |(select distinct (cdhd_usr_id),rec_crt_ts
                |from HIVE_PASSIVE_CODE_PAY_TRANS
-               |where rec_crt_ts='$today_dt'
+               |where to_date(rec_crt_ts)='$today_dt'
                |and TRAN_CERTI like '10%'  and mchnt_cd is not null and mchnt_cd<>''
                |and trans_tp='00' and trans_st in ('04','10')) a
                |inner join HIVE_PRI_ACCT_INF b
@@ -2257,6 +2257,7 @@ object SparkHive2Mysql {
     }
   }
 
+
   /**
     * JOB_DM_20 20161212
     * dm_swept_area_store_address->hive_passive_code_pay_trans,hive_mchnt_inf_wallet
@@ -2265,16 +2266,16 @@ object SparkHive2Mysql {
     * @param sqlContext
     * @return
     */
-  def JOB_DM_20 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String,interval:Int) = {
+  def JOB_DM_20(implicit sqlContext: HiveContext, start_dt: String, end_dt: String, interval: Int) = {
     println("###JOB_DM_20(dm_swept_area_store_address->hive_passive_code_pay_trans,hive_mchnt_inf_wallet)")
     DateUtils.timeCost("JOB_DM_20") {
-      UPSQL_JDBC.delete(s"dm_swept_area_store_address","report_dt",start_dt,end_dt)
+      UPSQL_JDBC.delete(s"dm_swept_area_store_address", "report_dt", start_dt, end_dt)
       println("#### JOB_DM_20 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
-      var today_dt=start_dt
-      if(interval>0 ){
+      var today_dt = start_dt
+      if (interval > 0) {
         println(s"#### JOB_DM_20 spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
         sqlContext.sql(s"use $hive_dbname")
-        for(i <- 0 to interval){
+        for (i <- 0 to interval) {
           val results = sqlContext.sql(
             s"""
                |select
@@ -2299,7 +2300,7 @@ object SparkHive2Mysql {
                |from
                |(select cdhd_usr_id,rec_crt_ts,mchnt_cd,count(*) as cnt
                |from hive_passive_code_pay_trans
-               |where rec_crt_ts='$today_dt'
+               |where to_date(rec_crt_ts)='$today_dt'
                |and TRAN_CERTI like '10%'
                |group by cdhd_usr_id,rec_crt_ts,mchnt_cd) a
                |inner join hive_mchnt_inf_wallet b
@@ -2316,7 +2317,7 @@ object SparkHive2Mysql {
                |FROM
                |( SELECT DISTINCT (cdhd_usr_id), rec_crt_ts,mchnt_cd
                |FROM  hive_passive_code_pay_trans
-               |WHERE  rec_crt_ts='$today_dt'
+               |WHERE  to_date(rec_crt_ts)='$today_dt'
                |AND TRAN_CERTI LIKE '10%') a
                |inner join HIVE_MCHNT_INF_WALLET b
                |on  a.mchnt_cd=b.mchnt_cd) c
@@ -2332,7 +2333,7 @@ object SparkHive2Mysql {
                |from
                |(select cdhd_usr_id,rec_crt_ts,mchnt_cd,count(*) as cnt
                |from HIVE_PASSIVE_CODE_PAY_TRANS
-               |where rec_crt_ts='$today_dt' and TRAN_CERTI like '10%'
+               |where to_date(rec_crt_ts)='$today_dt' and TRAN_CERTI like '10%'
                |and mchnt_cd is not null and mchnt_cd<>'' group by cdhd_usr_id,rec_crt_ts,mchnt_cd) a
                |inner join HIVE_MCHNT_INF_WALLET b
                |on  a.mchnt_cd=b.mchnt_cd)c
@@ -2348,7 +2349,7 @@ object SparkHive2Mysql {
                |from
                |(select distinct(cdhd_usr_id),rec_crt_ts,mchnt_cd
                |from HIVE_PASSIVE_CODE_PAY_TRANS
-               |where rec_crt_ts='$today_dt'
+               |where to_date(rec_crt_ts)='$today_dt'
                |and TRAN_CERTI like '10%') a
                |inner join HIVE_MCHNT_INF_WALLET b
                |on  a.mchnt_cd=b.mchnt_cd) c
@@ -2364,7 +2365,7 @@ object SparkHive2Mysql {
                |from
                |(select cdhd_usr_id,rec_crt_ts,mchnt_cd,count(*) as cnt
                |from HIVE_PASSIVE_CODE_PAY_TRANS
-               |where rec_crt_ts='$today_dt'
+               |where to_date(rec_crt_ts)='$today_dt'
                |and TRAN_CERTI like '10%' and mchnt_cd is not null and mchnt_cd<>''
                |and trans_tp='00' and trans_st in ('03','04','05','06','08','09','10','11')
                |group by cdhd_usr_id,rec_crt_ts,mchnt_cd) a
@@ -2382,7 +2383,7 @@ object SparkHive2Mysql {
                |from
                |(select distinct(cdhd_usr_id),rec_crt_ts ,mchnt_cd
                |from HIVE_PASSIVE_CODE_PAY_TRANS
-               |where rec_crt_ts='$today_dt'
+               |where to_date(rec_crt_ts)='$today_dt'
                | and TRAN_CERTI like '10%'  and mchnt_cd is not null and mchnt_cd<>''
                |and trans_tp='00' and trans_st in ('03','04','05','06','08','09','10','11')) a
                |inner join HIVE_MCHNT_INF_WALLET b
@@ -2401,7 +2402,7 @@ object SparkHive2Mysql {
                |from
                |(select cdhd_usr_id,rec_crt_ts,mchnt_cd,sum(trans_at) as trans_at ,count(*) as cnt
                |from HIVE_PASSIVE_CODE_PAY_TRANS
-               |where rec_crt_ts='$today_dt'
+               |where to_date(rec_crt_ts)='$today_dt'
                |and TRAN_CERTI like '10%' and mchnt_cd is not null and mchnt_cd<>''
                |and trans_tp='00' and trans_st in ('04','10')
                | group by cdhd_usr_id,rec_crt_ts,mchnt_cd) a
@@ -2417,7 +2418,7 @@ object SparkHive2Mysql {
                |from (select distinct b.GB_REGION_NM, a.cdhd_usr_id
                |from (select distinct (cdhd_usr_id),rec_crt_ts ,mchnt_cd
                |from HIVE_PASSIVE_CODE_PAY_TRANS
-               |where rec_crt_ts='$today_dt'
+               |where to_date(rec_crt_ts)='$today_dt'
                |and TRAN_CERTI like '10%'  and mchnt_cd is not null and mchnt_cd<>''
                |and trans_tp='00' and trans_st in ('04','10')) a
                |inner join HIVE_MCHNT_INF_WALLET b
@@ -2435,11 +2436,12 @@ object SparkHive2Mysql {
           } else {
             println(s"#### JOB_DM_20 spark sql 清洗[$today_dt]数据无结果集！")
           }
-          today_dt=DateUtils.addOneDay(today_dt)
+          today_dt = DateUtils.addOneDay(today_dt)
         }
       }
     }
   }
+
 
 
   /**
@@ -2483,7 +2485,7 @@ object SparkHive2Mysql {
                |from
                |(select cdhd_usr_id,rec_crt_ts,mchnt_cd,count(*) as cnt
                |from HIVE_PASSIVE_CODE_PAY_TRANS
-               |where rec_crt_ts='$today_dt' and TRAN_CERTI like '10%'
+               |where to_date(rec_crt_ts)='$today_dt' and TRAN_CERTI like '10%'
                |and mchnt_cd is not null and mchnt_cd<>'' group by cdhd_usr_id,rec_crt_ts,mchnt_cd) a
                |inner join HIVE_MCHNT_INF_WALLET b
                |on  a.mchnt_cd=b.mchnt_cd) c
@@ -2498,7 +2500,7 @@ object SparkHive2Mysql {
                |from
                |(select distinct(cdhd_usr_id),rec_crt_ts,mchnt_cd
                |from HIVE_PASSIVE_CODE_PAY_TRANS
-               |where rec_crt_ts='$today_dt'
+               |where to_date(rec_crt_ts)='$today_dt'
                | and TRAN_CERTI like '10%') a
                |inner join HIVE_MCHNT_INF_WALLET b
                |on  a.mchnt_cd=b.mchnt_cd )c
@@ -2514,7 +2516,7 @@ object SparkHive2Mysql {
                |from
                |(select cdhd_usr_id,rec_crt_ts,mchnt_cd,count(*) as cnt
                |from HIVE_PASSIVE_CODE_PAY_TRANS
-               |where rec_crt_ts='$today_dt'
+               |where to_date(rec_crt_ts)='$today_dt'
                |and TRAN_CERTI like '10%' and mchnt_cd is not null and mchnt_cd<>''
                |and trans_tp='00' and trans_st in ('03','04','05','06','08','09','10','11')
                |group by cdhd_usr_id,rec_crt_ts,mchnt_cd) a
@@ -2532,7 +2534,7 @@ object SparkHive2Mysql {
                |from
                |(select distinct(cdhd_usr_id),rec_crt_ts ,mchnt_cd
                |from HIVE_PASSIVE_CODE_PAY_TRANS
-               |where rec_crt_ts='$today_dt'
+               |where to_date(rec_crt_ts)='$today_dt'
                |and TRAN_CERTI like '10%'  and mchnt_cd is not null and mchnt_cd<>''
                |and trans_tp='00' and trans_st in ('03','04','05','06','08','09','10','11')) a
                |inner join HIVE_MCHNT_INF_WALLET b
@@ -2551,7 +2553,7 @@ object SparkHive2Mysql {
                |from
                |(select cdhd_usr_id,rec_crt_ts,mchnt_cd,sum(trans_at) as trans_at ,count(*) as cnt
                |from HIVE_PASSIVE_CODE_PAY_TRANS
-               |where rec_crt_ts='$today_dt'
+               |where to_date(rec_crt_ts)='$today_dt'
                |and TRAN_CERTI like '10%' and mchnt_cd is not null and mchnt_cd<>''
                |and trans_tp='00' and trans_st in ('04','10')
                | group by cdhd_usr_id,rec_crt_ts,mchnt_cd) a
@@ -2569,7 +2571,7 @@ object SparkHive2Mysql {
                |from
                |(select distinct (cdhd_usr_id),rec_crt_ts ,mchnt_cd
                |from HIVE_PASSIVE_CODE_PAY_TRANS
-               |where rec_crt_ts='$today_dt'
+               |where to_date(rec_crt_ts)='$today_dt'
                |and TRAN_CERTI like '10%'  and mchnt_cd is not null and mchnt_cd<>''
                |and trans_tp='00' and trans_st in ('04','10')) a
                |inner join HIVE_MCHNT_INF_WALLET b
@@ -2602,6 +2604,7 @@ object SparkHive2Mysql {
       }
     }
   }
+
 
   /**
     * JOB_DM_22 20161214
@@ -2658,7 +2661,7 @@ object SparkHive2Mysql {
                |from
                |(select cdhd_usr_id,rec_crt_ts,mchnt_cd,count(*) as cnt
                |from HIVE_PASSIVE_CODE_PAY_TRANS
-               |where rec_crt_ts='$today_dt' and TRAN_CERTI like '10%'
+               |where to_date(rec_crt_ts)='$today_dt' and TRAN_CERTI like '10%'
                |and mchnt_cd is not null and mchnt_cd<>'' group by cdhd_usr_id,rec_crt_ts,mchnt_cd) a
                |inner join HIVE_MCHNT_INF_WALLET b
                |on  a.mchnt_cd=b.mchnt_cd) c
@@ -2674,7 +2677,7 @@ object SparkHive2Mysql {
                |from
                |(select distinct(cdhd_usr_id),rec_crt_ts,mchnt_cd
                |from HIVE_PASSIVE_CODE_PAY_TRANS
-               |where rec_crt_ts='$today_dt'
+               |where to_date(rec_crt_ts)='$today_dt'
                | and TRAN_CERTI like '10%') a
                |inner join HIVE_MCHNT_INF_WALLET b
                |on  a.mchnt_cd=b.mchnt_cd) c
@@ -2691,7 +2694,7 @@ object SparkHive2Mysql {
                |from
                |(select cdhd_usr_id,rec_crt_ts,mchnt_cd,count(*) as cnt
                |from HIVE_PASSIVE_CODE_PAY_TRANS
-               |where rec_crt_ts='$today_dt'
+               |where to_date(rec_crt_ts)='$today_dt'
                |and TRAN_CERTI like '10%' and mchnt_cd is not null and mchnt_cd<>''
                |and trans_tp='00' and trans_st in ('03','04','05','06','08','09','10','11')
                |group by cdhd_usr_id,rec_crt_ts,mchnt_cd) a
@@ -2709,7 +2712,7 @@ object SparkHive2Mysql {
                |from
                |(select distinct(cdhd_usr_id),rec_crt_ts ,mchnt_cd
                |from HIVE_PASSIVE_CODE_PAY_TRANS
-               |where rec_crt_ts='$today_dt'
+               |where to_date(rec_crt_ts)='$today_dt'
                | and TRAN_CERTI like '10%'  and mchnt_cd is not null and mchnt_cd<>''
                |and trans_tp='00' and trans_st in ('03','04','05','06','08','09','10','11')) a
                |inner join HIVE_MCHNT_INF_WALLET b
@@ -2728,7 +2731,7 @@ object SparkHive2Mysql {
                |from
                |(select cdhd_usr_id,rec_crt_ts,mchnt_cd,sum(trans_at) as trans_at ,count(*) as cnt
                |from HIVE_PASSIVE_CODE_PAY_TRANS
-               |where rec_crt_ts='$today_dt'
+               |where to_date(rec_crt_ts)='$today_dt'
                |and TRAN_CERTI like '10%' and mchnt_cd is not null and mchnt_cd<>''
                |and trans_tp='00' and trans_st in ('04','10')
                | group by cdhd_usr_id,rec_crt_ts,mchnt_cd) a
@@ -2746,7 +2749,7 @@ object SparkHive2Mysql {
                |from
                |(select distinct (cdhd_usr_id),rec_crt_ts ,mchnt_cd
                |from HIVE_PASSIVE_CODE_PAY_TRANS
-               |where rec_crt_ts='$today_dt'
+               |where to_date(rec_crt_ts)='$today_dt'
                |and TRAN_CERTI like '10%'  and mchnt_cd is not null and mchnt_cd<>''
                |and trans_tp='00' and trans_st in ('04','10')) a
                |inner join HIVE_MCHNT_INF_WALLET b
@@ -2779,7 +2782,7 @@ object SparkHive2Mysql {
                |from
                |(select cdhd_usr_id,rec_crt_ts,mchnt_cd,count(*) as cnt
                |from HIVE_PASSIVE_CODE_PAY_TRANS
-               |where rec_crt_ts='$today_dt' and TRAN_CERTI like '10%'  and trans_tp='01'
+               |where to_date(rec_crt_ts)='$today_dt' and TRAN_CERTI like '10%'  and trans_tp='01'
                |and mchnt_cd is not null and mchnt_cd<>'' group by cdhd_usr_id,rec_crt_ts,mchnt_cd) a
                |inner join HIVE_MCHNT_INF_WALLET b
                |on  a.mchnt_cd=b.mchnt_cd) c
@@ -2797,7 +2800,7 @@ object SparkHive2Mysql {
                |from
                |(select distinct(cdhd_usr_id),rec_crt_ts,mchnt_cd
                |from HIVE_PASSIVE_CODE_PAY_TRANS
-               |where rec_crt_ts='$today_dt'
+               |where to_date(rec_crt_ts)='$today_dt'
                |and TRAN_CERTI like '10%'
                |and trans_tp='01') a
                |inner join HIVE_MCHNT_INF_WALLET b
@@ -2815,7 +2818,7 @@ object SparkHive2Mysql {
                |from
                |(select cdhd_usr_id,rec_crt_ts,mchnt_cd,count(*) as cnt
                |from HIVE_PASSIVE_CODE_PAY_TRANS
-               |where rec_crt_ts='$today_dt'
+               |where to_date(rec_crt_ts)='$today_dt'
                |and TRAN_CERTI like '10%' and mchnt_cd is not null and mchnt_cd<>''
                |and trans_tp='01' and trans_st in ('03','04','05','06','08','09','10','11')
                |group by cdhd_usr_id,rec_crt_ts,mchnt_cd) a
@@ -2834,7 +2837,7 @@ object SparkHive2Mysql {
                |from
                |(select distinct(cdhd_usr_id),rec_crt_ts ,mchnt_cd
                |from HIVE_PASSIVE_CODE_PAY_TRANS
-               |where rec_crt_ts='$today_dt'
+               |where to_date(rec_crt_ts)='$today_dt'
                | and TRAN_CERTI like '10%'  and mchnt_cd is not null and mchnt_cd<>''
                |and trans_tp='01' and trans_st in ('03','04','05','06','08','09','10','11')) a
                |inner join HIVE_MCHNT_INF_WALLET b
@@ -2853,7 +2856,7 @@ object SparkHive2Mysql {
                |from
                |(select cdhd_usr_id,rec_crt_ts,mchnt_cd,sum(trans_at) as trans_at ,count(*) as cnt
                |from HIVE_PASSIVE_CODE_PAY_TRANS
-               |where rec_crt_ts='$today_dt'
+               |where to_date(rec_crt_ts)='$today_dt'
                |and TRAN_CERTI like '10%' and mchnt_cd is not null and mchnt_cd<>''
                |and trans_tp='01' and trans_st in ('04','10')
                | group by cdhd_usr_id,rec_crt_ts,mchnt_cd) a
@@ -2871,7 +2874,7 @@ object SparkHive2Mysql {
                |from
                |(select distinct (cdhd_usr_id),rec_crt_ts ,mchnt_cd
                |from HIVE_PASSIVE_CODE_PAY_TRANS
-               |where rec_crt_ts='$today_dt'
+               |where to_date(rec_crt_ts)='$today_dt'
                |and TRAN_CERTI like '10%'  and mchnt_cd is not null and mchnt_cd<>''
                |and trans_tp='01' and trans_st in ('04','10')) a
                |inner join HIVE_MCHNT_INF_WALLET b
@@ -2924,7 +2927,7 @@ object SparkHive2Mysql {
                |count(distinct ta.trans_seq) as SWEEP_USR_NUM,
                |sum(ta.trans_at) as SWEEP_NUM
                |from HIVE_PASSIVE_CODE_PAY_TRANS ta
-               |where ta.rec_crt_ts='$today_dt'
+               |where to_date(ta.rec_crt_ts)='$today_dt'
                |and ta.TRAN_CERTI like '10%' and ta.mchnt_cd is not null and ta.mchnt_cd<>''
                |and length(trim(ta.resp_code))=2
                |group by ta.resp_code
