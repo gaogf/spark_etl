@@ -2156,7 +2156,7 @@ object Create_Hive_Tables {
          |starttime_month    int      ,
          |starttime_year     int
          |)
-         |partitioned by (part_daytime string , part_updays string)
+         |partitioned by (part_updays string,part_daytime string)
          |row format delimited fields terminated by '!|'
          |stored as parquet
          |location '/user/ch_hypas/upw_hive/incident/td/hive_org_tdapp_activitynew'
@@ -2188,7 +2188,7 @@ object Create_Hive_Tables {
          |starttime_month      int         ,
          |starttime_year       int
          |)
-         |partitioned by (part_daytime string , part_updays string)
+         |partitioned by (part_updays string,part_daytime string)
          |row format delimited fields terminated by '!|'
          |stored as parquet
          |location '/user/ch_hypas/upw_hive/incident/td/hive_org_tdapp_device'
@@ -2229,7 +2229,7 @@ object Create_Hive_Tables {
          |starttime_year      int       ,
          |return_status       int
          |)
-         |partitioned by (part_daytime string , part_updays string)
+         |partitioned by (part_updays string,part_daytime string)
          |row format delimited fields terminated by '!|'
          |stored as parquet
          |location '/user/ch_hypas/upw_hive/incident/td/hive_org_tdapp_devicenew'
@@ -2269,7 +2269,7 @@ object Create_Hive_Tables {
          |starttime_month     int      ,
          |starttime_year      int
          |)
-         |partitioned by (part_daytime string , part_updays string)
+         |partitioned by (part_updays string,part_daytime string)
          |row format delimited fields terminated by '!|'
          |stored as parquet
          |location '/user/ch_hypas/upw_hive/incident/td/hive_org_tdapp_eventnew'
@@ -2311,7 +2311,7 @@ object Create_Hive_Tables {
          |starttime_year      int       ,
          |return_status       int
          |)
-         |partitioned by (part_daytime string , part_updays string)
+         |partitioned by (part_updays string,part_daytime string)
          |row format delimited fields terminated by '!|'
          |stored as parquet
          |location '/user/ch_hypas/upw_hive/incident/td/hive_org_tdapp_exceptionnew'
@@ -2348,7 +2348,7 @@ object Create_Hive_Tables {
          |starttime_month        int        ,
          |starttime_year         int
          |)
-         |partitioned by (part_daytime string , part_updays string)
+         |partitioned by (part_updays string,part_daytime string)
          |row format delimited fields terminated by '!|'
          |stored as parquet
          |location '/user/ch_hypas/upw_hive/incident/td/hive_org_tdapp_keyvalue'
@@ -2389,7 +2389,7 @@ object Create_Hive_Tables {
          |starttime_month     int        ,
          |starttime_year      int
          |)
-         |partitioned by (part_daytime string , part_updays string)
+         |partitioned by (part_updays string,part_daytime string)
          |row format delimited fields terminated by '!|'
          |stored as parquet
          |location '/user/ch_hypas/upw_hive/incident/td/hive_org_tdapp_tlaunchnew'
@@ -3758,7 +3758,7 @@ object Create_Hive_Tables {
          |starttime_month      int        ,
          |starttime_year       int
          |)
-         |partitioned by (part_daytime string , part_updays string)
+         |partitioned by (part_updays string,part_daytime string)
          |row format delimited fields terminated by '!|'
          |stored as parquet
          |location '/user/ch_hypas/upw_hive/incident/td/hive_org_tdapp_tactivity'
@@ -3804,7 +3804,7 @@ object Create_Hive_Tables {
          |starttime_year    int
          |
          |)
-         |partitioned by (part_daytime string,part_updays string)
+         |partitioned by (part_updays string,part_daytime string)
          |row format delimited fields terminated by '!|'
          |stored as parquet
          |location '/user/ch_hypas/upw_hive/incident/td/hive_org_tdapp_tlaunch'
@@ -3839,7 +3839,7 @@ object Create_Hive_Tables {
          |starttime_month  int   ,
          |starttime_year   int
          |)
-         |partitioned by (part_daytime string,part_updays string)
+         |partitioned by (part_updays string,part_daytime string)
          |row format delimited fields terminated by '!|'
          |stored as parquet
          |location '/user/ch_hypas/upw_hive/incident/td/hive_org_tdapp_terminate'
@@ -3878,7 +3878,7 @@ object Create_Hive_Tables {
          |starttime_month      int       ,
          |starttime_year       int
          |)
-         |partitioned by (part_daytime string , part_updays string)
+         |partitioned by (part_updays string,part_daytime string)
          |row format delimited fields terminated by '!|'
          |stored as parquet
          |location '/user/ch_hypas/upw_hive/incident/td/hive_org_tdapp_exception'
@@ -3919,7 +3919,7 @@ object Create_Hive_Tables {
          |starttime_month   int       ,
          |starttime_year    int
          |)
-         |partitioned by (part_daytime string , part_updays string)
+         |partitioned by (part_updays string,part_daytime string)
          |row format delimited fields terminated by '!|'
          |stored as parquet
          |location '/user/ch_hypas/upw_hive/incident/td/hive_org_tdapp_newuser'
@@ -4250,11 +4250,12 @@ object Create_Hive_Tables {
     }
 
   def hive_org_tdapp_tappevent(implicit sqlContext: HiveContext) = {
-    println("=======Create Table : hive_org_tdapp_tappevent=======")
+    println("=======Create hive_org_tdapp_tappevent=======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
       s"""
-         |create table if not exists $hive_dbname.hive_org_tdapp_tappevent(
+         |create table if not exists $hive_dbname.hive_org_tdapp_tappevent
+         |(
          |loguuid             string     ,
          |developerid         int        ,
          |productid           int        ,
@@ -4272,12 +4273,11 @@ object Create_Hive_Tables {
          |starttime_month     int        ,
          |starttime_year      int
          |)
-         |partitioned by (part_daytime string , part_updays string)
+         |partitioned by (part_updays string,part_daytime string)
          |row format delimited fields terminated by '!|'
          |stored as parquet
          |location '/user/ch_datas/upw_hive/incident/td/hive_org_tdapp_tappevent'
-         | """.stripMargin
-    )
+         | """.stripMargin)
 
     println("=======Create hive_org_tdapp_tappevent successfully ! =======")
 
