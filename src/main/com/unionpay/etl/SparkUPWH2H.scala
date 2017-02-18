@@ -34,15 +34,15 @@ object SparkUPWH2H {
 
     /**
       * 从命令行获取当前JOB的执行起始和结束日期。
-      * 无规则日期的增量数据抽取，主要用于调试。
+      * 无规则日期的增量数据抽取，主要用于数据初始化和调试。
       */
-    //    if (args.length > 1) {
-    //      start_dt = args(1)
-    //      end_dt = args(2)
-    //    } else {
-    //      println("#### 缺少参数输入")
-    //      println("#### 请指定 SparkUPWH2H 数据抽取的起始日期")
-    //    }
+//        if (args.length > 1) {
+//          start_dt = args(1)
+//          end_dt = args(2)
+//        } else {
+//          println("#### 缺少参数输入")
+//          println("#### 请指定 SparkUPWH2H 数据抽取的起始日期")
+//        }
 
     //val interval=DateUtils.getIntervalDays(start_dt,end_dt).toInt //not use
 

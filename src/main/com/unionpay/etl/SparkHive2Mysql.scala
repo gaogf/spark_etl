@@ -34,9 +34,29 @@ object SparkHive2Mysql {
     sc.setLogLevel("ERROR")
     implicit val sqlContext = new HiveContext(sc)
 
+    var start_dt: String = s"0000-00-00"
+    var end_dt: String = s"0000-00-00"
+
+    /**
+      * 从数据库中获取当前JOB的执行起始和结束日期。
+      * 日常调度使用。
+      */
     val rowParams=UPSQL_TIMEPARAMS_JDBC.readTimeParams(sqlContext)
     val start_dt=DateUtils.getYesterdayByJob(rowParams.getString(0))//获取开始日期：start_dt-1
     val end_dt=rowParams.getString(1)//结束日期
+
+    /**
+      * 从命令行获取当前JOB的执行起始和结束日期。
+      * 无规则日期的增量数据抽取，主要用于数据初始化和调试。
+      */
+//        if (args.length > 1) {
+//          start_dt = args(1)
+//          end_dt = args(2)
+//        } else {
+//          println("#### 缺少参数输入")
+//          println("#### 请指定 SparkUPWH2H 数据抽取的起始日期")
+//        }
+
     val interval=DateUtils.getIntervalDays(start_dt,end_dt).toInt
 
     println(s"#### SparkHive2Mysql 数据清洗的起始日期为: $start_dt --  $end_dt")
