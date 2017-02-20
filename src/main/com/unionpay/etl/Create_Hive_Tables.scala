@@ -1764,7 +1764,7 @@ object Create_Hive_Tables {
          |partitioned by (part_settle_dt string)
          |row format delimited fields terminated by '!|'
          |stored as parquet
-         |location '/user/ch_datas/upw_hive/incident/ods/hive_cups_trans'
+         |location '/user/ch_hypas/upw_hive/incident/ods/hive_cups_trans'
          | """.stripMargin)
 
     println("=======Create hive_cups_trans successfully ! =======")
@@ -4240,7 +4240,7 @@ object Create_Hive_Tables {
            |partitioned by (part_hp_trans_dt string)
            |row format delimited fields terminated by '!|'
            |stored as parquet
-           |location '/user/ch_datas/upw_hive/incident/order/hive_life_order_inf'
+           |location '/user/ch_hypas/upw_hive/incident/order/hive_life_order_inf'
            |
            | """.stripMargin
       )
@@ -4276,7 +4276,7 @@ object Create_Hive_Tables {
          |partitioned by (part_updays string,part_daytime string)
          |row format delimited fields terminated by '!|'
          |stored as parquet
-         |location '/user/ch_datas/upw_hive/incident/td/hive_org_tdapp_tappevent'
+         |location '/user/ch_hypas/upw_hive/incident/td/hive_org_tdapp_tappevent'
          | """.stripMargin)
 
     println("=======Create hive_org_tdapp_tappevent successfully ! =======")
