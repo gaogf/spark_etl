@@ -42,8 +42,8 @@ object SparkHive2Mysql {
       * 日常调度使用。
       */
     val rowParams=UPSQL_TIMEPARAMS_JDBC.readTimeParams(sqlContext)
-    val start_dt=DateUtils.getYesterdayByJob(rowParams.getString(0))//获取开始日期：start_dt-1
-    val end_dt=rowParams.getString(1)//结束日期
+     start_dt=DateUtils.getYesterdayByJob(rowParams.getString(0))//获取开始日期：start_dt-1
+     end_dt=rowParams.getString(1)//结束日期
 
     /**
       * 从命令行获取当前JOB的执行起始和结束日期。

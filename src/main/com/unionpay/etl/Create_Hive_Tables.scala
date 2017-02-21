@@ -3821,7 +3821,7 @@ object Create_Hive_Tables {
     sqlContext.sql("drop table if exists hive_org_tdapp_terminate")
     sqlContext.sql(
       s"""
-         |create table if not exists upw_hive.hive_org_tdapp_terminate(
+         |create table if not exists $hive_dbname.hive_org_tdapp_terminate(
          |loguuid          string,
          |developerid      int   ,
          |productid        int   ,
