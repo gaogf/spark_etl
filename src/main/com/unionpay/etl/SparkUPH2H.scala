@@ -33,6 +33,7 @@ object SparkUPH2H {
     var start_dt: String = s"0000-00-00"
     var end_dt: String = s"0000-00-00"
 
+
     /**
       * 从数据库中获取当前JOB的执行起始和结束日期。
       * 日常调度使用。
@@ -779,7 +780,7 @@ object SparkUPH2H {
 
     DateUtils.timeCost("JOB_HV_55") {
       var today_dt = start_dt
-      if (interval > 0) {
+      if (interval >= 0) {
         println(s"#### JOB_HV_55  spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
 
         for (i <- 0 to interval) {
@@ -791,6 +792,10 @@ object SparkUPH2H {
 
           if (!Option(df).isEmpty) {
             sqlContext.sql(s"use $hive_dbname")
+
+            println(s"#### JOB_HV_55 删除大数据平台分区(part_updays='$today_dt')数据, 时间为:" + DateUtils.getCurrentSystemTime())
+            sqlContext.sql(s"alter table hive_org_tdapp_tactivity drop partition(part_updays='$today_dt')")
+
             sqlContext.sql(
               s"""
                  |insert overwrite table hive_org_tdapp_tactivity partition (part_updays,part_daytime)
@@ -844,7 +849,7 @@ object SparkUPH2H {
 
     DateUtils.timeCost("JOB_HV_56") {
       var today_dt = start_dt
-      if (interval > 0) {
+      if (interval >= 0) {
         println(s"#### JOB_HV_56  spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
 
         for (i <- 0 to interval) {
@@ -856,6 +861,9 @@ object SparkUPH2H {
 
           if (!Option(df).isEmpty) {
             sqlContext.sql(s"use $hive_dbname")
+            println(s"#### JOB_HV_56 删除大数据平台分区(part_updays='$today_dt')数据, 时间为:" + DateUtils.getCurrentSystemTime())
+            sqlContext.sql(s"alter table hive_org_tdapp_tlaunch drop partition(part_updays='$today_dt')")
+
             sqlContext.sql(
               s"""
                  |insert overwrite table hive_org_tdapp_tlaunch partition (part_updays,part_daytime)
@@ -919,7 +927,7 @@ object SparkUPH2H {
 
     DateUtils.timeCost("JOB_HV_57") {
       var today_dt = start_dt
-      if (interval > 0) {
+      if (interval >= 0) {
         println(s"#### JOB_HV_57  spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
 
         for (i <- 0 to interval) {
@@ -931,6 +939,9 @@ object SparkUPH2H {
 
           if (!Option(df).isEmpty) {
             sqlContext.sql(s"use $hive_dbname")
+            println(s"#### JOB_HV_57 删除大数据平台分区(part_updays='$today_dt')数据, 时间为:" + DateUtils.getCurrentSystemTime())
+            sqlContext.sql(s"alter table hive_org_tdapp_terminate drop partition(part_updays='$today_dt')")
+
             sqlContext.sql(
               s"""
                  |insert overwrite table hive_org_tdapp_terminate partition (part_updays,part_daytime)
