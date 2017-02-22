@@ -44,7 +44,6 @@ object SparkUPWH2H {
 //          println("#### 请指定 SparkUPWH2H 数据抽取的起始日期")
 //        }
 
-    //val interval=DateUtils.getIntervalDays(start_dt,end_dt).toInt //not use
 
 
 
@@ -78,7 +77,7 @@ object SparkUPWH2H {
   /**
     * JOB_HV_4/10-14  数据清洗
     * hive_acc_trans->viw_chacc_acc_trans_dtl
-    * Code by Xue update by tan
+    * Code by Xue
     *
     * @param sqlContext
     * @param start_dt

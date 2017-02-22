@@ -34,6 +34,7 @@ object SparkUPH2H {
     var end_dt: String = s"0000-00-00"
 
 
+
     /**
       * 从数据库中获取当前JOB的执行起始和结束日期。
       * 日常调度使用。
@@ -75,12 +76,14 @@ object SparkUPH2H {
       /**
         * 指标套表job
         */
-      case "JOB_HV_41"  => JOB_HV_41(sqlContext, start_dt, end_dt, interval) //CODE BY XTP   already formatted
+      case "JOB_HV_41"  => JOB_HV_41(sqlContext, start_dt,end_dt,interval) //CODE BY XTP   already formatted
       case "JOB_HV_50"  =>  JOB_HV_50(sqlContext,start_dt,end_dt,interval) //CODE BY XTP
       case "JOB_HV_51"  =>  JOB_HV_51(sqlContext,start_dt,end_dt,interval) //CODE BY XTP
+
       case "JOB_HV_55"  =>  JOB_HV_55(sqlContext,start_dt,end_dt,interval) //CODE BY TZQ
       case "JOB_HV_56"  =>  JOB_HV_56(sqlContext,start_dt,end_dt,interval) //CODE BY TZQ
       case "JOB_HV_57"  =>  JOB_HV_57(sqlContext,start_dt,end_dt,interval) //CODE BY TZQ
+
       case "JOB_HV_58"  =>  JOB_HV_58(sqlContext,start_dt,end_dt,interval) //CODE BY XTP
       case "JOB_HV_59"  =>  JOB_HV_59(sqlContext,start_dt,end_dt,interval) //CODE BY XTP
       case "JOB_HV_60"  =>  JOB_HV_60(sqlContext,start_dt,end_dt,interval) //CODE BY XTP
@@ -89,7 +92,8 @@ object SparkUPH2H {
       case "JOB_HV_63"  =>  JOB_HV_63(sqlContext,start_dt,end_dt,interval) //CODE BY XTP
       case "JOB_HV_64"  =>  JOB_HV_64(sqlContext,start_dt,end_dt,interval) //CODE BY XTP
       case "JOB_HV_65"  =>  JOB_HV_65(sqlContext,start_dt,end_dt,interval) //CODE BY XTP
-      case "JOB_HV_71"  =>  JOB_HV_71(sqlContext,start_dt,end_dt) //CODE BY TZQ
+
+      case "JOB_HV_71"  =>  JOB_HV_71(sqlContext,start_dt,end_dt,interval) //CODE BY TZQ
 
       case _ => println("#### No Case Job,Please Input JobName")
 
@@ -906,7 +910,7 @@ object SparkUPH2H {
            """.stripMargin)
             println("#### JOB_HV_56 分区数据插入完成的时间为：" + DateUtils.getCurrentSystemTime())
           } else {
-            println(s"#### JOB_HV_56 read $up_namenode/ 无数据！")
+            println(s"#### JOB_HV_56 read $up_namenode 无数据！")
           }
           today_dt = DateUtils.addOneDay(today_dt)
         }
@@ -1561,30 +1565,34 @@ object SparkUPH2H {
     * @param start_dt
     * @param interval
     */
-  def JOB_HV_71(implicit sqlContext: HiveContext,start_dt: String,end_dt:String) = {
-    println("######JOB_HV_71######")
-    val interval=DateUtils.getIntervalDays(start_dt,end_dt).toInt
+  def JOB_HV_71(implicit sqlContext: HiveContext,start_dt: String,end_dt:String,interval:Int) = {
+    println("#### JOB_HV_71( hive_ach_order_inf <- hbkdb.rtdtrs_dtl_ach_order_inf) #####")
+
     var part_dt = start_dt
+
     sqlContext.sql(s"use $hive_dbname")
 
-    if(interval>=0){
+    if(interval >= 0){
       for(i <- 0 to interval){
-        val temp=(part_dt.toString()).replace("-","")//转为yyMMdd
-        val df = sqlContext.read.parquet(s"$up_namenode/$up_hivedataroot/incident/order/hive_ach_order_inf/hp_trans_dt=$temp")
-        println(s"###### read $up_namenode/ at partition= $temp successful ######")
+        println(s"#### JOB_HV_71 从落地表抽取数据开始时间为:" + DateUtils.getCurrentSystemTime())
+        val df = sqlContext.read.parquet(s"$up_namenode/$up_hivedataroot/incident/order/hive_ach_order_inf/part_trans_dt=$part_dt")
+        println(s"#### read $up_namenode at partition= $part_dt successful ######")
         df.registerTempTable("spark_hive_ach_order_inf")
 
         sqlContext.sql(s"use $hive_dbname")
-        sqlContext.sql(s"alter table hive_ach_order_inf drop partition(part_hp_trans_dt='$part_dt')")
+        println(s"#### JOB_HV_71 删除一级分区，时间为:" + DateUtils.getCurrentSystemTime())
+        sqlContext.sql(s"alter table hive_ach_order_inf drop partition(part_trans_dt='$part_dt')")
+
+        println(s"#### JOB_HV_71 自动分区插入大数据平台，开始时间为:" + DateUtils.getCurrentSystemTime())
         sqlContext.sql(
           s"""
-             |insert into table hive_ach_order_inf partition(part_hp_trans_dt='$part_dt')
+             |insert overwrite table hive_ach_order_inf partition(part_trans_dt,part_hp_trans_dt)
              |select * from spark_hive_ach_order_inf
        """.stripMargin)
-        println(s"#### insert into table(hive_ach_order_inf) at partition= $part_dt successful ####")
 
+        println(s"#### JOB_HV_71 自动分区插入大数据平台，完成时间为:" + DateUtils.getCurrentSystemTime())
 
-        part_dt=DateUtils.addOneDay(part_dt)//yyyy-MM-dd
+        part_dt=DateUtils.addOneDay(part_dt)
       }
     }
   }
