@@ -3405,7 +3405,7 @@ object Create_Hive_Tables {
          |rec_crt_ts           string ,
          |rec_upd_ts           string
          |)
-         |partitioned by (part_trans_dt string,part_hp_trans_dt string)
+         |partitioned by (part_hp_trans_dt string,part_trans_dt string)
          |row format delimited fields terminated by '!|'
          |stored as parquet
          |location '/user/ch_hypas/upw_hive/incident/order/hive_ach_order_inf'
