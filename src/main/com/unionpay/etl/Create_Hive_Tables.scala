@@ -4081,7 +4081,7 @@ object Create_Hive_Tables {
 
   }
 
-   def hive_org_tdapp_newuser(implicit sqlContext: HiveContext) = {
+  def hive_org_tdapp_newuser(implicit sqlContext: HiveContext) = {
     println("=======Create hive_org_tdapp_newuser=======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql("drop table if exists hive_org_tdapp_newuser")
@@ -4112,7 +4112,7 @@ object Create_Hive_Tables {
          |starttime_month   int       ,
          |starttime_year    int
          |)
-         |partitioned by (part_updays string,part_daytime string)
+         |partitioned by (part_updays string,part_daytime string,from_table string)
          |row format delimited fields terminated by '!|'
          |stored as parquet
          |location '/user/ch_hypas/upw_hive/incident/td/hive_org_tdapp_newuser'

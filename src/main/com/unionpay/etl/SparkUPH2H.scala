@@ -1506,7 +1506,7 @@ object SparkUPH2H {
             sqlContext.sql(s"use $hive_dbname")
             sqlContext.sql(
               s"""
-                 |insert overwrite table hive_org_tdapp_newuser partition (part_updays,part_daytime)
+                 |insert overwrite table hive_org_tdapp_newuser partition (part_updays,part_daytime,from_table)
                  |select
                  |loguuid           ,
                  |developerid       ,
@@ -1537,7 +1537,8 @@ object SparkUPH2H {
                  |substr(part_daytime,9,2) between '01' and '31'
                  |then part_daytime
                  |else '0000-00-00'
-                 |end as p_daytime
+                 |end as p_daytime,
+                 |from_table
                  |from  spark_hive_org_tdapp_newuser
            """.stripMargin)
             println("#### JOB_HV_65 分区数据插入完成的时间为：" + DateUtils.getCurrentSystemTime())
