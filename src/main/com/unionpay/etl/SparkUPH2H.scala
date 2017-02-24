@@ -309,7 +309,7 @@ object SparkUPH2H {
              |dir_field         ,
              |buss_tp           ,
              |in_trans_tp       ,
-             |to_date(settle_dt) as p_settle_dt
+             |'$today_dt' as p_settle_dt
              |from
              |spark_hive_achis_trans
            """.stripMargin)
