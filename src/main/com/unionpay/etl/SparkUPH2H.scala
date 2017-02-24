@@ -1497,7 +1497,7 @@ object SparkUPH2H {
 
         for (i <- 0 to interval) {
           val df = sqlContext.read.parquet(s"$up_namenode/$up_hivedataroot/incident/td/hive_org_tdapp_newuser/part_updays=$today_dt")
-          println(s"#### JOB_HV_65 read $up_namenode/ 读取大数据平台数据完成时间为:" + DateUtils.getCurrentSystemTime())
+          println(s"#### JOB_HV_65 read $up_namenode 读取大数据平台数据完成时间为:" + DateUtils.getCurrentSystemTime())
 
           df.registerTempTable("spark_hive_org_tdapp_newuser")
           println("#### JOB_HV_65 registerTempTable--spark_hive_org_tdapp_newuser 完成的系统时间为:" + DateUtils.getCurrentSystemTime())
@@ -1543,7 +1543,7 @@ object SparkUPH2H {
            """.stripMargin)
             println("#### JOB_HV_65 分区数据插入完成的时间为：" + DateUtils.getCurrentSystemTime())
           } else {
-            println(s"#### JOB_HV_65 read $up_namenode/ 无数据！")
+            println(s"#### JOB_HV_65 read $up_namenode 无数据！")
           }
           today_dt = DateUtils.addOneDay(today_dt)
         }
@@ -1554,12 +1554,9 @@ object SparkUPH2H {
 
   /**
     * hive-job-71 2016-11-28
-    * hive_ach_order_inf -> hbkdb.rtdtrs_dtl_ach_order_inf (测试环境只有这一天：20151109 有数据)
+    * hive_ach_order_inf -> hbkdb.rtdtrs_dtl_ach_order_inf
     *
-    * 测试时间段为:
-    * start_dt="2015-11-09"
-    * end_dt="2015-11-09"
-    *
+    * 测试时段:2015-11-09~2015-11-10
     * @author tzq
     * @param sqlContext
     * @param end_dt
