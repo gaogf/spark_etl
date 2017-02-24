@@ -1998,11 +1998,11 @@ object Create_Hive_Tables {
   }
 
   def hive_filter_rule_det(implicit sqlContext: HiveContext) = {
-    println("=======Create hive_filter_rule_det=======")
+    println("=======Create hive_filter_rule_det =======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
       s"""
-         create table if not exists $hive_dbname.hive_filter_rule_det(
+         |create table if not exists $hive_dbname.hive_filter_rule_det(
          |rule_grp_id			int ,
          |rule_grp_cata   string,
          |rule_min_val    string,
@@ -2310,7 +2310,7 @@ object Create_Hive_Tables {
          |sync_st                 string ,
          |sync_bat_no             int    ,
          |sync_ts                 timestamp
-         |         |row format delimited fields terminated by '!|'
+         |row format delimited fields terminated by '!|'
          |stored as parquet
          |location '/user/ch_hypas/upw_hive/parameter/hive_mchnt_tp_grp'
          | """.stripMargin)
