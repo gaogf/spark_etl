@@ -998,7 +998,7 @@ object SparkUPH2H {
 
     DateUtils.timeCost("JOB_HV_58") {
       var today_dt = start_dt
-      if (interval > 0) {
+      if (interval >= 0) {
         println(s"#### JOB_HV_58  spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
 
         for (i <- 0 to interval) {
