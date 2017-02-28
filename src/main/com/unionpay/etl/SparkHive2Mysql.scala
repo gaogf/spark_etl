@@ -117,7 +117,6 @@ object SparkHive2Mysql {
       case "JOB_DM_22" =>JOB_DM_22(sqlContext,start_dt,end_dt,interval)     //CODE BY XTP
       case "JOB_DM_23" =>JOB_DM_23(sqlContext,start_dt,end_dt,interval)     //CODE BY XTP
 
-      case "JOB_DM_24" =>JOB_DM_24(sqlContext,start_dt,end_dt,interval)     //CODE BY TZQ
       case "JOB_DM_25" =>JOB_DM_25(sqlContext,start_dt,end_dt,interval)     //CODE BY TZQ
       case "JOB_DM_26" =>JOB_DM_26(sqlContext,start_dt,end_dt,interval)     //CODE BY TZQ
       case "JOB_DM_27" =>JOB_DM_27(sqlContext,start_dt,end_dt,interval)     //CODE BY TZQ
@@ -1236,7 +1235,7 @@ object SparkHive2Mysql {
         val results = sqlContext.sql(
           s"""
              |select
-             |tmp.project_name,
+             |tmp.project_name as project_name,
              |'$today_dt' as report_dt,
              |tmp.tpre as store_tpre_add_num ,
              |tmp.years as store_year_add_num ,
@@ -6171,7 +6170,7 @@ object SparkHive2Mysql {
     * @param end_dt
     */
   def JOB_DM_51(implicit sqlContext: HiveContext, start_dt: String, end_dt: String) = {
-    println("###JOB_DM_51(DM_VAL_TKT_ACT_MOBILE_LOC_DLY )### " + DateUtils.getCurrentSystemTime())
+    println("###JOB_DM_51( DM_VAL_TKT_ACT_MOBILE_LOC_DLY---- )### " + DateUtils.getCurrentSystemTime())
     DateUtils.timeCost("JOB_DM_51") {
       UPSQL_JDBC.delete(s"DM_VAL_TKT_ACT_MOBILE_LOC_DLY ", "REPORT_DT", start_dt, end_dt)
       println("#### JOB_DM_51 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
@@ -6213,9 +6212,11 @@ object SparkHive2Mysql {
            |            HIVE_PRI_ACCT_INF PRI_ACCT
            |        ON
            |            (
-           |                TRANS.CDHD_USR_ID = PRI_ACCT.CDHD_USR_ID)
+           |                TRANS.CDHD_USR_ID = PRI_ACCT.CDHD_USR_ID
+           |             )
            |        WHERE
-           |            BILL.BILL_SUB_TP <> '08'
+           |        PRI_ACCT.PHONE_LOCATION is not null
+           |        and BILL.BILL_SUB_TP <> '08'
            |        AND TRANS.PART_TRANS_DT >= '$start_dt'
            |        AND TRANS.PART_TRANS_DT <= '$end_dt'
            |        GROUP BY
@@ -6245,7 +6246,8 @@ object SparkHive2Mysql {
            |            (
            |                TRANS.CDHD_USR_ID = PRI_ACCT.CDHD_USR_ID)
            |        WHERE
-           |            BILL.BILL_SUB_TP <> '08'
+           |        PRI_ACCT.PHONE_LOCATION is not null
+           |        and    BILL.BILL_SUB_TP <> '08'
            |        AND TRANS.ORDER_ST IN ('00',
            |                               '01',
            |                               '02',
@@ -6287,7 +6289,8 @@ object SparkHive2Mysql {
            |            (
            |                TRANS.CDHD_USR_ID = PRI_ACCT.CDHD_USR_ID)
            |        WHERE
-           |            BILL.BILL_SUB_TP <> '08'
+           |        PRI_ACCT.PHONE_LOCATION is not null
+           |        and    BILL.BILL_SUB_TP <> '08'
            |        AND TRANS.ORDER_ST = '00'
            |        AND TRANS.PART_TRANS_DT >= '$start_dt'
            |        AND TRANS.PART_TRANS_DT <= '$end_dt'
@@ -6297,7 +6300,8 @@ object SparkHive2Mysql {
            |ON
            |    (
            |        A.PHONE_LOCATION = C.PHONE_LOCATION
-           |    AND A.TRANS_DT = C.TRANS_DT)
+           |    AND A.TRANS_DT = C.TRANS_DT
+           |    )
            |
           """.stripMargin)
       println(s"#### JOB_DM_51 spark sql 清洗数据完成时间为:" + DateUtils.getCurrentSystemTime())
@@ -6314,7 +6318,7 @@ object SparkHive2Mysql {
 
   /**
     * JobName: JOB_DM_52
-    * Feature:DM_VAL_TKT_ACT_MOBILE_LOC_DLY
+    * Feature: DM_VAL_TKT_ACT_ISS_INS_DLY
     * Notice:
     * @author tzq
     * @time 2016-12-26
@@ -6323,7 +6327,7 @@ object SparkHive2Mysql {
     * @param end_dt
     */
   def JOB_DM_52(implicit sqlContext: HiveContext, start_dt: String, end_dt: String) = {
-    println("###JOB_DM_52(DM_VAL_TKT_ACT_MOBILE_LOC_DLY )### " + DateUtils.getCurrentSystemTime())
+    println("###JOB_DM_52(DM_VAL_TKT_ACT_ISS_INS_DLY )### " + DateUtils.getCurrentSystemTime())
     DateUtils.timeCost("JOB_DM_52") {
       UPSQL_JDBC.delete(s"DM_VAL_TKT_ACT_MOBILE_LOC_DLY", "REPORT_DT", start_dt, end_dt)
       println("#### JOB_DM_52 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
@@ -6453,7 +6457,8 @@ object SparkHive2Mysql {
            |
           """.stripMargin)
       println(s"#### JOB_DM_52 spark sql 清洗数据完成时间为:" + DateUtils.getCurrentSystemTime())
-
+      results.schema
+      results.show()
       println(s"###JOB_DM_52------ results:" + results.count())
       if (!Option(results).isEmpty) {
         results.save2Mysql("DM_VAL_TKT_ACT_MOBILE_LOC_DLY")
