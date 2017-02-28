@@ -6337,21 +6337,21 @@ object SparkHive2Mysql {
       val results = sqlContext.sql(
         s"""
            |SELECT
-           |    A.ISS_INS_CN_NM AS ISS_INS_NM,
-           |    A.TRANS_DT AS REPORT_DT,
-           |    A.TRANSCNT AS TRANS_CNT,
-           |    C.SUCTRANSCNT AS SUC_TRANS_CNT,
+           |    A.ISS_INS_CN_NM       AS ISS_INS_NM,
+           |    A.TRANS_DT            AS REPORT_DT,
+           |    A.TRANSCNT            AS TRANS_CNT,
+           |    C.SUCTRANSCNT         AS SUC_TRANS_CNT,
            |    C.BILL_ORIGINAL_PRICE AS BILL_ORIGINAL_PRICE,
-           |    C.BILL_PRICE AS BILL_PRICE,
-           |    A.TRANSUSRCNT AS TRANS_USR_CNT,
-           |    B.PAYUSRCNT AS PAY_USR_CNT,
-           |    C.PAYSUCUSRCNT  AS PAY_SUC_USR_CNT
+           |    C.BILL_PRICE          AS BILL_PRICE,
+           |    A.TRANSUSRCNT         AS TRANS_USR_CNT,
+           |    B.PAYUSRCNT           AS PAY_USR_CNT,
+           |    C.PAYSUCUSRCNT        AS PAY_SUC_USR_CNT
            |FROM
            |    (
            |        SELECT
            |            CBI.ISS_INS_CN_NM,
            |            TRANS.TRANS_DT,
-           |            COUNT(1)                    AS TRANSCNT,
+           |            COUNT(1)                          AS TRANSCNT,
            |            COUNT(DISTINCT TRANS.CDHD_USR_ID) AS TRANSUSRCNT
            |        FROM
            |            HIVE_BILL_ORDER_TRANS TRANS
@@ -6369,7 +6369,7 @@ object SparkHive2Mysql {
            |            HIVE_CARD_BIND_INF CBI
            |        ON
            |            (
-           |                TRANS.CARD_NO = CBI.BIND_CARD_NO)
+           |                CONCAT(LENGTH(TRANS.CARD_NO),TRANS.CARD_NO) = CBI.BIND_CARD_NO)
            |        WHERE
            |            BILL.BILL_SUB_TP <> '08'
            |        AND TRANS.PART_TRANS_DT >= '$start_dt'
@@ -6399,7 +6399,7 @@ object SparkHive2Mysql {
            |            HIVE_CARD_BIND_INF CBI
            |        ON
            |            (
-           |                TRANS.CARD_NO = CBI.BIND_CARD_NO)
+           |                CONCAT(LENGTH(TRANS.CARD_NO),CARD_NO) = CBI.BIND_CARD_NO)
            |        WHERE
            |            BILL.BILL_SUB_TP <> '08'
            |        AND TRANS.ORDER_ST IN ('00',
@@ -6421,10 +6421,10 @@ object SparkHive2Mysql {
            |        SELECT
            |            CBI.ISS_INS_CN_NM,
            |            TRANS.TRANS_DT,
-           |            COUNT(1)                      AS SUCTRANSCNT,
-           |            SUM(BILL.BILL_ORIGINAL_PRICE) AS BILL_ORIGINAL_PRICE,
-           |            SUM(BILL.BILL_PRICE)          AS BILL_PRICE,
-           |            COUNT(DISTINCT TRANS.CDHD_USR_ID)   AS PAYSUCUSRCNT
+           |            COUNT(1)                          AS SUCTRANSCNT,
+           |            SUM(BILL.BILL_ORIGINAL_PRICE)     AS BILL_ORIGINAL_PRICE,
+           |            SUM(BILL.BILL_PRICE)              AS BILL_PRICE,
+           |            COUNT(DISTINCT TRANS.CDHD_USR_ID) AS PAYSUCUSRCNT
            |        FROM
            |            HIVE_BILL_ORDER_TRANS TRANS
            |        LEFT JOIN
@@ -6441,7 +6441,7 @@ object SparkHive2Mysql {
            |            HIVE_CARD_BIND_INF CBI
            |        ON
            |            (
-           |                TRANS.CARD_NO = CBI.BIND_CARD_NO)
+           |                CONCAT(LENGTH(TRANS.CARD_NO),TRANS.CARD_NO) = CBI.BIND_CARD_NO)
            |        WHERE
            |            BILL.BILL_SUB_TP <> '08'
            |        AND TRANS.ORDER_ST = '00'
@@ -6450,15 +6450,18 @@ object SparkHive2Mysql {
            |        GROUP BY
            |            CBI.ISS_INS_CN_NM,
            |            TRANS.TRANS_DT) C
+           |
            |ON
            |    (
            |        A.ISS_INS_CN_NM = C.ISS_INS_CN_NM
            |    AND A.TRANS_DT = C.TRANS_DT)
            |
+           |WHERE  A.ISS_INS_CN_NM IS NOT NULL
+           |
+           |
           """.stripMargin)
       println(s"#### JOB_DM_52 spark sql 清洗数据完成时间为:" + DateUtils.getCurrentSystemTime())
-      results.schema
-      results.show()
+
       println(s"###JOB_DM_52------ results:" + results.count())
       if (!Option(results).isEmpty) {
         results.save2Mysql("DM_VAL_TKT_ACT_MOBILE_LOC_DLY")
