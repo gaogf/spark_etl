@@ -6326,7 +6326,7 @@ object SparkHive2Mysql {
   def JOB_DM_52(implicit sqlContext: HiveContext, start_dt: String, end_dt: String) = {
     println("###JOB_DM_52(DM_VAL_TKT_ACT_ISS_INS_DLY )### " + DateUtils.getCurrentSystemTime())
     DateUtils.timeCost("JOB_DM_52") {
-      UPSQL_JDBC.delete(s"DM_VAL_TKT_ACT_MOBILE_LOC_DLY", "REPORT_DT", start_dt, end_dt)
+      UPSQL_JDBC.delete(s"DM_VAL_TKT_ACT_ISS_INS_DLY", "REPORT_DT", start_dt, end_dt)
       println("#### JOB_DM_52 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
 
       println(s"#### JOB_DM_52 spark sql 清洗数据开始时间为:" + DateUtils.getCurrentSystemTime())
