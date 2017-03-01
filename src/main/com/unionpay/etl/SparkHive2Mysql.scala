@@ -122,7 +122,7 @@ object SparkHive2Mysql {
       case "JOB_DM_27" =>JOB_DM_27(sqlContext,start_dt,end_dt,interval)     //CODE BY TZQ
       case "JOB_DM_28" =>JOB_DM_28(sqlContext,start_dt,end_dt,interval)     //CODE BY TZQ
       case "JOB_DM_29" =>JOB_DM_29(sqlContext,start_dt,end_dt,interval)     //CODE BY TZQ
-      case "JOB_DM_30" =>JOB_DM_30(sqlContext,start_dt,end_dt,interval)     //CODE BY TZQ
+      case "JOB_DM_30" =>JOB_DM_30(sqlContext,start_dt,end_dt)              //CODE BY TZQ
       case "JOB_DM_31" =>JOB_DM_31(sqlContext,start_dt,end_dt)              //CODE BY TZQ
 
       //case "JOB_DM_32" =>JOB_DM_32(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP   测试报错，带修正
@@ -3573,15 +3573,13 @@ object SparkHive2Mysql {
     * @param start_dt
     * @param end_dt
     */
-  def JOB_DM_30 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String,interval:Int) = {
+  def JOB_DM_30 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
     DateUtils.timeCost("JOB_DM_30"){
       UPSQL_JDBC.delete(s"DM_DISC_TKT_ACT_BRANCH_DLY","REPORT_DT",start_dt,end_dt)
       println( "#### JOB_DM_30 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
-      var today_dt=start_dt
-      if(interval>=0 ){
+
         sqlContext.sql(s"use $hive_dbname")
-        for(i <- 0 to interval){
-          println(s"#### JOB_DM_30 spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
+          println(s"#### JOB_DM_30 spark sql 清洗数据开始时间为:" + DateUtils.getCurrentSystemTime())
           val results =sqlContext.sql(
             s"""
                |SELECT
@@ -3610,7 +3608,8 @@ object SparkHive2Mysql {
                |            TRANS.UM_TRANS_ID IN ('AC02000065',
                |                                  'AC02000063')
                |        AND BILL.BILL_SUB_TP IN ('01', '03')
-               |        AND TRANS.PART_TRANS_DT = '$today_dt'
+               |        AND TRANS.PART_TRANS_DT >= '$start_dt'
+               |        AND TRANS.PART_TRANS_DT <= '$end_dt'
                |        GROUP BY
                |            BILL.CUP_BRANCH_INS_ID_NM,
                |            TRANS.TRANS_DT) A
@@ -3635,28 +3634,26 @@ object SparkHive2Mysql {
                |            TRANS.SYS_DET_CD = 'S'
                |        AND TRANS.UM_TRANS_ID IN ('AC02000065','AC02000063')
                |        AND BILL.BILL_SUB_TP IN ('01','03')
-               |        AND TRANS.PART_TRANS_DT = '$today_dt'
+               |        AND TRANS.PART_TRANS_DT >= '$start_dt'
+               |        AND TRANS.PART_TRANS_DT <= '$end_dt'
+               |
                |        GROUP BY
                |            BILL.CUP_BRANCH_INS_ID_NM,
                |            TRANS.TRANS_DT)B
                |ON
                |A.CUP_BRANCH_INS_ID_NM = B.CUP_BRANCH_INS_ID_NM AND A.TRANS_DT = B.TRANS_DT
-               |WHERE A.TRANS_DT ='$today_dt'
                |
           """.stripMargin)
 
-          println(s"#### JOB_DM_30 spark sql 清洗[$today_dt]数据完成时间为:" + DateUtils.getCurrentSystemTime())
-//        println(s"###JOB_DM_30------$today_dt results:"+results.count())
+          println(s"#### JOB_DM_30 spark sql 清洗数据完成时间为:" + DateUtils.getCurrentSystemTime())
+        println(s"###JOB_DM_30----- results:"+results.count())
           if(!Option(results).isEmpty){
-            println(s"#### JOB_DM_30 [$today_dt]数据插入开始时间为：" + DateUtils.getCurrentSystemTime())
+            println(s"#### JOB_DM_30 数据插入开始时间为：" + DateUtils.getCurrentSystemTime())
             results.save2Mysql("DM_DISC_TKT_ACT_BRANCH_DLY")
-            println(s"#### JOB_DM_30 [$today_dt]数据插入完成时间为：" + DateUtils.getCurrentSystemTime())
+            println(s"#### JOB_DM_30 数据插入完成时间为：" + DateUtils.getCurrentSystemTime())
           }else{
-            println(s"#### JOB_DM_30 spark sql 清洗[$today_dt]数据无结果集！")
+            println(s"#### JOB_DM_30 spark sql 清洗数据无结果集！")
           }
-          today_dt=DateUtils.addOneDay(today_dt)
-        }
-      }
     }
   }
 

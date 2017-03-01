@@ -50,7 +50,7 @@ object UPSQL_JDBC {
     try {
       val stat = conn.prepareStatement(sql)
       val rs = stat.executeUpdate()
-      //println("#### Affect Rows："+rs)
+      println("#### Delete Affect Rows："+rs)
     } catch {
       case e:Exception =>e.printStackTrace
     } finally {
