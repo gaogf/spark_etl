@@ -1312,7 +1312,7 @@ object SparkHive2Mysql {
              | """.stripMargin)
         println(s"###JOB_DM_10------$today_dt results:"+results.count())
         if(!Option(results).isEmpty){
-          results.save2Mysql("DM_STORE_DOMAIN_BRANCH_COMPANY")
+          results.save2Mysql("DM_STORE_DIRECT_CONTACT_TRAN")
         }else{
           println("指定的时间范围无数据插入！")
         }
