@@ -6457,11 +6457,12 @@ object SparkHive2Mysql {
            |
            |
           """.stripMargin)
+
       println(s"#### JOB_DM_52 spark sql 清洗数据完成时间为:" + DateUtils.getCurrentSystemTime())
 
       println(s"###JOB_DM_52------ results:" + results.count())
       if (!Option(results).isEmpty) {
-        results.save2Mysql("DM_VAL_TKT_ACT_MOBILE_LOC_DLY")
+        results.save2Mysql("DM_VAL_TKT_ACT_ISS_INS_DLY")
         println(s"#### JOB_DM_52 数据插入完成时间为：" + DateUtils.getCurrentSystemTime())
       } else {
         println(s"#### JOB_DM_52 spark sql 清洗后数据无结果集！")
