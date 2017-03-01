@@ -543,8 +543,7 @@ object SparkUPH2H {
                |mdc_key                          ,
                |rec_upd_ts                       ,
                |rec_crt_ts                       ,
-               |hp_settle_dt                     ,
-               |hp_settle_dt
+               |'$today_dt' as p_settle_dt
                |from
                |spark_hive_cups_trans
            """.stripMargin)
@@ -600,7 +599,7 @@ object SparkUPH2H {
 
     DateUtils.timeCost("JOB_HV_50") {
       var today_dt = start_dt
-      if (interval > 0) {
+      if (interval >= 0) {
         println(s"#### JOB_HV_50  spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
 
         for (i <- 0 to interval) {
@@ -999,7 +998,7 @@ object SparkUPH2H {
 
     DateUtils.timeCost("JOB_HV_58") {
       var today_dt = start_dt
-      if (interval > 0) {
+      if (interval >= 0) {
         println(s"#### JOB_HV_58  spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
 
         for (i <- 0 to interval) {
@@ -1071,7 +1070,7 @@ object SparkUPH2H {
 
     DateUtils.timeCost("JOB_HV_59") {
       var today_dt = start_dt
-      if (interval > 0) {
+      if (interval >= 0) {
         println(s"#### JOB_HV_59  spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
 
         for (i <- 0 to interval) {
@@ -1144,7 +1143,7 @@ object SparkUPH2H {
 
     DateUtils.timeCost("JOB_HV_60") {
       var today_dt = start_dt
-      if (interval > 0) {
+      if (interval >= 0) {
         println(s"#### JOB_HV_60  spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
 
         for (i <- 0 to interval) {
@@ -1215,7 +1214,7 @@ object SparkUPH2H {
 
     DateUtils.timeCost("JOB_HV_61") {
       var today_dt = start_dt
-      if (interval > 0) {
+      if (interval >= 0){
         println(s"#### JOB_HV_61  spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
 
         for (i <- 0 to interval) {
@@ -1288,7 +1287,7 @@ object SparkUPH2H {
 
     DateUtils.timeCost("JOB_HV_62") {
       var today_dt = start_dt
-      if (interval > 0) {
+      if (interval >= 0) {
         println(s"#### JOB_HV_62  spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
 
         for (i <- 0 to interval) {
@@ -1360,7 +1359,7 @@ object SparkUPH2H {
 
     DateUtils.timeCost("JOB_HV_63") {
       var today_dt = start_dt
-      if (interval > 0) {
+      if (interval >= 0) {
         println(s"#### JOB_HV_63  spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
 
         for (i <- 0 to interval) {
@@ -1424,7 +1423,7 @@ object SparkUPH2H {
 
     DateUtils.timeCost("JOB_HV_64") {
       var today_dt = start_dt
-      if (interval > 0) {
+      if (interval >= 0) {
         println(s"#### JOB_HV_64  spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
 
         for (i <- 0 to interval) {
@@ -1492,7 +1491,7 @@ object SparkUPH2H {
 
     DateUtils.timeCost("JOB_HV_65") {
       var today_dt = start_dt
-      if (interval > 0) {
+      if (interval >= 0) {
         println(s"#### JOB_HV_65  spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
 
         for (i <- 0 to interval) {
