@@ -611,6 +611,10 @@ object SparkUPH2H {
 
           if (!Option(df).isEmpty) {
             sqlContext.sql(s"use $hive_dbname")
+
+            println(s"#### JOB_HV_50 删除大数据平台分区(part_updays='$today_dt')数据, 时间为:" + DateUtils.getCurrentSystemTime())
+            sqlContext.sql(s"alter table hive_org_tdapp_keyvalue drop partition(part_updays='$today_dt')")
+
             sqlContext.sql(
               s"""
                  |insert overwrite table hive_org_tdapp_keyvalue partition (part_updays,part_daytime)
@@ -680,6 +684,10 @@ object SparkUPH2H {
 
           if (!Option(df).isEmpty) {
             sqlContext.sql(s"use $hive_dbname")
+
+            println(s"#### JOB_HV_51 删除大数据平台分区(part_updays='$today_dt')数据, 时间为:" + DateUtils.getCurrentSystemTime())
+            sqlContext.sql(s"alter table hive_org_tdapp_tappevent drop partition(part_updays='$today_dt')")
+
             sqlContext.sql(
               s"""
                  |insert overwrite table hive_org_tdapp_tappevent partition (part_updays,part_daytime)
@@ -1010,6 +1018,9 @@ object SparkUPH2H {
 
           if (!Option(df).isEmpty) {
             sqlContext.sql(s"use $hive_dbname")
+            println(s"#### JOB_HV_58 删除大数据平台分区(part_updays='$today_dt')数据, 时间为:" + DateUtils.getCurrentSystemTime())
+            sqlContext.sql(s"alter table hive_org_tdapp_activitynew drop partition(part_updays='$today_dt')")
+
             sqlContext.sql(
               s"""
                  |insert overwrite table hive_org_tdapp_activitynew partition (part_updays,part_daytime)
@@ -1081,7 +1092,12 @@ object SparkUPH2H {
           println("#### JOB_HV_59 registerTempTable--spark_hive_org_tdapp_devicenew 完成的系统时间为:" + DateUtils.getCurrentSystemTime())
 
           if (!Option(df).isEmpty) {
+
             sqlContext.sql(s"use $hive_dbname")
+
+            println(s"#### JOB_HV_59 删除大数据平台分区(part_updays='$today_dt')数据, 时间为:" + DateUtils.getCurrentSystemTime())
+            sqlContext.sql(s"alter table hive_org_tdapp_devicenew drop partition(part_updays='$today_dt')")
+
             sqlContext.sql(
               s"""
                  |insert overwrite table hive_org_tdapp_devicenew partition (part_updays,part_daytime)
@@ -1155,6 +1171,8 @@ object SparkUPH2H {
 
           if (!Option(df).isEmpty) {
             sqlContext.sql(s"use $hive_dbname")
+            println(s"#### JOB_HV_60 删除大数据平台分区(part_updays='$today_dt')数据, 时间为:" + DateUtils.getCurrentSystemTime())
+            sqlContext.sql(s"alter table hive_org_tdapp_eventnew drop partition(part_updays='$today_dt')")
             sqlContext.sql(
               s"""
                  |insert overwrite table hive_org_tdapp_eventnew partition (part_updays,part_daytime)
@@ -1193,7 +1211,7 @@ object SparkUPH2H {
            """.stripMargin)
             println("#### JOB_HV_60 分区数据插入完成的时间为：" + DateUtils.getCurrentSystemTime())
           } else {
-            println(s"#### JOB_HV_60 read $up_namenode/ 无数据！")
+            println(s"#### JOB_HV_60 read $up_namenode 无数据！")
           }
           today_dt = DateUtils.addOneDay(today_dt)
         }
@@ -1226,6 +1244,9 @@ object SparkUPH2H {
 
           if (!Option(df).isEmpty) {
             sqlContext.sql(s"use $hive_dbname")
+            println(s"#### JOB_HV_61 删除大数据平台分区(part_updays='$today_dt')数据, 时间为:" + DateUtils.getCurrentSystemTime())
+            sqlContext.sql(s"alter table hive_org_tdapp_exceptionnew drop partition(part_updays='$today_dt')")
+
             sqlContext.sql(
               s"""
                  |insert overwrite table hive_org_tdapp_exceptionnew partition (part_updays,part_daytime)
@@ -1299,6 +1320,9 @@ object SparkUPH2H {
 
           if (!Option(df).isEmpty) {
             sqlContext.sql(s"use $hive_dbname")
+            println(s"#### JOB_HV_62 删除大数据平台分区(part_updays='$today_dt')数据, 时间为:" + DateUtils.getCurrentSystemTime())
+            sqlContext.sql(s"alter table hive_org_tdapp_tlaunchnew drop partition(part_updays='$today_dt')")
+
             sqlContext.sql(
               s"""
                  |insert overwrite table hive_org_tdapp_tlaunchnew partition (part_updays,part_daytime)
@@ -1371,6 +1395,8 @@ object SparkUPH2H {
 
           if (!Option(df).isEmpty) {
             sqlContext.sql(s"use $hive_dbname")
+            println(s"#### JOB_HV_63 删除大数据平台分区(part_updays='$today_dt')数据, 时间为:" + DateUtils.getCurrentSystemTime())
+            sqlContext.sql(s"alter table hive_org_tdapp_device drop partition(part_updays='$today_dt')")
             sqlContext.sql(
               s"""
                  |insert overwrite table hive_org_tdapp_device partition (part_updays,part_daytime)
@@ -1435,6 +1461,8 @@ object SparkUPH2H {
 
           if (!Option(df).isEmpty) {
             sqlContext.sql(s"use $hive_dbname")
+            println(s"#### JOB_HV_64 删除大数据平台分区(part_updays='$today_dt')数据, 时间为:" + DateUtils.getCurrentSystemTime())
+            sqlContext.sql(s"alter table hive_org_tdapp_exception drop partition(part_updays='$today_dt')")
             sqlContext.sql(
               s"""
                  |insert overwrite table hive_org_tdapp_exception partition (part_updays,part_daytime)
@@ -1503,6 +1531,8 @@ object SparkUPH2H {
 
           if (!Option(df).isEmpty) {
             sqlContext.sql(s"use $hive_dbname")
+            println(s"#### JOB_HV_65 删除大数据平台分区(part_updays='$today_dt')数据, 时间为:" + DateUtils.getCurrentSystemTime())
+            sqlContext.sql(s"alter table hive_org_tdapp_newuser drop partition(part_updays='$today_dt')")
             sqlContext.sql(
               s"""
                  |insert overwrite table hive_org_tdapp_newuser partition (part_updays,part_daytime,from_table)
