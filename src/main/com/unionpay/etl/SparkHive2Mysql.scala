@@ -117,6 +117,7 @@ object SparkHive2Mysql {
       case "JOB_DM_22" =>JOB_DM_22(sqlContext,start_dt,end_dt,interval)     //CODE BY XTP
       case "JOB_DM_23" =>JOB_DM_23(sqlContext,start_dt,end_dt,interval)     //CODE BY XTP
 
+      case "JOB_DM_24" =>JOB_DM_24(sqlContext,start_dt,end_dt,interval)     //CODE BY TZQ
       case "JOB_DM_25" =>JOB_DM_25(sqlContext,start_dt,end_dt,interval)     //CODE BY TZQ
       case "JOB_DM_26" =>JOB_DM_26(sqlContext,start_dt,end_dt,interval)     //CODE BY TZQ
       case "JOB_DM_27" =>JOB_DM_27(sqlContext,start_dt,end_dt,interval)     //CODE BY TZQ
