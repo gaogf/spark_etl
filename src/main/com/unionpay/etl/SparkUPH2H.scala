@@ -591,10 +591,10 @@ object SparkUPH2H {
     * hive-job-50 2016-11-03
     * org_tdapp_keyvalue to hive_org_tdapp_keyvalue
     *
-    * @author Xue
+    * @author XTP
     * @param sqlContext
     */
-  def JOB_HV_50(implicit sqlContext: HiveContext,start_dt:String,end_dt:String,interval:Int) = {
+  def JOB_HV_50(implicit sqlContext: HiveContext, start_dt: String, end_dt: String, interval: Int) = {
     println("#### JOB_HV_50(org_tdapp_keyvalue to hive_org_tdapp_keyvalue)")
 
     DateUtils.timeCost("JOB_HV_50") {
