@@ -8368,7 +8368,7 @@ object SparkHive2Mysql {
         s"""
            |select
            |    cup_branch_ins_id_nm,
-           |    trans_dt as report_dt,
+           |    to_date(trans_dt) as report_dt,
            |    count(distinct(plan_id)) as plan_cnt,
            |    count(*)                as trans_cnt,
            |    sum(
@@ -8386,11 +8386,11 @@ object SparkHive2Mysql {
            |from
            |    hive_offline_point_trans  trans
            |where
-           |  trans.part_trans_dt >='$start_dt' and trans.part_trans_dt >='$end_dt' and
+           |  trans.part_trans_dt >='$start_dt' and trans.part_trans_dt <='$end_dt' and
            |   oper_st in('0','3')
            |group by
            |    cup_branch_ins_id_nm,
-           |    trans_dt
+           |    to_date(trans_dt)
       """.stripMargin)
       println(s"#### JOB_DM_68 spark sql 清洗[$start_dt -- $end_dt]数据完成时间为:" + DateUtils.getCurrentSystemTime())
       //println(s"#### JOB_DM_68 spark sql 清洗[$start_dt -- $end_dt]数据 results:"+results.count())
