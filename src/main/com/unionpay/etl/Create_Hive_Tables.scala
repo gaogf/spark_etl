@@ -1951,7 +1951,8 @@ object Create_Hive_Tables {
          |related_log_cd            string         ,
          |mdc_key                   string         ,
          |rec_upd_ts                string         ,
-         |rec_crt_ts                string
+         |rec_crt_ts                string         ,
+         |hp_settle_dt              string
          |)
          |partitioned by (part_settle_dt string)
          |row format delimited fields terminated by '!|'
