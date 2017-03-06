@@ -3508,8 +3508,8 @@ object SparkDB22Hive {
 
 
   /**
-    * JOB_HV_31/10-14
-    * HIVE_BILL_ORDER_TRANS->VIW_CHMGM_BILL_ORDER_AUX_INF
+    * JOB_HV_31/03-06
+    * hive_bill_order_trans->viw_chmgm_bill_order_aux_inf
     * Code by Xue
     *
     * @param sqlContext
@@ -3517,25 +3517,31 @@ object SparkDB22Hive {
     * @param end_dt
     */
   def JOB_HV_31 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
+    println("#### JOB_HV_31(hive_bill_order_trans->viw_chmgm_bill_order_aux_inf)")
+
     DateUtils.timeCost("JOB_HV_31"){
       val start_day = start_dt.replace("-","")
       val end_day = end_dt.replace("-","")
+      println("#### JOB_HV_31 增量抽取的时间范围: " + start_day + "--" + end_day)
 
-      val df2_1 = sqlContext.readDB2_MGM_4para(s"$schemas_mgmdb.VIW_CHMGM_BILL_ORDER_AUX_INF","trans_dt",s"$start_day",s"$end_day")
-      df2_1.registerTempTable("VIW_CHMGM_BILL_ORDER_AUX_INF")
+      val df2_1 = sqlContext.readDB2_MGM_4para(s"$schemas_mgmdb.viw_chmgm_bill_order_aux_inf","trans_dt",s"$start_day",s"$end_day")
+      println("#### JOB_HV_31 readDB2_MGM_4para 的系统时间为:" + DateUtils.getCurrentSystemTime())
+
+      df2_1.registerTempTable("viw_chmgm_bill_order_aux_inf")
+      println("#### JOB_HV_31 注册临时表的系统时间为:" + DateUtils.getCurrentSystemTime())
 
       val results = sqlContext.sql(
         s"""
            |select
-           |trim(ta.BILL_ORDER_ID) as BILL_ORDER_ID,
-           |trim(ta.MCHNT_CD) as MCHNT_CD,
-           |ta.MCHNT_NM as MCHNT_NM,
-           |trim(ta.SUB_MCHNT_CD) as SUB_MCHNT_CD,
-           |trim(ta.CDHD_USR_ID) as CDHD_USR_ID,
-           |ta.SUB_MCHNT_NM as SUB_MCHNT_NM,
-           |ta.RELATED_USR_ID as RELATED_USR_ID,
-           |trim(ta.CUPS_TRACE_NUMBER) as CUPS_TRACE_NUMBER,
-           |trim(ta.TRANS_TM) as TRANS_TM,
+           |trim(ta.bill_order_id) as bill_order_id,
+           |trim(ta.mchnt_cd) as mchnt_cd,
+           |ta.mchnt_nm as mchnt_nm,
+           |trim(ta.sub_mchnt_cd) as sub_mchnt_cd,
+           |trim(ta.cdhd_usr_id) as cdhd_usr_id,
+           |ta.sub_mchnt_nm as sub_mchnt_nm,
+           |ta.related_usr_id as related_usr_id,
+           |trim(ta.cups_trace_number) as cups_trace_number,
+           |trim(ta.trans_tm) as trans_tm,
            |case
            |	when
            |		substr(ta.trans_dt,1,4) between '0001' and '9999' and substr(ta.trans_dt,5,2) between '01' and '12' and
@@ -3543,12 +3549,12 @@ object SparkDB22Hive {
            |	then concat_ws('-',substr(ta.trans_dt,1,4),substr(ta.trans_dt,5,2),substr(ta.trans_dt,7,2))
            |	else null
            |end as trans_dt,
-           |trim(ta.ORIG_TRANS_SEQ) as ORIG_TRANS_SEQ,
-           |trim(ta.TRANS_SEQ) as TRANS_SEQ,
-           |trim(ta.MOBILE_ORDER_ID) as MOBILE_ORDER_ID,
-           |trim(ta.ACP_ORDER_ID) as ACP_ORDER_ID,
-           |trim(ta.DELIVERY_PROV_CD) as DELIVERY_PROV_CD,
-           |trim(ta.DELIVERY_CITY_CD) as DELIVERY_CITY_CD,
+           |trim(ta.orig_trans_seq) as orig_trans_seq,
+           |trim(ta.trans_seq) as trans_seq,
+           |trim(ta.mobile_order_id) as mobile_order_id,
+           |trim(ta.acp_order_id) as acp_order_id,
+           |trim(ta.delivery_prov_cd) as delivery_prov_cd,
+           |trim(ta.delivery_city_cd) as delivery_city_cd,
            |(case
            |when ta.delivery_city_cd='210200' then '大连'
            |when ta.delivery_city_cd='330200' then '宁波'
@@ -3586,69 +3592,95 @@ object SparkDB22Hive {
            |when ta.delivery_prov_cd like '63%' then '青海'
            |when ta.delivery_prov_cd like '64%' then '宁夏'
            |when ta.delivery_prov_cd like '65%' then '新疆'
-           |else '总公司' end) as prov_division_cd,
-           |trim(ta.DELIVERY_DISTRICT_CD) as DELIVERY_DISTRICT_CD,
-           |trim(ta.DELIVERY_ZIP_CD) as DELIVERY_ZIP_CD,
-           |ta.DELIVERY_ADDRESS as DELIVERY_ADDRESS,
-           |trim(ta.RECEIVER_NM) as RECEIVER_NM,
-           |trim(ta.RECEIVER_MOBILE) as RECEIVER_MOBILE,
-           |ta.DELIVERY_TIME_DESC as DELIVERY_TIME_DESC,
-           |ta.INVOICE_DESC as INVOICE_DESC,
-           |ta.TRANS_AT as TRANS_AT,
-           |ta.REFUND_AT as REFUND_AT,
-           |trim(ta.ORDER_ST) as ORDER_ST,
-           |ta.ORDER_CRT_TS as ORDER_CRT_TS,
-           |ta.ORDER_TIMEOUT_TS as ORDER_TIMEOUT_TS,
-           |trim(ta.CARD_NO) as CARD_NO,
-           |trim(ta.ORDER_CHNL) as ORDER_CHNL,
-           |trim(ta.ORDER_IP) as ORDER_IP,
-           |ta.DEVICE_INF as DEVICE_INF,
-           |ta.REMARK as REMARK,
-           |ta.REC_CRT_TS as REC_CRT_TS,
-           |trim(ta.CRT_CDHD_USR_ID) as CRT_CDHD_USR_ID,
-           |ta.REC_UPD_TS as REC_UPD_TS,
-           |trim(ta.UPD_CDHD_USR_ID) as UPD_CDHD_USR_ID
-           |
-         |from VIW_CHMGM_BILL_ORDER_AUX_INF ta
+           |else '总公司' end) as delivery_district_nm,
+           |trim(ta.delivery_district_cd) as delivery_district_cd,
+           |trim(ta.delivery_zip_cd) as delivery_zip_cd,
+           |ta.delivery_address as delivery_address,
+           |trim(ta.receiver_nm) as receiver_nm,
+           |trim(ta.receiver_mobile) as receiver_mobile,
+           |ta.delivery_time_desc as delivery_time_desc,
+           |ta.invoice_desc as invoice_desc,
+           |ta.trans_at as trans_at,
+           |ta.refund_at as refund_at,
+           |trim(ta.order_st) as order_st,
+           |ta.order_crt_ts as order_crt_ts,
+           |ta.order_timeout_ts as order_timeout_ts,
+           |trim(ta.card_no) as card_no,
+           |trim(ta.order_chnl) as order_chnl,
+           |trim(ta.order_ip) as order_ip,
+           |ta.device_inf as device_inf,
+           |ta.remark as remark,
+           |ta.rec_crt_ts as rec_crt_ts,
+           |trim(ta.crt_cdhd_usr_id) as crt_cdhd_usr_id,
+           |ta.rec_upd_ts as rec_upd_ts,
+           |trim(ta.upd_cdhd_usr_id) as upd_cdhd_usr_id,
+           |case
+           |	when
+           |		substr(ta.trans_dt,1,4) between '0001' and '9999' and substr(ta.trans_dt,5,2) between '01' and '12' and
+           |		substr(ta.trans_dt,7,2) between '01' and substr(last_day(concat_ws('-',substr(ta.trans_dt,1,4),substr(ta.trans_dt,5,2),substr(ta.trans_dt,7,2))),9,2)
+           |	then concat_ws('-',substr(ta.trans_dt,1,4),substr(ta.trans_dt,5,2),substr(ta.trans_dt,7,2))
+           |	else substr(ta.rec_crt_ts,1,10)
+           |end as p_trans_dt
+           |from viw_chmgm_bill_order_aux_inf ta
            | """.stripMargin)
 
-      println("JOB_HV_31------>results:"+results.count())
-      if(!Option(results).isEmpty){
-        results.registerTempTable("spark_hive_bill_order_trans")
-      }else{
-        println("加载的表spark_hive_bill_order_trans中无数据！")
+      println("#### JOB_HV_31 spark sql 逻辑完成的系统时间为:" + DateUtils.getCurrentSystemTime())
+      results.registerTempTable("spark_hive_bill_order_trans")
+      println("#### JOB_HV_31 registerTempTable-- spark_hive_bill_order_trans 完成的系统时间为:" + DateUtils.getCurrentSystemTime())
+
+      if (!Option(results).isEmpty) {
+        sqlContext.sql(s"use $hive_dbname")
+        sqlContext.sql(
+          s"""
+             |insert overwrite table hive_bill_order_trans partition (part_trans_dt)
+             |select
+             |bill_order_id            ,
+             |mchnt_cd                 ,
+             |mchnt_nm                 ,
+             |sub_mchnt_cd             ,
+             |cdhd_usr_id              ,
+             |sub_mchnt_nm             ,
+             |related_usr_id           ,
+             |cups_trace_number        ,
+             |trans_tm                 ,
+             |trans_dt                 ,
+             |orig_trans_seq           ,
+             |trans_seq                ,
+             |mobile_order_id          ,
+             |acp_order_id             ,
+             |delivery_prov_cd         ,
+             |delivery_city_cd         ,
+             |delivery_district_nm     ,
+             |delivery_district_cd     ,
+             |delivery_zip_cd          ,
+             |delivery_address         ,
+             |receiver_nm              ,
+             |receiver_mobile          ,
+             |delivery_time_desc       ,
+             |invoice_desc             ,
+             |trans_at                 ,
+             |refund_at                ,
+             |order_st                 ,
+             |order_crt_ts             ,
+             |order_timeout_ts         ,
+             |card_no                  ,
+             |order_chnl               ,
+             |order_ip                 ,
+             |device_inf               ,
+             |remark                   ,
+             |rec_crt_ts               ,
+             |crt_cdhd_usr_id          ,
+             |rec_upd_ts               ,
+             |upd_cdhd_usr_id          ,
+             |p_trans_dt
+             |from
+             |spark_hive_bill_order_trans
+         """.stripMargin)
+        println("#### JOB_HV_31 动态分区插入完成的时间为：" + DateUtils.getCurrentSystemTime())
+      } else {
+        println("#### JOB_HV_31 spark sql 逻辑处理后无数据！")
       }
 
-
-      // Xue create function about partition by date ^_^
-      def PartitionFun_JOB_HV_31(start_dt: String, end_dt: String)  {
-        var sdf: SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd")
-        val start = LocalDate.parse(start_dt, dateFormatter)
-        val end = LocalDate.parse(end_dt, dateFormatter)
-        val days = Days.daysBetween(start, end).getDays
-        val dateStrs = for (day <- 0 to days) {
-          val insertofTime = System.currentTimeMillis()
-
-          val currentDay = (start.plusDays(day).toString(dateFormatter))
-          println(s"=========插入'$currentDay'分区的数据=========")
-          sqlContext.sql(s"use $hive_dbname")
-          sqlContext.sql(s"alter table HIVE_BILL_ORDER_TRANS drop partition (part_trans_dt='$currentDay')")
-          println(s"alter table HIVE_BILL_ORDER_TRANS drop partition (part_trans_dt='$currentDay') successfully!")
-          sqlContext.sql(s"alter table HIVE_BILL_ORDER_TRANS add partition (part_trans_dt='$currentDay')")
-          println(s"alter table HIVE_BILL_ORDER_TRANS add partition (part_trans_dt='$currentDay') successfully!")
-          sqlContext.sql(s"insert into HIVE_BILL_ORDER_TRANS partition (part_trans_dt='$currentDay') select * from spark_hive_bill_order_trans htempa where htempa.trans_dt = '$currentDay'")
-          println(s"insert into HIVE_BILL_ORDER_TRANS partition (part_trans_dt='$currentDay') successfully!")
-          val usedInsertofTime = System.currentTimeMillis() - insertofTime
-          val ss:Int =((System.currentTimeMillis() - insertofTime)/1000).toInt
-          val MM:Int = ss/60
-          val hh:Int = MM/60
-          val dd:Int = hh/24
-          println("运行插入分区花费的时间是:"+dd+"天"+(hh-dd*24)+"时"+(MM-hh*60)+"分"+(ss-MM*60)+"秒 , 合计："+usedInsertofTime+"毫秒")
-
-        }
-      }
-
-      PartitionFun_JOB_HV_31 (start_dt,end_dt)
     }
 
 

@@ -41,21 +41,21 @@ object SparkHive2Mysql {
       * 从数据库中获取当前JOB的执行起始和结束日期。
       * 日常调度使用。
       */
-    val rowParams=UPSQL_TIMEPARAMS_JDBC.readTimeParams(sqlContext)
-     start_dt=DateUtils.getYesterdayByJob(rowParams.getString(0))//获取开始日期：start_dt-1
-     end_dt=rowParams.getString(1)//结束日期
+//    val rowParams=UPSQL_TIMEPARAMS_JDBC.readTimeParams(sqlContext)
+//     start_dt=DateUtils.getYesterdayByJob(rowParams.getString(0))//获取开始日期：start_dt-1
+//     end_dt=rowParams.getString(1)//结束日期
 
     /**
       * 从命令行获取当前JOB的执行起始和结束日期。
       * 无规则日期的增量数据抽取，主要用于数据初始化和调试。
       */
-//        if (args.length > 1) {
-//          start_dt = args(1)
-//          end_dt = args(2)
-//        } else {
-//          println("#### 缺少参数输入")
-//          println("#### 请指定 SparkUPWH2H 数据抽取的起始日期")
-//        }
+        if (args.length > 1) {
+          start_dt = args(1)
+          end_dt = args(2)
+        } else {
+          println("#### 缺少参数输入")
+          println("#### 请指定 SparkUPWH2H 数据抽取的起始日期")
+        }
 
     val interval=DateUtils.getIntervalDays(start_dt,end_dt).toInt
 
@@ -2131,7 +2131,7 @@ object SparkHive2Mysql {
                |(select cdhd_usr_id,rec_crt_ts,count(*) as cnt
                |from HIVE_PASSIVE_CODE_PAY_TRANS
                |where to_date(rec_crt_ts)='$today_dt'
-               |and TRAN_CERTI like '10%'
+               |and TRAN_CERTI lik e'10%'
                |group by cdhd_usr_id,rec_crt_ts) a
                |inner join HIVE_PRI_ACCT_INF b
                |on a.cdhd_usr_id=b.cdhd_usr_id) c
