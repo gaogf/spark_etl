@@ -3,6 +3,9 @@ package com.unionpay.utils
 import java.text.SimpleDateFormat
 import java.util.{Calendar, Date}
 
+import org.joda.time.format.DateTimeFormat
+import org.joda.time.{LocalDate, Months}
+
 /**
   * 日期工具类
   * Created by tzq on 2016/10/14.
@@ -10,6 +13,8 @@ import java.util.{Calendar, Date}
 object DateUtils {
 
   val dateFormat: SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd")
+  val dateFormatter=DateTimeFormat.forPattern("yyyy-MM-dd")
+
 
   /**
     * 获取指定时间的昨天日期（格式：2016-10-13）
@@ -26,6 +31,20 @@ object DateUtils {
     yesterday
   }
 
+  /**
+    * 获取指定时间的上月日期（格式：2016-10-13）
+    * @param start_dt 指定时间
+    * @return
+    */
+  def getLastMonthByJob(start_dt:String):String= {
+
+    val cal: Calendar = Calendar.getInstance()
+    cal.setTime(dateFormat.parse(start_dt))
+
+    cal.add(Calendar.MONTH, -1)
+    val yesterday = dateFormat.format(cal.getTime())
+    yesterday
+  }
 
   /**
     * 增加一天
@@ -39,6 +58,20 @@ object DateUtils {
     cal.add(Calendar.DATE, 1)
     val one = dateFormat.format(cal.getTime())
      one
+  }
+
+  /**
+    * 增加一天
+    * @param start_dt 指定时间
+    * @return
+    */
+  def addOneMonth(start_dt:String):String= {
+
+    val cal: Calendar = Calendar.getInstance()
+    cal.setTime(dateFormat.parse(start_dt))
+    cal.add(Calendar.MONTH, 1)
+    val one = dateFormat.format(cal.getTime())
+    one
   }
 
 
@@ -64,6 +97,19 @@ object DateUtils {
      val days=(dateFormat.parse(end_dt).getTime-dateFormat.parse(start_dt).getTime)/(1000*3600*24)
      days
    }
+
+  /**
+    * 获取开始日期和结束日期质之间的间隔月数
+    * @param start_dt
+    * @param end_dt
+    * @return
+    */
+  def getIntervalMonths(start_dt:String,end_dt:String):Int={
+    val start_day = LocalDate.parse(start_dt, dateFormatter)
+    val end_day = LocalDate.parse(end_dt, dateFormatter)
+    val months = Months.monthsBetween(start_day, end_day).getMonths
+    months
+  }
 
   /**
     * 获取当前系统时间，格式为：yyyy-MM-dd HH:mm:ss

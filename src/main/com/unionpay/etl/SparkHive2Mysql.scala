@@ -57,6 +57,7 @@ object SparkHive2Mysql {
           println("#### 请指定 SparkUPWH2H 数据抽取的起始日期")
         }
 
+    //获取开始日期和结束日期的间隔天数
     val interval=DateUtils.getIntervalDays(start_dt,end_dt).toInt
 
     println(s"#### SparkHive2Mysql 数据清洗的起始日期为: $start_dt --  $end_dt")

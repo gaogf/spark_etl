@@ -9,7 +9,7 @@ import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.hive.HiveContext
 import org.apache.spark.{SparkConf, SparkContext}
 import org.joda.time.format.DateTimeFormat
-import org.joda.time.{DateTime, Days, LocalDate}
+import org.joda.time.{DateTime, Days, LocalDate, Months}
 
 /**
   * 作业：抽取银联Hive的数据到钱包Hive数据仓库
@@ -32,32 +32,37 @@ object SparkUPH2H {
 
     var start_dt: String = s"0000-00-00"
     var end_dt: String = s"0000-00-00"
-
+    var start_month: String = s"0000-00-00"
+    var end_month: String = s"0000-00-00"
 
 
     /**
       * 从数据库中获取当前JOB的执行起始和结束日期。
       * 日常调度使用。
       */
-    val rowParams=UPSQL_TIMEPARAMS_JDBC.readTimeParams(sqlContext)
-    start_dt=DateUtils.getYesterdayByJob(rowParams.getString(0))  //获取开始日期：start_dt-1
-    end_dt=rowParams.getString(1)//结束日期
-
+//    val rowParams=UPSQL_TIMEPARAMS_JDBC.readTimeParams(sqlContext)
+//    start_dt=rowParams.getString(0)  //获取开始日期,大数据平台抽取T-1数据,start_dt取当前系统时间减一天
+//    end_dt=rowParams.getString(1)//结束日期,大数据平台抽取T-1数据,end_dt取当前系统时间减一天
 
     /**
       * 从命令行获取当前JOB的执行起始和结束日期。
       * 无规则日期的增量数据抽取，主要用于数据初始化和调试。
       */
-//    if (args.length > 1) {
-//      start_dt = args(1)
-//      end_dt = args(2)
-//    } else {
-//      println("#### 缺少参数输入")
-//      println("#### 请指定 SparkDB22Hive 数据抽取的起始日期")
-//    }
+    if (args.length > 1) {
+      start_dt = args(1)
+      end_dt = args(2)
+    } else {
+      println("#### 缺少参数输入")
+      println("#### 请指定 SparkDB22Hive 数据抽取的起始日期")
+    }
 
-
+    //获取开始日期和结束日期的间隔天数或间隔月数
     val interval=DateUtils.getIntervalDays(start_dt,end_dt).toInt
+
+    //适用于按月抽取的JOB
+    start_month = DateUtils.getLastMonthByJob(start_dt)
+    end_month = DateUtils.getLastMonthByJob(end_dt)
+    val months=DateUtils.getIntervalMonths(start_dt,end_dt)
 
     println(s"#### SparkUPH2H 数据抽取的起始日期为: $start_dt --  $end_dt")
 
@@ -67,9 +72,9 @@ object SparkUPH2H {
       /**
         * 每日模板job
         */
-      case "JOB_HV_39"  => JOB_HV_39(sqlContext,end_dt) //CODE BY YX
+      case "JOB_HV_39"  => JOB_HV_39(sqlContext,start_dt,end_dt,interval) //CODE BY YX
       case "JOB_HV_49"  => JOB_HV_49 //CODE BY YX
-      case "JOB_HV_52"  => JOB_HV_52(sqlContext,end_dt) //CODE BY YX
+      case "JOB_HV_52"  => JOB_HV_52(sqlContext,start_month,end_month,months) //CODE BY YX
 
 
 
@@ -112,210 +117,217 @@ object SparkUPH2H {
     * @param sqlContext,end_dt
     */
 
-  def JOB_HV_39(implicit sqlContext: HiveContext,end_dt:String) = {
-    println("#### JOB_HV_39(rtdtrs_dtl_achis -> hive_achis_trans)")
-
-    val today_dt = end_dt
-    println("#### JOB_HV_39 增量抽取的时间范围为: "+end_dt)
+  def JOB_HV_39(implicit sqlContext: HiveContext,start_dt:String,end_dt:String, interval: Int) = {
 
     DateUtils.timeCost("JOB_HV_39") {
-      val df = sqlContext.read.parquet(s"$up_namenode/$up_hivedataroot/incident/ods/hive_achis_trans/part_settle_dt=$today_dt")
-      println(s"#### JOB_HV_39 read $up_namenode/ 数据完成时间为:"+DateUtils.getCurrentSystemTime())
+      println("#### JOB_HV_39(rtdtrs_dtl_achis -> hive_achis_trans)")
+      println("#### JOB_HV_39 增量抽取的时间范围为:" + start_dt + "  --  " + end_dt)
 
-      df.registerTempTable("spark_hive_achis_trans")
-      println("#### JOB_HV_39 registerTempTable--spark_hive_achis_trans 完成的系统时间为:"+DateUtils.getCurrentSystemTime())
+      var today_dt = start_dt
+      if (interval >= 0) {
+        for (i <- 0 to interval) {
+          println(s"#### JOB_HV_39  spark sql 开始抽取[$today_dt]数据")
 
-      if(!Option(df).isEmpty){
-        sqlContext.sql(s"use $hive_dbname")
-        sqlContext.sql(
-          s"""
-             |insert overwrite table hive_achis_trans partition (part_settle_dt)
-             |select
-             |settle_dt          ,
-             |trans_idx          ,
-             |trans_tp           ,
-             |trans_class        ,
-             |trans_source       ,
-             |buss_chnl          ,
-             |carrier_tp         ,
-             |pri_acct_no        ,
-             |mchnt_conn_tp      ,
-             |access_tp          ,
-             |conn_md            ,
-             |acq_ins_id_cd      ,
-             |acq_head           ,
-             |fwd_ins_id_cd      ,
-             |rcv_ins_id_cd      ,
-             |iss_ins_id_cd      ,
-             |iss_head           ,
-             |iss_head_nm        ,
-             |mchnt_cd           ,
-             |mchnt_nm           ,
-             |mchnt_country      ,
-             |mchnt_url          ,
-             |mchnt_front_url    ,
-             |mchnt_back_url     ,
-             |mchnt_tp           ,
-             |mchnt_order_id     ,
-             |mchnt_order_desc   ,
-             |mchnt_add_info     ,
-             |mchnt_reserve      ,
-             |reserve            ,
-             |sub_mchnt_cd       ,
-             |sub_mchnt_company  ,
-             |sub_mchnt_nm       ,
-             |mchnt_class        ,
-             |sys_tra_no         ,
-             |trans_tm           ,
-             |sys_tm             ,
-             |trans_dt           ,
-             |auth_id            ,
-             |trans_at           ,
-             |trans_curr_cd      ,
-             |proc_st            ,
-             |resp_cd            ,
-             |proc_sys           ,
-             |trans_no           ,
-             |trans_st           ,
-             |conv_dt            ,
-             |settle_at          ,
-             |settle_curr_cd     ,
-             |settle_conv_rt     ,
-             |cert_tp            ,
-             |cert_id            ,
-             |name               ,
-             |phone_no           ,
-             |usr_id             ,
-             |mchnt_id           ,
-             |pay_method         ,
-             |trans_ip           ,
-             |encoding           ,
-             |mac_addr           ,
-             |card_attr          ,
-             |ebank_id           ,
-             |ebank_mchnt_cd     ,
-             |ebank_order_num    ,
-             |ebank_idx          ,
-             |ebank_rsp_tm       ,
-             |kz_curr_cd         ,
-             |kz_conv_rt         ,
-             |kz_at              ,
-             |delivery_country   ,
-             |delivery_province  ,
-             |delivery_city      ,
-             |delivery_district  ,
-             |delivery_street    ,
-             |sms_tp             ,
-             |sign_method        ,
-             |verify_mode        ,
-             |accpt_pos_id       ,
-             |mer_cert_id        ,
-             |cup_cert_id        ,
-             |mchnt_version      ,
-             |sub_trans_tp       ,
-             |mac                ,
-             |biz_tp             ,
-             |source_idt         ,
-             |delivery_risk      ,
-             |trans_flag         ,
-             |org_trans_idx      ,
-             |org_sys_tra_no     ,
-             |org_sys_tm         ,
-             |org_mchnt_order_id ,
-             |org_trans_tm       ,
-             |org_trans_at       ,
-             |req_pri_data       ,
-             |pri_data           ,
-             |addn_at            ,
-             |res_pri_data       ,
-             |inq_dtl            ,
-             |reserve_fld        ,
-             |buss_code          ,
-             |t_mchnt_cd         ,
-             |is_oversea         ,
-             |points_at          ,
-             |pri_acct_tp        ,
-             |area_cd            ,
-             |mchnt_fee_at       ,
-             |user_fee_at        ,
-             |curr_exp           ,
-             |rcv_acct           ,
-             |track2             ,
-             |track3             ,
-             |customer_nm        ,
-             |product_info       ,
-             |customer_email     ,
-             |cup_branch_ins_cd  ,
-             |org_trans_dt       ,
-             |special_calc_cost  ,
-             |zero_cost          ,
-             |advance_payment    ,
-             |new_trans_tp       ,
-             |flight_inf         ,
-             |md_id              ,
-             |ud_id              ,
-             |syssp_id           ,
-             |card_sn            ,
-             |tfr_in_acct        ,
-             |acct_id            ,
-             |card_bin           ,
-             |icc_data           ,
-             |icc_data2          ,
-             |card_seq_id        ,
-             |pos_entry_cd       ,
-             |pos_cond_cd        ,
-             |term_id            ,
-             |usr_num_tp         ,
-             |addn_area_cd       ,
-             |usr_num            ,
-             |reserve1           ,
-             |reserve2           ,
-             |reserve3           ,
-             |reserve4           ,
-             |reserve5           ,
-             |reserve6           ,
-             |rec_st             ,
-             |comments           ,
-             |to_ts              ,
-             |rec_crt_ts        ,
-             |rec_upd_ts        ,
-             |pay_acct          ,
-             |trans_chnl        ,
-             |tlr_st            ,
-             |rvs_st            ,
-             |out_trans_tp      ,
-             |org_out_trans_tp  ,
-             |bind_id           ,
-             |ch_info           ,
-             |card_risk_flag    ,
-             |trans_step        ,
-             |ctrl_msg          ,
-             |mchnt_delv_tag    ,
-             |mchnt_risk_tag    ,
-             |bat_id            ,
-             |payer_ip          ,
-             |gt_sign_val       ,
-             |mchnt_sign_val    ,
-             |deduction_at      ,
-             |src_sys_flag      ,
-             |mac_ip            ,
-             |mac_sq            ,
-             |trans_ip_num      ,
-             |cvn_flag          ,
-             |expire_flag       ,
-             |usr_inf           ,
-             |imei              ,
-             |iss_ins_tp        ,
-             |dir_field         ,
-             |buss_tp           ,
-             |in_trans_tp       ,
-             |'$today_dt' as p_settle_dt
-             |from
-             |spark_hive_achis_trans
+          val df = sqlContext.read.parquet(s"$up_namenode/$up_hivedataroot/incident/ods/hive_achis_trans/part_settle_dt=$today_dt")
+          println(s"#### JOB_HV_39 read $up_namenode/ 数据完成时间为:" + DateUtils.getCurrentSystemTime())
+
+          df.registerTempTable("spark_hive_achis_trans")
+          println("#### JOB_HV_39 registerTempTable--spark_hive_achis_trans 完成的系统时间为:" + DateUtils.getCurrentSystemTime())
+
+          if (!Option(df).isEmpty) {
+            sqlContext.sql(s"use $hive_dbname")
+            sqlContext.sql(
+              s"""
+                 |insert overwrite table hive_achis_trans partition (part_settle_dt)
+                 |select
+                 |settle_dt          ,
+                 |trans_idx          ,
+                 |trans_tp           ,
+                 |trans_class        ,
+                 |trans_source       ,
+                 |buss_chnl          ,
+                 |carrier_tp         ,
+                 |pri_acct_no        ,
+                 |mchnt_conn_tp      ,
+                 |access_tp          ,
+                 |conn_md            ,
+                 |acq_ins_id_cd      ,
+                 |acq_head           ,
+                 |fwd_ins_id_cd      ,
+                 |rcv_ins_id_cd      ,
+                 |iss_ins_id_cd      ,
+                 |iss_head           ,
+                 |iss_head_nm        ,
+                 |mchnt_cd           ,
+                 |mchnt_nm           ,
+                 |mchnt_country      ,
+                 |mchnt_url          ,
+                 |mchnt_front_url    ,
+                 |mchnt_back_url     ,
+                 |mchnt_tp           ,
+                 |mchnt_order_id     ,
+                 |mchnt_order_desc   ,
+                 |mchnt_add_info     ,
+                 |mchnt_reserve      ,
+                 |reserve            ,
+                 |sub_mchnt_cd       ,
+                 |sub_mchnt_company  ,
+                 |sub_mchnt_nm       ,
+                 |mchnt_class        ,
+                 |sys_tra_no         ,
+                 |trans_tm           ,
+                 |sys_tm             ,
+                 |trans_dt           ,
+                 |auth_id            ,
+                 |trans_at           ,
+                 |trans_curr_cd      ,
+                 |proc_st            ,
+                 |resp_cd            ,
+                 |proc_sys           ,
+                 |trans_no           ,
+                 |trans_st           ,
+                 |conv_dt            ,
+                 |settle_at          ,
+                 |settle_curr_cd     ,
+                 |settle_conv_rt     ,
+                 |cert_tp            ,
+                 |cert_id            ,
+                 |name               ,
+                 |phone_no           ,
+                 |usr_id             ,
+                 |mchnt_id           ,
+                 |pay_method         ,
+                 |trans_ip           ,
+                 |encoding           ,
+                 |mac_addr           ,
+                 |card_attr          ,
+                 |ebank_id           ,
+                 |ebank_mchnt_cd     ,
+                 |ebank_order_num    ,
+                 |ebank_idx          ,
+                 |ebank_rsp_tm       ,
+                 |kz_curr_cd         ,
+                 |kz_conv_rt         ,
+                 |kz_at              ,
+                 |delivery_country   ,
+                 |delivery_province  ,
+                 |delivery_city      ,
+                 |delivery_district  ,
+                 |delivery_street    ,
+                 |sms_tp             ,
+                 |sign_method        ,
+                 |verify_mode        ,
+                 |accpt_pos_id       ,
+                 |mer_cert_id        ,
+                 |cup_cert_id        ,
+                 |mchnt_version      ,
+                 |sub_trans_tp       ,
+                 |mac                ,
+                 |biz_tp             ,
+                 |source_idt         ,
+                 |delivery_risk      ,
+                 |trans_flag         ,
+                 |org_trans_idx      ,
+                 |org_sys_tra_no     ,
+                 |org_sys_tm         ,
+                 |org_mchnt_order_id ,
+                 |org_trans_tm       ,
+                 |org_trans_at       ,
+                 |req_pri_data       ,
+                 |pri_data           ,
+                 |addn_at            ,
+                 |res_pri_data       ,
+                 |inq_dtl            ,
+                 |reserve_fld        ,
+                 |buss_code          ,
+                 |t_mchnt_cd         ,
+                 |is_oversea         ,
+                 |points_at          ,
+                 |pri_acct_tp        ,
+                 |area_cd            ,
+                 |mchnt_fee_at       ,
+                 |user_fee_at        ,
+                 |curr_exp           ,
+                 |rcv_acct           ,
+                 |track2             ,
+                 |track3             ,
+                 |customer_nm        ,
+                 |product_info       ,
+                 |customer_email     ,
+                 |cup_branch_ins_cd  ,
+                 |org_trans_dt       ,
+                 |special_calc_cost  ,
+                 |zero_cost          ,
+                 |advance_payment    ,
+                 |new_trans_tp       ,
+                 |flight_inf         ,
+                 |md_id              ,
+                 |ud_id              ,
+                 |syssp_id           ,
+                 |card_sn            ,
+                 |tfr_in_acct        ,
+                 |acct_id            ,
+                 |card_bin           ,
+                 |icc_data           ,
+                 |icc_data2          ,
+                 |card_seq_id        ,
+                 |pos_entry_cd       ,
+                 |pos_cond_cd        ,
+                 |term_id            ,
+                 |usr_num_tp         ,
+                 |addn_area_cd       ,
+                 |usr_num            ,
+                 |reserve1           ,
+                 |reserve2           ,
+                 |reserve3           ,
+                 |reserve4           ,
+                 |reserve5           ,
+                 |reserve6           ,
+                 |rec_st             ,
+                 |comments           ,
+                 |to_ts              ,
+                 |rec_crt_ts        ,
+                 |rec_upd_ts        ,
+                 |pay_acct          ,
+                 |trans_chnl        ,
+                 |tlr_st            ,
+                 |rvs_st            ,
+                 |out_trans_tp      ,
+                 |org_out_trans_tp  ,
+                 |bind_id           ,
+                 |ch_info           ,
+                 |card_risk_flag    ,
+                 |trans_step        ,
+                 |ctrl_msg          ,
+                 |mchnt_delv_tag    ,
+                 |mchnt_risk_tag    ,
+                 |bat_id            ,
+                 |payer_ip          ,
+                 |gt_sign_val       ,
+                 |mchnt_sign_val    ,
+                 |deduction_at      ,
+                 |src_sys_flag      ,
+                 |mac_ip            ,
+                 |mac_sq            ,
+                 |trans_ip_num      ,
+                 |cvn_flag          ,
+                 |expire_flag       ,
+                 |usr_inf           ,
+                 |imei              ,
+                 |iss_ins_tp        ,
+                 |dir_field         ,
+                 |buss_tp           ,
+                 |in_trans_tp       ,
+                 |'$today_dt' as p_settle_dt
+                 |from
+                 |spark_hive_achis_trans
            """.stripMargin)
-        println("#### JOB_HV_39 分区数据插入完成的时间为："+DateUtils.getCurrentSystemTime())
-      } else {
-        println(s"#### JOB_HV_39 read $up_namenode/ 无数据！")
+            println("#### JOB_HV_39 分区数据插入完成的时间为：" + DateUtils.getCurrentSystemTime())
+          } else {
+            println(s"#### JOB_HV_39 read $up_namenode/ 无数据！")
+          }
+          today_dt = DateUtils.addOneDay(today_dt)
+        }
       }
     }
   }
@@ -739,42 +751,50 @@ object SparkUPH2H {
     * @time 2016-08-29
     * @param sqlContext,end_dt
     */
-  def JOB_HV_52(implicit sqlContext: HiveContext, end_dt: String) = {
-    println("#### JOB_HV_52(stmtrs_bsl_active_card_acq_branch_mon1 -> hive_active_card_acq_branch_mon)")
+  def JOB_HV_52(implicit sqlContext: HiveContext, start_month: String, end_month: String, months: Int) = {
 
-    val part_dt = end_dt.substring(0, 7)
-    println("#### JOB_HV_52 增量抽取的时间范围为: " +part_dt)
+    DateUtils.timeCost("JOB_HV_52"){
+      println("#### JOB_HV_52(stmtrs_bsl_active_card_acq_branch_mon1 -> hive_active_card_acq_branch_mon)")
+      println(s"#### JOB_HV_52  spark sql 抽取[$start_month -- $end_month]数据开始时间为:" + DateUtils.getCurrentSystemTime())
 
-    DateUtils.timeCost("JOB_HV_52") {
-      val df = sqlContext.read.parquet(s"$up_namenode/$up_hivedataroot/product/card/hive_active_card_acq_branch_mon/part_settle_month=$part_dt")
-      println(s"#### JOB_HV_52 read $up_namenode/ 数据完成时间为:" + DateUtils.getCurrentSystemTime())
+      var cur_month = start_month
+      if(months >= 0){
+        for(i <- 1 to months){
+          val part_month = cur_month.substring(0,7)
+          println(s"#### JOB_HV_52  spark sql 开始抽取[$part_month]数据")
 
-      df.registerTempTable("spark_active_card_acq_branch_mon")
-      println("#### JOB_HV_52 registerTempTable--spark_active_card_acq_branch_mon 完成的系统时间为:" + DateUtils.getCurrentSystemTime())
+          val df = sqlContext.read.parquet(s"$up_namenode/$up_hivedataroot/product/card/hive_active_card_acq_branch_mon/part_settle_month=$part_month")
+          println(s"#### JOB_HV_52 read $up_namenode/ 数据完成时间为:" + DateUtils.getCurrentSystemTime())
 
-      if(!Option(df).isEmpty){
-        sqlContext.sql(s"use $hive_dbname")
-        sqlContext.sql(
-          s"""
-             |insert overwrite table hive_active_card_acq_branch_mon partition (part_settle_month)
-             |select
-             |trans_month,
-             |trans_class,
-             |trans_cd,
-             |trans_chnl_id,
-             |card_brand_id,
-             |card_attr_id,
-             |acq_intnl_org_id_cd,
-             |iss_root_ins_id_cd,
-             |active_card_num,
-             |hp_settle_month,
-             |hp_settle_month
-             |from
-             |spark_active_card_acq_branch_mon
+          df.registerTempTable("spark_active_card_acq_branch_mon")
+          println("#### JOB_HV_52 registerTempTable--spark_active_card_acq_branch_mon 完成的系统时间为:" + DateUtils.getCurrentSystemTime())
+
+          if(!Option(df).isEmpty){
+            sqlContext.sql(s"use $hive_dbname")
+            sqlContext.sql(
+              s"""
+                 |insert overwrite table hive_active_card_acq_branch_mon partition (part_settle_month)
+                 |select
+                 |trans_month,
+                 |trans_class,
+                 |trans_cd,
+                 |trans_chnl_id,
+                 |card_brand_id,
+                 |card_attr_id,
+                 |acq_intnl_org_id_cd,
+                 |iss_root_ins_id_cd,
+                 |active_card_num,
+                 |hp_settle_month,
+                 |hp_settle_month
+                 |from
+                 |spark_active_card_acq_branch_mon
            """.stripMargin)
-        println("#### JOB_HV_52 分区数据插入完成的时间为："+DateUtils.getCurrentSystemTime())
-      }else{
-        println(s"#### JOB_HV_52 read $up_namenode/ 无数据！")
+            println("#### JOB_HV_52 分区数据插入完成的时间为："+DateUtils.getCurrentSystemTime())
+          }else{
+            println(s"#### JOB_HV_52 read $up_namenode/ 无数据！")
+          }
+          cur_month = DateUtils.addOneMonth(cur_month)
+        }
       }
     }
   }

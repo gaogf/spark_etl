@@ -29,8 +29,8 @@ object SparkUPWH2H {
       * 日常调度使用。
       */
 //    val rowParams=UPSQL_TIMEPARAMS_JDBC.readTimeParams(sqlContext)
-//    start_dt=DateUtils.getYesterdayByJob(rowParams.getString(0))//获取开始日期：start_dt-1
-//    end_dt=rowParams.getString(1)//结束日期
+//    start_dt=rowParams.getString(0)  //获取开始日期,大数据平台抽取T-1数据,start_dt取当前系统时间减一天
+//    end_dt=rowParams.getString(1)//结束日期,大数据平台抽取T-1数据,end_dt取当前系统时间减一天
 
     /**
       * 从命令行获取当前JOB的执行起始和结束日期。
@@ -44,8 +44,8 @@ object SparkUPWH2H {
           println("#### 请指定 SparkUPWH2H 数据抽取的起始日期")
         }
 
-
-
+    //获取开始日期和结束日期的间隔天数
+    val interval=DateUtils.getIntervalDays(start_dt,end_dt).toInt
 
     println(s"#### SparkUPWH2H 数据抽取的起始日期为: $start_dt --  $end_dt")
 
@@ -2439,17 +2439,14 @@ object SparkUPWH2H {
     * @param sqlContext,start_dt,end_dt
     */
   def JOB_HV_43(implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
-
     println("#### JOB_HV_43(hive_swt_log -> hive_switch_point_trans)")
-
-    //val start_day = start_dt.replace("-","")
-    val end_day = end_dt.replace("-","")
-    println("#### JOB_HV_43 增量抽取数据的区间是: "+end_day)
+    println("#### JOB_HV_43 增量抽取的时间范围: "+start_dt+" -- "+end_dt)
 
     DateUtils.timeCost("JOB_HV_43"){
       sqlContext.sql(s"use $hive_dbname")
       val results = sqlContext.sql(
         s"""
+           |insert overwrite table hive_switch_point_trans partition(part_trans_dt)
            |select
            |trim(tfr_dt_tm) as tfr_dt_tm,
            |trim(sys_tra_no) as sys_tra_no,
@@ -2535,105 +2532,17 @@ object SparkUPWH2H {
            |trim(conv_acct_no) as conv_acct_no,
            |trim(inner_pro_ind) as inner_pro_ind,
            |trim(acct_proc_in) as acct_proc_in,
-           |order_id
+           |order_id,
+           		   |part_trans_dt
            |from
            |HIVE_SWT_LOG
            |where
-           |part_trans_dt = '$end_dt' and
+           |part_trans_dt  >= '$start_dt' and part_trans_dt  <= '$end_dt' and
            |trans_tp in ('S370000000','S380000000')
       """.stripMargin
       )
       println("#### JOB_HV_43 spark sql 逻辑完成的系统时间为:"+DateUtils.getCurrentSystemTime())
-      //println("#### JOB_HV_43------>results:"+results.count())
-
-      results.registerTempTable("spark_swt_log")
-      println("#### JOB_HV_43 registerTempTable--spark_swt_log 完成的系统时间为: "+DateUtils.getCurrentSystemTime())
-
-      if(!Option(results).isEmpty){
-        sqlContext.sql(
-          """
-            |insert overwrite table hive_switch_point_trans partition (part_trans_dt)
-            |select
-            |tfr_dt_tm,
-            |sys_tra_no,
-            |acpt_ins_id_cd,
-            |msg_fwd_ins_id_cd,
-            |pri_key1,
-            |fwd_chnl_head,
-            |chswt_plat_seq,
-            |trans_tm,
-            |trans_dt,
-            |cswt_settle_dt,
-            |internal_trans_tp,
-            |settle_trans_id,
-            |trans_tp,
-            |cups_settle_dt,
-            |msg_tp,
-            |pri_acct_no,
-            |card_bin,
-            |proc_cd,
-            |req_trans_at,
-            |resp_trans_at,
-            |trans_curr_cd,
-            |trans_tot_at,
-            |iss_ins_id_cd,
-            |launch_trans_tm,
-            |launch_trans_dt,
-            |mchnt_tp,
-            |pos_entry_md_cd,
-            |card_seq_id,
-            |pos_cond_cd,
-            |pos_pin_capture_cd,
-            |retri_ref_no,
-            |term_id,
-            |mchnt_cd,
-            |card_accptr_nm_loc,
-            |sec_related_ctrl_inf,
-            |orig_data_elemts,
-            |rcv_ins_id_cd,
-            |fwd_proc_in,
-            |rcv_proc_in,
-            |proj_tp,
-            |usr_id,
-            |conv_usr_id,
-            |trans_st,
-            |inq_dtl_req,
-            |inq_dtl_resp,
-            |iss_ins_resv,
-            |ic_flds,
-            |cups_def_fld,
-            |id_no,
-            |cups_resv,
-            |acpt_ins_resv,
-            |rout_ins_id_cd,
-            |sub_rout_ins_id_cd,
-            |recv_access_resp_cd,
-            |chswt_resp_cd,
-            |chswt_err_cd,
-            |resv_fld1,
-            |resv_fld2,
-            |to_ts,
-            |rec_upd_ts,
-            |rec_crt_ts,
-            |settle_at,
-            |external_amt,
-            |discount_at,
-            |card_pay_at,
-            |right_purchase_at,
-            |recv_second_resp_cd,
-            |req_acpt_ins_resv,
-            |log_id,
-            |conv_acct_no,
-            |inner_pro_ind,
-            |acct_proc_in,
-            |order_id,
-            |trans_dt
-            |from spark_swt_log
-          """.stripMargin)
-        println("#### JOB_HV_43 动态分区插入完成的时间为："+DateUtils.getCurrentSystemTime())
-      }else{
-        println("#### JOB_HV_43 spark sql 逻辑处理后无数据！")
-      }
+      println("#### JOB_HV_43 动态分区插入完成的时间为："+DateUtils.getCurrentSystemTime())
     }
   }
 
