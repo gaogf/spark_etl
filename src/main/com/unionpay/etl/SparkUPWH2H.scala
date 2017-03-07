@@ -2211,6 +2211,8 @@ object SparkUPWH2H {
              |left join hive_life b
              |on a.mchnt_cd = b.mchnt_cd
              |where
+             |part_settle_dt  >= '$start_dt' and part_settle_dt  <= '$end_dt'
+             |and
              |a.mchnt_cd in ('048000049000001','048000049000002','048000049000003','048000065130001','048000092220001',
              |									 '048000048140002','048000048140003','048000048140004','048000094980001','443701049000008',
              |									 '443701094980005','802500049000098','048000049001001','048000049001002','048000049001003',
@@ -2421,7 +2423,10 @@ object SparkUPWH2H {
            |to_date(settle_dt) as part_settle_dt
            |from
            |hive_achis_trans
-           |where trans_source in ('0001','9001') and mchnt_conn_tp='81'
+           |where
+           |part_settle_dt  >= '$start_dt' and part_settle_dt  <= '$end_dt'
+           |and trans_source in ('0001','9001')
+           |and mchnt_conn_tp='81'
            |
 	      """.stripMargin)
       println(s"#### JOB_HV_42 动态分区插入完成的时间为："+DateUtils.getCurrentSystemTime())
@@ -2629,6 +2634,8 @@ object SparkUPWH2H {
            |left join hive_life b
            |on a.mchnt_cd = b.mchnt_cd
            |where
+           |part_hp_trans_dt  >= '$start_dt' and part_hp_trans_dt  <= '$end_dt'
+           |and
            |a.mchnt_cd in ('048000049000001','048000049000002','048000049000003','048000065130001',
            |'048000092220001','048000048140002','048000048140003','048000048140004','048000094980001',
            |'443701049000008','443701094980005','802500049000098','048000049001001','048000049001002',
