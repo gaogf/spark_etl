@@ -62,7 +62,7 @@ object SparkUPH2H {
     //适用于按月抽取的JOB
     start_month = DateUtils.getLastMonthByJob(start_dt)
     end_month = DateUtils.getLastMonthByJob(end_dt)
-    val months=DateUtils.getIntervalMonths(start_dt,end_dt)
+    val months=DateUtils.getIntervalMonths(start_month,end_month)
 
     println(s"#### SparkUPH2H 数据抽取的起始日期为: $start_dt --  $end_dt")
 
@@ -759,7 +759,7 @@ object SparkUPH2H {
 
       var cur_month = start_month
       if(months >= 0){
-        for(i <- 1 to months){
+        for(i <- 0 to months){
           val part_month = cur_month.substring(0,7)
           println(s"#### JOB_HV_52  spark sql 开始抽取[$part_month]数据")
 
