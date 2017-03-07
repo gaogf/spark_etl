@@ -332,7 +332,7 @@ object SparkUPH2H {
     println("#### JOB_HV_41(rtdtrs_dtl_cups -> hive_cups_trans)")
 
     var today_dt = start_dt
-    if (interval > 0) {
+    if (interval >= 0) {
       println("#### JOB_HV_41 增量抽取的时间范围为: "+start_dt+ "-"+ end_dt)
       DateUtils.timeCost("JOB_HV_41") {
         val df = sqlContext.read.parquet(s"$up_namenode/$up_hivedataroot/incident/ods/hive_cups_trans/part_settle_dt=$today_dt")
