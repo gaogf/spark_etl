@@ -2442,9 +2442,9 @@ object SparkUPWH2H {
 
     println("#### JOB_HV_43(hive_swt_log -> hive_switch_point_trans)")
 
-    val start_day = start_dt.replace("-","")
+    //val start_day = start_dt.replace("-","")
     val end_day = end_dt.replace("-","")
-    println("#### JOB_HV_43 增量抽取的时间范围: "+start_day+"--"+end_day)
+    println("#### JOB_HV_43 增量抽取数据的区间是: "+end_day)
 
     DateUtils.timeCost("JOB_HV_43"){
       sqlContext.sql(s"use $hive_dbname")
@@ -2539,7 +2539,7 @@ object SparkUPWH2H {
            |from
            |HIVE_SWT_LOG
            |where
-           |part_trans_dt >= '$start_dt' and part_trans_dt <= '$end_dt' and
+           |part_trans_dt = '$end_dt' and
            |trans_tp in ('S370000000','S380000000')
       """.stripMargin
       )
