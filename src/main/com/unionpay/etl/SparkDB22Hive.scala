@@ -63,8 +63,7 @@ object SparkDB22Hive {
       println("#### 请指定 SparkDB22Hive 数据抽取的起始日期")
     }
 
-    //获取开始日期和结束日期的间隔天数,not use
-//    val interval = DateUtils.getIntervalDays(start_dt, end_dt).toInt
+    val interval = DateUtils.getIntervalDays(start_dt, end_dt).toInt //not use
 
     println(s"#### SparkDB22Hive 数据抽取的起始日期为: $start_dt --  $end_dt")
 
@@ -3079,7 +3078,14 @@ object SparkDB22Hive {
            |    when trim(ta.cup_branch_ins_id_cd)='00018500' then '青海'
            |    when trim(ta.cup_branch_ins_id_cd)='00018700' then '宁夏'
            |    when trim(ta.cup_branch_ins_id_cd)='00018800' then '新疆'
-           |else '总公司' end as cup_branch_ins_id_nm
+           |else '总公司' end as cup_branch_ins_id_nm,
+           |case
+           |	when
+           |		substr(ta.trans_dt,1,4) between '0001' and '9999' and substr(ta.trans_dt,5,2) between '01' and '12' and
+           |		substr(ta.trans_dt,7,2) between '01' and substr(last_day(concat_ws('-',substr(ta.trans_dt,1,4),substr(ta.trans_dt,5,2),substr(ta.trans_dt,7,2))),9,2)
+           |	then concat_ws('-',substr(ta.trans_dt,1,4),substr(ta.trans_dt,5,2),substr(ta.trans_dt,7,2))
+           |	else substr(ta.rec_crt_ts,1,10)
+           |end as p_trans_dt
            |from viw_chacc_online_point_trans_inf ta
            |where  ta.trans_tp in ('03','09','11','18','28')
            | """.stripMargin)
@@ -3127,7 +3133,7 @@ object SparkDB22Hive {
             |bill_acq_md,
             |cup_branch_ins_id_cd,
             |cup_branch_ins_id_nm,
-            |to_date(trans_dt)
+            |p_trans_dt
             |from spark_hive_online_point_trans
           """.stripMargin)
         println("#### JOB_HV_28 动态分区插入完成的时间为："+DateUtils.getCurrentSystemTime())
@@ -3802,8 +3808,19 @@ object SparkDB22Hive {
            |trim(ta.IS_PROCED) as IS_PROCED,
            |ta.ENTITY_CARD_NO as ENTITY_CARD_NO,
            |ta.CLOUD_PAY_IN as CLOUD_PAY_IN,
-           |trim(ta.CARD_MEDIA) as CARD_MEDIA
-           |
+           |trim(ta.CARD_MEDIA) as CARD_MEDIA,
+           |case
+           |	when
+           |		substr(ta.SETTLE_DT,1,4) between '0001' and '9999' and substr(ta.SETTLE_DT,5,2) between '01' and '12' and
+           |		substr(ta.SETTLE_DT,7,2) between '01' and substr(last_day(concat_ws('-',substr(ta.SETTLE_DT,1,4),substr(ta.SETTLE_DT,5,2),substr(ta.SETTLE_DT,7,2))),9,2)
+           |	then concat_ws('-',substr(ta.SETTLE_DT,1,4),substr(ta.SETTLE_DT,5,2),substr(ta.SETTLE_DT,7,2))
+           |	else
+           |	(case when
+           |		substr(ta.REC_CRT_DT,1,4) between '0001' and '9999' and substr(ta.REC_CRT_DT,5,2) between '01' and '12' and
+           |		substr(ta.REC_CRT_DT,7,2) between '01' and substr(last_day(concat_ws('-',substr(ta.REC_CRT_DT,1,4),substr(ta.REC_CRT_DT,5,2),substr(ta.REC_CRT_DT,7,2))),9,2)
+           |	then concat_ws('-',substr(ta.REC_CRT_DT,1,4),substr(ta.REC_CRT_DT,5,2),substr(ta.REC_CRT_DT,7,2))
+           |	else null end )
+           |end as p_settle_dt
            |from TBL_UMSVC_PRIZE_DISCOUNT_RESULT ta
            | """.stripMargin)
 
@@ -3858,7 +3875,7 @@ object SparkDB22Hive {
              |entity_card_no           ,
              |cloud_pay_in             ,
              |card_media               ,
-             |settle_dt
+             |p_settle_dt
              |from
              |spark_hive_prize_discount_result
          """.stripMargin)
@@ -3921,7 +3938,13 @@ object SparkDB22Hive {
            |ta.related_usr_id as related_usr_id,
            |ta.trans_process as trans_process,
            |ta.response_code as response_code,
-           |ta.response_msg as response_msg
+           |ta.response_msg as response_msg,
+           |case when
+           |substr(ta.trans_dt,1,4) between '0001' and '9999' and substr(ta.trans_dt,5,2) between '01' and '12' and
+           |substr(ta.trans_dt,7,2) between '01' and substr(last_day(concat_ws('-',substr(ta.trans_dt,1,4),substr(ta.trans_dt,5,2),substr(ta.trans_dt,7,2))),9,2)
+           |then concat_ws('-',substr(ta.trans_dt,1,4),substr(ta.trans_dt,5,2),substr(ta.trans_dt,7,2))
+           |else substr(ta.rec_crt_ts,1,10)
+           |end as p_trans_dt
            |from viw_chmgm_bill_sub_order_detail_inf ta
            | """.stripMargin)
       println("#### JOB_HV_33 spark sql 逻辑完成的系统时间为:" + DateUtils.getCurrentSystemTime())
@@ -3956,7 +3979,7 @@ object SparkDB22Hive {
              |trans_process        ,
              |response_code        ,
              |response_msg         ,
-             |trans_dt
+             |p_trans_dt
              |from
              |spark_hive_bill_sub_order_trans
          """.stripMargin)
