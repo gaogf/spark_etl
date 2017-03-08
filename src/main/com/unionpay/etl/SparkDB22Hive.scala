@@ -1901,7 +1901,14 @@ object SparkDB22Hive {
            |orig_data_elemnt as orig_data_elemnt,
            |udf_fld as udf_fld,
            |trim(card_accptr_nm_addr) as card_accptr_nm_addr,
-           |trim(token_card_no) as token_card_no
+           |trim(token_card_no) as token_card_no,
+           |case
+           |	when
+           |		substr(trans_dt,1,4) between '0001' and '9999' and substr(trans_dt,5,2) between '01' and '12' and
+           |		substr(trans_dt,7,2) between '01' and substr(last_day(concat_ws('-',substr(trans_dt,1,4),substr(trans_dt,5,2),substr(trans_dt,7,2))),9,2)
+           |	then concat_ws('-',substr(trans_dt,1,4),substr(trans_dt,5,2),substr(trans_dt,7,2))
+           |	else substr(rec_crt_ts,1,10)
+           | end as p_trans_dt
            |from
            |db2_trans_his
            |where
@@ -1962,7 +1969,7 @@ object SparkDB22Hive {
              |udf_fld,
              |card_accptr_nm_addr,
              |token_card_no,
-             |trans_dt
+             |p_trans_dt
              |from
              |spark_trans_his
          """.stripMargin)
@@ -2736,7 +2743,7 @@ object SparkDB22Hive {
           | """.stripMargin)
 
       results.registerTempTable("spark_hive_mchnt_tp")
-      println("JOB_HV_25------>results:"+results.count())
+//      println("JOB_HV_25------>results:"+results.count())
 
       if(!Option(results).isEmpty){
         results.registerTempTable("spark_hive_mchnt_tp")
@@ -2805,7 +2812,7 @@ object SparkDB22Hive {
 
   /**
     * JOB_HV_27/10-28
-    * hive_serach_trans->VIW_CHACC_ACC_TRANS_LOG,VIW_CHMGM_SWT_LOG
+    * hive_search_trans->viw_chacc_acc_trans_log,viw_chmgm_swt_log
     * Code by Xue
     *
     * @param sqlContext
@@ -2937,42 +2944,141 @@ object SparkDB22Hive {
            |A.TRANS_PROC_END_TS as TRANS_PROC_END_TS,
            |trim(A.SYS_DET_CD) as SYS_DET_CD,
            |trim(A.SYS_ERR_CD) as SYS_ERR_CD,
-           |A.DTL_INQ_DATA as DTL_INQ_DATA
+           |A.DTL_INQ_DATA as DTL_INQ_DATA,
+           |A.part_msg_settle_dt as p_msg_settle_dt
            |FROM
            |(select * from HIVE_TRANS_LOG where PART_MSG_SETTLE_DT >= '$start_dt' and  part_msg_settle_dt <= '$end_dt' and UM_TRANS_ID='AC02003065' ) A
            |FULL JOIN (select * from HIVE_SWT_LOG where PART_TRANS_DT >= '$start_dt' and part_trans_dt <= '$end_dt' and SETTLE_TRANS_ID='S38') B
            |on A.TRANS_TFR_TM=B.TFR_DT_TM and A.SYS_TRA_NO=B.SYS_TRA_NO and A.ACPT_INS_ID_CD=B.ACPT_INS_ID_CD and A.FWD_INS_ID_CD=B.MSG_FWD_INS_ID_CD
            | """.stripMargin)
 
+      println("#### JOB_HV_27 spark sql 逻辑完成的系统时间为:" + DateUtils.getCurrentSystemTime())
+
       results.registerTempTable("spark_hive_search_trans")
-      println("JOB_HV_27------>results:"+results.count())
+      println("#### JOB_HV_27 注册临时表的系统时间为:"+DateUtils.getCurrentSystemTime())
+      //      println("JOB_HV_27------>results:"+results.count())
 
       if(!Option(results).isEmpty){
-        println("加载的表spark_hive_search_trans中有数据！")
+        sqlContext.sql(s"use $hive_dbname")
+        sqlContext.sql(
+          """
+            |insert overwrite table hive_search_trans partition (part_msg_settle_dt)
+            |select
+            |tfr_dt_tm                 ,
+            |sys_tra_no                ,
+            |acpt_ins_id_cd            ,
+            |fwd_ins_id_cd             ,
+            |pri_key1                  ,
+            |fwd_chnl_head             ,
+            |chswt_plat_seq            ,
+            |trans_tm                  ,
+            |trans_dt                  ,
+            |cswt_settle_dt            ,
+            |internal_trans_tp         ,
+            |settle_trans_id           ,
+            |trans_tp                  ,
+            |cups_settle_dt            ,
+            |msg_tp                    ,
+            |pri_acct_no               ,
+            |card_bin                  ,
+            |proc_cd                   ,
+            |req_trans_at              ,
+            |resp_trans_at             ,
+            |trans_curr_cd             ,
+            |trans_tot_at              ,
+            |iss_ins_id_cd             ,
+            |launch_trans_tm           ,
+            |launch_trans_dt           ,
+            |mchnt_tp                  ,
+            |pos_entry_md_cd           ,
+            |card_seq_id               ,
+            |pos_cond_cd               ,
+            |pos_pin_capture_cd        ,
+            |retri_ref_no              ,
+            |term_id                   ,
+            |mchnt_cd                  ,
+            |card_accptr_nm_loc        ,
+            |sec_related_ctrl_inf      ,
+            |orig_data_elemts          ,
+            |rcv_ins_id_cd             ,
+            |fwd_proc_in               ,
+            |rcv_proc_in               ,
+            |proj_tp                   ,
+            |usr_id                    ,
+            |conv_usr_id               ,
+            |trans_st                  ,
+            |inq_dtl_req               ,
+            |inq_dtl_resp              ,
+            |iss_ins_resv              ,
+            |ic_flds                   ,
+            |cups_def_fld              ,
+            |id_no                     ,
+            |cups_resv                 ,
+            |acpt_ins_resv             ,
+            |rout_ins_id_cd            ,
+            |sub_rout_ins_id_cd        ,
+            |recv_access_resp_cd       ,
+            |chswt_resp_cd             ,
+            |chswt_err_cd              ,
+            |resv_fld1                 ,
+            |resv_fld2                 ,
+            |to_ts                     ,
+            |rec_upd_ts                ,
+            |rec_crt_ts                ,
+            |settle_at                 ,
+            |external_amt              ,
+            |discount_at               ,
+            |card_pay_at               ,
+            |right_purchase_at         ,
+            |recv_second_resp_cd       ,
+            |req_acpt_ins_resv         ,
+            |log_id                    ,
+            |conv_acct_no              ,
+            |inner_pro_ind             ,
+            |acct_proc_in              ,
+            |order_id                  ,
+            |seq_id                    ,
+            |oper_module               ,
+            |um_trans_id               ,
+            |cdhd_fk                   ,
+            |bill_id                   ,
+            |bill_tp                   ,
+            |bill_bat_no               ,
+            |bill_inf                  ,
+            |card_no                   ,
+            |trans_at                  ,
+            |settle_curr_cd            ,
+            |card_accptr_local_tm      ,
+            |card_accptr_local_dt      ,
+            |expire_dt                 ,
+            |msg_settle_dt             ,
+            |auth_id_resp_cd           ,
+            |resp_cd                   ,
+            |notify_st                 ,
+            |addn_private_data         ,
+            |udf_fld                   ,
+            |addn_at                   ,
+            |acct_id_1                 ,
+            |acct_id_2                 ,
+            |resv_fld                  ,
+            |cdhd_auth_inf             ,
+            |recncl_in                 ,
+            |match_in                  ,
+            |trans_proc_start_ts       ,
+            |trans_proc_end_ts         ,
+            |sys_det_cd                ,
+            |sys_err_cd                ,
+            |dtl_inq_data              ,
+            |p_msg_settle_dt
+            |from spark_hive_search_trans
+          """.stripMargin)
+        println("#### JOB_HV_27 动态分区插入完成的时间为："+DateUtils.getCurrentSystemTime())
+
       }else{
-        println("加载的表spark_hive_search_trans中无数据！")
+        println("#### JOB_HV_27 spark sql 逻辑处理后无数据！")
       }
 
-      // Xue create function about partition by date ^_^
-      def PartitionFun_JOB_HV_27(start_dt: String, end_dt: String)  {
-        var sdf: SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd")
-        val start = LocalDate.parse(start_dt, dateFormatter)
-        val end = LocalDate.parse(end_dt, dateFormatter)
-        val days = Days.daysBetween(start, end).getDays
-        val dateStrs = for (day <- 0 to days) {
-          val insertofTime = System.currentTimeMillis()
 
-          val currentDay = (start.plusDays(day).toString(dateFormatter))
-          println(s"=========插入'$currentDay'分区的数据=========")
-          sqlContext.sql(s"use $hive_dbname")
-          sqlContext.sql(s"alter table hive_search_trans drop partition (part_settle_dt='$currentDay')")
-          println(s"alter table hive_search_trans drop partition (part_settle_dt='$currentDay') successfully!")
-          sqlContext.sql(s"insert into hive_search_trans partition (part_settle_dt='$currentDay') select * from spark_hive_search_trans htempa where htempa.MSG_SETTLE_DT = '$currentDay'")
-          println(s"insert into hive_search_trans partition (part_settle_dt='$currentDay') successfully!")
-        }
-      }
-
-      PartitionFun_JOB_HV_27 (start_dt,end_dt)
     }
 
   }
@@ -3189,7 +3295,13 @@ object SparkDB22Hive {
            |trim(ta.mchnt_tp) as mchnt_tp,
            |trim(ta.mchnt_cd) as mchnt_cd,
            |trim(ta.term_id) as term_id,
-           |concat_ws('-',substr(trim(ta.trans_dt),1,4),substr(trim(ta.trans_dt),5,2),substr(trim(ta.trans_dt),7,2)) as trans_dt,
+           |case
+           |	when
+           |		substr(ta.trans_dt,1,4) between '0001' and '9999' and substr(ta.trans_dt,5,2) between '01' and '12' and
+           |		substr(ta.trans_dt,7,2) between '01' and substr(last_day(concat_ws('-',substr(ta.trans_dt,1,4),substr(ta.trans_dt,5,2),substr(ta.trans_dt,7,2))),9,2)
+           |	then concat_ws('-',substr(ta.trans_dt,1,4),substr(ta.trans_dt,5,2),substr(ta.trans_dt,7,2))
+           |	else null
+           |end as trans_dt,
            |trim(ta.trans_tm) as trans_tm,
            |case
            |	when
@@ -3292,7 +3404,14 @@ object SparkDB22Hive {
            |ta.plan_give_limit as plan_give_limit,
            |ta.day_give_limit as day_give_limit,
            |trim(ta.give_limit_in) as give_limit_in,
-           |trim(ta.retri_ref_no) as retri_ref_no
+           |trim(ta.retri_ref_no) as retri_ref_no,
+           |case
+           |	when
+           |		substr(ta.trans_dt,1,4) between '0001' and '9999' and substr(ta.trans_dt,5,2) between '01' and '12' and
+           |		substr(ta.trans_dt,7,2) between '01' and substr(last_day(concat_ws('-',substr(ta.trans_dt,1,4),substr(ta.trans_dt,5,2),substr(ta.trans_dt,7,2))),9,2)
+           |	then concat_ws('-',substr(ta.trans_dt,1,4),substr(ta.trans_dt,5,2),substr(ta.trans_dt,7,2))
+           |	else substr(ta.rec_crt_ts,1,10)
+           |end as p_trans_dt
            |
            |from tbl_chacc_cdhd_point_addup_dtl ta
            |where ta.um_trans_id in('AD00000002','AD00000003','AD00000004','AD00000005','AD00000006','AD00000007')
@@ -3376,7 +3495,7 @@ object SparkDB22Hive {
              |day_give_limit              ,
              |give_limit_in               ,
              |retri_ref_no                ,
-             |trans_dt
+             |p_trans_dt
              |from
              |spark_hive_offline_point_trans
          """.stripMargin)
@@ -3450,7 +3569,14 @@ object SparkDB22Hive {
            |trim(out_trade_no) as out_trade_no,
            |trim(body) as body,
            |trim(terminal_id) as terminal_id,
-           |extend_params
+           |extend_params,
+           |case
+           |when
+           |	substr(trans_dt,1,4) between '0001' and '9999' and substr(trans_dt,5,2) between '01' and '12' and
+           |	substr(trans_dt,7,2) between '01' and last_day(concat_ws('-',substr(trans_dt,1,4),substr(trans_dt,5,2),substr(trans_dt,7,2)))
+           |then concat_ws('-',substr(trans_dt,1,4),substr(trans_dt,5,2),substr(trans_dt,7,2))
+           |else substr(rec_crt_ts,1,10)
+           |end as p_trans_dt
            |from
            |spark_db2_code_pay_tran_dtl
          """.stripMargin
@@ -3498,11 +3624,7 @@ object SparkDB22Hive {
              |body,
              |terminal_id,
              |extend_params,
-             |case
-             |when trans_dt is not null
-             |then trans_dt
-             |else substr(rec_crt_ts,1,10)
-             |end as p_trans_dt
+             |p_trans_dt
              |from
              |spark_code_pay_tran_dtl
            """.stripMargin)
@@ -4095,7 +4217,7 @@ object SparkDB22Hive {
         """.stripMargin
       )
 
-      println("JOB_HV_35------>results:"+results.count())
+//      println("JOB_HV_35------>results:"+results.count())
       if(!Option(results).isEmpty){
         results.registerTempTable("spark_hive_cdhd_bill_acct_inf")
         sqlContext.sql("truncate table hive_cdhd_bill_acct_inf")

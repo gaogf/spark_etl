@@ -3696,7 +3696,7 @@ object Create_Hive_Tables {
 
   }
 
-  def hive_search_trans(implicit sqlContext: HiveContext) = {
+  def hive_search_trans (implicit sqlContext: HiveContext) = {
     println("=======Create Table hive_search_trans for JOB_HV_27 by XTP =======")
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
@@ -3809,7 +3809,7 @@ object Create_Hive_Tables {
          |sys_err_cd	string,
          |dtl_inq_data	string
          |)
-         |partitioned by(part_settle_dt string)
+         |partitioned by(part_msg_settle_dt string)
          |row format delimited fields terminated by '!|'
          |stored as parquet
          |location '/user/ch_hypas/upw_hive/incident/trans/hive_search_trans'
@@ -4617,6 +4617,7 @@ object Create_Hive_Tables {
     println("=======Create hive_org_tdapp_tappevent successfully ! =======")
 
   }
+
 
 
 }
