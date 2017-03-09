@@ -5048,7 +5048,7 @@ object SparkHive2Mysql {
       val results =sqlContext.sql(
         s"""
            |SELECT
-           |    STAT.ACCESS_INS_NM  AS INS_NM,
+           |    trim(STAT.ACCESS_INS_NM)  AS INS_NM,
            |    SWT.TRANS_DT        AS REPORT_DT,
            |    COUNT(*)            AS TRANS_CNT,
            |    SUM(
@@ -5114,7 +5114,7 @@ object SparkHive2Mysql {
       val results =sqlContext.sql(
         s"""
            |SELECT
-           |    ACPT_INS.CUP_BRANCH_INS_ID_NM   AS CUP_BRANCH_INS_ID_NM,
+           |    trim(ACPT_INS.CUP_BRANCH_INS_ID_NM)   AS CUP_BRANCH_INS_ID_NM,
            |    SWT.TRANS_DT                    AS REPORT_DT,
            |    COUNT(*)                        AS TRANS_CNT,
            |    SUM(
@@ -5184,7 +5184,7 @@ object SparkHive2Mysql {
       val results =sqlContext.sql(
         s"""
            |SELECT
-           |    PRI_ACCT.PHONE_LOCATION  as MOBILE_LOC,
+           |    trim(PRI_ACCT.PHONE_LOCATION)  as MOBILE_LOC,
            |    SWT.TRANS_DT             as REPORT_DT,
            |    COUNT(*)                 as TRANS_CNT,
            |    SUM(
@@ -5247,7 +5247,7 @@ object SparkHive2Mysql {
       val results = sqlContext.sql(
         s"""
            |SELECT
-           |    CB.ISS_INS_CN_NM       AS   ISS_INS_NM,
+           |    trim(CB.ISS_INS_CN_NM)      AS   ISS_INS_NM,
            |    SWT.TRANS_DT           AS   REPORT_DT,
            |    COUNT(*)               AS   TRANS_CNT,
            |    SUM(
@@ -6001,7 +6001,7 @@ object SparkHive2Mysql {
       val results = sqlContext.sql(
         s"""
            |SELECT
-           |    BD.CHARA_ACCT_NM                     AS BUSS_DIST_NM,
+           |    trim(BD.CHARA_ACCT_NM)               AS BUSS_DIST_NM,
            |    TRANS.TRANS_DT                       AS REPORT_DT,
            |    COUNT(1)                             AS SUC_TRANS_CNT,
            |    SUM(TRANS.TRANS_AT)                  AS POINT_AT,
@@ -6059,7 +6059,7 @@ object SparkHive2Mysql {
         s"""
            |
            |SELECT
-           |    A.CUP_BRANCH_INS_ID_NM   AS CUP_BRANCH_INS_ID_NM,
+           |    trim(A.CUP_BRANCH_INS_ID_NM)   AS CUP_BRANCH_INS_ID_NM,
            |    A.TRANS_DT               AS REPORT_DT,
            |    A.TRANSCNT               AS TRANS_CNT,
            |    C.SUCTRANSCNT            AS SUC_TRANS_CNT,
