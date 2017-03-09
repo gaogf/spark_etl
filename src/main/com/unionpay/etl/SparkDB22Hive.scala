@@ -5248,6 +5248,7 @@ object SparkDB22Hive {
     */
   def JOB_HV_74(implicit sqlContext: HiveContext) = {
     println("###JOB_HV_74(hive_ticket_bill_acct_adj_task  ->  tbl_chmgm_ticket_bill_acct_adj_task)")
+    DateUtils.timeCost("JOB_HV_74"){
     sqlContext.sql(s"use $hive_dbname")
     println("#### JOB_HV_74 readmgmdb_DF 的系统时间为:"+DateUtils.getCurrentSystemTime())
     val df = sqlContext.jdbc_mgmdb_DF(s"$schemas_mgmdb.tbl_chmgm_ticket_bill_acct_adj_task")
@@ -5300,6 +5301,7 @@ object SparkDB22Hive {
       println("#### JOB_HV_74 全量数据插入完成的时间为："+DateUtils.getCurrentSystemTime())
     }else{
       println("#### JOB_HV_74 spark sql 逻辑处理后无数据！")
+    }
     }
   }
 
