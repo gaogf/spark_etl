@@ -127,7 +127,7 @@ object SparkHive2Mysql {
       case "JOB_DM_30" =>JOB_DM_30(sqlContext,start_dt,end_dt)              //CODE BY TZQ
       case "JOB_DM_31" =>JOB_DM_31(sqlContext,start_dt,end_dt)              //CODE BY TZQ
 
-      //case "JOB_DM_32" =>JOB_DM_32(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP   测试报错，带修正
+      case "JOB_DM_32" =>JOB_DM_32(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP   测试报错，带修正
       case "JOB_DM_33" =>JOB_DM_33(sqlContext,start_dt,end_dt,interval)     //CODE BY XTP
 
       case "JOB_DM_34" =>JOB_DM_34(sqlContext,start_dt,end_dt)              //CODE BY TZQ
@@ -314,7 +314,7 @@ object SparkHive2Mysql {
       UPSQL_JDBC.delete("dm_user_idcard_home","report_dt",start_dt,end_dt)
       println("#### JOB_DM_2 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
       var today_dt=start_dt
-      if(interval>0 ){
+      if(interval>=0 ){
         println(s"#### JOB_DM_2 spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
         sqlContext.sql(s"use $hive_dbname")
         for(i <- 0 to interval){
@@ -610,7 +610,7 @@ object SparkHive2Mysql {
       UPSQL_JDBC.delete("DM_USER_CARD_AUTH","REPORT_DT",start_dt,end_dt)
       println("#### JOB_DM_4 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
       var today_dt=start_dt
-      if(interval>0){
+      if(interval>=0){
         sqlContext.sql(s"use $hive_dbname")
         for(i <- 0 to interval){
           println(s"#### JOB_DM_4 spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
@@ -907,7 +907,7 @@ object SparkHive2Mysql {
       println("#### JOB_DM_7 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
       var today_dt=start_dt
 
-      if(interval>0 ){
+      if(interval>=0 ){
         sqlContext.sql(s"use $hive_dbname")
         for(i <- 0 to interval){
 
@@ -984,7 +984,7 @@ object SparkHive2Mysql {
       println("#### JOB_DM_8 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
       var today_dt=start_dt
 
-      if(interval>0 ){
+      if(interval>=0 ){
         println(s"#### JOB_DM_8 spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
         sqlContext.sql(s"use $hive_dbname")
         for(i <- 0 to interval){
@@ -1076,7 +1076,7 @@ object SparkHive2Mysql {
       UPSQL_JDBC.delete(s"dm_store_domain_branch_company","report_dt",start_dt,end_dt)
       println("#### JOB_DM_9 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
       var today_dt=start_dt
-      if(interval>0 ){
+      if(interval>=0 ){
         sqlContext.sql(s"use $hive_dbname")
         for(i <- 0 to interval){
           println(s"#### JOB_DM_9 spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
@@ -2017,7 +2017,7 @@ object SparkHive2Mysql {
       UPSQL_JDBC.delete("dm_coupon_shipp_deliver_address", "report_dt", start_dt, end_dt);
       println("#### JOB_DM_18 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
       var today_dt = start_dt
-      if (interval > 0) {
+      if (interval >= 0) {
         sqlContext.sql(s"use $hive_dbname")
         for (i <- 0 to interval) {
           println(s"#### JOB_DM_18 spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
@@ -2104,7 +2104,7 @@ object SparkHive2Mysql {
       UPSQL_JDBC.delete(s"dm_swept_area_usr_device", "report_dt", start_dt, end_dt)
       println("#### JOB_DM_19 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
       var today_dt = start_dt
-      if (interval > 0) {
+      if (interval >= 0) {
         println(s"#### JOB_DM_19  spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
         sqlContext.sql(s"use $hive_dbname")
         for (i <- 0 to interval) {
@@ -2296,7 +2296,7 @@ object SparkHive2Mysql {
       UPSQL_JDBC.delete(s"dm_swept_area_store_address", "report_dt", start_dt, end_dt)
       println("#### JOB_DM_20 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
       var today_dt = start_dt
-      if (interval > 0) {
+      if (interval >= 0) {
         println(s"#### JOB_DM_20 spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
         sqlContext.sql(s"use $hive_dbname")
         for (i <- 0 to interval) {
@@ -2486,7 +2486,7 @@ object SparkHive2Mysql {
       UPSQL_JDBC.delete(s"dm_swept_store_class_mcc", "report_dt", start_dt, end_dt)
       println("#### JOB_DM_21 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
       var today_dt = start_dt
-      if (interval > 0) {
+      if (interval >= 0) {
         println(s"#### JOB_DM_21  spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
         sqlContext.sql(s"use $hive_dbname")
         for (i <- 0 to interval) {
@@ -2655,7 +2655,7 @@ object SparkHive2Mysql {
       UPSQL_JDBC.delete(s"dm_swept_store_class_mcc", "report_dt", start_dt, end_dt)
       println("#### JOB_DM_22 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
       var today_dt = start_dt
-      if (interval > 0) {
+      if (interval >= 0) {
         println(s"#### JOB_DM_22  spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
         sqlContext.sql(s"use $hive_dbname")
         for (i <- 0 to interval) {
@@ -2956,7 +2956,7 @@ object SparkHive2Mysql {
       UPSQL_JDBC.delete(s"dm_swept_resp_code", "report_dt", start_dt, end_dt)
       println("#### JOB_DM_23 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
       var today_dt = start_dt
-      if (interval > 0) {
+      if (interval >= 0) {
         println(s"#### JOB_DM_23  spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
         sqlContext.sql(s"use $hive_dbname")
         for (i <- 0 to interval) {
@@ -7659,7 +7659,7 @@ object SparkHive2Mysql {
       UPSQL_JDBC.delete(s"dm_life_serve_business_trans", "report_dt", start_dt, end_dt)
       println("#### JOB_DM_63 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
       var today_dt = start_dt
-      if (interval > 0) {
+      if (interval >= 0) {
         sqlContext.sql(s"use $hive_dbname")
         for (i <- 0 to interval) {
           println(s"#### JOB_DM_63 spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
@@ -7728,7 +7728,7 @@ object SparkHive2Mysql {
       UPSQL_JDBC.delete(s"dm_coupon_pub_down_if_hce", "report_dt", start_dt, end_dt)
       println("#### JOB_DM_64 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
       var today_dt = start_dt
-      if (interval > 0) {
+      if (interval >= 0) {
         println(s"#### JOB_DM_64  spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
         sqlContext.sql(s"use $hive_dbname")
         for (i <- 0 to interval) {
@@ -7809,7 +7809,7 @@ object SparkHive2Mysql {
       println("#### JOB_DM_65 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
 
       var today_dt=start_dt
-      if(interval>0 ){
+      if(interval>=0 ){
         sqlContext.sql(s"use $hive_dbname")
         for(i <- 0 to interval){
           println(s"#### JOB_DM_65 spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
@@ -9240,7 +9240,7 @@ object SparkHive2Mysql {
       UPSQL_JDBC.delete(s"dm_iss_disc_cfp_tran","report_dt",start_dt,end_dt)
       println("#### JOB_DM_78 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
       var today_dt=start_dt
-      if(interval>0 ){
+      if(interval>=0 ){
         println(s"#### JOB_DM_78 spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
         sqlContext.sql(s"use $hive_dbname")
         for(i <- 0 to interval){
@@ -9390,7 +9390,7 @@ object SparkHive2Mysql {
       UPSQL_JDBC.delete(s"dm_main_sweep_mchnt_type", "report_dt", start_dt, end_dt)
       println("#### JOB_DM_79 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
       var today_dt = start_dt
-      if (interval > 0) {
+      if (interval >= 0) {
         println(s"#### JOB_DM_79  spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
         sqlContext.sql(s"use $hive_dbname")
         for (i <- 0 to interval) {
@@ -9544,7 +9544,7 @@ object SparkHive2Mysql {
       UPSQL_JDBC.delete(s"dm_main_sweep_mchnt_top10", "report_dt", start_dt, end_dt)
       println("#### JOB_DM_80 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
       var today_dt = start_dt
-      if (interval > 0) {
+      if (interval >= 0) {
         println(s"#### JOB_DM_80  spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
         sqlContext.sql(s"use $hive_dbname")
         for (i <- 0 to interval) {
@@ -9694,7 +9694,7 @@ object SparkHive2Mysql {
       UPSQL_JDBC.delete(s"dm_main_sweep_mchnt_iss", "report_dt", start_dt, end_dt)
       println("#### JOB_DM_81 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
       var today_dt = start_dt
-      if (interval > 0) {
+      if (interval >= 0) {
         println(s"#### JOB_DM_81  spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
         sqlContext.sql(s"use $hive_dbname")
         for (i <- 0 to interval) {
@@ -9796,7 +9796,7 @@ object SparkHive2Mysql {
       UPSQL_JDBC.delete(s"dm_main_sweep_card_attr", "report_dt", start_dt, end_dt)
       println("#### JOB_DM_82 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
       var today_dt = start_dt
-      if (interval > 0) {
+      if (interval >= 0) {
         println(s"#### JOB_DM_82  spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
         sqlContext.sql(s"use $hive_dbname")
         for (i <- 0 to interval) {
@@ -9901,7 +9901,7 @@ object SparkHive2Mysql {
       UPSQL_JDBC.delete(s"dm_main_sweep_card_lvl", "report_dt", start_dt, end_dt)
       println("#### JOB_DM_83 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
       var today_dt = start_dt
-      if (interval > 0) {
+      if (interval >= 0) {
         println(s"#### JOB_DM_83  spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
         sqlContext.sql(s"use $hive_dbname")
         for (i <- 0 to interval) {
@@ -10010,7 +10010,7 @@ object SparkHive2Mysql {
       UPSQL_JDBC.delete(s"dm_main_sweep_area", "report_dt", start_dt, end_dt)
       println("#### JOB_DM_84 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
       var today_dt = start_dt
-      if (interval > 0) {
+      if (interval >= 0) {
         println(s"#### JOB_DM_84  spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
         sqlContext.sql(s"use $hive_dbname")
         for (i <- 0 to interval) {
@@ -10155,7 +10155,7 @@ object SparkHive2Mysql {
       UPSQL_JDBC.delete(s"dm_main_sweep_resp_code", "report_dt", start_dt, end_dt)
       println("#### JOB_DM_85 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
       var today_dt = start_dt
-      if (interval > 0) {
+      if (interval >= 0) {
         println(s"#### JOB_DM_85  spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
         sqlContext.sql(s"use $hive_dbname")
         for (i <- 0 to interval) {
@@ -10198,7 +10198,7 @@ object SparkHive2Mysql {
       UPSQL_JDBC.delete(s"dm_user_real_name","report_dt",start_dt,end_dt)
       println("#### JOB_DM_86 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
       var today_dt=start_dt
-      if(interval>0 ){
+      if(interval>=0 ){
         println(s"#### JOB_DM_86 spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
         sqlContext.sql(s"use $hive_dbname")
         for(i <- 0 to interval){
@@ -11074,7 +11074,7 @@ object SparkHive2Mysql {
       UPSQL_JDBC.delete(s"dm_coupon_pub_down_stat", "report_dt", start_dt, end_dt)
       println("#### JOB_DM_91 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
       var today_dt = start_dt
-      if (interval > 0) {
+      if (interval >= 0) {
         println(s"#### JOB_DM_91  spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
         sqlContext.sql(s"use $hive_dbname")
         for (i <- 0 to interval) {
