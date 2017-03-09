@@ -1602,6 +1602,7 @@ object SparkUPH2H {
   }
 
 
+
   /**
     * hive-job-71 2016-11-28
     * hive_ach_order_inf -> hbkdb.rtdtrs_dtl_ach_order_inf
@@ -1615,93 +1616,96 @@ object SparkUPH2H {
     */
   def JOB_HV_71(implicit sqlContext: HiveContext,start_dt: String,end_dt:String,interval:Int) = {
     println("#### JOB_HV_71( hive_ach_order_inf <- hbkdb.rtdtrs_dtl_ach_order_inf) #####")
+    DateUtils.timeCost("JOB_HV_71"){
+      var part_dt = start_dt
 
-    var part_dt = start_dt
+      sqlContext.sql(s"use $hive_dbname")
 
-    sqlContext.sql(s"use $hive_dbname")
+      if(interval >= 0){
+        for(i <- 0 to interval){
+          println(s"#### JOB_HV_71 从落地表抽取数据开始时间为:" + DateUtils.getCurrentSystemTime())
+          val df = sqlContext.read.parquet(s"$up_namenode/$up_hivedataroot/incident/order/hive_ach_order_inf/part_hp_trans_dt=$part_dt")
+          println(s"#### read $up_namenode at partition= $part_dt successful ######")
+          df.registerTempTable("spark_hive_ach_order_inf")
 
-    if(interval >= 0){
-      for(i <- 0 to interval){
-        println(s"#### JOB_HV_71 从落地表抽取数据开始时间为:" + DateUtils.getCurrentSystemTime())
-        val df = sqlContext.read.parquet(s"$up_namenode/$up_hivedataroot/incident/order/hive_ach_order_inf/part_hp_trans_dt=$part_dt")
-        println(s"#### read $up_namenode at partition= $part_dt successful ######")
-        df.registerTempTable("spark_hive_ach_order_inf")
+          sqlContext.sql(s"use $hive_dbname")
+          println(s"#### JOB_HV_71 删除一级分区，时间为:" + DateUtils.getCurrentSystemTime())
+          sqlContext.sql(s"alter table hive_ach_order_inf drop partition(part_trans_dt='$part_dt')")
 
-        sqlContext.sql(s"use $hive_dbname")
-        println(s"#### JOB_HV_71 删除一级分区，时间为:" + DateUtils.getCurrentSystemTime())
-        sqlContext.sql(s"alter table hive_ach_order_inf drop partition(part_trans_dt='$part_dt')")
-
-        println(s"#### JOB_HV_71 自动分区插入大数据平台，开始时间为:" + DateUtils.getCurrentSystemTime())
-        sqlContext.sql(
-          s"""
-             |insert overwrite table hive_ach_order_inf partition(part_hp_trans_dt,part_trans_dt)
-             |select
-             |order_id             ,
-             |sys_no               ,
-             |mchnt_version        ,
-             |encoding             ,
-             |sign_method          ,
-             |mchnt_trans_tp       ,
-             |biz_tp               ,
-             |pay_method           ,
-             |trans_tp             ,
-             |buss_chnl            ,
-             |mchnt_front_url      ,
-             |mchnt_back_url       ,
-             |acq_ins_id_cd        ,
-             |mchnt_cd             ,
-             |mchnt_tp             ,
-             |mchnt_nm             ,
-             |sub_mchnt_cd         ,
-             |sub_mchnt_nm         ,
-             |mchnt_order_id       ,
-             |trans_tm             ,
-             |trans_dt             ,
-             |sys_tm               ,
-             |pay_timeout          ,
-             |trans_at             ,
-             |trans_curr_cd        ,
-             |kz_at                ,
-             |kz_curr_cd           ,
-             |conv_dt              ,
-             |deduct_at            ,
-             |discount_info        ,
-             |upoint_at            ,
-             |top_info             ,
-             |refund_at            ,
-             |iss_ins_id_cd        ,
-             |iss_head             ,
-             |pri_acct_no          ,
-             |card_attr            ,
-             |usr_id               ,
-             |phone_no             ,
-             |trans_ip             ,
-             |trans_st             ,
-             |trans_no             ,
-             |trans_idx            ,
-             |sys_tra_no           ,
-             |order_desc           ,
-             |order_detail         ,
-             |proc_sys             ,
-             |proc_st              ,
-             |trans_source         ,
-             |resp_cd              ,
-             |other_usr            ,
-             |initial_pay          ,
-             |to_ts                ,
-             |rec_crt_ts           ,
-             |rec_upd_ts           ,
-             |'$part_dt'             ,
-             |part_trans_dt
-             |from
-             |spark_hive_ach_order_inf
+          println(s"#### JOB_HV_71 自动分区插入大数据平台，开始时间为:" + DateUtils.getCurrentSystemTime())
+          sqlContext.sql(
+            s"""
+               |insert overwrite table hive_ach_order_inf partition(part_hp_trans_dt,part_trans_dt)
+               |select
+               |order_id             ,
+               |sys_no               ,
+               |mchnt_version        ,
+               |encoding             ,
+               |sign_method          ,
+               |mchnt_trans_tp       ,
+               |biz_tp               ,
+               |pay_method           ,
+               |trans_tp             ,
+               |buss_chnl            ,
+               |mchnt_front_url      ,
+               |mchnt_back_url       ,
+               |acq_ins_id_cd        ,
+               |mchnt_cd             ,
+               |mchnt_tp             ,
+               |mchnt_nm             ,
+               |sub_mchnt_cd         ,
+               |sub_mchnt_nm         ,
+               |mchnt_order_id       ,
+               |trans_tm             ,
+               |trans_dt             ,
+               |sys_tm               ,
+               |pay_timeout          ,
+               |trans_at             ,
+               |trans_curr_cd        ,
+               |kz_at                ,
+               |kz_curr_cd           ,
+               |conv_dt              ,
+               |deduct_at            ,
+               |discount_info        ,
+               |upoint_at            ,
+               |top_info             ,
+               |refund_at            ,
+               |iss_ins_id_cd        ,
+               |iss_head             ,
+               |pri_acct_no          ,
+               |card_attr            ,
+               |usr_id               ,
+               |phone_no             ,
+               |trans_ip             ,
+               |trans_st             ,
+               |trans_no             ,
+               |trans_idx            ,
+               |sys_tra_no           ,
+               |order_desc           ,
+               |order_detail         ,
+               |proc_sys             ,
+               |proc_st              ,
+               |trans_source         ,
+               |resp_cd              ,
+               |other_usr            ,
+               |initial_pay          ,
+               |to_ts                ,
+               |rec_crt_ts           ,
+               |rec_upd_ts           ,
+               |'$part_dt'             ,
+               |part_trans_dt
+               |from
+               |spark_hive_ach_order_inf
        """.stripMargin)
 
-        println(s"#### JOB_HV_71 自动分区插入大数据平台，完成时间为:" + DateUtils.getCurrentSystemTime())
+          println(s"#### JOB_HV_71 自动分区插入大数据平台，完成时间为:" + DateUtils.getCurrentSystemTime())
 
-        part_dt=DateUtils.addOneDay(part_dt)
+          part_dt=DateUtils.addOneDay(part_dt)
+        }
       }
     }
+
   }
+
 
 }
