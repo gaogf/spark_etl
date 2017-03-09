@@ -1754,7 +1754,7 @@ object SparkHive2Mysql {
           val results =sqlContext.sql(
             s"""
                |select
-               |iss_ins_cn_nm                          as  CARD_ISS,
+               |trim(iss_ins_cn_nm)                    as  CARD_ISS,
                |bill_sub_tp                            as  BILL_TP,
                |'$today_dt'                            as  REPORT_DT,
                |sum(trans_num)                         as  DEAL_NUM,
