@@ -40,21 +40,21 @@ object SparkUPH2H {
       * 从数据库中获取当前JOB的执行起始和结束日期。
       * 日常调度使用。
       */
-//    val rowParams=UPSQL_TIMEPARAMS_JDBC.readTimeParams(sqlContext)
-//    start_dt=rowParams.getString(0)  //获取开始日期,大数据平台抽取T-1数据,start_dt取当前系统时间减一天
-//    end_dt=rowParams.getString(1)//结束日期,大数据平台抽取T-1数据,end_dt取当前系统时间减一天
+    val rowParams=UPSQL_TIMEPARAMS_JDBC.readTimeParams(sqlContext)
+    start_dt=rowParams.getString(0)  //获取开始日期,大数据平台抽取T-1数据,start_dt取当前系统时间减一天
+    end_dt=rowParams.getString(1)//结束日期,大数据平台抽取T-1数据,end_dt取当前系统时间减一天
 
     /**
       * 从命令行获取当前JOB的执行起始和结束日期。
       * 无规则日期的增量数据抽取，主要用于数据初始化和调试。
       */
-    if (args.length > 1) {
-      start_dt = args(1)
-      end_dt = args(2)
-    } else {
-      println("#### 缺少参数输入")
-      println("#### 请指定 SparkDB22Hive 数据抽取的起始日期")
-    }
+//    if (args.length > 1) {
+//      start_dt = args(1)
+//      end_dt = args(2)
+//    } else {
+//      println("#### 请指定 SparkUPH2H 数据抽取的起始日期和结束日期 ！")
+//      System.exit(0)
+//    }
 
     //获取开始日期和结束日期的间隔天数或间隔月数
     val interval=DateUtils.getIntervalDays(start_dt,end_dt).toInt
@@ -99,6 +99,7 @@ object SparkUPH2H {
       case "JOB_HV_65"  =>  JOB_HV_65(sqlContext,start_dt,end_dt,interval) //CODE BY XTP
 
       case "JOB_HV_71"  =>  JOB_HV_71(sqlContext,start_dt,end_dt,interval) //CODE BY TZQ
+      case "JOB_HV_90"  =>  JOB_HV_90(sqlContext,start_dt,end_dt,interval) //CODE BY TZQ
 
       case _ => println("#### No Case Job,Please Input JobName")
 
@@ -1614,15 +1615,13 @@ object SparkUPH2H {
     * @param start_dt
     * @param interval
     */
-  def JOB_HV_71(implicit sqlContext: HiveContext,start_dt: String,end_dt:String,interval:Int) = {
+  def JOB_HV_71(implicit sqlContext: HiveContext, start_dt: String, end_dt: String, interval: Int) = {
     println("#### JOB_HV_71( hive_ach_order_inf <- hbkdb.rtdtrs_dtl_ach_order_inf) #####")
-    DateUtils.timeCost("JOB_HV_71"){
+    DateUtils.timeCost("JOB_HV_71") {
       var part_dt = start_dt
-
       sqlContext.sql(s"use $hive_dbname")
-
-      if(interval >= 0){
-        for(i <- 0 to interval){
+      if (interval >= 0) {
+        for (i <- 0 to interval) {
           println(s"#### JOB_HV_71 从落地表抽取数据开始时间为:" + DateUtils.getCurrentSystemTime())
           val df = sqlContext.read.parquet(s"$up_namenode/$up_hivedataroot/incident/order/hive_ach_order_inf/part_hp_trans_dt=$part_dt")
           println(s"#### read $up_namenode at partition= $part_dt successful ######")
@@ -1700,12 +1699,161 @@ object SparkUPH2H {
 
           println(s"#### JOB_HV_71 自动分区插入大数据平台，完成时间为:" + DateUtils.getCurrentSystemTime())
 
-          part_dt=DateUtils.addOneDay(part_dt)
+          part_dt = DateUtils.addOneDay(part_dt)
         }
       }
     }
 
   }
 
+  /**
+    * JOB_HIVE_90  2017-3-9
+    * hbkdb.rtdtrs_dtl_ach_bill --> upw_hive.hive_rtdtrs_dtl_ach_bill
+    * notice: 测试分区 2016-07-19
+    * @author tzq
+    * @param sqlContext
+    * @param end_dt
+    * @param start_dt
+    * @param interval
+    */
+  def JOB_HV_90(implicit sqlContext: HiveContext,start_dt: String,end_dt:String,interval:Int) = {
+    println("#### JOB_HV_90( hive_rtdtrs_dtl_ach_bill <- hbkdb.rtdtrs_dtl_ach_order_inf) #####")
+    DateUtils.timeCost("JOB_HV_90") {
+      var part_dt = start_dt
+      sqlContext.sql(s"use $hive_dbname")
 
+      if(interval >= 0){
+        for(i <- 0 to interval){
+          println(s"#### JOB_HV_90 从落地表抽取数据开始时间为:" + DateUtils.getCurrentSystemTime())
+          val df = sqlContext.read.parquet(s"$up_namenode/$up_hivedataroot/incident/order/hive_rtdtrs_dtl_ach_bill/part_settle_dt=$part_dt")
+          println(s"#### read $up_namenode at partition= $part_dt successful ######")
+          df.registerTempTable("spark_hive_rtdtrs_dtl_ach_bill")
+
+          sqlContext.sql(s"use $hive_dbname")
+
+          println(s"#### JOB_HV_90 删除分区，时间为:" + DateUtils.getCurrentSystemTime())
+          sqlContext.sql(s"alter table hive_rtdtrs_dtl_ach_bill drop partition(part_settle_dt='$part_dt')")
+
+          println(s"#### JOB_HV_90 自动分区插入大数据平台，开始时间为:" + DateUtils.getCurrentSystemTime())
+          sqlContext.sql(
+            s"""
+               |insert overwrite table hive_rtdtrs_dtl_ach_bill partition(part_settle_dt)
+               |select
+               |settle_dt,
+               |trans_no,
+               |trans_id,
+               |trans_idx,
+               |mchnt_version,
+               |encoding,
+               |cert_id,
+               |sign_method,
+               |trans_tp,
+               |sub_trans_tp,
+               |in_trans_tp,
+               |biz_tp,
+               |buss_chnl,
+               |access_tp,
+               |acq_ins_id_cd,
+               |mchnt_cd,
+               |mchnt_nm,
+               |mchnt_abbr,
+               |sub_mchnt_cd,
+               |sub_mchnt_nm,
+               |sub_mchnt_abbr,
+               |mchnt_order_id,
+               |mchnt_tp,
+               |t_mchnt_cd,
+               |buss_order_id,
+               |rel_trans_idx,
+               |trans_tm,
+               |trans_dt,
+               |trans_md,
+               |carrier_tp,
+               |pri_acct_no,
+               |trans_at,
+               |points_at,
+               |trans_curr_cd,
+               |trans_st,
+               |pay_timeout,
+               |term_id,
+               |token_id,
+               |iss_ins_id_cd,
+               |card_attr,
+               |proc_st,
+               |resp_cd,
+               |proc_sys,
+               |iss_head,
+               |iss_head_nm,
+               |pay_method,
+               |advance_payment,
+               |auth_id,
+               |usr_id,
+               |trans_class,
+               |out_trans_tp,
+               |fwd_ins_id_cd,
+               |rcv_ins_id_cd,
+               |pos_cond_cd,
+               |trans_source,
+               |verify_mode,
+               |iss_ins_tp,
+               |conv_dt,
+               |settle_at,
+               |settle_curr_cd,
+               |settle_conv_rt,
+               |achis_settle_dt,
+               |kz_at,
+               |kz_conv_rt,
+               |kz_curr_cd,
+               |refund_at,
+               |mchnt_country,
+               |name,
+               |phone_no,
+               |trans_ip,
+               |sys_tra_no,
+               |sys_tm,
+               |client_id,
+               |buss_tp,
+               |card_risk_flag,
+               |ebank_order_num,
+               |order_desc,
+               |usr_num_tp,
+               |usr_num,
+               |area_cd,
+               |addn_area_cd,
+               |reserve_fld,
+               |db_tag,
+               |db_adtnl,
+               |rec_crt_ts,
+               |rec_upd_ts,
+               |field1,
+               |field2,
+               |field3,
+               |customer_email,
+               |bind_id,
+               |enc_cert_id,
+               |mchnt_front_url,
+               |mchnt_back_url,
+               |req_reserved,
+               |reserved,
+               |log_id,
+               |mail_no,
+               |icc_data2,
+               |token_data,
+               |bill_data,
+               |acct_data,
+               |risk_data,
+               |req_pri_data,
+               |order_detail,
+               |'$part_dt'
+               |from
+               |spark_hive_rtdtrs_dtl_ach_bill
+       """.stripMargin)
+
+          println(s"#### JOB_HV_90 自动分区插入大数据平台，完成时间为:" + DateUtils.getCurrentSystemTime())
+
+          part_dt=DateUtils.addOneDay(part_dt)
+        }
+      }
+    }
+    }
 }

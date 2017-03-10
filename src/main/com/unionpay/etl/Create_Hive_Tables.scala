@@ -103,6 +103,7 @@ object Create_Hive_Tables {
     hive_swt_log
     hive_cdhd_trans_year
     hive_life_order_inf
+    hive_rtdtrs_dtl_ach_bill
 
     println("=======Create all tables on the hive successfully=======")
 
@@ -4618,6 +4619,127 @@ object Create_Hive_Tables {
 
   }
 
+  def hive_rtdtrs_dtl_ach_bill(implicit sqlContext: HiveContext) = {
+    println("=======Create hive_rtdtrs_dtl_ach_bill=======")
+    sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql(
+      s"""
+         |create table if not exists $hive_dbname.hive_rtdtrs_dtl_ach_bill
+         |(
+         |settle_dt        string,
+         |trans_no         string,
+         |trans_id         string,
+         |trans_idx        string,
+         |mchnt_version    string,
+         |encoding         string,
+         |cert_id          string,
+         |sign_method      string,
+         |trans_tp         string,
+         |sub_trans_tp     string,
+         |in_trans_tp      string,
+         |biz_tp           string,
+         |buss_chnl        string,
+         |access_tp        string,
+         |acq_ins_id_cd    string,
+         |mchnt_cd         string,
+         |mchnt_nm         string,
+         |mchnt_abbr       string,
+         |sub_mchnt_cd     string,
+         |sub_mchnt_nm     string,
+         |sub_mchnt_abbr   string,
+         |mchnt_order_id   string,
+         |mchnt_tp         string,
+         |t_mchnt_cd       string,
+         |buss_order_id    string,
+         |rel_trans_idx    string,
+         |trans_tm         string,
+         |trans_dt         string,
+         |trans_md         string,
+         |carrier_tp       string,
+         |pri_acct_no      string,
+         |trans_at         bigint,
+         |points_at        bigint,
+         |trans_curr_cd    string,
+         |trans_st         string,
+         |pay_timeout      string,
+         |term_id          string,
+         |token_id         string,
+         |iss_ins_id_cd    string,
+         |card_attr        string,
+         |proc_st          string,
+         |resp_cd          string,
+         |proc_sys         string,
+         |iss_head         string,
+         |iss_head_nm      string,
+         |pay_method       string,
+         |advance_payment  string,
+         |auth_id          string,
+         |usr_id           string,
+         |trans_class      string,
+         |out_trans_tp     string,
+         |fwd_ins_id_cd    string,
+         |rcv_ins_id_cd    string,
+         |pos_cond_cd      string,
+         |trans_source     string,
+         |verify_mode      string,
+         |iss_ins_tp       string,
+         |conv_dt          string,
+         |settle_at        bigint,
+         |settle_curr_cd   string,
+         |settle_conv_rt   int   ,
+         |achis_settle_dt  string,
+         |kz_at            bigint,
+         |kz_conv_rt       int   ,
+         |kz_curr_cd       string,
+         |refund_at        bigint,
+         |mchnt_country    string,
+         |name             string,
+         |phone_no         string,
+         |trans_ip         string,
+         |sys_tra_no       string,
+         |sys_tm           string,
+         |client_id        string,
+         |buss_tp          string,
+         |card_risk_flag   string,
+         |ebank_order_num  string,
+         |order_desc       string,
+         |usr_num_tp       string,
+         |usr_num          string,
+         |area_cd          string,
+         |addn_area_cd     string,
+         |reserve_fld      string,
+         |db_tag           string,
+         |db_adtnl         string,
+         |rec_crt_ts       string,
+         |rec_upd_ts       string,
+         |field1           string,
+         |field2           string,
+         |field3           string,
+         |customer_email   string,
+         |bind_id          string,
+         |enc_cert_id      string,
+         |mchnt_front_url  string,
+         |mchnt_back_url   string,
+         |req_reserved     string,
+         |reserved         string,
+         |log_id           string,
+         |mail_no          string,
+         |icc_data2        string,
+         |token_data       string,
+         |bill_data        string,
+         |acct_data        string,
+         |risk_data        string,
+         |req_pri_data     string,
+         |order_detail     string
+         |)
+         |partitioned by (hp_settle_dt string)
+         |row format delimited fields terminated by '!|'
+         |stored as parquet
+         |location '/user/ch_hypas/upw_hive/incident/order/hive_rtdtrs_dtl_ach_bill'
+         | """.stripMargin)
 
+    println("=======Create hive_rtdtrs_dtl_ach_bill successfully ! =======")
+
+  }
 
 }
