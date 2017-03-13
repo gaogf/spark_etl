@@ -19,6 +19,11 @@ object DB2_JDBC {
   private lazy val password_mgm =ConfigurationManager.getProperty(Constants.DB2_PASSWORD_MGM)
   private lazy val url_accdb: String =ConfigurationManager.getProperty(Constants.DB2_URL_ACCDB)
   private lazy val url_mgmdb: String =ConfigurationManager.getProperty(Constants.DB2_URL_MGMDB)
+
+  private lazy val url_makdb: String =ConfigurationManager.getProperty(Constants.DB2_URL_MAKDB)
+  private lazy val user_mak=ConfigurationManager.getProperty(Constants.DB2_USER_MAK)
+  private lazy val password_mak=ConfigurationManager.getProperty(Constants.DB2_PASSWORD_MAk)
+
   private lazy val driver =ConfigurationManager.getProperty(Constants.DB2_DRIVER)
   private lazy val properties = new Properties()
 
@@ -50,6 +55,13 @@ object DB2_JDBC {
       properties.put("driver", driver)
       sqlContext.read.jdbc(url_mgmdb, s"$table where $field >= '$start_dt' and $field <= '$end_dt' with ur --", properties)
     }
+    def readDB2_MarketingWith4param(table:String,field:String,start_dt:String,end_dt:String):DataFrame={
+      properties.put("user", user_mak)
+      properties.put("password", password_mak)
+      properties.put("driver", driver)
+      sqlContext.read.jdbc(url_makdb, s"$table where $field >= '$start_dt' and $field <= '$end_dt' with ur --", properties)
+    }
+
   }
 
   implicit class ReadDB2(sqlContext: SQLContext) {
@@ -68,6 +80,17 @@ object DB2_JDBC {
         "url" -> url_mgmdb,
         "user" -> user_mgm,
         "password" -> password_mgm,
+        "driver" -> driver,
+        "dbtable" -> table,
+        "numPartitions" -> s"$numPartitions")
+      sqlContext.read.format("jdbc").options(map).load()
+    }
+
+    def jdbc_makdb_DF(table :String,numPartitions: Int = 1) :DataFrame={
+      val map = Map(
+        "url" -> url_makdb,
+        "user" -> user_mak,
+        "password" -> password_mak,
         "driver" -> driver,
         "dbtable" -> table,
         "numPartitions" -> s"$numPartitions")

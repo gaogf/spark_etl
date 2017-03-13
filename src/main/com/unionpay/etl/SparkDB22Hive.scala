@@ -22,6 +22,7 @@ object SparkDB22Hive {
   private lazy val hive_dbname = ConfigurationManager.getProperty(Constants.HIVE_DBNAME)
   private lazy val schemas_accdb = ConfigurationManager.getProperty(Constants.SCHEMAS_ACCDB)
   private lazy val schemas_mgmdb = ConfigurationManager.getProperty(Constants.SCHEMAS_MGMDB)
+  private lazy  val schemas_marketdb=ConfigurationManager.getProperty(Constants.SCHEMAS_MAKDB)
 
   def main(args: Array[String]) {
 
@@ -48,6 +49,7 @@ object SparkDB22Hive {
       * 日常调度使用。
       */
 //    val rowParams = UPSQL_TIMEPARAMS_JDBC.readTimeParams(sqlContext)
+//    println("读取mysql取时间段："+rowParams)
 //    start_dt=DateUtils.getYesterdayByJob(rowParams.getString(0))//获取开始日期：start_dt-1
 //    end_dt=rowParams.getString(1)//结束日期
 
@@ -59,8 +61,8 @@ object SparkDB22Hive {
       start_dt = args(1)
       end_dt = args(2)
     } else {
-      println("#### 缺少参数输入")
-      println("#### 请指定 SparkDB22Hive 数据抽取的起始日期")
+      println("#### 请指定 SparkDB22Hive 数据抽取的起始日期和结束日期 ！")
+      System.exit(0)
     }
 
     val interval = DateUtils.getIntervalDays(start_dt, end_dt).toInt //not use
@@ -128,6 +130,10 @@ object SparkDB22Hive {
       case "JOB_HV_75" => JOB_HV_75 //CODE BY XTP
       case "JOB_HV_76" => JOB_HV_76 //CODE BY XTP
 
+      /**
+        * 新增其他JOB
+        */
+      case "JOB_HV_83" => JOB_HV_83(sqlContext, start_dt, end_dt) //CODE BY LT
       case _ => println("#### No Case Job,Please Input JobName")
     }
 
@@ -5904,13 +5910,79 @@ object SparkDB22Hive {
       }
     }
 
-
   }
 
+  /**
+    * JOB_HV_83 2017年3月13日 星期一
+    * code by liutao
+    * @param sqlContext
+    * @param start_dt
+    * @param end_dt
+    */
+  def JOB_HV_83 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
+    println("#### job_hv_83(hive_point_trans->tbl_point_trans)")
+    DateUtils.timeCost("JOB_HV_83") {
+      val start_day = start_dt.replace("-", "")
+      val end_day = end_dt.replace("-", "")
+      println("#### JOB_HV_83 落地增量抽取的时间范围: " + start_day + "--" + end_day)
 
+      val df = sqlContext.readDB2_MarketingWith4param(s"$schemas_marketdb.tbl_point_trans", "trans_dt", s"$start_day", s"$end_day")
+      println("#### JOB_HV_83 读取营销库的系统时间为:" + DateUtils.getCurrentSystemTime())
 
+      df.registerTempTable("spark_db2_tbl_point_trans")
+      //println("#### JOB_HV_83------>results:"+df.count())
+      println("#### JOB_HV_83 注册临时表的系统时间为:" + DateUtils.getCurrentSystemTime())
 
-
-
+      if (!Option(df).isEmpty) {
+        sqlContext.sql(s"use $hive_dbname")
+        sqlContext.sql(
+          s"""
+             |insert overwrite table hive_point_trans partition (part_trans_dt)
+             |select
+             |trim(trans.trans_id) as trans_id ,
+             |case
+             |when
+             |substr(trans.trans_dt,1,4) between '0001' and '9999' and substr(trans.trans_dt,5,2) between '01' and '12' and
+             |substr(trans.trans_dt,7,2) between '01' and substr(last_day(concat_ws('-',substr(trans.trans_dt,1,4),substr(trans.trans_dt,5,2),substr(trans.trans_dt,7,2))),9,2)
+             |then concat_ws('-',substr(trans.trans_dt,1,4),substr(trans.trans_dt,5,2),substr(trans.trans_dt,7,2))
+             |else substr(trans.rec_crt_ts,1,10)
+             |end as  trans_dt             ,
+             |trans.trans_ts               ,
+             |trim(trans.trans_tp)         ,
+             |trans.src_id                 ,
+             |trim(trans.orig_trans_id)    ,
+             |trans.refund_at              ,
+             |trans.mchnt_order_at         ,
+             |trim(trans.mchnt_order_curr) ,
+             |trim(trans.mchnt_order_dt)   ,
+             |trim(trans.mchnt_order_id)   ,
+             |trim(trans.mchnt_cd)         ,
+             |trim(trans.mchnt_tp)         ,
+             |trans.mchnt_nm               ,
+             |trans.usr_id                 ,
+             |trim(trans.mobile)           ,
+             |trim(trans.card_no)          ,
+             |trim(trans.result_cd)        ,
+             |trans.result_msg             ,
+             |trans.rec_crt_ts             ,
+             |trans.rec_upd_ts             ,
+             |trim(trans.tran_src)         ,
+             |trim(trans.chnl_mchnt_cd)    ,
+             |trans.extra_info             ,
+             |case
+             |when
+             |substr(trans.trans_dt,1,4) between '0001' and '9999' and substr(trans.trans_dt,5,2) between '01' and '12' and
+             |substr(trans.trans_dt,7,2) between '01' and substr(last_day(concat_ws('-',substr(trans.trans_dt,1,4),substr(trans.trans_dt,5,2),substr(trans.trans_dt,7,2))),9,2)
+             |then concat_ws('-',substr(trans.trans_dt,1,4),substr(trans.trans_dt,5,2),substr(trans.trans_dt,7,2))
+             |else substr(trans.rec_crt_ts,1,10) end as  part_trans_dt
+             |
+             |from spark_db2_tbl_point_trans trans
+        """.stripMargin)
+        println("#### JOB_HV_83动态分区插入 hive_point_trans 成功！")
+      } else {
+        println("#### db2表 tbl_point_trans 表中无数据！")
+      }
+    }
+  }
 
 }// ### END LINE ###

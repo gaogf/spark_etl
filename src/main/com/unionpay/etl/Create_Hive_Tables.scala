@@ -104,6 +104,7 @@ object Create_Hive_Tables {
     hive_cdhd_trans_year
     hive_life_order_inf
     hive_rtdtrs_dtl_ach_bill
+    hive_point_trans
 
     println("=======Create all tables on the hive successfully=======")
 
@@ -4741,5 +4742,52 @@ object Create_Hive_Tables {
     println("=======Create hive_rtdtrs_dtl_ach_bill successfully ! =======")
 
   }
+
+  /**
+    *
+    * JOB_HV_83
+    * table  hive_point_trans
+    */
+  def hive_point_trans(implicit sqlContext: HiveContext) = {
+    println("=======Create hive_point_trans=======")
+    sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql(
+      s"""
+         |create table if not exists $hive_dbname.hive_point_trans
+         |(
+         |trans_id               string    ,
+         |trans_dt               timestamp ,
+         |trans_ts               timestamp ,
+         |trans_tp               string    ,
+         |src_id                 string   ,
+         |orig_trans_id          string    ,
+         |refund_at              bigint    ,
+         |mchnt_order_at          bigint   ,
+         |mchnt_order_curr         string  ,
+         |mchnt_order_dt          string   ,
+         |mchnt_order_id           string  ,
+         |mchnt_cd                 string  ,
+         |mchnt_tp                 string  ,
+         |mchnt_nm                 string  ,
+         |usr_id                   int     ,
+         |mobile                   string  ,
+         |card_no                  string  ,
+         |result_cd                string  ,
+         |result_msg               string  ,
+         |rec_crt_ts               timestamp ,
+         |rec_upd_ts               timestamp  ,
+         |tran_src                 string    ,
+         |chnl_mchnt_cd            string ,
+         |extra_info               string
+         |)
+         |partitioned by (part_trans_dt string)
+         |row format delimited fields terminated by '!|'
+         |stored as parquet
+         |location '/user_hypas/upw_hive/incident/trans/hive_point_trans'
+         | """.stripMargin)
+
+    println("=======Create hive_point_trans successfully ! =======")
+  }
+
 
 }

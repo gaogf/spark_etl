@@ -56,4 +56,11 @@ object Constants {
   val UP_NAMENODE ="up.namenode"
   val UP_HIVEDATAROOT ="up.hivedataroot"
 
+  //营销库
+  val DB2_USER_MAK="db2.user.mak"
+  val DB2_PASSWORD_MAk="db2.password.mak"
+  val DB2_URL_MAKDB="db2.url_makdb"
+  val SCHEMAS_MAKDB="db2.makdb_schemas_name"
+
+
 }
