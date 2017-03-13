@@ -53,8 +53,8 @@ object SparkHive2Mysql {
           start_dt = args(1)
           end_dt = args(2)
         } else {
-          println("#### 缺少参数输入")
-          println("#### 请指定 SparkUPWH2H 数据抽取的起始日期")
+          println("#### 请指定 SparkHive2Mysql 数据抽取的起始日期和结束日期 ！")
+          System.exit(0)
         }
 
     //获取开始日期和结束日期的间隔天数
