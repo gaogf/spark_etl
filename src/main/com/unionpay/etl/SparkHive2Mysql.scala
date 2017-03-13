@@ -1228,10 +1228,11 @@ object SparkHive2Mysql {
     * @return
     */
   def JOB_DM_10 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String,interval:Int) = {
-    println("###JOB_DM_10###")
+    println("###JOB_DM_10（DM_STORE_DIRECT_CONTACT_TRAN）###")
     UPSQL_JDBC.delete(s"DM_STORE_DIRECT_CONTACT_TRAN","REPORT_DT",start_dt,end_dt)
+    println( "#### JOB_DM_10 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
     var today_dt=start_dt
-    if(interval>0 ){
+    if(interval >=0 ){
       sqlContext.sql(s"use $hive_dbname")
       for(i <- 0 to interval){
         val results = sqlContext.sql(
@@ -1312,11 +1313,12 @@ object SparkHive2Mysql {
              |
              |
              | """.stripMargin)
-        println(s"###JOB_DM_10------$today_dt results:"+results.count())
+        println(s"### JOB_DM_10 ------$today_dt results:"+results.count())
         if(!Option(results).isEmpty){
           results.save2Mysql("DM_STORE_DIRECT_CONTACT_TRAN")
+          println(s"#### JOB_DM_10 [$today_dt]数据插入完成时间为：" + DateUtils.getCurrentSystemTime())
         }else{
-          println("指定的时间范围无数据插入！")
+          println(s"#### JOB_DM_10 spark sql 清洗[$today_dt]数据无结果集！")
         }
         today_dt=DateUtils.addOneDay(today_dt)
       }
@@ -7600,7 +7602,7 @@ object SparkHive2Mysql {
       println("##### JOB_DM_62 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
 
       var today_dt=start_dt
-      if(interval>0 ){
+      if(interval>=0 ){
         sqlContext.sql(s"use $hive_dbname")
         for(i <- 0 to interval){
           println(s"#### JOB_DM_62 spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
@@ -7933,7 +7935,7 @@ object SparkHive2Mysql {
       UPSQL_JDBC.delete("dm_coupon_cfp_tran","report_dt",start_dt,end_dt)
       println("##### JOB_DM_66 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
       var today_dt=start_dt
-      if(interval>0 ){
+      if(interval>=0 ){
         sqlContext.sql(s"use $hive_dbname")
         for(i <- 0 to interval){
           println(s"#### JOB_DM_66 spark sql 清洗数据开始时间为:" + DateUtils.getCurrentSystemTime())
