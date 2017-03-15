@@ -1514,8 +1514,8 @@ object SparkHive2Mysql {
                |sum(case when dwn_total_num = -1 then dwn_num else dwn_total_num end) as coupon_publish ,
                |sum(dwn_num) as coupon_down
                |from hive_ticket_bill_bas_inf bill
-               |where bill_nm not like '%测试%' and bill_nm not like '%验证%' and bill_id <>'z00000000020415'
-               |and bill_id<>'z00000000020878' and bill_nm not like '%满2元减1%' and bill_nm not like '%满2分减1分%'
+               |where bill_nm not like '%测试%' and bill_nm not like '%验证%' and bill_id <>'Z00000000020415'
+               |and bill_id<>'Z00000000020878' and bill_nm not like '%满2元减1%' and bill_nm not like '%满2分减1分%'
                |and bill_nm not like '%满2减1%' and bill_nm not like '%满2抵1%' and bill_nm not like '测%' and dwn_total_num-dwn_num<100000
                |and to_date(rec_crt_ts)='$today_dt'
                |group by cup_branch_ins_id_nm
@@ -1530,8 +1530,8 @@ object SparkHive2Mysql {
                |inner join
                |hive_ticket_bill_bas_inf bill
                |on adj.bill_id=bill.bill_id
-               |where bill_nm not like '%测试%' and bill_nm not like '%验证%' and bill.bill_id <>'z00000000020415'
-               |and bill.bill_id<>'z00000000020878' and bill_nm not like '%满2元减1%' and bill_nm not like '%满2分减1分%'
+               |where bill_nm not like '%测试%' and bill_nm not like '%验证%' and bill.bill_id <>'Z00000000020415'
+               |and bill.bill_id<>'Z00000000020878' and bill_nm not like '%满2元减1%' and bill_nm not like '%满2分减1分%'
                |and bill_nm not like '%满2减1%' and bill_nm not like '%满2抵1%' and bill_nm not like '测%' and dwn_total_num-dwn_num<100000
                |and usr_tp='1' and to_date(adj.rec_crt_ts)='$today_dt'
                |and current_st='1'
@@ -1596,8 +1596,8 @@ object SparkHive2Mysql {
                |where dtl.bill_id=bill.bill_id
                |and dtl.um_trans_id in ('12','17')
                |and dtl.trans_st='1' and trans_dt='$today_dt' and dtl.bill_nm not like '%机场%' and dtl.bill_nm not like '%住两晚送一晚%'
-               |and bill.bill_sub_tp in ('01','03') and bill.bill_nm not like '%测试%' and bill.bill_nm not like '%验证%' and bill.bill_id <>'z00000000020415'
-               |and bill.bill_id<>'z00000000020878' and bill.bill_nm not like '%满2元减1%' and bill.bill_nm not like '%满2分减1分%'
+               |and bill.bill_sub_tp in ('01','03') and bill.bill_nm not like '%测试%' and bill.bill_nm not like '%验证%' and bill.bill_id <>'Z00000000020415'
+               |and bill.bill_id<>'Z00000000020878' and bill.bill_nm not like '%满2元减1%' and bill.bill_nm not like '%满2分减1分%'
                |and bill.bill_nm not like '%满2减1%' and bill.bill_nm not like '%满2抵1%' and bill.bill_nm not like '测%' and dwn_total_num-dwn_num<100000
                |group by case when pos_entry_md_cd in ('01','05','07','95','98') then '仅限ic卡' else '非仅限ic卡' end
                |) a
@@ -1615,8 +1615,8 @@ object SparkHive2Mysql {
                |where dtl.bill_id=bill.bill_id
                |and dtl.um_trans_id in ('12','17')
                |and dtl.trans_st='1' and trans_dt='$today_dt' and dtl.bill_nm not like '%机场%' and dtl.bill_nm not like '%住两晚送一晚%'
-               |and bill.bill_sub_tp in ('01','03') and bill.bill_nm not like '%测试%' and bill.bill_nm not like '%验证%' and bill.bill_id <>'z00000000020415'
-               |and bill.bill_id<>'z00000000020878' and bill.bill_nm not like '%满2元减1%' and bill.bill_nm not like '%满2分减1分%'
+               |and bill.bill_sub_tp in ('01','03') and bill.bill_nm not like '%测试%' and bill.bill_nm not like '%验证%' and bill.bill_id <>'Z00000000020415'
+               |and bill.bill_id<>'Z00000000020878' and bill.bill_nm not like '%满2元减1%' and bill.bill_nm not like '%满2分减1分%'
                |and bill.bill_nm not like '%满2减1%' and bill.bill_nm not like '%满2抵1%' and bill.bill_nm not like '测%' and dwn_total_num-dwn_num<100000
                |) b
                |on adj.bill_id=b.bill_id
@@ -3222,8 +3222,9 @@ object SparkHive2Mysql {
                |                  '00098800','00098200','00097900','00091900','00092600','00091200','00093320','00031000',
                |                  '00094500','00094900','00091100','00094520','00093000','00093310'
                |                ) then '直联' else '间联' end
-               |   union all select case
-               |                        when all.internal_trans_tp='c00023' then '终端不改造'
+               | union all
+               | select             case
+               |                        when all.internal_trans_tp='C00023' then '终端不改造'
                |                        else '终端改造'
                |                    end as project_name,
                |                    sum(all.cnt) as allcnt,
@@ -3262,7 +3263,7 @@ object SparkHive2Mysql {
                |      group by card_accptr_cd,
                |               internal_trans_tp) as succ on all.card_accptr_cd=succ.card_accptr_cd
                |   group by case
-               |                when all.internal_trans_tp='c00023' then '终端不改造'
+               |                when all.internal_trans_tp='C00023' then '终端不改造'
                |                else '终端改造' end
                |   union all select case
                |                        when all.internal_trans_tp='c00022' then '交易规范 1.0 规范'
@@ -11200,8 +11201,8 @@ object SparkHive2Mysql {
                |from hive_acc_trans
                |where to_date(trans_dt)>='$today_dt' and to_date(trans_dt)<='$today_dt'
                |and bill_nm not like '%机场%' and bill_nm not like '%住两晚送一晚%'
-               |and bill_nm not like '%测试%' and bill_nm not like '%验证%' and bill_id <>'z00000000020415'
-               |and bill_id<>'z00000000020878' and bill_nm not like '%满2元减1%' and bill_nm not like '%满2分减1分%'
+               |and bill_nm not like '%测试%' and bill_nm not like '%验证%' and bill_id <>'Z00000000020415'
+               |and bill_id<>'Z00000000020878' and bill_nm not like '%满2元减1%' and bill_nm not like '%满2分减1分%'
                |and bill_nm not like '%满2减1%' and bill_nm not like '%满2抵1%' and bill_nm not like '测%'
                |group by case when fwd_ins_id_cd in ('00097310','00093600','00095210','00098700','00098500','00097700',
                |'00096400','00096500','00155800','00095840','00097000','00085500','00096900','00093930',
@@ -11270,7 +11271,7 @@ object SparkHive2Mysql {
                |left join
                |(select
                |case when internal_trans_tp='c00022' then '1.0 规范'
-               |when internal_trans_tp='c20022' then '2.0 规范' else '--' end as project_name,
+               |when internal_trans_tp='C20022' then '2.0 规范' else '--' end as project_name,
                |case when substr(udf_fld,31,2) in ('01','02','03','04','05') then '仅限云闪付' else '非仅限云闪付' end as if_hce,
                |to_date(trans_dt) as report_dt,
                |count(*) as tran_succ_cnt,
@@ -11282,7 +11283,7 @@ object SparkHive2Mysql {
                |where to_date(trans_dt)>='$today_dt' and to_date(trans_dt)<='$today_dt'
                |and sys_det_cd='S'
                |and bill_nm not like '%机场%' and bill_nm not like '%住两晚送一晚%'
-               |and bill_nm not like '%测试%' and bill_nm not like '%验证%' and bill_id <>'z00000000020415'
+               |and bill_nm not like '%测试%' and bill_nm not like '%验证%' and bill_id <>'Z00000000020415'
                |and bill_id<>'Z00000000020878' and bill_nm not like '%满2元减1%' and bill_nm not like '%满2分减1分%'
                |and bill_nm not like '%满2减1%' and bill_nm not like '%满2抵1%' and bill_nm not like '测%'
                |group by case when internal_trans_tp='C00022' then '1.0 规范'
@@ -11304,7 +11305,7 @@ object SparkHive2Mysql {
                |b.tran_card_num
                |from
                |(select
-               |case when internal_trans_tp='c00023' then '终端不改造' else '终端改造' end as project_name ,
+               |case when internal_trans_tp='C00023' then '终端不改造' else '终端改造' end as project_name ,
                |case when substr(udf_fld,31,2) in ('01','02','03','04','05') then '仅限云闪付' else '非仅限云闪付' end as if_hce,
                |to_date(trans_dt) as report_dt,
                |count(*) as tran_cnt
@@ -11319,7 +11320,7 @@ object SparkHive2Mysql {
                |to_date(trans_dt) ) a
                |left join
                |(select
-               |case when internal_trans_tp='c00023' then '终端不改造' else '终端改造' end as project_name,
+               |case when internal_trans_tp='C00023' then '终端不改造' else '终端改造' end as project_name,
                |case when substr(udf_fld,31,2) in ('01','02','03','04','05') then '仅限云闪付' else '非仅限云闪付' end as if_hce,
                |to_date(trans_dt) as report_dt,
                |count(*) as tran_succ_cnt,
