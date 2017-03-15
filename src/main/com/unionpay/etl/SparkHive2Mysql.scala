@@ -279,7 +279,7 @@ object SparkHive2Mysql {
                |count(*) as realnm_num
                |from hive_pri_acct_inf
                |where  realnm_in='01'
-               |and to_date(rec_crt_ts)='$today_dt '
+               |and to_date(rec_crt_ts)='$today_dt'
                |group by  phone_location) d
                |on  a.phone_location=d.phone_location
              """.stripMargin)
