@@ -446,7 +446,7 @@ object SparkHive2Mysql {
             |end)) as tpre,
             |count(distinct(
             |case
-            |when to_date(a.rec_crt_ts)>=trunc('$today_dt','yyyy')
+            |when to_date(a.rec_crt_ts)>=trunc('$today_dt','YYYY')
             |and to_date(a.rec_crt_ts)<='$today_dt'
             |then a.cdhd_usr_id
             |end)) as years,
@@ -479,9 +479,9 @@ object SparkHive2Mysql {
             |end)) as tpre,
             |count(distinct(
             |case
-            |when to_date(a.rec_crt_ts)>=trunc('$today_dt','yyyy')
+            |when to_date(a.rec_crt_ts)>=trunc('$today_dt','YYYY')
             |and to_date(a.rec_crt_ts)<='$today_dt'
-            |and to_date(b.card_dt)>=trunc('$today_dt','yyyy')
+            |and to_date(b.card_dt)>=trunc('$today_dt','YYYY')
             |and to_date(b.card_dt)<='$today_dt'
             |then a.cdhd_usr_id
             |end)) as years,
@@ -529,9 +529,9 @@ object SparkHive2Mysql {
             |end)) as tpre,
             |count(distinct(
             |case
-            |when to_date(a.rec_crt_ts)>=trunc('$today_dt','yyyy')
+            |when to_date(a.rec_crt_ts)>=trunc('$today_dt','YYYY')
             |and to_date(a.rec_crt_ts)<='$today_dt'
-            |and to_date(b.trans_dt)>=trunc('$today_dt','yyyy')
+            |and to_date(b.trans_dt)>=trunc('$today_dt','YYYY')
             |and to_date(b.trans_dt)<='$today_dt'
             |then a.cdhd_usr_id
             |end)) as years,
