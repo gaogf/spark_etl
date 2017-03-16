@@ -105,6 +105,12 @@ object Create_Hive_Tables {
     hive_life_order_inf
     hive_rtdtrs_dtl_ach_bill
     hive_point_trans
+    hive_mksvc_order
+    hive_wlonl_transfer_order
+    hive_wlonl_uplan_coupon
+    hive_wlonl_acc_notes
+    hive_ubp_order
+    hive_mnsvc_business_instal_info
 
     println("=======Create all tables on the hive successfully=======")
 
@@ -4789,5 +4795,262 @@ object Create_Hive_Tables {
     println("=======Create hive_point_trans successfully ! =======")
   }
 
+  /**
+    * JOB_HV_84
+    *  table  hive_mksvc_order
+    *
+    */
+  def hive_mksvc_order(implicit  sqlContext :HiveContext)={
+    println("=======Create hive_mksvc_order=======")
+    sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql(
+      s"""
+         |create table if not exists $hive_dbname.hive_mksvc_order
+         |(
+         |order_id                      string     ,
+         |source_order_tp               string     ,
+         |source_order_id               string     ,
+         |source_order_ts               string     ,
+         |trans_at                       int       ,
+         |sys_id                        string     ,
+         |mchnt_cd                      string     ,
+         |order_st                       string    ,
+         |activity_id                    int       ,
+         |award_lvl                      int       ,
+         |award_ts                       string    ,
+         |source_order_st                string    ,
+         |mchnt_order_id                 string    ,
+         |usr_id                         int       ,
+         |upop_usr_id                    int       ,
+         |source_order_checked           string    ,
+         |order_dt                       timestamp ,
+         |order_digest                   string    ,
+         |usr_ip                         string    ,
+         |rec_crt_ts                     timestamp ,
+         |rec_upd_ts                     timestamp ,
+         |rec_st                         int       ,
+         |rec_crt_oper_id                string    ,
+         |order_memo                     string    ,
+         |order_extend_inf               string    ,
+         |award_id                       int       ,
+         |mobile                         string    ,
+         |card_no                        string    ,
+         |unified_usr_id                 string
+         |)
+         |partitioned by (part_order_dt string)
+         | row format delimited fields terminated by '!|'
+         |stored as parquet
+         |location '/user/ch_hypas/upw_hive/incident/order/hive_mksvc_order'
+         | """.stripMargin)
 
+    println("=======Create hive_mksvc_order successfully ! =======")
+  }
+
+  /**
+    * JOB_HV_85
+    *  table hive_wlonl_transfer_order
+    */
+  def hive_wlonl_transfer_order(implicit  sqlContext :HiveContext)={
+    println("=======Create hive_wlonl_transfer_order=======")
+    sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql(
+      s"""
+         |create table if not exists $hive_dbname.hive_wlonl_transfer_order
+         |(
+         |id                          int            ,
+         |user_id                     string         ,
+         |tn                          string         ,
+         |pan                         string         ,
+         |trans_amount                 int           ,
+         |order_desc                   string        ,
+         |order_detail                 string        ,
+         |status                       string        ,
+         |create_time                  timestamp     ,
+         |trans_type                    string       ,
+         |order_dt                      timestamp
+         |)
+         |partitioned by (part_order_dt string)
+         |row format delimited fields terminated by '!|'
+         |stored as parquet
+         |location '/user/ch_hypas/upw_hive/incident/order/hive_wlonl_transfer_order'
+         | """.stripMargin)
+
+    println("=======Create hive_wlonl_transfer_order successfully ! =======")
+  }
+
+  /**
+    * JOB_HV_86
+    * table hive_wlonl_uplan_coupon
+    */
+  def hive_wlonl_uplan_coupon(implicit  sqlContext :HiveContext)={
+    println("=======Create hive_wlonl_uplan_coupon=======")
+    sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql(
+      s"""
+         |create table if not exists $hive_dbname.hive_wlonl_uplan_coupon
+         |(
+         |id                                int     ,
+         |user_id                           string     ,
+         |pmt_code                          string     ,
+         |proc_dt                           string     ,
+         |coupon_id                         string       ,
+         |refnum                            string     ,
+         |valid_start_date                  string     ,
+         |valid_end_date                    string
+         |)
+         |row format delimited fields terminated by '!|'
+         |stored as parquet
+         |location '/user/ch_hypas/upw_hive/agreement/hive_wlonl_uplan_coupon'
+         | """.stripMargin)
+
+    println("=======Create hive_wlonl_uplan_coupon successfully ! =======")
+  }
+
+  /**
+    * JOB_HV_87
+    * table hive_wlonl_acc_notes
+    */
+  def hive_wlonl_acc_notes (implicit  sqlContext :HiveContext)={
+    println("=======Create hive_wlonl_acc_notes=======")
+    sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql(
+      s"""
+         |create table if not exists $hive_dbname.hive_wlonl_acc_notes
+         |(
+         |notes_id                          bigint     ,
+         |notes_tp                          string     ,
+         |notes_at                          bigint     ,
+         |trans_tm                          string     ,
+         |trans_in_acc                      string       ,
+         |trans_in_acc_tp                   string     ,
+         |trans_out_acc                     string     ,
+         |trans_out_acc_tp                  string    ,
+         |mchnt_nm                          string ,
+         |notes_class                       string ,
+         |notes_class_nm                    string ,
+         |notes_class_child                 string ,
+         |notes_class_child_nm              string ,
+         |reimburse                         string ,
+         |members                           string ,
+         |currency_tp                       string ,
+         |pro_nm                            string ,
+         |user_id                           string ,
+         |rec_st                            string ,
+         |photo_url                         string ,
+         |remark                            string ,
+         |ext1                              string ,
+         |ext2                              string ,
+         |ext3                              string ,
+         |rec_crt_ts                        timestamp ,
+         |rec_upd_ts                        timestamp
+         |)
+         |row format delimited fields terminated by '!|'
+         |stored as parquet
+         |location '/user/ch_hypas/upw_hive/agreement/hive_wlonl_acc_notes'
+         | """.stripMargin)
+
+    println("=======Create hive_wlonl_acc_notes successfully ! =======")
+  }
+
+  /**
+    * JOB_HV_88
+    * table hive_ubp_order
+    */
+  def hive_ubp_order (implicit  sqlContext :HiveContext)={
+    println("=======Create hive_ubp_order=======")
+    sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql(
+      s"""
+         |create table if not exists $hive_dbname.hive_ubp_order
+         |(
+         |order_id                     string     ,
+         |order_at                      bigint     ,
+         |refund_at                     bigint     ,
+         |order_st                      string     ,
+         |order_dt                      timestamp       ,
+         |order_tm                      string     ,
+         |order_timeout                 int     ,
+         |usr_id                        int     ,
+         |usr_ip                        string ,
+         |mer_id                        string ,
+         |sub_mer_id                    string ,
+         |card_no                       string ,
+         |bill_no                       string ,
+         |chnl_tp                       string ,
+         |order_desc                    string ,
+         |access_order_id               string ,
+         |access_reserved               string ,
+         |gw_tp                         string ,
+         |notice_front_url              string ,
+         |notice_back_url               string ,
+         |biz_tp                        string ,
+         |biz_map                       string ,
+         |ext                           string ,
+         |rec_crt_ts                    timestamp ,
+         |rec_upd_ts                    timestamp ,
+         |sub_biz_tp                    string    ,
+         |settle_id                     string    ,
+         |ins_id_cd                     string    ,
+         |access_md                     string    ,
+         |mcc                           string    ,
+         |submcc                        string    ,
+         |mer_name                      string    ,
+         |mer_abbr                      string    ,
+         |sub_mer_name                  string    ,
+         |sub_mer_abbr                  string    ,
+         |upoint_at                     bigint    ,
+         |qr_code                       string    ,
+         |payment_valid_tm              string    ,
+         |receive_ins_id_cd             string    ,
+         |term_id                       string
+         |)
+         |partitioned by (part_order_dt string)
+         |row format delimited fields terminated by '!|'
+         |stored as parquet
+         |location '/user/ch_hypas/upw_hive/incident/order/hive_ubp_order'
+         | """.stripMargin)
+
+    println("=======Create hive_ubp_order successfully ! =======")
+  }
+
+  /**
+    * JOB_HV_89
+    * table  hive_mnsvc_business_instal_info
+    */
+  def hive_mnsvc_business_instal_info (implicit  sqlContext :HiveContext)={
+    println("=======Create hive_mnsvc_business_instal_info=======")
+    sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql(
+      s"""
+         |create table if not exists $hive_dbname.hive_mnsvc_business_instal_info
+         |(
+         |instal_info_id                     bigint  ,
+         |token_id                           string  ,
+         |user_id                            string  ,
+         |card_no                            string  ,
+         |bank_cd                            string  ,
+         |instal_amt                         bigint  ,
+         |curr_num                           string  ,
+         |period                             int    ,
+         |fee_option                         string ,
+         |cred_no                            string ,
+         |prod_id                            string ,
+         |samt_pnt                           string ,
+         |apply_time                         string ,
+         |instal_apply_st                    string ,
+         |rec_st                             string ,
+         |remark                             string ,
+         |rec_crt_ts                         timestamp ,
+         |rec_upd_ts                         timestamp ,
+         |ext1                               string ,
+         |ext2                               string ,
+         |ext3                               string
+         |)
+         |row format delimited fields terminated by '!|'
+         |stored as parquet
+         |location '/user/ch_hypas/upw_hive/agreement/mnsvc_business_instal_info'
+         | """.stripMargin)
+
+    println("=======Create hive_mnsvc_business_instal_info successfully ! =======")
+  }
 }

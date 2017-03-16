@@ -16,13 +16,16 @@ import org.joda.time.{Days, LocalDate}
   * 作业：抽取DB2中的数据到钱包Hive数据仓库
   */
 object SparkDB22Hive {
-  // Xue update formatted date -_-
   private lazy val dateFormatter = DateTimeFormat.forPattern("yyyy-MM-dd")
   //指定HIVE数据库名
   private lazy val hive_dbname = ConfigurationManager.getProperty(Constants.HIVE_DBNAME)
+  //指定DB2数据库Schema名称
   private lazy val schemas_accdb = ConfigurationManager.getProperty(Constants.SCHEMAS_ACCDB)
   private lazy val schemas_mgmdb = ConfigurationManager.getProperty(Constants.SCHEMAS_MGMDB)
+
   private lazy  val schemas_marketdb=ConfigurationManager.getProperty(Constants.SCHEMAS_MAKDB)
+  private lazy val schemas_orderdb=ConfigurationManager.getProperty(Constants.SCHEMAS_ORDERDB)
+  private lazy val schemas_mbgdb=ConfigurationManager.getProperty(Constants.SCHEMAS_MBGDB)
 
   def main(args: Array[String]) {
 
@@ -134,6 +137,12 @@ object SparkDB22Hive {
         * 新增其他JOB
         */
       case "JOB_HV_83" => JOB_HV_83(sqlContext, start_dt, end_dt) //CODE BY LT
+      case "JOB_HV_84" => JOB_HV_84(sqlContext, start_dt, end_dt) //CODE BY LT
+      case "JOB_HV_85" => JOB_HV_85(sqlContext, start_dt, end_dt) //CODE BY LT
+      case "JOB_HV_86" => JOB_HV_86 //CODE BY LT
+      case "JOB_HV_87" => JOB_HV_87 //CODE BY LT
+      case "JOB_HV_88" => JOB_HV_88(sqlContext, start_dt, end_dt) //CODE BY LT
+      case "JOB_HV_89" => JOB_HV_89  //CODE BY LT
       case _ => println("#### No Case Job,Please Input JobName")
     }
 
@@ -5984,5 +5993,386 @@ object SparkDB22Hive {
       }
     }
   }
+
+  /**
+    * JOB_HV_84
+    * code by liutao
+    * @param sqlContext
+    * @param start_dt
+    * @param end_dt
+    */
+  def JOB_HV_84(implicit sqlContext: HiveContext,start_dt:String,end_dt:String)={
+    println("#### job_hv_84(hive_mksvc_order->tbl_mksvc_order)")
+
+    DateUtils.timeCost("JOB_HV_84"){
+      val start_day = start_dt.replace("-","")
+      val end_day = end_dt.replace("-","")
+      println("#### JOB_HV_84 落地增量抽取的时间范围: "+start_day+"--"+end_day)
+      //通过jdbc读取钱包的db2数据库的营销库的tbl_mksvc_order表
+      val df =sqlContext.readDB2_MarketingWith4param(s"$schemas_marketdb.tbl_mksvc_order","order_dt",start_day,end_day)
+      println("#### JOB_HV_84读取营销库的系统时间为:"+DateUtils.getCurrentSystemTime())
+
+      df.registerTempTable("spark_db2_tbl_mksvc_order")
+      println("#### JOB_HV_84 注册临时表的系统时间为:"+DateUtils.getCurrentSystemTime())
+
+      if(!Option(df).isEmpty){
+        sqlContext.sql(s"use $hive_dbname")
+        sqlContext.sql(
+          s"""
+             |insert overwrite table hive_mksvc_order partition (part_order_dt)
+             |select
+             |trim(orders.order_id)                           ,
+             |trim(orders.source_order_tp)                    ,
+             |orders.source_order_id                          ,
+             |trim(orders.source_order_ts)                    ,
+             |orders.trans_at                                 ,
+             |trim(orders.sys_id)                             ,
+             |trim(orders.mchnt_cd)                           ,
+             |trim(orders.order_st)                           ,
+             |orders.activity_id                              ,
+             |orders.award_lvl                                ,
+             |trim(orders.award_ts)                           ,
+             |orders.source_order_st                          ,
+             |orders.mchnt_order_id                           ,
+             |orders.usr_id                                   ,
+             |orders.upop_usr_id                              ,
+             |trim(orders.source_order_checked)               ,
+             |case
+             |when
+             |substr(orders.order_dt,1,4) between '0001' and '9999' and substr(orders.order_dt,5,2) between '01' and '12' and
+             |substr(orders.order_dt,7,2) between '01' and substr(last_day(concat_ws('-',substr(orders.order_dt,1,4),substr(orders.order_dt,5,2),substr(orders.order_dt,7,2))),9,2)
+             |then concat_ws('-',substr(orders.order_dt,1,4),substr(orders.order_dt,5,2),substr(orders.order_dt,7,2))
+             |else substr(orders.rec_crt_ts,1,10)
+             |end as order_dt                                 ,
+             |trim(orders.order_digest)                        ,
+             |orders.usr_ip                                    ,
+             |orders.rec_crt_ts                                ,
+             |orders.rec_upd_ts                                ,
+             |orders.rec_st                                    ,
+             |trim(orders.rec_crt_oper_id)                     ,
+             |orders.order_memo                                ,
+             |orders.order_extend_inf                          ,
+             |orders.award_id                                  ,
+             |orders.mobile                                    ,
+             |orders.card_no                                   ,
+             |orders.unified_usr_id                            ,
+             |case
+             |when
+             |substr(orders.order_dt,1,4) between '0001' and '9999' and substr(orders.order_dt,5,2) between '01' and '12' and
+             |substr(orders.order_dt,7,2) between '01' and substr(last_day(concat_ws('-',substr(orders.order_dt,1,4),substr(orders.order_dt,5,2),substr(orders.order_dt,7,2))),9,2)
+             |then concat_ws('-',substr(orders.order_dt,1,4),substr(orders.order_dt,5,2),substr(orders.order_dt,7,2))
+             |else substr(orders.rec_crt_ts,1,10)  end as part_order_dt
+             |from spark_db2_tbl_mksvc_order orders
+        """.stripMargin)
+        println("#### JOB_HV_84动态分区插入hive_mksvc_order成功！")
+      }else{
+        println("#### db2_tbl_mksvc_order 表中无数据！")
+      }
+    }
+
+  }
+
+  /**
+    * JOB_HV_85
+    * code by liutao
+    * @param sqlContext
+    * @param start_dt
+    * @param end_dt
+    */
+  def JOB_HV_85(implicit sqlContext: HiveContext,start_dt:String,end_dt:String)={
+    println("#### job_hv_85(hive_wlonl_transfer_order->tbl_wlonl_transfer_order")
+
+    DateUtils.timeCost("JOB_HV_85"){
+      val start_day = start_dt.replace("-","")
+      val end_day = end_dt.replace("-","")
+      println("#### JOB_HV_85 落地增量抽取的时间范围: "+start_day+"--"+end_day)
+
+      val df=sqlContext.readDB2_MbgWith3param(s"$schemas_mbgdb.tbl_wlonl_transfer_order",start_day,end_day)
+      println("#### JOB_HV_85读取营销库的系统时间为:"+DateUtils.getCurrentSystemTime())
+
+      df.registerTempTable("spark_db2_tbl_wlonl_transfer_order")
+      println("#### JOB_HV_85 注册临时表的系统时间为:"+DateUtils.getCurrentSystemTime())
+
+      if(!Option(df).isEmpty){
+        sqlContext.sql(s"use $hive_dbname")
+        sqlContext.sql(
+          s"""
+             |insert overwrite table hive_wlonl_transfer_order partition (part_order_dt)
+             |select
+             |trorder.id                               ,
+             |trorder.user_id                          ,
+             |trorder.tn                               ,
+             |trorder.pan                              ,
+             |trorder.trans_amount                     ,
+             |trorder.order_desc                       ,
+             |trorder.order_detail                     ,
+             |trorder.status                           ,
+             |trorder.create_time                      ,
+             |trorder.trans_type                       ,
+             |case
+             |when
+             |substr(trorder.create_time,1,4) between '0001' and '9999' and substr(trorder.create_time,5,2) between '01' and '12' and
+             |substr(trorder.create_time,7,2) between '01' and substr(last_day(concat_ws('-',substr(trorder.create_time,1,4),substr(trorder.create_time,5,2),substr(trorder.create_time,7,2))),9,2)
+             |then concat_ws('-',substr(trorder.create_time,1,4),substr(trorder.create_time,5,2),substr(trorder.create_time,7,2))
+             |else '' end as  order_dt                  ,
+             |case
+             |when
+             |substr(trorder.create_time,1,4) between '0001' and '9999' and substr(trorder.create_time,5,2) between '01' and '12' and
+             |substr(trorder.create_time,7,2) between '01' and substr(last_day(concat_ws('-',substr(trorder.create_time,1,4),substr(trorder.create_time,5,2),substr(trorder.create_time,7,2))),9,2)
+             |then concat_ws('-',substr(trorder.create_time,1,4),substr(trorder.create_time,5,2),substr(trorder.create_time,7,2))
+             |else '' end as part_order_dt
+             |from spark_db2_tbl_wlonl_transfer_order trorder
+        """.stripMargin)
+        println("#### JOB_HV_85动态分区插入hive_wlonl_transfer_order成功！")
+      }else{
+        println("#### db2_tbl_wlonl_transfer_order 表中无数据！")
+      }
+    }
+
+  }
+
+  /**
+    * JOB_HV_86
+    * code by liutao
+    * @param sqlContext
+    * @param start_dt
+    * @param end_dt
+    */
+  def JOB_HV_86(implicit sqlContext: HiveContext)={
+    println("#### job_hv_86(hive_wlonl_uplan_coupon->tbl_wlonl_uplan_coupon)")
+
+    DateUtils.timeCost("JOB_HV_86"){
+      val df =sqlContext.readDB2_Mbg(s"$schemas_mbgdb.tbl_wlonl_uplan_coupon")
+      println("#### JOB_HV_86读取联机库的系统时间为:"+DateUtils.getCurrentSystemTime())
+
+      df.registerTempTable("spark_db2_tbl_wlonl_uplan_coupon")
+      println("#### JOB_HV_86 注册临时表的系统时间为:"+DateUtils.getCurrentSystemTime())
+
+      if(!Option(df).isEmpty){
+        sqlContext.sql(s"use $hive_dbname")
+        sqlContext.sql(
+          s"""
+             |insert overwrite table hive_wlonl_uplan_coupon
+             |select
+             | id                                     ,
+             |user_id                                ,
+             |pmt_code                               ,
+             |proc_dt                                ,
+             |coupon_id                                ,
+             |refnum                                 ,
+             |valid_start_date                       ,
+             |valid_end_date
+             |from spark_db2_tbl_wlonl_uplan_coupon coupon
+        """.stripMargin)
+        println("#### JOB_HV_86动态分区插入hive_wlonl_uplan_coupon成功！")
+      }else{
+        println("#### db2_tbl_wlonl_uplan_coupon 表中无数据！")
+      }
+    }
+
+  }
+
+  /**
+    * JOB_HV_87
+    * code by liutao
+    * @param sqlContext
+    * @param start_dt
+    * @param end_dt
+    */
+  def JOB_HV_87(implicit sqlContext: HiveContext)={
+    println("#### job_hv_87(hive_wlonl_acc_notes->tbl_wlonl_acc_notes)")
+
+    DateUtils.timeCost("JOB_HV_87"){
+      val df =sqlContext.readDB2_Mbg(s"$schemas_mbgdb.tbl_wlonl_acc_notes")
+      println("#### JOB_HV_87读取联机库的系统时间为:"+DateUtils.getCurrentSystemTime())
+
+      df.registerTempTable("spark_db2_tbl_wlonl_acc_notes")
+      println("#### JOB_HV_87 注册临时表的系统时间为:"+DateUtils.getCurrentSystemTime())
+
+      if(!Option(df).isEmpty){
+        sqlContext.sql(s"use $hive_dbname")
+        sqlContext.sql(
+          s"""
+             |insert overwrite table hive_wlonl_acc_notes
+             |select
+             |notes_id                               ,
+             |notes_tp                               ,
+             |notes_at                               ,
+             |trans_tm                               ,
+             |trans_in_acc                             ,
+             |trans_in_acc_tp                        ,
+             |trans_out_acc                          ,
+             |trans_out_acc_tp                      ,
+             |mchnt_nm                           ,
+             |notes_class                        ,
+             |notes_class_nm                     ,
+             |notes_class_child                  ,
+             |notes_class_child_nm               ,
+             |reimburse                          ,
+             |members                            ,
+             |currency_tp                        ,
+             |pro_nm                             ,
+             |user_id                            ,
+             |rec_st                             ,
+             |photo_url                          ,
+             |remark                             ,
+             |ext1                               ,
+             |ext2                               ,
+             |ext3                               ,
+             |rec_crt_ts                         ,
+             |rec_upd_ts
+             |from spark_db2_tbl_wlonl_acc_notes  notes
+        """.stripMargin)
+        println("#### JOB_HV_87动态分区插入hive_wlonl_transfer_order成功！")
+      }else{
+        println("#### db2_tbl_wlonl_acc_notes 表中无数据！")
+      }
+    }
+
+  }
+
+  /**
+    * JOB_HV_88
+    * code by liutao
+    * @param sqlContext
+    * @param start_dt
+    * @param end_dt
+    */
+  def JOB_HV_88(implicit sqlContext: HiveContext,start_dt:String,end_dt:String)={
+    println("#### job_hv_88(hive_ubp_order->tbl_ubp_order)")
+
+    DateUtils.timeCost("JOB_HV_88"){
+      val start_day = start_dt.replace("-","")
+      val end_day = end_dt.replace("-","")
+      println("#### JOB_HV_88 落地增量抽取的时间范围: "+start_day+"--"+end_day)
+      val df =sqlContext.readDB2_OrderWith4param(s"$schemas_orderdb.tbl_ubp_order","order_dt",start_day,end_day)
+      println("#### JOB_HV_88读取订单库的系统时间为:"+DateUtils.getCurrentSystemTime())
+
+      df.registerTempTable("spark_db2_tbl_ubp_order")
+      println("#### JOB_HV_88 注册临时表的系统时间为:"+DateUtils.getCurrentSystemTime())
+
+      if(!Option(df).isEmpty){
+        sqlContext.sql(s"use $hive_dbname")
+        sqlContext.sql(
+          s"""
+             |insert overwrite table hive_ubp_order partition (part_order_dt)
+             |select
+             |trim(order_id)                          ,
+             |order_at                                ,
+             |refund_at                               ,
+             |trim(order_st)                          ,
+             |case
+             |when
+             |substr(ubporder.order_dt,1,4) between '0001' and '9999' and substr(ubporder.order_dt,5,2) between '01' and '12' and
+             |substr(ubporder.order_dt,7,2) between '01' and substr(last_day(concat_ws('-',substr(ubporder.order_dt,1,4),substr(ubporder.order_dt,5,2),substr(ubporder.order_dt,7,2))),9,2)
+             |then concat_ws('-',substr(ubporder.order_dt,1,4),substr(ubporder.order_dt,5,2),substr(ubporder.order_dt,7,2))
+             |else substr(ubporder.rec_crt_ts,1,10)
+             |end as order_dt                         ,
+             |trim(order_tm)                          ,
+             |order_timeout                           ,
+             |usr_id                                  ,
+             |usr_ip                                  ,
+             |trim(mer_id)                            ,
+             |trim(sub_mer_id)                        ,
+             |card_no                                 ,
+             |bill_no                                 ,
+             |trim(chnl_tp)                           ,
+             |order_desc                              ,
+             |access_order_id                         ,
+             |access_reserved                         ,
+             |trim(gw_tp)                             ,
+             |notice_front_url                        ,
+             |notice_back_url                         ,
+             |trim(biz_tp)                            ,
+             |trim(biz_map)                           ,
+             |ext                                     ,
+             |rec_crt_ts                              ,
+             |rec_upd_ts                              ,
+             |sub_biz_tp                              ,
+             |trim(settle_id)                         ,
+             |trim(ins_id_cd)                         ,
+             |trim(access_md)                         ,
+             |trim(mcc)                               ,
+             |trim(submcc)                            ,
+             |mer_name                                ,
+             |mer_abbr                                ,
+             |sub_mer_name                            ,
+             |sub_mer_abbr                            ,
+             |upoint_at                               ,
+             |qr_code                                 ,
+             |trim(payment_valid_tm)                  ,
+             |trim(receive_ins_id_cd)                 ,
+             |trim(term_id)                           ,
+             |case
+             |when
+             |substr(ubporder.order_dt,1,4) between '0001' and '9999' and substr(ubporder.order_dt,5,2) between '01' and '12' and
+             |substr(ubporder.order_dt,7,2) between '01' and substr(last_day(concat_ws('-',substr(ubporder.order_dt,1,4),substr(ubporder.order_dt,5,2),substr(ubporder.order_dt,7,2))),9,2)
+             |then concat_ws('-',substr(ubporder.order_dt,1,4),substr(ubporder.order_dt,5,2),substr(ubporder.order_dt,7,2))
+             |else substr(ubporder.rec_crt_ts,1,10)
+             |end as part_order_dt
+             |from spark_db2_tbl_ubp_order ubporder
+        """.stripMargin)
+        println("#### JOB_HV_88动态分区插入hive_ubp_order成功！")
+      }else{
+        println("#### db2_tbl_ubp_order 表中无数据！")
+      }
+    }
+
+  }
+
+  /**
+    * JOB_HV_89
+    * code by liutao
+    * @param sqlContext
+    * @param start_dt
+    * @param end_dt
+    */
+  def JOB_HV_89(implicit sqlContext: HiveContext)={
+    println("#### job_hv_89(hive_mnsvc_business_instal_info->tbl_mnsvc_business_instal_info)")
+
+    DateUtils.timeCost("JOB_HV_89"){
+      val df =sqlContext.readDB2_Order(s"$schemas_orderdb.tbl_mnsvc_business_instal_info")
+      println("#### JOB_HV_89读取订单库的系统时间为:"+DateUtils.getCurrentSystemTime())
+
+      df.registerTempTable("spark_db2_tbl_mnsvc_business_instal_info")
+      println("#### JOB_HV_89 注册临时表的系统时间为:"+DateUtils.getCurrentSystemTime())
+
+      if(!Option(df).isEmpty){
+        sqlContext.sql(s"use $hive_dbname")
+        sqlContext.sql(
+          s"""
+             |insert overwrite table hive_mnsvc_business_instal_info
+             |select
+             |instal_info_id                       ,
+             |token_id                             ,
+             |trim(user_id)                        ,
+             |card_no                              ,
+             |bank_cd                              ,
+             |instal_amt                           ,
+             |curr_num                             ,
+             |period                               ,
+             |trim(fee_option)                     ,
+             |cred_no                             ,
+             |prod_id                             ,
+             |samt_pnt                            ,
+             |apply_time                          ,
+             |trim(instal_apply_st)               ,
+             |trim(rec_st)                        ,
+             |remark                              ,
+             |rec_crt_ts                          ,
+             |rec_upd_ts                          ,
+             |ext1                                ,
+             |ext2                                ,
+             |ext3
+             |from spark_db2_tbl_mnsvc_business_instal_info info
+            """.stripMargin)
+        println("#### JOB_HV_89动态分区插入hive_ubp_order成功！")
+      }else{
+        println("#### db2_tbl_mnsvc_business_instal_info 表中无数据！")
+      }
+    }
+
+  }
+
 
 }// ### END LINE ###

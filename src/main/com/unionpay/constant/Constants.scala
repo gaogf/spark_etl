@@ -56,11 +56,22 @@ object Constants {
   val UP_NAMENODE ="up.namenode"
   val UP_HIVEDATAROOT ="up.hivedataroot"
 
-  //营销库
   val DB2_USER_MAK="db2.user.mak"
   val DB2_PASSWORD_MAk="db2.password.mak"
   val DB2_URL_MAKDB="db2.url_makdb"
   val SCHEMAS_MAKDB="db2.makdb_schemas_name"
+
+  val DB2_USER_ORDER="db2.user.order"
+  val DB2_USER_MBG="db2.user.mbg"
+
+  val DB2_PASSWORD_ORDER="db2.password.order"
+  val DB2_PASSWORD_MBG="db2.password.mbg"
+
+  val DB2_URL_ORDERDB="db2.url_orderdb"
+  val DB2_URL_MBGDB="db2.url_mbgdb"
+
+  val SCHEMAS_ORDERDB="db2.orderdb_schemas_name"
+  val SCHEMAS_MBGDB="db2.mbgdb_schemas_name"
 
 
 }
