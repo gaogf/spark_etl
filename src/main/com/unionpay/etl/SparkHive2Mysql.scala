@@ -5152,8 +5152,8 @@ object SparkHive2Mysql {
       val results =sqlContext.sql(
         s"""
            |select
-           |    trim(if(pri_acct.phone_location is null,'总公司',pri_acct.phone_location)) as phone_location,
-           |    to_date(to_date(swt.trans_dt))             as report_dt,
+           |    trim(if(pri_acct.phone_location is null,'总公司',pri_acct.phone_location)) as mobile_loc,
+           |    to_date(swt.trans_dt)    as report_dt,
            |    count(*)                 as trans_cnt,
            |    sum(
            |        case
@@ -6187,7 +6187,7 @@ object SparkHive2Mysql {
            |                trans.cdhd_usr_id = pri_acct.cdhd_usr_id
            |             )
            |        where
-           |        and bill.bill_sub_tp <> '08'
+           |        bill.bill_sub_tp <> '08'
            |        and trans.part_trans_dt >= '$start_dt'
            |        and trans.part_trans_dt <= '$end_dt'
            |        group by
@@ -6217,7 +6217,7 @@ object SparkHive2Mysql {
            |            (
            |                trans.cdhd_usr_id = pri_acct.cdhd_usr_id)
            |        where
-           |        and    bill.bill_sub_tp <> '08'
+           |        bill.bill_sub_tp <> '08'
            |        and trans.order_st in ('00',
            |                               '01',
            |                               '02',
@@ -6259,7 +6259,7 @@ object SparkHive2Mysql {
            |            (
            |                trans.cdhd_usr_id = pri_acct.cdhd_usr_id)
            |        where
-           |        and    bill.bill_sub_tp <> '08'
+           |        bill.bill_sub_tp <> '08'
            |        and trans.order_st = '00'
            |        and trans.part_trans_dt >= '$start_dt'
            |        and trans.part_trans_dt <= '$end_dt'
