@@ -74,9 +74,9 @@ object SparkHive2Mysql {
       case "JOB_DM_55"  => JOB_DM_55(sqlContext,start_dt,end_dt)            //CODE BY TZQ
       case "JOB_DM_61"  => JOB_DM_61(sqlContext,start_dt,end_dt,interval)   //CODE BY YX
       case "JOB_DM_62"  => JOB_DM_62(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ
-      case "JOB_DM_63"  => JOB_DM_63(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP    
-      case "JOB_DM_64"  => JOB_DM_64(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP    
-      case "JOB_DM_65"  => JOB_DM_65(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP    
+      case "JOB_DM_63"  => JOB_DM_63(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP
+      case "JOB_DM_64"  => JOB_DM_64(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP
+      case "JOB_DM_65"  => JOB_DM_65(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP
       case "JOB_DM_66"  => JOB_DM_66(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ
       case "JOB_DM_67"  => JOB_DM_67(sqlContext,start_dt,end_dt)            //CODE BY YX
       case "JOB_DM_68"  => JOB_DM_68(sqlContext,start_dt,end_dt)            //CODE BY YX
@@ -89,7 +89,7 @@ object SparkHive2Mysql {
       case "JOB_DM_75"  => JOB_DM_75(sqlContext,start_dt,end_dt)            //CODE BY XTP
       case "JOB_DM_76"  => JOB_DM_76(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ
       case "JOB_DM_78"  => JOB_DM_78(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP
-      case "JOB_DM_86"  => JOB_DM_86(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP    
+      case "JOB_DM_86"  => JOB_DM_86(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP
       case "JOB_DM_87"  => JOB_DM_87(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ
 
       /**
@@ -161,12 +161,12 @@ object SparkHive2Mysql {
       case "JOB_DM_60"  => JOB_DM_60(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP
 
       case "JOB_DM_79"  => JOB_DM_79(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP
-      case "JOB_DM_80"  => JOB_DM_80(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP    
-      case "JOB_DM_81"  => JOB_DM_81(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP    
-      case "JOB_DM_82"  => JOB_DM_82(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP    
-      case "JOB_DM_83"  => JOB_DM_83(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP    
-      case "JOB_DM_84"  => JOB_DM_84(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP    
-      case "JOB_DM_85"  => JOB_DM_85(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP    
+      case "JOB_DM_80"  => JOB_DM_80(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP
+      case "JOB_DM_81"  => JOB_DM_81(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP
+      case "JOB_DM_82"  => JOB_DM_82(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP
+      case "JOB_DM_83"  => JOB_DM_83(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP
+      case "JOB_DM_84"  => JOB_DM_84(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP
+      case "JOB_DM_85"  => JOB_DM_85(sqlContext,start_dt,end_dt,interval)   //CODE BY XTP
 
 
       case "JOB_DM_88"  => JOB_DM_88(sqlContext,start_dt,end_dt,interval)   //CODE BY TZQ
@@ -3605,66 +3605,64 @@ object SparkHive2Mysql {
           val results =sqlContext.sql(
             s"""
                |select
-               |    a.cup_branch_ins_id_nm  as cup_branch_ins_id_nm,
-               |    a.trans_dt              as report_dt           ,
-               |    a.transcnt              as trans_cnt           ,
-               |    b.suctranscnt           as suc_trans_cnt       ,
-               |    b.transat               as trans_at            ,
-               |    b.discountat            as discount_at         ,
-               |    b.transusrcnt           as trans_usr_cnt       ,
-               |    b.transcardcnt          as trans_card_cnt
+               |a.cup_branch_ins_id_nm as cup_branch_ins_id_nm,
+               |a.trans_dt as report_dt ,
+               |a.transcnt as trans_cnt ,
+               |b.suctranscnt as suc_trans_cnt ,
+               |b.transat as trans_at ,
+               |b.discountat as discount_at ,
+               |b.transusrcnt as trans_usr_cnt ,
+               |b.transcardcnt as trans_card_cnt
                |from
-               |    (
-               |        select
-               |        if(bill.cup_branch_ins_id_nm,'总公司',bill.cup_branch_ins_id_nm) as cup_branch_ins_id_nm,
-               |            trans.trans_dt,
-               |            count(1) as transcnt
-               |        from
-               |            hive_acc_trans trans
-               |        left join
-               |            hive_ticket_bill_bas_inf bill
-               |        on
-               |            (
-               |                trans.bill_id=bill.bill_id)
-               |        where
-               |            trans.um_trans_id in ('AC02000065',
-               |                                  'AC02000063')
-               |        and bill.bill_sub_tp in ('01', '03')
-               |        and trans.part_trans_dt >= '$start_dt'
-               |        and trans.part_trans_dt <= '$end_dt'
-               |        group by
-               |           if(bill.cup_branch_ins_id_nm,'总公司',bill.cup_branch_ins_id_nm),
-               |            trans.trans_dt) a
+               |(
+               |select
+               |trim(if(bill.cup_branch_ins_id_nm is null,'总公司',bill.cup_branch_ins_id_nm)) as cup_branch_ins_id_nm,
+               |to_date(trans.trans_dt) as trans_dt,
+               |count(1) as transcnt
+               |from
+               |hive_acc_trans trans
                |left join
-               |    (
-               |        select
-               |         if(bill.cup_branch_ins_id_nm,'总公司',bill.cup_branch_ins_id_nm) as cup_branch_ins_id_nm,
-               |            trans.trans_dt,
-               |            count(1) as suctranscnt,
-               |            sum(trans.trans_at) as transat,
-               |            sum(trans.discount_at) as discountat,
-               |            count(distinct trans.cdhd_usr_id) as transusrcnt,
-               |            count(distinct trans.pri_acct_no) as transcardcnt
-               |        from
-               |            hive_acc_trans trans
-               |        left join
-               |            hive_ticket_bill_bas_inf bill
-               |        on
-               |            (
-               |                trans.bill_id=bill.bill_id)
-               |        where
-               |            trans.sys_det_cd = 'S'
-               |        and trans.um_trans_id iN ('AC02000065','AC02000063')
-               |        and bill.bill_sub_tp in ('01','03')
-               |        and trans.part_trans_dt >= '$start_dt'
-               |        and trans.part_trans_dt <= '$end_dt'
+               |hive_ticket_bill_bas_inf bill
+               |on
+               |(
+               |trans.bill_id=bill.bill_id)
+               |where
+               |trans.um_trans_id in ('AC02000065','AC02000063')
+               |and bill.bill_sub_tp in ('01', '03')
+               |and trans.part_trans_dt >= '$start_dt'
+               |and trans.part_trans_dt <= '$end_dt'
+               |group by
+               |if(bill.cup_branch_ins_id_nm is null,'总公司',bill.cup_branch_ins_id_nm),
+               |to_date(trans.trans_dt )) a
+               |left join
+               |(
+               |select
+               |trim(if(bill.cup_branch_ins_id_nm is null,'总公司',bill.cup_branch_ins_id_nm)) as cup_branch_ins_id_nm,
+               |to_date(trans.trans_dt ) as trans_dt,
+               |count(1) as suctranscnt,
+               |sum(trans.trans_at) as transat,
+               |sum(trans.discount_at) as discountat,
+               |count(distinct trans.cdhd_usr_id) as transusrcnt,
+               |count(distinct trans.pri_acct_no) as transcardcnt
+               |from
+               |hive_acc_trans trans
+               |left join
+               |hive_ticket_bill_bas_inf bill
+               |on
+               |(
+               |trans.bill_id=bill.bill_id)
+               |where
+               |trans.sys_det_cd = 'S'
+               |and trans.um_trans_id iN ('AC02000065','AC02000063')
+               |and bill.bill_sub_tp in ('01','03')
+               |and trans.part_trans_dt >= '$start_dt'
+               |and trans.part_trans_dt <= '$end_dt'
                |
-               |        group by
-               |         if(bill.cup_branch_ins_id_nm,'总公司',bill.cup_branch_ins_id_nm),
-               |            trans.trans_dt)b
+               |group by
+               |if(bill.cup_branch_ins_id_nm is null,'总公司',bill.cup_branch_ins_id_nm),
+               |to_date(trans.trans_dt ))b
                |on
                |a.cup_branch_ins_id_nm = b.cup_branch_ins_id_nm and a.trans_dt = b.trans_dt
-               |
           """.stripMargin)
 
           println(s"#### JOB_DM_30 spark sql 清洗数据完成时间为:" + DateUtils.getCurrentSystemTime())
@@ -3710,8 +3708,8 @@ object SparkHive2Mysql {
            |from
            |    (
            |        select
-           |        if(acpt_ins.cup_branch_ins_id_nm,'总公司',acpt_ins.cup_branch_ins_id_nm) as cup_branch_ins_id_nm,
-           |            trans.trans_dt,
+           |        trim(if(acpt_ins.cup_branch_ins_id_nm is null,'总公司',acpt_ins.cup_branch_ins_id_nm)) as cup_branch_ins_id_nm,
+           |            to_date(trans.trans_dt) as trans_dt,
            |            count(1) as transcnt
            |        from
            |            hive_acc_trans trans
@@ -3737,13 +3735,13 @@ object SparkHive2Mysql {
            |        and trans.part_trans_dt >= '$start_dt'
            |        and trans.part_trans_dt <= '$end_dt'
            |        group by
-           |        if(acpt_ins.cup_branch_ins_id_nm,'总公司',acpt_ins.cup_branch_ins_id_nm)，
-           |            trans.trans_dt) a
+           |        trim(if(acpt_ins.cup_branch_ins_id_nm is null,'总公司',acpt_ins.cup_branch_ins_id_nm)),
+           |            to_date(trans.trans_dt)) a
            |left join
            |    (
            |        select
-           |        if(acpt_ins.cup_branch_ins_id_nm,'总公司',acpt_ins.cup_branch_ins_id_nm) as cup_branch_ins_id_nm,
-           |            trans.trans_dt,
+           |        trim(if(acpt_ins.cup_branch_ins_id_nm is null,'总公司',acpt_ins.cup_branch_ins_id_nm)) as cup_branch_ins_id_nm,
+           |           to_date(trans.trans_dt) as trans_dt,
            |            count(1) as suctranscnt,
            |            sum(trans.trans_at) as transat,
            |            sum(trans.discount_at)          as discountat,
@@ -3774,8 +3772,8 @@ object SparkHive2Mysql {
            |        and trans.part_trans_dt >= '$start_dt'
            |        and trans.part_trans_dt <= '$end_dt'
            |        group by
-           |        if(acpt_ins.cup_branch_ins_id_nm,'总公司',acpt_ins.cup_branch_ins_id_nm),
-           |            trans.trans_dt)b
+           |        trim(if(acpt_ins.cup_branch_ins_id_nm is null,'总公司',acpt_ins.cup_branch_ins_id_nm)),
+           |            to_date(trans.trans_dt))b
            |on
            |a.cup_branch_ins_id_nm = b.cup_branch_ins_id_nm and a.trans_dt = b.trans_dt
           """.stripMargin)
@@ -4357,7 +4355,6 @@ object SparkHive2Mysql {
   /**
     * JobName: JOB_DM_36
     * Feature:DM_DISC_TKT_ACT_MCHNT_IND_DLY
-    * NOTE: 添加过滤条件 WHERE A.FIRST_PARA_NM IS NOT NULL
     * @author tzq
     * @time 2016-12-21
     * @param sqlContext
@@ -4391,9 +4388,9 @@ object SparkHive2Mysql {
                |from
                |    (
                |        select
-               |            if(mp.mchnt_para_cn_nm is null,'其他',mp.mchnt_para_cn_nm) as first_para_nm,
-               |            if(mp1.mchnt_para_cn_nm is null,'其他',mp1.mchnt_para_cn_nm) as second_para_nm,
-               |            trans.trans_dt,
+               |            trim(if(mp.mchnt_para_cn_nm is null,'其他',mp.mchnt_para_cn_nm)) as first_para_nm,
+               |            trim(if(mp1.mchnt_para_cn_nm is null,'其他',mp1.mchnt_para_cn_nm)) as second_para_nm,
+               |            to_date(trans.trans_dt) as trans_dt,
                |            count(1) as transcnt
                |        from
                |            hive_acc_trans trans
@@ -4426,20 +4423,19 @@ object SparkHive2Mysql {
                |        where
                |            trans.um_trans_id in ('AC02000065',
                |                                  'AC02000063')
-               |        and str.rec_id is not null
                |        and bill.bill_sub_tp in ('01',
                |                                 '03')
                |        and trans.part_trans_dt = '$today_dt'
                |        group by
-               |            if(mp.mchnt_para_cn_nm is null,'其他',mp.mchnt_para_cn_nm),
-               |            if(mp1.mchnt_para_cn_nm is null,'其他',mp1.mchnt_para_cn_nm),
-               |            trans_dt) a
+               |            trim(if(mp.mchnt_para_cn_nm is null,'其他',mp.mchnt_para_cn_nm)),
+               |            trim(if(mp1.mchnt_para_cn_nm is null,'其他',mp1.mchnt_para_cn_nm)),
+               |            to_date(trans_dt)) a
                |left join
                |    (
                |        select
-               |            if(mp.mchnt_para_cn_nm is null,'其他',mp.mchnt_para_cn_nm) as first_para_nm,
-               |            if(mp1.mchnt_para_cn_nm is null,'其他',mp1.mchnt_para_cn_nm) as second_para_nm,
-               |            trans.trans_dt,
+               |            trim(if(mp.mchnt_para_cn_nm is null,'其他',mp.mchnt_para_cn_nm)) as first_para_nm,
+               |            trim(if(mp1.mchnt_para_cn_nm is null,'其他',mp1.mchnt_para_cn_nm)) as second_para_nm,
+               |            to_date(trans.trans_dt) as trans_dt,
                |            count(1)                          as suctranscnt,
                |            sum(trans.trans_at)               as transat,
                |            sum(trans.discount_at)            as discountat,
@@ -4474,17 +4470,16 @@ object SparkHive2Mysql {
                |            (
                |                trans.bill_id=bill.bill_id)
                |        where
-               |            trans.sys_det_cd = 's'
+               |            trans.sys_det_cd = 'S'
                |        and trans.um_trans_id in ('AC02000065',
                |                                  'AC02000063')
-               |        and str.rec_id is not null
                |        and bill.bill_sub_tp in ('01',
                |                                 '03')
                |        and trans.part_trans_dt = '$today_dt'
                |        group by
-               |            if(mp.mchnt_para_cn_nm is null,'其他',mp.mchnt_para_cn_nm),
-               |            if(mp1.mchnt_para_cn_nm is null,'其他',mp1.mchnt_para_cn_nm),
-               |            trans_dt)b
+               |            trim(if(mp.mchnt_para_cn_nm is null,'其他',mp.mchnt_para_cn_nm)),
+               |            trim(if(mp1.mchnt_para_cn_nm is null,'其他',mp1.mchnt_para_cn_nm)),
+               |            to_date(trans_dt))b
                |on
                |    (
                |        a.first_para_nm = b.first_para_nm
@@ -4504,9 +4499,9 @@ object SparkHive2Mysql {
                |from
                |    (
                |        select
-               |            if(mp.mchnt_para_cn_nm is null,'其他',mp.mchnt_para_cn_nm) as first_para_nm,
-               |            if(mp1.mchnt_para_cn_nm is null,'其他',mp1.mchnt_para_cn_nm) as second_para_nm,
-               |            trans.trans_dt,
+               |            trim(if(mp.mchnt_para_cn_nm is null,'其他',mp.mchnt_para_cn_nm)) as first_para_nm,
+               |            trim(if(mp1.mchnt_para_cn_nm is null,'其他',mp1.mchnt_para_cn_nm)) as second_para_nm,
+               |            to_date(trans.trans_dt) as trans_dt,
                |            count(1) as transcnt
                |        from
                |            hive_acc_trans trans
@@ -4551,18 +4546,18 @@ object SparkHive2Mysql {
                |                                  'AC02000063')
                |        and bill.bill_sub_tp in ('01',
                |                                 '03')
-               |        and str.rec_id is null
+               |
                |        and trans.part_trans_dt = '$today_dt'
                |        group by
-               |            if(mp.mchnt_para_cn_nm is null,'其他',mp.mchnt_para_cn_nm),
-               |            if(mp1.mchnt_para_cn_nm is null,'其他',mp1.mchnt_para_cn_nm),
-               |            trans_dt) a
+               |            trim(if(mp.mchnt_para_cn_nm is null,'其他',mp.mchnt_para_cn_nm)),
+               |            trim(if(mp1.mchnt_para_cn_nm is null,'其他',mp1.mchnt_para_cn_nm)),
+               |            to_date(trans_dt)) a
                |left join
                |    (
                |        select
-               |            if(mp.mchnt_para_cn_nm is null,'其他',mp.mchnt_para_cn_nm) as first_para_nm,
-               |            if(mp1.mchnt_para_cn_nm is null,'其他',mp1.mchnt_para_cn_nm) as second_para_nm,
-               |            trans.trans_dt,
+               |            trim(if(mp.mchnt_para_cn_nm is null,'其他',mp.mchnt_para_cn_nm)) as first_para_nm,
+               |            trim(if(mp1.mchnt_para_cn_nm is null,'其他',mp1.mchnt_para_cn_nm)) as second_para_nm,
+               |            to_date(trans.trans_dt) as trans_dt,
                |            count(1)                          as suctranscnt,
                |            sum(trans.trans_at)               as transat,
                |            sum(trans.discount_at)            as discountat,
@@ -4612,12 +4607,12 @@ object SparkHive2Mysql {
                |                                  'AC02000063')
                |        and bill.bill_sub_tp in ('01',
                |                                 '03')
-               |        and str.rec_id is null
+               |
                |        and trans.part_trans_dt = '$today_dt'
                |        group by
-               |            if(mp.mchnt_para_cn_nm is null,'其他',mp.mchnt_para_cn_nm),
-               |            if(mp1.mchnt_para_cn_nm is null,'其他',mp1.mchnt_para_cn_nm),
-               |            trans_dt)b
+               |            trim(if(mp.mchnt_para_cn_nm is null,'其他',mp.mchnt_para_cn_nm)),
+               |            trim(if(mp1.mchnt_para_cn_nm is null,'其他',mp1.mchnt_para_cn_nm)),
+               |             to_date(trans_dt))b
                |on
                |    (
                |        a.first_para_nm = b.first_para_nm
@@ -4680,9 +4675,9 @@ object SparkHive2Mysql {
            |        from
            |            (
            |                select
-           |                    if(tp_grp.mchnt_tp_grp_desc_cn is null,'其他',tp_grp.mchnt_tp_grp_desc_cn) as grp_nm ,
-           |                    if(tp.mchnt_tp_desc_cn is null,'其他',tp.mchnt_tp_desc_cn) as tp_nm,
-           |                    trans_dt,
+           |                    trim(if(tp_grp.mchnt_tp_grp_desc_cn is null,'其他',tp_grp.mchnt_tp_grp_desc_cn)) as grp_nm ,
+           |                    trim(if(tp.mchnt_tp_desc_cn is null,'其他',tp.mchnt_tp_desc_cn)) as tp_nm,
+           |                    to_date(trans_dt) as trans_dt,
            |                    trans_at,
            |                    discount_at,
            |                    cdhd_usr_id,
@@ -4715,7 +4710,7 @@ object SparkHive2Mysql {
            |        group by
            |            a1.grp_nm,
            |            a1.tp_nm,
-           |            a1.trans_dt ) a
+           |           to_date( a1.trans_dt) ) a
            |inner join
            |    (
            |        select
@@ -4730,9 +4725,9 @@ object SparkHive2Mysql {
            |        from
            |            (
            |                select
-           |                    if(tp_grp.mchnt_tp_grp_desc_cn is null,'其他',tp_grp.mchnt_tp_grp_desc_cn) as grp_nm ,
-           |                    if(tp.mchnt_tp_desc_cn is null,'其他',tp.mchnt_tp_desc_cn) as tp_nm,
-           |                    trans_dt,
+           |                    trim(if(tp_grp.mchnt_tp_grp_desc_cn is null,'其他',tp_grp.mchnt_tp_grp_desc_cn)) as grp_nm ,
+           |                    trim(if(tp.mchnt_tp_desc_cn is null,'其他',tp.mchnt_tp_desc_cn)) as tp_nm,
+           |                    to_date(trans_dt) as trans_dt,
            |                    trans_at,
            |                    discount_at,
            |                    cdhd_usr_id,
@@ -4759,14 +4754,13 @@ object SparkHive2Mysql {
            |                    sys_det_cd='S'
            |                and um_trans_id in ('AC02000065',
            |                                    'AC02000063')
-           |                and bill_sub_tp in ('01',
-           |                                    '03')
+           |                and bill_sub_tp in ('01','03')
            |                and trans.part_trans_dt>='$start_dt'
            |                and trans.part_trans_dt<='$end_dt' ) b1
            |        group by
            |            b1.grp_nm,
            |            b1.tp_nm,
-           |            b1.trans_dt) b
+           |            to_date(b1.trans_dt)) b
            |on
            |    a.grp_nm=b.grp_nm
            |and a.tp_nm=b.tp_nm
@@ -4820,8 +4814,8 @@ object SparkHive2Mysql {
            |from
            |    (
            |        select
-           |            if(cbi.iss_ins_cn_nm is null,'其他',cbi.iss_ins_cn_nm) as iss_ins_cn_nm,
-           |            trans.trans_dt,
+           |            trim(if(cbi.iss_ins_cn_nm is null,'其他',cbi.iss_ins_cn_nm)) as iss_ins_cn_nm,
+           |            to_date(trans.trans_dt) as trans_dt,
            |            count(1) as transcnt
            |        from
            |            hive_acc_trans trans
@@ -4839,13 +4833,13 @@ object SparkHive2Mysql {
            |        and trans.part_trans_dt >= '$start_dt'
            |        and trans.part_trans_dt <= '$end_dt'
            |        group by
-           |            if(cbi.iss_ins_cn_nm is null,'其他',cbi.iss_ins_cn_nm),
-           |            trans_dt) a
+           |            trim(if(cbi.iss_ins_cn_nm is null,'其他',cbi.iss_ins_cn_nm)),
+           |            to_date(trans.trans_dt)) a
            |left join
            |    (
            |        select
-           |            if(cbi.iss_ins_cn_nm is null,'其他',cbi.iss_ins_cn_nm) as iss_ins_cn_nm,
-           |            trans.trans_dt,
+           |            trim(if(cbi.iss_ins_cn_nm is null,'其他',cbi.iss_ins_cn_nm)) as iss_ins_cn_nm,
+           |            to_date(trans.trans_dt) as trans_dt,
            |            count(1) as suctranscnt,
            |            sum(trans.trans_at) as transat,
            |            sum(trans.discount_at)          as discountat,
@@ -4868,8 +4862,8 @@ object SparkHive2Mysql {
            |        and trans.part_trans_dt >= '$start_dt'
            |        and trans.part_trans_dt <= '$end_dt'
            |        group by
-           |            if(cbi.iss_ins_cn_nm is null,'其他',cbi.iss_ins_cn_nm),
-           |            trans_dt)b
+           |            trim(if(cbi.iss_ins_cn_nm is null,'其他',cbi.iss_ins_cn_nm)),
+           |            to_date(trans.trans_dt))b
            |on
            |a.iss_ins_cn_nm = b.iss_ins_cn_nm and a.trans_dt = b.trans_dt
            |
@@ -4923,8 +4917,8 @@ object SparkHive2Mysql {
                |from
                |    (
                |        select
-               |            substr(brand.brand_nm,1,42) as brand_nm,
-               |            trans.trans_dt,
+               |            if(brand.brand_nm is null,'其他',substr(brand.brand_nm,1,42)) as brand_nm,
+               |            to_date(trans.trans_dt) as trans_dt,
                |            count(1) as transcnt
                |        from
                |            hive_acc_trans trans
@@ -4947,17 +4941,16 @@ object SparkHive2Mysql {
                |        where
                |            trans.um_trans_id in ('AC02000065',
                |                                  'AC02000063')
-               |        and bill.bill_sub_tp in ('01',
-               |                                 '03')
+               |        and bill.bill_sub_tp in ('01', '03')
                |        and trans.part_trans_dt ='$today_dt'
                |        group by
-               |            substr(brand.brand_nm,1,42),
-               |            trans_dt) a
+               |           if(brand.brand_nm is null,'其他',substr(brand.brand_nm,1,42)),
+               |            to_date(trans.trans_dt)) a
                |left join
                |    (
                |        select
-               |            substr(brand.brand_nm,1,42) as brand_nm,
-               |            trans.trans_dt,
+               |            if(brand.brand_nm is null,'其他',substr(brand.brand_nm,1,42)) as brand_nm,
+               |            to_date(trans.trans_dt) as trans_dt,
                |            count(1) as suctranscnt,
                |            sum(trans.trans_at) as transat,
                |            sum(trans.discount_at)          as discountat,
@@ -4983,14 +4976,12 @@ object SparkHive2Mysql {
                |            pre_mchnt.brand_id=brand.brand_id
                |        where
                |            trans.sys_det_cd = 'S'
-               |        and trans.um_trans_id in ('AC02000065',
-               |                                  'AC02000063')
-               |        and bill.bill_sub_tp in ('01',
-               |                                 '03')
+               |        and trans.um_trans_id in ('AC02000065', 'AC02000063')
+               |        and bill.bill_sub_tp in ('01', '03')
                |        and trans.part_trans_dt = '$today_dt'
                |        group by
-               |            substr(brand.brand_nm,1,42),
-               |            trans_dt)b
+               |            if(brand.brand_nm is null,'其他',substr(brand.brand_nm,1,42)),
+               |            to_date(trans.trans_dt))b
                |on a.brand_nm = b.brand_nm and a.trans_dt = b.trans_dt
                |where a.trans_dt='$today_dt'
                |order by a.transcnt desc limit 10
@@ -5033,8 +5024,8 @@ object SparkHive2Mysql {
       val results =sqlContext.sql(
         s"""
            |select
-           |    if(stat.access_ins_nm is null,'其他',stat.access_ins_nm) as access_ins_nm,
-           |    swt.trans_dt        as report_dt,
+           |    trim(if(stat.access_ins_nm is null,'其他',stat.access_ins_nm)) as ins_nm,
+           |    to_date(swt.trans_dt)        as report_dt,
            |    count(*)            as trans_cnt,
            |    sum(
            |        case
@@ -5059,8 +5050,8 @@ object SparkHive2Mysql {
            |and swt.trans_tp='S370000000'
            |and swt.rout_ins_id_cd not like '0016%'
            |group by
-           |    if(stat.access_ins_nm is null,'其他',stat.access_ins_nm),
-           |    swt.trans_dt
+           |trim(if(stat.access_ins_nm is null,'其他',stat.access_ins_nm)),
+           |to_date(swt.trans_dt)
           """.stripMargin)
       println(s"#### JOB_DM_40 spark sql 清洗数据完成时间为:" + DateUtils.getCurrentSystemTime())
 
@@ -5095,8 +5086,8 @@ object SparkHive2Mysql {
       val results =sqlContext.sql(
         s"""
            |select
-           |    if(acpt_ins.cup_branch_ins_id_nm,'总公司',acpt_ins.cup_branch_ins_id_nm) as cup_branch_ins_id_nm,
-           |    swt.trans_dt                    as report_dt,
+           |    trim(if(acpt_ins.cup_branch_ins_id_nm is null,'总公司',acpt_ins.cup_branch_ins_id_nm)) as cup_branch_ins_id_nm,
+           |    to_date(swt.trans_dt)           as report_dt,
            |    count(*)                        as trans_cnt,
            |    sum(
            |        case
@@ -5125,8 +5116,8 @@ object SparkHive2Mysql {
            |and swt.part_trans_dt<='$end_dt'
            |and swt.trans_tp='S370000000'
            |group by
-           |    if(acpt_ins.cup_branch_ins_id_nm,'总公司',acpt_ins.cup_branch_ins_id_nm),
-           |    swt.trans_dt
+           |    trim(if(acpt_ins.cup_branch_ins_id_nm is null,'总公司',acpt_ins.cup_branch_ins_id_nm)),
+           |    to_date(swt.trans_dt)
            |
            |
           """.stripMargin)
@@ -5146,7 +5137,6 @@ object SparkHive2Mysql {
   /**
     * JobName: JOB_DM_42
     * Feature:DM_SWT_PNT_MOBILE_LOC_DLY
-    * NOTICE: WHERE条件中进行了手动空值过滤
     * @author tzq
     * @time 2016-12-27
     * @param sqlContext
@@ -5164,8 +5154,8 @@ object SparkHive2Mysql {
       val results =sqlContext.sql(
         s"""
            |select
-           |    if(pri_acct.phone_location,'总公司',pri_acct.phone_location) as phone_location,
-           |    swt.trans_dt             as report_dt,
+           |    trim(if(pri_acct.phone_location is null,'总公司',pri_acct.phone_location)) as phone_location,
+           |    to_date(to_date(swt.trans_dt))             as report_dt,
            |    count(*)                 as trans_cnt,
            |    sum(
            |        case
@@ -5189,8 +5179,8 @@ object SparkHive2Mysql {
            |and swt.part_trans_dt<='$end_dt'
            |and swt.trans_tp='S370000000'
            |group by
-           |   if(pri_acct.phone_location,'总公司',pri_acct.phone_location) as phone_location,
-           |    swt.trans_dt
+           |   trim(if(pri_acct.phone_location is null,'总公司',pri_acct.phone_location)),
+           |    to_date(swt.trans_dt)
            |
           """.stripMargin)
       println(s"#### JOB_DM_42 spark sql 清洗数据完成时间为:" + DateUtils.getCurrentSystemTime())
@@ -5224,8 +5214,8 @@ object SparkHive2Mysql {
       val results = sqlContext.sql(
         s"""
            |select
-           |    if(cb.iss_ins_cn_nm is null,'其他',cb.iss_ins_cn_nm) as iss_ins_cn_nm,
-           |    swt.trans_dt           as   report_dt,
+           |    trim(if(cb.iss_ins_cn_nm is null,'其他',cb.iss_ins_cn_nm)) as iss_ins_nm,
+           |    to_date(swt.trans_dt)  as   report_dt,
            |    count(*)               as   trans_cnt,
            |    sum(
            |        case
@@ -5249,8 +5239,8 @@ object SparkHive2Mysql {
            |and swt.part_trans_dt<= '$end_dt'
            |and swt.trans_tp='S370000000'
            |group by
-           |    if(cb.iss_ins_cn_nm is null,'其他',cb.iss_ins_cn_nm),
-           |    swt.trans_dt
+           |    trim(if(cb.iss_ins_cn_nm is null,'其他',cb.iss_ins_cn_nm)),
+           |    to_date(swt.trans_dt)
            |
           """.stripMargin)
       println(s"#### JOB_DM_43 spark sql 清洗数据完成时间为:" + DateUtils.getCurrentSystemTime())
@@ -5975,8 +5965,8 @@ object SparkHive2Mysql {
       val results = sqlContext.sql(
         s"""
            |select
-           |    if(bd.chara_acct_nm is null,'其他',bd.chara_acct_nm) as buss_dist_nm,
-           |    trans.trans_dt                       as report_dt,
+           |    trim(if(bd.chara_acct_nm is null,'其他',bd.chara_acct_nm)) as buss_dist_nm,
+           |    to_date(trans.trans_dt)              as report_dt,
            |    count(1)                             as suc_trans_cnt,
            |    sum(trans.trans_at)                  as point_at,
            |    count(distinct trans.cdhd_usr_id)    as trans_usr_cnt
@@ -5988,12 +5978,12 @@ object SparkHive2Mysql {
            |    (
            |        trans.chara_acct_tp = bd.chara_acct_tp)
            |where
-           |and trans.part_trans_dt >= '$start_dt'
+           |trans.part_trans_dt >= '$start_dt'
            |and trans.part_trans_dt <= '$end_dt'
            |and trans.status = '1'
            |group by
-           |    if(bd.chara_acct_nm is null,'其他',bd.chara_acct_nm),
-           |    trans.trans_dt
+           |    trim(if(bd.chara_acct_nm is null,'其他',bd.chara_acct_nm)),
+           |    to_date(trans.trans_dt)
            |
           """.stripMargin)
       println(s"#### JOB_DM_49 spark sql 清洗数据完成时间为:" + DateUtils.getCurrentSystemTime())
@@ -6027,111 +6017,108 @@ object SparkHive2Mysql {
       val results = sqlContext.sql(
         s"""
            |select
-           |    trim(a.cup_branch_ins_id_nm)   as cup_branch_ins_id_nm,
-           |    a.trans_dt               as report_dt,
-           |    a.transcnt               as trans_cnt,
-           |    c.suctranscnt            as suc_trans_cnt,
-           |    c.bill_original_price    as bill_original_price,
-           |    c.bill_price             as bill_price,
-           |    a.transusrcnt            as trans_usr_cnt,
-           |    b.payusrcnt              as pay_usr_cnt,
-           |    c.paysucusrcnt           as pay_suc_usr_cnt
+           |a.cup_branch_ins_id_nm as cup_branch_ins_id_nm,
+           |a.trans_dt as report_dt,
+           |a.transcnt as trans_cnt,
+           |c.suctranscnt as suc_trans_cnt,
+           |c.bill_original_price as bill_original_price,
+           |c.bill_price as bill_price,
+           |a.transusrcnt as trans_usr_cnt,
+           |b.payusrcnt as pay_usr_cnt,
+           |c.paysucusrcnt as pay_suc_usr_cnt
            |from
-           |    (
-           |        select
-           |            if(bill.cup_branch_ins_id_nm,'总公司',bill.cup_branch_ins_id_nm) as cup_branch_ins_id_nm,
-           |            trans.trans_dt,
-           |            count(1)                    as transcnt,
-           |            count(distinct cdhd_usr_id) as transusrcnt
-           |        from
-           |            hive_bill_order_trans trans
-           |        left join
-           |            hive_bill_sub_order_trans sub_trans
-           |        on
-           |            (
-           |                trans.bill_order_id = sub_trans.bill_order_id)
-           |        left join
-           |            hive_ticket_bill_bas_inf bill
-           |        on
-           |            (
-           |                sub_trans.bill_id=bill.bill_id)
-           |        where
-           |            bill.bill_sub_tp <> '08'
-           |        and trans.part_trans_dt >= '$start_dt'
-           |        and trans.part_trans_dt <= '$end_dt'
-           |        group by
-           |            if(bill.cup_branch_ins_id_nm,'总公司',bill.cup_branch_ins_id_nm),
-           |            trans.trans_dt) a
+           |(
+           |select
+           |trim(if(bill.cup_branch_ins_id_nm is null,'总公司',bill.cup_branch_ins_id_nm)) as cup_branch_ins_id_nm,
+           |to_date(trans.trans_dt) as trans_dt,
+           |count(1) as transcnt,
+           |count(distinct cdhd_usr_id) as transusrcnt
+           |from
+           |hive_bill_order_trans trans
            |left join
-           |    (
-           |        select
-           |            if(bill.cup_branch_ins_id_nm,'总公司',bill.cup_branch_ins_id_nm) as cup_branch_ins_id_nm,
-           |            trans.trans_dt,
-           |            count(distinct cdhd_usr_id) as payusrcnt
-           |        from
-           |            hive_bill_order_trans trans
-           |        left join
-           |            hive_bill_sub_order_trans sub_trans
-           |        on
-           |            (
-           |                trans.bill_order_id = sub_trans.bill_order_id)
-           |        left join
-           |            hive_ticket_bill_bas_inf bill
-           |        on
-           |            (
-           |                sub_trans.bill_id=bill.bill_id)
-           |        where
-           |            bill.bill_sub_tp <> '08'
-           |        and trans.order_st in ('00',
-           |                               '01',
-           |                               '02',
-           |                               '03',
-           |                               '04')
-           |        and trans.part_trans_dt >= '$start_dt'
-           |        and trans.part_trans_dt <= '$end_dt'
-           |        group by
-           |            if(bill.cup_branch_ins_id_nm,'总公司',bill.cup_branch_ins_id_nm) ,
-           |            trans.trans_dt) b
+           |hive_bill_sub_order_trans sub_trans
            |on
-           |    (
-           |        a.cup_branch_ins_id_nm = b.cup_branch_ins_id_nm
-           |    and a.trans_dt = b.trans_dt)
+           |(
+           |trans.bill_order_id = sub_trans.bill_order_id)
            |left join
-           |    (
-           |        select
-           |            if(bill.cup_branch_ins_id_nm,'总公司',bill.cup_branch_ins_id_nm) as cup_branch_ins_id_nm,
-           |            trans.trans_dt,
-           |            count(1)                      as suctranscnt,
-           |            sum(bill.bill_original_price) as bill_original_price,
-           |            sum(bill.bill_price)          as bill_price,
-           |            count(distinct cdhd_usr_id)   as paysucusrcnt
-           |        from
-           |            hive_bill_order_trans trans
-           |        left join
-           |            hive_bill_sub_order_trans sub_trans
-           |        on
-           |            (
-           |                trans.bill_order_id = sub_trans.bill_order_id)
-           |        left join
-           |            hive_ticket_bill_bas_inf bill
-           |        on
-           |            (
-           |                sub_trans.bill_id=bill.bill_id)
-           |        where
-           |            bill.bill_sub_tp <> '08'
-           |        and trans.order_st = '00'
-           |        and trans.part_trans_dt >= '$start_dt'
-           |        and trans.part_trans_dt <= '$end_dt'
-           |        group by
-           |            if(bill.cup_branch_ins_id_nm,'总公司',bill.cup_branch_ins_id_nm),
-           |            trans.trans_dt) c
+           |hive_ticket_bill_bas_inf bill
            |on
-           |    (
-           |        a.cup_branch_ins_id_nm = c.cup_branch_ins_id_nm
-           |    and a.trans_dt = c.trans_dt)
-           |
-           |
-           |
+           |(
+           |sub_trans.bill_id=bill.bill_id)
+           |where
+           |bill.bill_sub_tp <> '08'
+           |and trans.part_trans_dt >= '$start_dt'
+           |and trans.part_trans_dt <= '$end_dt'
+           |group by
+           |trim(if(bill.cup_branch_ins_id_nm is null,'总公司',bill.cup_branch_ins_id_nm)),
+           |to_date(trans.trans_dt)) a
+           |left join
+           |(
+           |select
+           |trim(if(bill.cup_branch_ins_id_nm is null,'总公司',bill.cup_branch_ins_id_nm)) as cup_branch_ins_id_nm,
+           |to_date(trans.trans_dt) as trans_dt,
+           |count(distinct cdhd_usr_id) as payusrcnt
+           |from
+           |hive_bill_order_trans trans
+           |left join
+           |hive_bill_sub_order_trans sub_trans
+           |on
+           |(
+           |trans.bill_order_id = sub_trans.bill_order_id)
+           |left join
+           |hive_ticket_bill_bas_inf bill
+           |on
+           |(
+           |sub_trans.bill_id=bill.bill_id)
+           |where
+           |bill.bill_sub_tp <> '08'
+           |and trans.order_st in ('00',
+           |'01',
+           |'02',
+           |'03',
+           |'04')
+           |and trans.part_trans_dt >= '$start_dt'
+           |and trans.part_trans_dt <= '$end_dt'
+           |group by
+           |trim(if(bill.cup_branch_ins_id_nm is null,'总公司',bill.cup_branch_ins_id_nm)),
+           |to_date(trans.trans_dt)) b
+           |on
+           |(
+           |a.cup_branch_ins_id_nm = b.cup_branch_ins_id_nm
+           |and a.trans_dt = b.trans_dt)
+           |left join
+           |(
+           |select
+           |trim(if(bill.cup_branch_ins_id_nm is null,'总公司',bill.cup_branch_ins_id_nm)) as cup_branch_ins_id_nm,
+           |to_date(trans.trans_dt) as trans_dt,
+           |count(1) as suctranscnt,
+           |sum(bill.bill_original_price) as bill_original_price,
+           |sum(bill.bill_price) as bill_price,
+           |count(distinct cdhd_usr_id) as paysucusrcnt
+           |from
+           |hive_bill_order_trans trans
+           |left join
+           |hive_bill_sub_order_trans sub_trans
+           |on
+           |(
+           |trans.bill_order_id = sub_trans.bill_order_id)
+           |left join
+           |hive_ticket_bill_bas_inf bill
+           |on
+           |(
+           |sub_trans.bill_id=bill.bill_id)
+           |where
+           |bill.bill_sub_tp <> '08'
+           |and trans.order_st = '00'
+           |and trans.part_trans_dt >= '$start_dt'
+           |and trans.part_trans_dt <= '$end_dt'
+           |group by
+           |trim(if(bill.cup_branch_ins_id_nm is null,'总公司',bill.cup_branch_ins_id_nm)),
+           |to_date(trans.trans_dt)) c
+           |on
+           |(
+           |a.cup_branch_ins_id_nm = c.cup_branch_ins_id_nm
+           |and a.trans_dt = c.trans_dt)
           """.stripMargin)
       println(s"#### JOB_DM_50 spark sql 清洗数据完成时间为:" + DateUtils.getCurrentSystemTime())
 
@@ -6179,8 +6166,8 @@ object SparkHive2Mysql {
            |from
            |    (
            |        select
-           |            if(pri_acct.phone_location,'总公司',pri_acct.phone_location) as phone_location,
-           |            trans.trans_dt,
+           |            trim(if(pri_acct.phone_location is null,'总公司',pri_acct.phone_location)) as phone_location,
+           |            to_date(trans.trans_dt) as trans_dt,
            |            count(1)                    as transcnt,
            |            count(distinct trans.cdhd_usr_id) as transusrcnt
            |        from
@@ -6206,13 +6193,13 @@ object SparkHive2Mysql {
            |        and trans.part_trans_dt >= '$start_dt'
            |        and trans.part_trans_dt <= '$end_dt'
            |        group by
-           |            if(pri_acct.phone_location,'总公司',pri_acct.phone_location),
-           |            trans.trans_dt) a
+           |            trim(if(pri_acct.phone_location is null,'总公司',pri_acct.phone_location)),
+           |            to_date(trans.trans_dt)) a
            |left join
            |    (
            |        select
-           |            if(pri_acct.phone_location,'总公司',pri_acct.phone_location) as phone_location,
-           |            trans.trans_dt,
+           |            trim(if(pri_acct.phone_location is null,'总公司',pri_acct.phone_location)) as phone_location,
+           |            to_date(trans.trans_dt) as trans_dt,
            |            count(distinct trans.cdhd_usr_id) as payusrcnt
            |        from
            |            hive_bill_order_trans trans
@@ -6241,8 +6228,8 @@ object SparkHive2Mysql {
            |        and trans.part_trans_dt >= '$start_dt'
            |        and trans.part_trans_dt <= '$end_dt'
            |        group by
-           |            if(pri_acct.phone_location,'总公司',pri_acct.phone_location),
-           |            trans.trans_dt) b
+           |            trim(if(pri_acct.phone_location is null,'总公司',pri_acct.phone_location)),
+           |            to_date(trans.trans_dt)) b
            |on
            |    (
            |        a.phone_location = b.phone_location
@@ -6250,8 +6237,8 @@ object SparkHive2Mysql {
            |left join
            |    (
            |        select
-           |            if(pri_acct.phone_location,'总公司',pri_acct.phone_location) as phone_location,
-           |            trans.trans_dt,
+           |            trim(if(pri_acct.phone_location is null,'总公司',pri_acct.phone_location)) as phone_location,
+           |            to_date(trans.trans_dt) as trans_dt,
            |            count(1)                      as suctranscnt,
            |            sum(bill.bill_original_price) as bill_original_price,
            |            sum(bill.bill_price)          as bill_price,
@@ -6279,8 +6266,8 @@ object SparkHive2Mysql {
            |        and trans.part_trans_dt >= '$start_dt'
            |        and trans.part_trans_dt <= '$end_dt'
            |        group by
-           |            if(pri_acct.phone_location,'总公司',pri_acct.phone_location),
-           |            trans.trans_dt) c
+           |            trim(if(pri_acct.phone_location is null,'总公司',pri_acct.phone_location)),
+           |            to_date(trans.trans_dt)) c
            |on
            |    (
            |        a.phone_location = c.phone_location
@@ -6333,8 +6320,8 @@ object SparkHive2Mysql {
            |from
            |    (
            |        select
-           |            if(cbi.iss_ins_cn_nm is null,'其他',cbi.iss_ins_cn_nm) as iss_ins_cn_nm,
-           |            trans.trans_dt,
+           |            trim(if(cbi.iss_ins_cn_nm is null,'其他',cbi.iss_ins_cn_nm))as iss_ins_cn_nm,
+           |            to_date(trans.trans_dt) as trans_dt,
            |            count(1)                          as transcnt,
            |            count(distinct trans.cdhd_usr_id) as transusrcnt
            |        from
@@ -6359,13 +6346,13 @@ object SparkHive2Mysql {
            |        and trans.part_trans_dt >= '$start_dt'
            |        and trans.part_trans_dt <= '$end_dt'
            |        group by
-           |            if(cbi.iss_ins_cn_nm is null,'其他',cbi.iss_ins_cn_nm),
-           |            trans.trans_dt) a
+           |            trim(if(cbi.iss_ins_cn_nm is null,'其他',cbi.iss_ins_cn_nm)),
+           |            to_date(trans.trans_dt)) a
            |left join
            |    (
            |        select
-           |            if(cbi.iss_ins_cn_nm is null,'其他',cbi.iss_ins_cn_nm) as iss_ins_cn_nm,
-           |            trans.trans_dt,
+           |            trim(if(cbi.iss_ins_cn_nm is null,'其他',cbi.iss_ins_cn_nm))as iss_ins_cn_nm,
+           |            to_date(trans.trans_dt) as trans_dt,
            |            count(distinct trans.cdhd_usr_id) as payusrcnt
            |        from
            |            hive_bill_order_trans trans
@@ -6394,8 +6381,8 @@ object SparkHive2Mysql {
            |        and trans.part_trans_dt >= '$start_dt'
            |        and trans.part_trans_dt <= '$end_dt'
            |        group by
-           |            if(cbi.iss_ins_cn_nm is null,'其他',cbi.iss_ins_cn_nm) ,
-           |            trans.trans_dt) b
+           |            trim(if(cbi.iss_ins_cn_nm is null,'其他',cbi.iss_ins_cn_nm)),
+           |            to_date(trans.trans_dt)) b
            |on
            |    (
            |        a.iss_ins_cn_nm = b.iss_ins_cn_nm
@@ -6403,8 +6390,8 @@ object SparkHive2Mysql {
            |left join
            |    (
            |        select
-           |            if(cbi.iss_ins_cn_nm is null,'其他',cbi.iss_ins_cn_nm) as iss_ins_cn_nm,
-           |            trans.trans_dt,
+           |            trim(if(cbi.iss_ins_cn_nm is null,'其他',cbi.iss_ins_cn_nm))as iss_ins_cn_nm,
+           |            to_date(trans.trans_dt) as trans_dt,
            |            count(1)                          as suctranscnt,
            |            sum(bill.bill_original_price)     as bill_original_price,
            |            sum(bill.bill_price)              as bill_price,
@@ -6432,8 +6419,8 @@ object SparkHive2Mysql {
            |        and trans.part_trans_dt >= '$start_dt'
            |        and trans.part_trans_dt <= '$end_dt'
            |        group by
-           |            if(cbi.iss_ins_cn_nm is null,'其他',cbi.iss_ins_cn_nm),
-           |            trans.trans_dt) c
+           |            trim(if(cbi.iss_ins_cn_nm is null,'其他',cbi.iss_ins_cn_nm)),
+           |            to_date(trans.trans_dt)) c
            |
            |on
            |    (
@@ -7579,7 +7566,7 @@ object SparkHive2Mysql {
                |count(case when to_date(bind_ts) = '$today_dt'  then 1 end)  as tpre,
                |count(case when to_date(bind_ts) <= '$today_dt'  then 1 end)  as total
                |
-             |from  (
+               |from  (
                |select  card_auth_st,bind_ts,substr(bind_card_no,1,8) as card_bin
                |from hive_card_bind_inf where card_bind_st='0') a
                |left join
@@ -10260,475 +10247,477 @@ object SparkHive2Mysql {
         println(s"#### JOB_DM_87 spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
         val results=sqlContext.sql(
           s"""
-             |SELECT
+             |select
              |    t.cup_branch_ins_id_nm as cup_branch_ins_id_nm,
              |    t.report_dt as report_dt,
-             |    SUM(t.cashier_cnt_tot) as cashier_cnt_tot,
-             |    SUM(t.act_cashier_cnt_tot) as act_cashier_cnt_tot,
-             |    SUM(t.non_act_cashier_cnt_tot) as non_act_cashier_cnt_tot,
-             |    SUM(t.cashier_cnt_year) as cashier_cnt_year,
-             |    SUM(t.act_cashier_cnt_year) as act_cashier_cnt_year,
-             |    SUM(t.non_act_cashier_cnt_year)as non_act_cashier_cnt_year,
-             |    SUM(t.cashier_cnt_mth) as cashier_cnt_mth,
-             |    SUM(t.act_cashier_cnt_mth) as act_cashier_cnt_mth,
-             |    SUM(t.non_act_cashier_cnt_mth) as non_act_cashier_cnt_mth,
-             |    SUM(t.pnt_acct_cashier_cnt_tot) as pnt_acct_cashier_cnt_tot,
-             |    SUM(t.reward_cashier_cnt_tot) as reward_cashier_cnt_tot,
-             |    SUM(t.reward_cdhd_cashier_cnt_tot) as reward_cdhd_cashier_cnt_tot,
+             |    sum(t.cashier_cnt_tot) as cashier_cnt_tot,
+             |    sum(t.act_cashier_cnt_tot) as act_cashier_cnt_tot,
+             |    sum(t.non_act_cashier_cnt_tot) as non_act_cashier_cnt_tot,
+             |    sum(t.cashier_cnt_year) as cashier_cnt_year,
+             |    sum(t.act_cashier_cnt_year) as act_cashier_cnt_year,
+             |    sum(t.non_act_cashier_cnt_year)as non_act_cashier_cnt_year,
+             |    sum(t.cashier_cnt_mth) as cashier_cnt_mth,
+             |    sum(t.act_cashier_cnt_mth) as act_cashier_cnt_mth,
+             |    sum(t.non_act_cashier_cnt_mth) as non_act_cashier_cnt_mth,
+             |    sum(t.pnt_acct_cashier_cnt_tot) as pnt_acct_cashier_cnt_tot,
+             |    sum(t.reward_cashier_cnt_tot) as reward_cashier_cnt_tot,
+             |    sum(t.reward_cdhd_cashier_cnt_tot) as reward_cdhd_cashier_cnt_tot,
              |    sum(t.sign_cashier_cnt_dly) as sign_cashier_cnt_dly,
-             |    SUM(t.cashier_cnt_dly) as cashier_cnt_dly,
-             |    SUM(t.act_cashier_cnt_dly) as act_cashier_cnt_dly,
-             |    SUM(t.non_act_cashier_cnt_dly) as non_act_cashier_cnt_dly
-             |FROM
+             |    sum(t.cashier_cnt_dly) as cashier_cnt_dly,
+             |    sum(t.act_cashier_cnt_dly) as act_cashier_cnt_dly,
+             |    sum(t.non_act_cashier_cnt_dly) as non_act_cashier_cnt_dly
+             |from
              |    (
-             |        SELECT
-             |            CASE
-             |                WHEN a11.cup_branch_ins_id_nm IS NULL
-             |                THEN
-             |                    CASE
-             |                        WHEN a12.cup_branch_ins_id_nm IS NULL
-             |                        THEN
-             |                            CASE
-             |                                WHEN a13.cup_branch_ins_id_nm IS NULL
-             |                                THEN
-             |                                    CASE
-             |                                        WHEN a21.cup_branch_ins_id_nm IS NULL
-             |                                        THEN
-             |                                            CASE
-             |                                                WHEN a22.cup_branch_ins_id_nm IS NULL
-             |                                                THEN
-             |                                                    CASE
-             |                                                        WHEN a23.cup_branch_ins_id_nm IS NULL
-             |                                                        THEN
-             |                                                            CASE
-             |                                                                WHEN a31.cup_branch_ins_id_nm
-             |                                                                    IS NULL
-             |                                                                THEN
-             |                                                                    CASE
-             |                                                                        WHEN
+             |        select
+             |            case
+             |                when a11.cup_branch_ins_id_nm is null
+             |                then
+             |                    case
+             |                        when a12.cup_branch_ins_id_nm is null
+             |                        then
+             |                            case
+             |                                when a13.cup_branch_ins_id_nm is null
+             |                                then
+             |                                    case
+             |                                        when a21.cup_branch_ins_id_nm is null
+             |                                        then
+             |                                            case
+             |                                                when a22.cup_branch_ins_id_nm is null
+             |                                                then
+             |                                                    case
+             |                                                        when a23.cup_branch_ins_id_nm is null
+             |                                                        then
+             |                                                            case
+             |                                                                when a31.cup_branch_ins_id_nm
+             |                                                                    is null
+             |                                                                then
+             |                                                                    case
+             |                                                                        when
              |                                                                            a32.cup_branch_ins_id_nm
-             |                                                                            IS NULL
-             |                                                                        THEN
-             |                                                                            CASE
-             |                                                                                WHEN
+             |                                                                            is null
+             |                                                                        then
+             |                                                                            case
+             |                                                                                when
              |                                                                                    a33.cup_branch_ins_id_nm
-             |                                                                                    IS NULL
-             |                                                                                THEN
-             |                                                                                    CASE
-             |                                                                                        WHEN
+             |                                                                                    is null
+             |                                                                                then
+             |                                                                                    case
+             |                                                                                        when
              |                                                                                            a4.cup_branch_ins_id_nm
-             |                                                                                            IS NULL
-             |                                                                                        THEN
-             |                                                                                            CASE
-             |                                                                                                WHEN
+             |                                                                                            is null
+             |                                                                                        then
+             |                                                                                            case
+             |                                                                                                when
              |                                                                                                    a5.cup_branch_ins_id_nm
-             |                                                                                                    IS NULL
-             |                                                                                                THEN
-             |                                                                                                    CASE
-             |                                                                                                        WHEN
+             |                                                                                                    is null
+             |                                                                                                then
+             |                                                                                                    case
+             |                                                                                                        when
              |                                                                                                            a6.cup_branch_ins_id_nm
-             |                                                                                                            IS NULL
-             |                                                                                                        THEN
-             |                                                                                                            CASE
-             |                                                                                                                WHEN
+             |                                                                                                            is null
+             |                                                                                                        then
+             |                                                                                                            case
+             |                                                                                                                when
              |                                                                                                                    a7.cup_branch_ins_id_nm
-             |                                                                                                                    IS NULL
-             |                                                                                                                THEN
-             |                                                                                                                    CASE
-             |                                                                                                                        WHEN
+             |                                                                                                                    is null
+             |                                                                                                                then
+             |                                                                                                                    case
+             |                                                                                                                        when
              |                                                                                                                            a81.cup_branch_ins_id_nm
-             |                                                                                                                            IS NULL
-             |                                                                                                                        THEN
-             |                                                                                                                            CASE
-             |                                                                                                                                WHEN
+             |                                                                                                                            is null
+             |                                                                                                                        then
+             |                                                                                                                            case
+             |                                                                                                                                when
              |                                                                                                                                    a82.cup_branch_ins_id_nm
-             |                                                                                                                                    IS NULL
-             |                                                                                                                                THEN
-             |                                                                                                                                    CASE
-             |                                                                                                                                        WHEN
+             |                                                                                                                                    is null
+             |                                                                                                                                then
+             |                                                                                                                                    case
+             |                                                                                                                                        when
              |                                                                                                                                            a83.cup_branch_ins_id_nm
-             |                                                                                                                                            IS NOT NULL
-             |                                                                                                                                        THEN
+             |                                                                                                                                            is null
+             |                                                                                                                                        then
+             |                                                                                                                                        		'????'
+             |                                                                                                                                        else
              |                                                                                                                                            a83.cup_branch_ins_id_nm
-             |                                                                                                                                    END
-             |                                                                                                                                ELSE
+             |                                                                                                                                    end
+             |                                                                                                                                else
              |                                                                                                                                    a82.cup_branch_ins_id_nm
-             |                                                                                                                            END
-             |                                                                                                                        ELSE
+             |                                                                                                                            end
+             |                                                                                                                        else
              |                                                                                                                            a81.cup_branch_ins_id_nm
-             |                                                                                                                    END
-             |                                                                                                                ELSE
+             |                                                                                                                    end
+             |                                                                                                                else
              |                                                                                                                    a7.cup_branch_ins_id_nm
-             |                                                                                                            END
-             |                                                                                                        ELSE
+             |                                                                                                            end
+             |                                                                                                        else
              |                                                                                                            a6.cup_branch_ins_id_nm
-             |                                                                                                    END
-             |                                                                                                ELSE
+             |                                                                                                    end
+             |                                                                                                else
              |                                                                                                    a5.cup_branch_ins_id_nm
-             |                                                                                            END
-             |                                                                                        ELSE
+             |                                                                                            end
+             |                                                                                        else
              |                                                                                            a4.cup_branch_ins_id_nm
-             |                                                                                    END
-             |                                                                                ELSE
+             |                                                                                    end
+             |                                                                                else
              |                                                                                    a33.cup_branch_ins_id_nm
-             |                                                                            END
-             |                                                                        ELSE
+             |                                                                            end
+             |                                                                        else
              |                                                                            a32.cup_branch_ins_id_nm
-             |                                                                    END
-             |                                                                ELSE a31.cup_branch_ins_id_nm
-             |                                                            END
-             |                                                        ELSE a23.cup_branch_ins_id_nm
-             |                                                    END
-             |                                                ELSE a22.cup_branch_ins_id_nm
-             |                                            END
-             |                                        ELSE a21.cup_branch_ins_id_nm
-             |                                    END
-             |                                ELSE a13.cup_branch_ins_id_nm
-             |                            END
-             |                        ELSE a12.cup_branch_ins_id_nm
-             |                    END
-             |                ELSE a11.cup_branch_ins_id_nm
-             |            END                                                   AS cup_branch_ins_id_nm,
-             |            '$today_dt'                                           AS report_dt,
-             |            IF(a11.cashier_cnt_tot IS NULL,0,a11.cashier_cnt_tot)         AS cashier_cnt_tot,
-             |            IF(a12.act_cashier_cnt_tot IS NULL,0,a12.act_cashier_cnt_tot)    AS act_cashier_cnt_tot,
-             |            IF(a13.non_act_cashier_cnt_tot IS NULL,0,a13.non_act_cashier_cnt_tot) AS
+             |                                                                    end
+             |                                                                else a31.cup_branch_ins_id_nm
+             |                                                            end
+             |                                                        else a23.cup_branch_ins_id_nm
+             |                                                    end
+             |                                                else a22.cup_branch_ins_id_nm
+             |                                            end
+             |                                        else a21.cup_branch_ins_id_nm
+             |                                    end
+             |                                else a13.cup_branch_ins_id_nm
+             |                            end
+             |                        else a12.cup_branch_ins_id_nm
+             |                    end
+             |                else a11.cup_branch_ins_id_nm
+             |            end                                                   as cup_branch_ins_id_nm,
+             |            '$today_dt'                                           as report_dt,
+             |            if(a11.cashier_cnt_tot is null,0,a11.cashier_cnt_tot)         as cashier_cnt_tot,
+             |            if(a12.act_cashier_cnt_tot is null,0,a12.act_cashier_cnt_tot)    as act_cashier_cnt_tot,
+             |            if(a13.non_act_cashier_cnt_tot is null,0,a13.non_act_cashier_cnt_tot) as
              |                                                                       non_act_cashier_cnt_tot,
-             |            IF(a21.cashier_cnt_year IS NULL,0,a21.cashier_cnt_year)         AS cashier_cnt_year,
-             |            IF(a22.act_cashier_cnt_year IS NULL,0,a22.act_cashier_cnt_year) AS act_cashier_cnt_year
+             |            if(a21.cashier_cnt_year is null,0,a21.cashier_cnt_year)         as cashier_cnt_year,
+             |            if(a22.act_cashier_cnt_year is null,0,a22.act_cashier_cnt_year) as act_cashier_cnt_year
              |            ,
-             |            IF(a23.non_act_cashier_cnt_year IS NULL,0,a23.non_act_cashier_cnt_year) AS
+             |            if(a23.non_act_cashier_cnt_year is null,0,a23.non_act_cashier_cnt_year) as
              |                                                                     non_act_cashier_cnt_year,
-             |            IF(a31.cashier_cnt_mth IS NULL,0,a31.cashier_cnt_mth)         AS cashier_cnt_mth,
-             |            IF(a32.act_cashier_cnt_mth IS NULL,0,a32.act_cashier_cnt_mth)    AS act_cashier_cnt_mth,
-             |            IF(a33.non_act_cashier_cnt_mth IS NULL,0,a33.non_act_cashier_cnt_mth) AS
+             |            if(a31.cashier_cnt_mth is null,0,a31.cashier_cnt_mth)         as cashier_cnt_mth,
+             |            if(a32.act_cashier_cnt_mth is null,0,a32.act_cashier_cnt_mth)    as act_cashier_cnt_mth,
+             |            if(a33.non_act_cashier_cnt_mth is null,0,a33.non_act_cashier_cnt_mth) as
              |            non_act_cashier_cnt_mth,
-             |            IF(a4.pnt_acct_cashier_cnt IS NULL,0,a4.pnt_acct_cashier_cnt) AS
+             |            if(a4.pnt_acct_cashier_cnt is null,0,a4.pnt_acct_cashier_cnt) as
              |            pnt_acct_cashier_cnt_tot,
-             |            IF(a5.reward_cashier_cnt_tot IS NULL,0,a5.reward_cashier_cnt_tot) AS
+             |            if(a5.reward_cashier_cnt_tot is null,0,a5.reward_cashier_cnt_tot) as
              |            reward_cashier_cnt_tot,
-             |            IF(a6.reward_cdhd_cashier_cnt_tot IS NULL,0,a6.reward_cdhd_cashier_cnt_tot) AS
+             |            if(a6.reward_cdhd_cashier_cnt_tot is null,0,a6.reward_cdhd_cashier_cnt_tot) as
              |                                                                        reward_cdhd_cashier_cnt_tot,
-             |            IF(a7.sign_cashier_cnt_dly IS NULL,0,a7.sign_cashier_cnt_dly)   AS sign_cashier_cnt_dly,
-             |            IF(a81.cashier_cnt_dly IS NULL,0,a81.cashier_cnt_dly)                AS cashier_cnt_dly,
-             |            IF(a82.act_cashier_cnt_dly IS NULL,0,a82.act_cashier_cnt_dly)    AS act_cashier_cnt_dly,
-             |            IF(a83.non_act_cashier_cnt_dly IS NULL,0,a83.non_act_cashier_cnt_dly) AS
+             |            if(a7.sign_cashier_cnt_dly is null,0,a7.sign_cashier_cnt_dly)   as sign_cashier_cnt_dly,
+             |            if(a81.cashier_cnt_dly is null,0,a81.cashier_cnt_dly)                as cashier_cnt_dly,
+             |            if(a82.act_cashier_cnt_dly is null,0,a82.act_cashier_cnt_dly)    as act_cashier_cnt_dly,
+             |            if(a83.non_act_cashier_cnt_dly is null,0,a83.non_act_cashier_cnt_dly) as
              |            non_act_cashier_cnt_dly
-             |        FROM
+             |        from
              |            (
-             |                SELECT
+             |                select
              |                    cup_branch_ins_id_nm,
-             |                    COUNT(DISTINCT cashier_usr_id) AS cashier_cnt_tot
-             |                FROM
+             |                    count(distinct cashier_usr_id) as cashier_cnt_tot
+             |                from
              |                    hive_cashier_bas_inf
-             |                WHERE
+             |                where
              |                    to_date(reg_dt)<= '$today_dt'
-             |                AND usr_st NOT IN ('4',
+             |                and usr_st not in ('4',
              |                                   '9')
-             |                GROUP BY
+             |                group by
              |                    cup_branch_ins_id_nm) a11
-             |        FULL OUTER JOIN
+             |        full outer join
              |            (
-             |                SELECT
+             |                select
              |                    cup_branch_ins_id_nm,
-             |                    COUNT(DISTINCT cashier_usr_id) AS act_cashier_cnt_tot
-             |                FROM
+             |                    count(distinct cashier_usr_id) as act_cashier_cnt_tot
+             |                from
              |                    hive_cashier_bas_inf
-             |                WHERE
+             |                where
              |                    to_date(activate_ts) <= '$today_dt'
-             |                AND usr_st IN ('1')
-             |                GROUP BY
+             |                and usr_st in ('1')
+             |                group by
              |                    cup_branch_ins_id_nm) a12
-             |        ON
+             |        on
              |            (
              |                a11.cup_branch_ins_id_nm = a12.cup_branch_ins_id_nm)
-             |        FULL OUTER JOIN
+             |        full outer join
              |            (
-             |                SELECT
+             |                select
              |                    cup_branch_ins_id_nm,
-             |                    COUNT(DISTINCT cashier_usr_id) AS non_act_cashier_cnt_tot
-             |                FROM
+             |                    count(distinct cashier_usr_id) as non_act_cashier_cnt_tot
+             |                from
              |                    hive_cashier_bas_inf
-             |                WHERE
+             |                where
              |                    to_date(activate_ts)<= '$today_dt'
-             |                AND usr_st IN ('0')
-             |                GROUP BY
+             |                and usr_st in ('0')
+             |                group by
              |                    cup_branch_ins_id_nm) a13
-             |        ON
+             |        on
              |            (
              |                a11.cup_branch_ins_id_nm = a13.cup_branch_ins_id_nm)
-             |        FULL OUTER JOIN
+             |        full outer join
              |            (
-             |                SELECT
+             |                select
              |                    cup_branch_ins_id_nm,
-             |                    COUNT(DISTINCT cashier_usr_id) AS cashier_cnt_year
-             |                FROM
+             |                    count(distinct cashier_usr_id) as cashier_cnt_year
+             |                from
              |                    hive_cashier_bas_inf
-             |                WHERE
+             |                where
              |                    to_date(reg_dt) <= '$today_dt'
-             |                AND to_date(reg_dt) >= concat(substring('$today_dt',1,5),'01-01')
-             |                AND usr_st NOT IN ('4',
+             |                and to_date(reg_dt) >= concat(substring('$today_dt',1,5),'01-01')
+             |                and usr_st not in ('4',
              |                                   '9')
-             |                GROUP BY
+             |                group by
              |                    cup_branch_ins_id_nm) a21
-             |        ON
+             |        on
              |            (
              |                a11.cup_branch_ins_id_nm = a21.cup_branch_ins_id_nm)
-             |        FULL OUTER JOIN
+             |        full outer join
              |            (
-             |                SELECT
+             |                select
              |                    cup_branch_ins_id_nm,
-             |                    COUNT(DISTINCT cashier_usr_id) AS act_cashier_cnt_year
-             |                FROM
+             |                    count(distinct cashier_usr_id) as act_cashier_cnt_year
+             |                from
              |                    hive_cashier_bas_inf
-             |                WHERE
+             |                where
              |                    to_date(activate_ts) <= '$today_dt'
-             |                AND to_date(activate_ts) >= concat(substring('$today_dt',1,5),'01-01')
-             |                AND usr_st IN ('1')
-             |                GROUP BY
+             |                and to_date(activate_ts) >= concat(substring('$today_dt',1,5),'01-01')
+             |                and usr_st in ('1')
+             |                group by
              |                    cup_branch_ins_id_nm) a22
-             |        ON
+             |        on
              |            (
              |                a11.cup_branch_ins_id_nm = a22.cup_branch_ins_id_nm)
-             |        FULL OUTER JOIN
+             |        full outer join
              |            (
-             |                SELECT
+             |                select
              |                    cup_branch_ins_id_nm,
-             |                    COUNT(DISTINCT cashier_usr_id) AS non_act_cashier_cnt_year
-             |                FROM
+             |                    count(distinct cashier_usr_id) as non_act_cashier_cnt_year
+             |                from
              |                    hive_cashier_bas_inf
-             |                WHERE
+             |                where
              |                    to_date(activate_ts) <= '$today_dt'
-             |                AND to_date(activate_ts) >= concat(substring('$today_dt',1,5),'01-01')
-             |                AND usr_st IN ('0')
-             |                GROUP BY
+             |                and to_date(activate_ts) >= concat(substring('$today_dt',1,5),'01-01')
+             |                and usr_st in ('0')
+             |                group by
              |                    cup_branch_ins_id_nm) a23
-             |        ON
+             |        on
              |            (
              |                a11.cup_branch_ins_id_nm = a23.cup_branch_ins_id_nm)
-             |        FULL OUTER JOIN
+             |        full outer join
              |            (
-             |                SELECT
+             |                select
              |                    cup_branch_ins_id_nm,
-             |                    COUNT(DISTINCT cashier_usr_id) AS cashier_cnt_mth
-             |                FROM
+             |                    count(distinct cashier_usr_id) as cashier_cnt_mth
+             |                from
              |                    hive_cashier_bas_inf
-             |                WHERE
+             |                where
              |                    to_date(reg_dt) <= '$today_dt'
-             |                AND to_date(reg_dt) >= concat(substring('$today_dt',1,8),'01')
-             |                AND usr_st NOT IN ('4',
+             |                and to_date(reg_dt) >= concat(substring('$today_dt',1,8),'01')
+             |                and usr_st not in ('4',
              |                                   '9')
-             |                GROUP BY
+             |                group by
              |                    cup_branch_ins_id_nm) a31
-             |        ON
+             |        on
              |            (
              |                a11.cup_branch_ins_id_nm = a31.cup_branch_ins_id_nm)
-             |        FULL OUTER JOIN
+             |        full outer join
              |            (
-             |                SELECT
+             |                select
              |                    cup_branch_ins_id_nm,
-             |                    COUNT(DISTINCT cashier_usr_id) AS act_cashier_cnt_mth
-             |                FROM
+             |                    count(distinct cashier_usr_id) as act_cashier_cnt_mth
+             |                from
              |                    hive_cashier_bas_inf
-             |                WHERE
+             |                where
              |                    to_date(activate_ts) <= '$today_dt'
-             |                AND to_date(activate_ts) >= concat(substring('$today_dt',1,8),'01')
-             |                AND usr_st IN ('1')
-             |                GROUP BY
+             |                and to_date(activate_ts) >= concat(substring('$today_dt',1,8),'01')
+             |                and usr_st in ('1')
+             |                group by
              |                    cup_branch_ins_id_nm) a32
-             |        ON
+             |        on
              |            (
              |                a11.cup_branch_ins_id_nm = a32.cup_branch_ins_id_nm)
-             |        FULL OUTER JOIN
+             |        full outer join
              |            (
-             |                SELECT
+             |                select
              |                    cup_branch_ins_id_nm,
-             |                    COUNT(DISTINCT cashier_usr_id) AS non_act_cashier_cnt_mth
-             |                FROM
+             |                    count(distinct cashier_usr_id) as non_act_cashier_cnt_mth
+             |                from
              |                    hive_cashier_bas_inf
-             |                WHERE
+             |                where
              |                    to_date(activate_ts) <= '$today_dt'
-             |                AND to_date(activate_ts) >= concat(substring('$today_dt',1,8),'01')
-             |                AND usr_st IN ('0')
-             |                GROUP BY
+             |                and to_date(activate_ts) >= concat(substring('$today_dt',1,8),'01')
+             |                and usr_st in ('0')
+             |                group by
              |                    cup_branch_ins_id_nm) a33
-             |        ON
+             |        on
              |            (
              |                a11.cup_branch_ins_id_nm = a33.cup_branch_ins_id_nm)
-             |        FULL OUTER JOIN
+             |        full outer join
              |            (
-             |                SELECT
+             |                select
              |                    b.cup_branch_ins_id_nm,
-             |                    COUNT(DISTINCT a.cashier_usr_id) AS pnt_acct_cashier_cnt
-             |                FROM
+             |                    count(distinct a.cashier_usr_id) as pnt_acct_cashier_cnt
+             |                from
              |                    (
-             |                        SELECT DISTINCT
+             |                        select distinct
              |                            cashier_usr_id
-             |                        FROM
+             |                        from
              |                            hive_cashier_point_acct_oper_dtl
-             |                        WHERE
+             |                        where
              |                            to_date(acct_oper_ts) <= '$today_dt'
-             |                        AND to_date(acct_oper_ts) >= trunc('$today_dt','YYYY') )a
-             |                INNER JOIN
+             |                        and to_date(acct_oper_ts) >= trunc('$today_dt','yyyy') )a
+             |                inner join
              |                    (
-             |                        SELECT
+             |                        select
              |                            cup_branch_ins_id_nm,
              |                            cashier_usr_id
-             |                        FROM
+             |                        from
              |                            hive_cashier_bas_inf
-             |                        WHERE
+             |                        where
              |                            to_date(reg_dt)<= '$today_dt'
-             |                        AND usr_st NOT IN ('4',
+             |                        and usr_st not in ('4',
              |                                           '9') )b
-             |                ON
+             |                on
              |                    a.cashier_usr_id=b.cashier_usr_id
-             |                GROUP BY
+             |                group by
              |                    b. cup_branch_ins_id_nm) a4
-             |        ON
+             |        on
              |            (
              |                a11.cup_branch_ins_id_nm = a4.cup_branch_ins_id_nm)
-             |        FULL OUTER JOIN
+             |        full outer join
              |            (
-             |                SELECT
+             |                select
              |                    b.cup_branch_ins_id_nm,
-             |                    COUNT(DISTINCT b.cashier_usr_id) AS reward_cashier_cnt_tot
-             |                FROM
+             |                    count(distinct b.cashier_usr_id) as reward_cashier_cnt_tot
+             |                from
              |                    (
-             |                        SELECT
+             |                        select
              |                            mobile
-             |                        FROM
+             |                        from
              |                            hive_cdhd_cashier_maktg_reward_dtl
-             |                        WHERE
+             |                        where
              |                            to_date(settle_dt) <= '$today_dt'
-             |                        AND rec_st='2'
-             |                        AND activity_tp='004'
-             |                        GROUP BY
+             |                        and rec_st='2'
+             |                        and activity_tp='004'
+             |                        group by
              |                            mobile ) a
-             |                INNER JOIN
+             |                inner join
              |                    hive_cashier_bas_inf b
-             |                ON
+             |                on
              |                    a.mobile=b.mobile
-             |                GROUP BY
+             |                group by
              |                    b.cup_branch_ins_id_nm) a5
-             |        ON
+             |        on
              |            (
              |                a11.cup_branch_ins_id_nm = a5.cup_branch_ins_id_nm)
-             |        FULL OUTER JOIN
+             |        full outer join
              |            (
-             |                SELECT
+             |                select
              |                    b.cup_branch_ins_id_nm,
-             |                    COUNT(DISTINCT b.cashier_usr_id) reward_cdhd_cashier_cnt_tot
-             |                FROM
+             |                    count(distinct b.cashier_usr_id) reward_cdhd_cashier_cnt_tot
+             |                from
              |                    (
-             |                        SELECT
+             |                        select
              |                            mobile
-             |                        FROM
+             |                        from
              |                            hive_cdhd_cashier_maktg_reward_dtl
-             |                        WHERE
+             |                        where
              |                            to_date(settle_dt) <= '$today_dt'
-             |                        AND rec_st='2'
-             |                        AND activity_tp='004'
-             |                        GROUP BY
+             |                        and rec_st='2'
+             |                        and activity_tp='004'
+             |                        group by
              |                            mobile ) a
-             |                INNER JOIN
+             |                inner join
              |                    hive_cashier_bas_inf b
-             |                ON
+             |                on
              |                    a.mobile=b.mobile
-             |                INNER JOIN
+             |                inner join
              |                    hive_pri_acct_inf c
-             |                ON
+             |                on
              |                    a.mobile=c.mobile
-             |                WHERE
+             |                where
              |                    c.usr_st='1'
-             |                GROUP BY
+             |                group by
              |                    b.cup_branch_ins_id_nm) a6
-             |        ON
+             |        on
              |            (
              |                a11.cup_branch_ins_id_nm = a6.cup_branch_ins_id_nm)
-             |        FULL OUTER JOIN
+             |        full outer join
              |            (
-             |                SELECT
+             |                select
              |                    b.cup_branch_ins_id_nm,
-             |                    COUNT(DISTINCT b.cashier_usr_id) AS sign_cashier_cnt_dly
-             |                FROM
+             |                    count(distinct b.cashier_usr_id) as sign_cashier_cnt_dly
+             |                from
              |                    (
-             |                        SELECT
+             |                        select
              |                            pri_acct_no
-             |                        FROM
+             |                        from
              |                            hive_signer_log
-             |                        WHERE
-             |                            concat_ws('-',SUBSTR(cashier_trans_tm,1,4),SUBSTR(cashier_trans_tm,5,2)
-             |                            ,SUBSTR (cashier_trans_tm,7,2)) = '$today_dt'
-             |                        GROUP BY
+             |                        where
+             |                            concat_ws('-',substr(cashier_trans_tm,1,4),substr(cashier_trans_tm,5,2)
+             |                            ,substr (cashier_trans_tm,7,2)) = '$today_dt'
+             |                        group by
              |                            pri_acct_no ) a
-             |                INNER JOIN
+             |                inner join
              |                    (
-             |                        SELECT
+             |                        select
              |                            cup_branch_ins_id_nm,
              |                            cashier_usr_id,
              |                            bind_card_no
-             |                        FROM
+             |                        from
              |                            hive_cashier_bas_inf
-             |                        WHERE
+             |                        where
              |                            to_date(reg_dt) <= '$today_dt'
-             |                        AND usr_st NOT IN ('4',
+             |                        and usr_st not in ('4',
              |                                           '9') ) b
-             |                ON
+             |                on
              |                    a.pri_acct_no=b.bind_card_no
-             |                GROUP BY
+             |                group by
              |                    b.cup_branch_ins_id_nm) a7
-             |        ON
+             |        on
              |            (
              |                a11.cup_branch_ins_id_nm = a7.cup_branch_ins_id_nm)
-             |        FULL OUTER JOIN
+             |        full outer join
              |            (
-             |                SELECT
+             |                select
              |                    cup_branch_ins_id_nm,
-             |                    COUNT(DISTINCT cashier_usr_id) AS cashier_cnt_dly
-             |                FROM
+             |                    count(distinct cashier_usr_id) as cashier_cnt_dly
+             |                from
              |                    hive_cashier_bas_inf
-             |                WHERE
+             |                where
              |                    to_date(reg_dt) = '$today_dt'
-             |                AND usr_st NOT IN ('4',
+             |                and usr_st not in ('4',
              |                                   '9')
-             |                GROUP BY
+             |                group by
              |                    cup_branch_ins_id_nm) a81
-             |        ON
+             |        on
              |            (
              |                a11.cup_branch_ins_id_nm = a81.cup_branch_ins_id_nm)
-             |        FULL OUTER JOIN
+             |        full outer join
              |            (
-             |                SELECT
+             |                select
              |                    cup_branch_ins_id_nm,
-             |                    COUNT(DISTINCT cashier_usr_id) AS act_cashier_cnt_dly
-             |                FROM
+             |                    count(distinct cashier_usr_id) as act_cashier_cnt_dly
+             |                from
              |                    hive_cashier_bas_inf
-             |                WHERE
+             |                where
              |                    to_date(activate_ts) = '$today_dt'
-             |                AND usr_st IN ('1')
-             |                GROUP BY
+             |                and usr_st in ('1')
+             |                group by
              |                    cup_branch_ins_id_nm) a82
-             |        ON
+             |        on
              |            (
              |                a11.cup_branch_ins_id_nm = a82.cup_branch_ins_id_nm)
-             |        FULL OUTER JOIN
+             |        full outer join
              |            (
-             |                SELECT
+             |                select
              |                    cup_branch_ins_id_nm,
-             |                    COUNT(DISTINCT cashier_usr_id) AS non_act_cashier_cnt_dly
-             |                FROM
+             |                    count(distinct cashier_usr_id) as non_act_cashier_cnt_dly
+             |                from
              |                    hive_cashier_bas_inf
-             |                WHERE
+             |                where
              |                    to_date(activate_ts) = '$today_dt'
-             |                AND usr_st IN ('0')
-             |                GROUP BY
+             |                and usr_st in ('0')
+             |                group by
              |                    cup_branch_ins_id_nm) a83
-             |        ON
+             |        on
              |            (
              |                a11.cup_branch_ins_id_nm = a83.cup_branch_ins_id_nm)) t
-             |WHERE
-             |    t.cup_branch_ins_id_nm IS NOT NULL
-             |GROUP BY
+             |where
+             |    t.cup_branch_ins_id_nm is not null
+             |group by
              |    t.cup_branch_ins_id_nm,
              |    t.report_dt
       """.stripMargin)
@@ -11445,8 +11434,8 @@ object SparkHive2Mysql {
                |from
                |    (
                |        select
-               |            if(acpt_ins.cup_branch_ins_id_nm,'总公司',acpt_ins.cup_branch_ins_id_nm) as cup_branch_ins_id_nm,
-               |            trans.trans_dt,
+               |            trim(if(acpt_ins.cup_branch_ins_id_nm is null,'总公司',acpt_ins.cup_branch_ins_id_nm)) as cup_branch_ins_id_nm,
+               |            to_date(trans.trans_dt) as trans_dt,
                |            count(1) as transcnt
                |        from
                |            hive_acc_trans trans
@@ -11465,13 +11454,13 @@ object SparkHive2Mysql {
                |        and trans.part_trans_dt >= '$today_dt'
                |        and trans.part_trans_dt <= '$today_dt'
                |        group by
-               |            if(acpt_ins.cup_branch_ins_id_nm,'总公司',acpt_ins.cup_branch_ins_id_nm),
-               |            trans.trans_dt) a
+               |            trim(if(acpt_ins.cup_branch_ins_id_nm is null,'总公司',acpt_ins.cup_branch_ins_id_nm)),
+               |            to_date(trans.trans_dt)) a
                |left join
                |    (
                |        select
-               |            if(acpt_ins.cup_branch_ins_id_nm,'总公司',acpt_ins.cup_branch_ins_id_nm) as cup_branch_ins_id_nm,
-               |            trans.trans_dt,
+               |            trim(if(acpt_ins.cup_branch_ins_id_nm is null,'总公司',acpt_ins.cup_branch_ins_id_nm)) as cup_branch_ins_id_nm,
+               |            to_date(trans.trans_dt) as trans_dt,
                |            count(1) as suctranscnt,
                |            sum(trans.trans_at) as transat,
                |            sum(trans.discount_at)          as discountat,
@@ -11494,7 +11483,7 @@ object SparkHive2Mysql {
                |        on
                |            trans.bill_id=bill.bill_id
                |        where
-               |            trans.sys_det_cd = 's'
+               |            trans.sys_det_cd = 'S'
                |        and trans.um_trans_id in ('AC02000065',
                |                                  'AC02000063')
                |        and trans.buss_tp in ('04','05','06')
@@ -11502,16 +11491,12 @@ object SparkHive2Mysql {
                |        and trans.part_trans_dt >= '$today_dt'
                |        and trans.part_trans_dt <= '$today_dt'
                |        group by
-               |            if(acpt_ins.cup_branch_ins_id_nm,'总公司',acpt_ins.cup_branch_ins_id_nm),
-               |            trans.trans_dt)b
+               |            trim(if(acpt_ins.cup_branch_ins_id_nm is null,'总公司',acpt_ins.cup_branch_ins_id_nm)),
+               |            to_date(trans.trans_dt))b
                |on
                |    (
                |        a.cup_branch_ins_id_nm = b.cup_branch_ins_id_nm
                |    and a.trans_dt = b.trans_dt )
-               |
-               |
-               |
-               |
           """.stripMargin)
           println(s"#### JOB_DM_94 spark sql 清洗[$today_dt]数据完成时间为:" + DateUtils.getCurrentSystemTime())
 
@@ -11573,9 +11558,9 @@ object SparkHive2Mysql {
                |        from
                |            (
                |                select
-               |                    if(tp_grp.mchnt_tp_grp_desc_cn is null,'其他',tp_grp.mchnt_tp_grp_desc_cn) as grp_nm,
-               |                    if(tp.mchnt_tp_desc_cn is null,'其他',tp.mchnt_tp_desc_cn) as tp_nm,
-               |                    trans.trans_dt              as trans_dt,
+               |                    trim(if(tp_grp.mchnt_tp_grp_desc_cn is null,'其他',tp_grp.mchnt_tp_grp_desc_cn)) as grp_nm,
+               |                    trim(if(tp.mchnt_tp_desc_cn is null,'其他',tp.mchnt_tp_desc_cn)) as tp_nm,
+               |                    to_date(trans.trans_dt)              as trans_dt,
                |                    trans.trans_at,
                |                    trans.discount_at,
                |                    trans.cdhd_usr_id,
@@ -11620,9 +11605,9 @@ object SparkHive2Mysql {
                |        from
                |            (
                |                select
-               |                    if(tp_grp.mchnt_tp_grp_desc_cn is null,'其他',tp_grp.mchnt_tp_grp_desc_cn) as grp_nm ,
-               |                    if(tp.mchnt_tp_desc_cn is null,'其他',tp.mchnt_tp_desc_cn) as tp_nm,
-               |                    trans.trans_dt,
+               |                    trim(if(tp_grp.mchnt_tp_grp_desc_cn is null,'其他',tp_grp.mchnt_tp_grp_desc_cn)) as grp_nm ,
+               |                    trim(if(tp.mchnt_tp_desc_cn is null,'其他',tp.mchnt_tp_desc_cn)) as tp_nm,
+               |                    to_date(trans.trans_dt) as trans_dt,
                |                    trans.trans_at,
                |                    trans.discount_at,
                |                    trans.cdhd_usr_id,
@@ -11706,8 +11691,8 @@ object SparkHive2Mysql {
                |from
                |    (
                |        select
-               |            cbi.iss_ins_cn_nm,
-               |            trans.trans_dt,
+               |            trim(if(cbi.iss_ins_cn_nm is null,'其他',cbi.iss_ins_cn_nm)) as iss_ins_cn_nm,
+               |            to_date(trans.trans_dt) as trans_dt,
                |            count(1) as transcnt
                |        from
                |            hive_acc_trans trans
@@ -11724,12 +11709,13 @@ object SparkHive2Mysql {
                |                              '06')
                |        and trans.part_trans_dt = '$today_dt'
                |        group by
-               |            cbi.iss_ins_cn_nm, trans_dt) a
+               |            trim(if(cbi.iss_ins_cn_nm is null,'其他',cbi.iss_ins_cn_nm)),
+               |            to_date(trans_dt)) a
                |left join
                |    (
                |        select
-               |            cbi.iss_ins_cn_nm,
-               |            trans.trans_dt,
+               |            trim(if(cbi.iss_ins_cn_nm is null,'其他',cbi.iss_ins_cn_nm)) as iss_ins_cn_nm,
+               |            to_date(trans.trans_dt) as trans_dt,
                |            count(1)                          as suctranscnt,
                |            sum(trans.trans_at)               as transat,
                |            sum(trans.discount_at)            as discountat,
@@ -11751,8 +11737,8 @@ object SparkHive2Mysql {
                |                              '06')
                |        and trans.part_trans_dt = '$today_dt'
                |        group by
-               |            cbi.iss_ins_cn_nm,
-               |            trans_dt)b
+               |            trim(if(cbi.iss_ins_cn_nm is null,'其他',cbi.iss_ins_cn_nm)) ,
+               |            to_date(trans_dt))b
                |on
                |    (
                |        a.iss_ins_cn_nm = b.iss_ins_cn_nm
