@@ -28,8 +28,6 @@ object SparkHive2Mysql {
       .set("spark.memory.useLegacyMode","true")
       .set("spark.sql.shuffle.partitions","200")
 
-
-
     val sc = new SparkContext(conf)
     sc.setLogLevel("ERROR")
     implicit val sqlContext = new HiveContext(sc)
@@ -41,21 +39,21 @@ object SparkHive2Mysql {
       * 从数据库中获取当前JOB的执行起始和结束日期。
       * 日常调度使用。
       */
-//    val rowParams=UPSQL_TIMEPARAMS_JDBC.readTimeParams(sqlContext)
-//     start_dt=DateUtils.getYesterdayByJob(rowParams.getString(0))//获取开始日期：start_dt-1
-//     end_dt=rowParams.getString(1)//结束日期
+    //    val rowParams=UPSQL_TIMEPARAMS_JDBC.readTimeParams(sqlContext)
+    //     start_dt=DateUtils.getYesterdayByJob(rowParams.getString(0))//获取开始日期：start_dt-1
+    //     end_dt=rowParams.getString(1)//结束日期
 
     /**
       * 从命令行获取当前JOB的执行起始和结束日期。
       * 无规则日期的增量数据抽取，主要用于数据初始化和调试。
       */
-        if (args.length > 1) {
-          start_dt = args(1)
-          end_dt = args(2)
-        } else {
-          println("#### 请指定 SparkHive2Mysql 数据抽取的起始日期和结束日期 ！")
-          System.exit(0)
-        }
+    if (args.length > 1) {
+      start_dt = args(1)
+      end_dt = args(2)
+    } else {
+      println("#### 请指定 SparkHive2Mysql 数据抽取的起始日期和结束日期 ！")
+      System.exit(0)
+    }
 
     //获取开始日期和结束日期的间隔天数
     val interval=DateUtils.getIntervalDays(start_dt,end_dt).toInt
@@ -416,170 +414,170 @@ object SparkHive2Mysql {
           println(s"#### JOB_DM_3 spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
           val results = sqlContext.sql(
             s"""
-            |select
-            |d.class as regist_channel ,
-            |d.access_nm as reg_son_chn ,
-            |'$today_dt' as report_dt ,
-            |sum(a.tpre) as reg_tpre_add_num ,
-            |sum(a.years) as reg_year_add_num ,
-            |sum(a.total) as reg_totle_add_num ,
-            |sum(b.tpre) as effect_tpre_add_num ,
-            |sum(b.years) as effect_year_add_num ,
-            |sum(b.total) as effect_totle_add_num ,
-            |0 as batch_tpre_add_num ,
-            |0 as batch_year_add_num ,
-            |0 as batch_totle_add_num ,
-            |0 as client_tpre_add_num ,
-            |0 as client_year_add_num ,
-            |0 as client_totle_add_num ,
-            |sum(c.tpre) as deal_tpre_add_num ,
-            |sum(c.years) as deal_year_add_num ,
-            |sum(c.total) as deal_totle_add_num
-            |from
-            |(
-            |select
-            |a.inf_source,
-            |count(distinct(
-            |case
-            |when to_date(a.rec_crt_ts)='$today_dt'
-            |then a.cdhd_usr_id
-            |end)) as tpre,
-            |count(distinct(
-            |case
-            |when to_date(a.rec_crt_ts)>=trunc('$today_dt','YYYY')
-            |and to_date(a.rec_crt_ts)<='$today_dt'
-            |then a.cdhd_usr_id
-            |end)) as years,
-            |count(distinct(
-            |case
-            |when to_date(a.rec_crt_ts)<='$today_dt'
-            |then a.cdhd_usr_id
-            |end)) as total
-            |from
-            |(
-            |select
-            |inf_source,
-            |cdhd_usr_id,
-            |rec_crt_ts
-            |from
-            |hive_pri_acct_inf
-            |where
-            |usr_st='1') a
-            |group by
-            |a.inf_source ) a
-            |left join
-            |(
-            |select
-            |a.inf_source,
-            |count(distinct(
-            |case
-            |when to_date(a.rec_crt_ts)='$today_dt'
-            |and to_date(b.card_dt)='$today_dt'
-            |then a.cdhd_usr_id
-            |end)) as tpre,
-            |count(distinct(
-            |case
-            |when to_date(a.rec_crt_ts)>=trunc('$today_dt','YYYY')
-            |and to_date(a.rec_crt_ts)<='$today_dt'
-            |and to_date(b.card_dt)>=trunc('$today_dt','YYYY')
-            |and to_date(b.card_dt)<='$today_dt'
-            |then a.cdhd_usr_id
-            |end)) as years,
-            |count(distinct(
-            |case
-            |when to_date(a.rec_crt_ts)<='$today_dt'
-            |and to_date(b.card_dt)<='$today_dt'
-            |then a.cdhd_usr_id
-            |end)) as total
-            |from
-            |(
-            |select
-            |inf_source,
-            |cdhd_usr_id,
-            |rec_crt_ts
-            |from
-            |hive_pri_acct_inf
-            |where
-            |usr_st='1' ) a
-            |inner join
-            |(
-            |select distinct
-            |(cdhd_usr_id),
-            |rec_crt_ts as card_dt
-            |from
-            |hive_card_bind_inf
-            |where
-            |card_auth_st in ('1','2','3') ) b
-            |on
-            |a.cdhd_usr_id=b.cdhd_usr_id
-            |group by
-            |a.inf_source) b
-            |on
-            |trim(a.inf_source)=trim(b.inf_source)
-            |left join
-            |(
-            |select
-            |a.inf_source,
-            |count(distinct (a.cdhd_usr_id)),
-            |count(distinct(
-            |case
-            |when to_date(a.rec_crt_ts)='$today_dt'
-            |and to_date(b.trans_dt)='$today_dt'
-            |then a.cdhd_usr_id
-            |end)) as tpre,
-            |count(distinct(
-            |case
-            |when to_date(a.rec_crt_ts)>=trunc('$today_dt','YYYY')
-            |and to_date(a.rec_crt_ts)<='$today_dt'
-            |and to_date(b.trans_dt)>=trunc('$today_dt','YYYY')
-            |and to_date(b.trans_dt)<='$today_dt'
-            |then a.cdhd_usr_id
-            |end)) as years,
-            |count(distinct(
-            |case
-            |when to_date(a.rec_crt_ts)<='$today_dt'
-            |and to_date(b.trans_dt)<='$today_dt'
-            |then a.cdhd_usr_id
-            |end)) as total
-            |from
-            |(
-            |select
-            |inf_source,
-            |cdhd_usr_id,
-            |rec_crt_ts
-            |from
-            |hive_pri_acct_inf
-            |where
-            |usr_st='1' ) a
-            |inner join
-            |(
-            |select distinct
-            |(cdhd_usr_id),
-            |trans_dt
-            |from
-            |hive_acc_trans) b
-            |on
-            |a.cdhd_usr_id=b.cdhd_usr_id
-            |group by
-            |a.inf_source ) c
-            |on
-            |trim(a.inf_source)=trim(c.inf_source)
-            |left join
-            |(
-            |select
-            |dtl.access_id,
-            |dtl.access_nm,
-            |cla.class
-            |from
-            |hive_inf_source_dtl dtl
-            |left join
-            |hive_inf_source_class cla
-            |on
-            |trim(cla.access_nm)=trim(dtl.access_nm) ) d
-            |on
-            |trim(a.inf_source)=trim(d.access_id)
-            |group by
-            |d.class, d.access_nm
+               |select
+               |d.class as regist_channel ,
+               |d.access_nm as reg_son_chn ,
+               |'$today_dt' as report_dt ,
+               |sum(a.tpre) as reg_tpre_add_num ,
+               |sum(a.years) as reg_year_add_num ,
+               |sum(a.total) as reg_totle_add_num ,
+               |sum(b.tpre) as effect_tpre_add_num ,
+               |sum(b.years) as effect_year_add_num ,
+               |sum(b.total) as effect_totle_add_num ,
+               |0 as batch_tpre_add_num ,
+               |0 as batch_year_add_num ,
+               |0 as batch_totle_add_num ,
+               |0 as client_tpre_add_num ,
+               |0 as client_year_add_num ,
+               |0 as client_totle_add_num ,
+               |sum(c.tpre) as deal_tpre_add_num ,
+               |sum(c.years) as deal_year_add_num ,
+               |sum(c.total) as deal_totle_add_num
+               |from
+               |(
+               |select
+               |a.inf_source,
+               |count(distinct(
+               |case
+               |when to_date(a.rec_crt_ts)='$today_dt'
+               |then a.cdhd_usr_id
+               |end)) as tpre,
+               |count(distinct(
+               |case
+               |when to_date(a.rec_crt_ts)>=trunc('$today_dt','YYYY')
+               |and to_date(a.rec_crt_ts)<='$today_dt'
+               |then a.cdhd_usr_id
+               |end)) as years,
+               |count(distinct(
+               |case
+               |when to_date(a.rec_crt_ts)<='$today_dt'
+               |then a.cdhd_usr_id
+               |end)) as total
+               |from
+               |(
+               |select
+               |inf_source,
+               |cdhd_usr_id,
+               |rec_crt_ts
+               |from
+               |hive_pri_acct_inf
+               |where
+               |usr_st='1') a
+               |group by
+               |a.inf_source ) a
+               |left join
+               |(
+               |select
+               |a.inf_source,
+               |count(distinct(
+               |case
+               |when to_date(a.rec_crt_ts)='$today_dt'
+               |and to_date(b.card_dt)='$today_dt'
+               |then a.cdhd_usr_id
+               |end)) as tpre,
+               |count(distinct(
+               |case
+               |when to_date(a.rec_crt_ts)>=trunc('$today_dt','YYYY')
+               |and to_date(a.rec_crt_ts)<='$today_dt'
+               |and to_date(b.card_dt)>=trunc('$today_dt','YYYY')
+               |and to_date(b.card_dt)<='$today_dt'
+               |then a.cdhd_usr_id
+               |end)) as years,
+               |count(distinct(
+               |case
+               |when to_date(a.rec_crt_ts)<='$today_dt'
+               |and to_date(b.card_dt)<='$today_dt'
+               |then a.cdhd_usr_id
+               |end)) as total
+               |from
+               |(
+               |select
+               |inf_source,
+               |cdhd_usr_id,
+               |rec_crt_ts
+               |from
+               |hive_pri_acct_inf
+               |where
+               |usr_st='1' ) a
+               |inner join
+               |(
+               |select distinct
+               |(cdhd_usr_id),
+               |rec_crt_ts as card_dt
+               |from
+               |hive_card_bind_inf
+               |where
+               |card_auth_st in ('1','2','3') ) b
+               |on
+               |a.cdhd_usr_id=b.cdhd_usr_id
+               |group by
+               |a.inf_source) b
+               |on
+               |trim(a.inf_source)=trim(b.inf_source)
+               |left join
+               |(
+               |select
+               |a.inf_source,
+               |count(distinct (a.cdhd_usr_id)),
+               |count(distinct(
+               |case
+               |when to_date(a.rec_crt_ts)='$today_dt'
+               |and to_date(b.trans_dt)='$today_dt'
+               |then a.cdhd_usr_id
+               |end)) as tpre,
+               |count(distinct(
+               |case
+               |when to_date(a.rec_crt_ts)>=trunc('$today_dt','YYYY')
+               |and to_date(a.rec_crt_ts)<='$today_dt'
+               |and to_date(b.trans_dt)>=trunc('$today_dt','YYYY')
+               |and to_date(b.trans_dt)<='$today_dt'
+               |then a.cdhd_usr_id
+               |end)) as years,
+               |count(distinct(
+               |case
+               |when to_date(a.rec_crt_ts)<='$today_dt'
+               |and to_date(b.trans_dt)<='$today_dt'
+               |then a.cdhd_usr_id
+               |end)) as total
+               |from
+               |(
+               |select
+               |inf_source,
+               |cdhd_usr_id,
+               |rec_crt_ts
+               |from
+               |hive_pri_acct_inf
+               |where
+               |usr_st='1' ) a
+               |inner join
+               |(
+               |select distinct
+               |(cdhd_usr_id),
+               |trans_dt
+               |from
+               |hive_acc_trans) b
+               |on
+               |a.cdhd_usr_id=b.cdhd_usr_id
+               |group by
+               |a.inf_source ) c
+               |on
+               |trim(a.inf_source)=trim(c.inf_source)
+               |left join
+               |(
+               |select
+               |dtl.access_id,
+               |dtl.access_nm,
+               |cla.class
+               |from
+               |hive_inf_source_dtl dtl
+               |left join
+               |hive_inf_source_class cla
+               |on
+               |trim(cla.access_nm)=trim(dtl.access_nm) ) d
+               |on
+               |trim(a.inf_source)=trim(d.access_id)
+               |group by
+               |d.class, d.access_nm
           """.stripMargin)
           println(s"#### JOB_DM_3 spark sql 清洗[$today_dt]数据完成时间为:" + DateUtils.getCurrentSystemTime())
           //println(s"#### JOB_DM_3 spark sql 清洗[$today_dt]数据 results:"+results.count())
@@ -713,81 +711,81 @@ object SparkHive2Mysql {
     println("###JOB_DM_5(hive_pri_acct_inf+hive_acc_trans+hive_card_bind_inf+hive_card_bin->dm_user_card_iss)")
 
     DateUtils.timeCost("JOB_DM_5"){
-     UPSQL_JDBC.delete("dm_user_card_iss","report_dt",start_dt,end_dt);
-     println( "#### JOB_DM_5 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
+      UPSQL_JDBC.delete("dm_user_card_iss","report_dt",start_dt,end_dt);
+      println( "#### JOB_DM_5 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
 
-     var today_dt=start_dt
-     if(interval>0 ){
-       sqlContext.sql(s"use $hive_dbname")
-       for(i <- 0 to interval){
-         println(s"#### JOB_DM_5 spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
-         val results=sqlContext.sql(
-           s"""
-              |
+      var today_dt=start_dt
+      if(interval>0 ){
+        sqlContext.sql(s"use $hive_dbname")
+        for(i <- 0 to interval){
+          println(s"#### JOB_DM_5 spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
+          val results=sqlContext.sql(
+            s"""
+               |
              |select
-              |trim(a.iss_ins_cn_nm) as card_iss,
-              |'$today_dt' as report_dt,
-              |nvl(sum(a.tpre),0) as effect_tpre_add_num ,
-              |nvl(sum(a.years),0) as effect_year_add_num ,
-              |nvl(sum(a.total),0) as effect_totle_add_num,
-              |0 as batch_tpre_add_num,
-              |0 as batch_year_add_num,
-              |0 as batch_totle_add_num,
-              |0 as client_tpre_add_num,
-              |0 as client_year_add_num,
-              |0 as client_totle_add_num,
-              |nvl(sum(b.tpre),0) as deal_tpre_add_num ,
-              |nvl(sum(b.years),0) as deal_year_add_num ,
-              |nvl(sum(b.total),0) as  deal_totle_add_num
-              |from
-              |(
-              |select iss_ins_cn_nm,
-              |count(distinct(case when substr(rec_crt_ts,1,10)='$today_dt' and substr(card_dt,1,10)='$today_dt' then a.cdhd_usr_id end)) as tpre,
-              |count(distinct(case when substr(rec_crt_ts,1,10)>=trunc('$today_dt',"YY") and substr(rec_crt_ts,1,10)<='$today_dt'
-              |and substr(card_dt,1,10)>=trunc('$today_dt',"YY") and substr(card_dt,1,10)<='$today_dt' then a.cdhd_usr_id end)) as years,
-              |count(distinct(case when substr(rec_crt_ts,1,10)<='$today_dt' and substr(card_dt,1,10)<='$today_dt' then a.cdhd_usr_id end)) as total
-              |
+               |trim(a.iss_ins_cn_nm) as card_iss,
+               |'$today_dt' as report_dt,
+               |nvl(sum(a.tpre),0) as effect_tpre_add_num ,
+               |nvl(sum(a.years),0) as effect_year_add_num ,
+               |nvl(sum(a.total),0) as effect_totle_add_num,
+               |0 as batch_tpre_add_num,
+               |0 as batch_year_add_num,
+               |0 as batch_totle_add_num,
+               |0 as client_tpre_add_num,
+               |0 as client_year_add_num,
+               |0 as client_totle_add_num,
+               |nvl(sum(b.tpre),0) as deal_tpre_add_num ,
+               |nvl(sum(b.years),0) as deal_year_add_num ,
+               |nvl(sum(b.total),0) as  deal_totle_add_num
+               |from
+               |(
+               |select iss_ins_cn_nm,
+               |count(distinct(case when substr(rec_crt_ts,1,10)='$today_dt' and substr(card_dt,1,10)='$today_dt' then a.cdhd_usr_id end)) as tpre,
+               |count(distinct(case when substr(rec_crt_ts,1,10)>=trunc('$today_dt',"YY") and substr(rec_crt_ts,1,10)<='$today_dt'
+               |and substr(card_dt,1,10)>=trunc('$today_dt',"YY") and substr(card_dt,1,10)<='$today_dt' then a.cdhd_usr_id end)) as years,
+               |count(distinct(case when substr(rec_crt_ts,1,10)<='$today_dt' and substr(card_dt,1,10)<='$today_dt' then a.cdhd_usr_id end)) as total
+               |
                    |from (
-              |select cdhd_usr_id, rec_crt_ts
-              |from hive_pri_acct_inf
-              |where usr_st='1'
-              |) a
-              |inner join (
-              |select distinct cdhd_usr_id,iss_ins_cn_nm,rec_crt_ts as card_dt
-              |from hive_card_bind_inf where card_auth_st in ('1','2','3')
-              |) b
-              |on a.cdhd_usr_id=b.cdhd_usr_id
-              |group by iss_ins_cn_nm) a
-              |
+               |select cdhd_usr_id, rec_crt_ts
+               |from hive_pri_acct_inf
+               |where usr_st='1'
+               |) a
+               |inner join (
+               |select distinct cdhd_usr_id,iss_ins_cn_nm,rec_crt_ts as card_dt
+               |from hive_card_bind_inf where card_auth_st in ('1','2','3')
+               |) b
+               |on a.cdhd_usr_id=b.cdhd_usr_id
+               |group by iss_ins_cn_nm) a
+               |
                    |left join
-              |(
-              |select iss_ins_cn_nm,
-              |count(distinct(case when substr(rec_crt_ts,1,10)='$today_dt' then cdhd_usr_id end)) as tpre,
-              |count(distinct(case when substr(rec_crt_ts,1,10)>=trunc('$today_dt',"YY")
-              |and substr(rec_crt_ts,1,10)<='$today_dt' then cdhd_usr_id end)) as years,
-              |count(distinct(case when substr(rec_crt_ts,1,10)<='$today_dt' then cdhd_usr_id end)) as total
-              |from (select iss_ins_cn_nm,card_bin from hive_card_bin
-              |) a
-              |inner join
-              |(select distinct cdhd_usr_id,substr(card_no,1,8) as card_bin,rec_crt_ts from hive_acc_trans ) b
-              |on a.card_bin=b.card_bin
-              |group by iss_ins_cn_nm ) b
-              |on a.iss_ins_cn_nm=b.iss_ins_cn_nm
-              |group by trim(a.iss_ins_cn_nm),'$today_dt'
-              |
+               |(
+               |select iss_ins_cn_nm,
+               |count(distinct(case when substr(rec_crt_ts,1,10)='$today_dt' then cdhd_usr_id end)) as tpre,
+               |count(distinct(case when substr(rec_crt_ts,1,10)>=trunc('$today_dt',"YY")
+               |and substr(rec_crt_ts,1,10)<='$today_dt' then cdhd_usr_id end)) as years,
+               |count(distinct(case when substr(rec_crt_ts,1,10)<='$today_dt' then cdhd_usr_id end)) as total
+               |from (select iss_ins_cn_nm,card_bin from hive_card_bin
+               |) a
+               |inner join
+               |(select distinct cdhd_usr_id,substr(card_no,1,8) as card_bin,rec_crt_ts from hive_acc_trans ) b
+               |on a.card_bin=b.card_bin
+               |group by iss_ins_cn_nm ) b
+               |on a.iss_ins_cn_nm=b.iss_ins_cn_nm
+               |group by trim(a.iss_ins_cn_nm),'$today_dt'
+               |
       """.stripMargin)
-         println(s"#### JOB_DM_5 spark sql 清洗[$today_dt]数据完成时间为:" + DateUtils.getCurrentSystemTime())
-         println(s"###JOB_DM_5------$today_dt results:"+results.count())
-         if(!Option(results).isEmpty){
-           results.save2Mysql("dm_user_card_iss")
-           println(s"#### JOB_DM_5 [$today_dt]数据插入完成时间为：" + DateUtils.getCurrentSystemTime())
-         }else{
-           println(s"#### JOB_DM_5 spark sql 清洗[$today_dt]数据无结果集！")
-         }
-         today_dt=DateUtils.addOneDay(today_dt)
-       }
-     }
-   }
+          println(s"#### JOB_DM_5 spark sql 清洗[$today_dt]数据完成时间为:" + DateUtils.getCurrentSystemTime())
+          println(s"###JOB_DM_5------$today_dt results:"+results.count())
+          if(!Option(results).isEmpty){
+            results.save2Mysql("dm_user_card_iss")
+            println(s"#### JOB_DM_5 [$today_dt]数据插入完成时间为：" + DateUtils.getCurrentSystemTime())
+          }else{
+            println(s"#### JOB_DM_5 spark sql 清洗[$today_dt]数据无结果集！")
+          }
+          today_dt=DateUtils.addOneDay(today_dt)
+        }
+      }
+    }
 
   }
 
@@ -882,7 +880,7 @@ object SparkHive2Mysql {
             results.save2Mysql("dm_user_card_nature")
             println(s"#### JOB_DM_6 [$today_dt]数据插入完成时间为：" + DateUtils.getCurrentSystemTime())
           }else{
-              println(s"#### JOB_DM_6 spark sql 清洗[$today_dt]数据无结果集！")
+            println(s"#### JOB_DM_6 spark sql 清洗[$today_dt]数据无结果集！")
           }
           today_dt=DateUtils.addOneDay(today_dt)
         }
@@ -1815,7 +1813,7 @@ object SparkHive2Mysql {
             results.save2Mysql("DM_COUPON_SHIPP_DELIVER_ISS")
             println(s"#### JOB_DM_15 [$today_dt]数据插入完成时间为：" + DateUtils.getCurrentSystemTime())
           }else{
-              println(s"#### JOB_DM_15 spark sql 清洗[$today_dt]数据无结果集！")
+            println(s"#### JOB_DM_15 spark sql 清洗[$today_dt]数据无结果集！")
           }
           today_dt=DateUtils.addOneDay(today_dt)
         }
@@ -1994,7 +1992,7 @@ object SparkHive2Mysql {
             results.save2Mysql("DM_COUPON_SHIPP_DELIVER_PHOME_AREA")
             println(s"#### JOB_DM_17 [$today_dt]数据插入完成时间为：" + DateUtils.getCurrentSystemTime())
           }else{
-              println(s"#### JOB_DM_17 spark sql 清洗[$today_dt]数据无结果集！")
+            println(s"#### JOB_DM_17 spark sql 清洗[$today_dt]数据无结果集！")
           }
           today_dt=DateUtils.addOneDay(today_dt)
         }
@@ -3600,80 +3598,80 @@ object SparkHive2Mysql {
       UPSQL_JDBC.delete(s"DM_DISC_TKT_ACT_BRANCH_DLY","REPORT_DT",start_dt,end_dt)
       println( "#### JOB_DM_30 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
 
-        sqlContext.sql(s"use $hive_dbname")
-          println(s"#### JOB_DM_30 spark sql 清洗数据开始时间为:" + DateUtils.getCurrentSystemTime())
-          val results =sqlContext.sql(
-            s"""
-               |select
-               |a.cup_branch_ins_id_nm as cup_branch_ins_id_nm,
-               |a.trans_dt as report_dt ,
-               |a.transcnt as trans_cnt ,
-               |b.suctranscnt as suc_trans_cnt ,
-               |b.transat as trans_at ,
-               |b.discountat as discount_at ,
-               |b.transusrcnt as trans_usr_cnt ,
-               |b.transcardcnt as trans_card_cnt
-               |from
-               |(
-               |select
-               |trim(if(bill.cup_branch_ins_id_nm is null,'总公司',bill.cup_branch_ins_id_nm)) as cup_branch_ins_id_nm,
-               |to_date(trans.trans_dt) as trans_dt,
-               |count(1) as transcnt
-               |from
-               |hive_acc_trans trans
-               |left join
-               |hive_ticket_bill_bas_inf bill
-               |on
-               |(
-               |trans.bill_id=bill.bill_id)
-               |where
-               |trans.um_trans_id in ('AC02000065','AC02000063')
-               |and bill.bill_sub_tp in ('01', '03')
-               |and trans.part_trans_dt >= '$start_dt'
-               |and trans.part_trans_dt <= '$end_dt'
+      sqlContext.sql(s"use $hive_dbname")
+      println(s"#### JOB_DM_30 spark sql 清洗数据开始时间为:" + DateUtils.getCurrentSystemTime())
+      val results =sqlContext.sql(
+        s"""
+           |select
+           |a.cup_branch_ins_id_nm as cup_branch_ins_id_nm,
+           |a.trans_dt as report_dt ,
+           |a.transcnt as trans_cnt ,
+           |b.suctranscnt as suc_trans_cnt ,
+           |b.transat as trans_at ,
+           |b.discountat as discount_at ,
+           |b.transusrcnt as trans_usr_cnt ,
+           |b.transcardcnt as trans_card_cnt
+           |from
+           |(
+           |select
+           |trim(if(bill.cup_branch_ins_id_nm is null,'总公司',bill.cup_branch_ins_id_nm)) as cup_branch_ins_id_nm,
+           |to_date(trans.trans_dt) as trans_dt,
+           |count(1) as transcnt
+           |from
+           |hive_acc_trans trans
+           |left join
+           |hive_ticket_bill_bas_inf bill
+           |on
+           |(
+           |trans.bill_id=bill.bill_id)
+           |where
+           |trans.um_trans_id in ('AC02000065','AC02000063')
+           |and bill.bill_sub_tp in ('01', '03')
+           |and trans.part_trans_dt >= '$start_dt'
+           |and trans.part_trans_dt <= '$end_dt'
+           |group by
+           |if(bill.cup_branch_ins_id_nm is null,'总公司',bill.cup_branch_ins_id_nm),
+           |to_date(trans.trans_dt )) a
+           |left join
+           |(
+           |select
+           |trim(if(bill.cup_branch_ins_id_nm is null,'总公司',bill.cup_branch_ins_id_nm)) as cup_branch_ins_id_nm,
+           |to_date(trans.trans_dt ) as trans_dt,
+           |count(1) as suctranscnt,
+           |sum(trans.trans_at) as transat,
+           |sum(trans.discount_at) as discountat,
+           |count(distinct trans.cdhd_usr_id) as transusrcnt,
+           |count(distinct trans.pri_acct_no) as transcardcnt
+           |from
+           |hive_acc_trans trans
+           |left join
+           |hive_ticket_bill_bas_inf bill
+           |on
+           |(
+           |trans.bill_id=bill.bill_id)
+           |where
+           |trans.sys_det_cd = 'S'
+           |and trans.um_trans_id iN ('AC02000065','AC02000063')
+           |and bill.bill_sub_tp in ('01','03')
+           |and trans.part_trans_dt >= '$start_dt'
+           |and trans.part_trans_dt <= '$end_dt'
+           |
                |group by
-               |if(bill.cup_branch_ins_id_nm is null,'总公司',bill.cup_branch_ins_id_nm),
-               |to_date(trans.trans_dt )) a
-               |left join
-               |(
-               |select
-               |trim(if(bill.cup_branch_ins_id_nm is null,'总公司',bill.cup_branch_ins_id_nm)) as cup_branch_ins_id_nm,
-               |to_date(trans.trans_dt ) as trans_dt,
-               |count(1) as suctranscnt,
-               |sum(trans.trans_at) as transat,
-               |sum(trans.discount_at) as discountat,
-               |count(distinct trans.cdhd_usr_id) as transusrcnt,
-               |count(distinct trans.pri_acct_no) as transcardcnt
-               |from
-               |hive_acc_trans trans
-               |left join
-               |hive_ticket_bill_bas_inf bill
-               |on
-               |(
-               |trans.bill_id=bill.bill_id)
-               |where
-               |trans.sys_det_cd = 'S'
-               |and trans.um_trans_id iN ('AC02000065','AC02000063')
-               |and bill.bill_sub_tp in ('01','03')
-               |and trans.part_trans_dt >= '$start_dt'
-               |and trans.part_trans_dt <= '$end_dt'
-               |
-               |group by
-               |if(bill.cup_branch_ins_id_nm is null,'总公司',bill.cup_branch_ins_id_nm),
-               |to_date(trans.trans_dt ))b
-               |on
-               |a.cup_branch_ins_id_nm = b.cup_branch_ins_id_nm and a.trans_dt = b.trans_dt
+           |if(bill.cup_branch_ins_id_nm is null,'总公司',bill.cup_branch_ins_id_nm),
+           |to_date(trans.trans_dt ))b
+           |on
+           |a.cup_branch_ins_id_nm = b.cup_branch_ins_id_nm and a.trans_dt = b.trans_dt
           """.stripMargin)
 
-          println(s"#### JOB_DM_30 spark sql 清洗数据完成时间为:" + DateUtils.getCurrentSystemTime())
-        println(s"###JOB_DM_30----- results:"+results.count())
-          if(!Option(results).isEmpty){
-            println(s"#### JOB_DM_30 数据插入开始时间为：" + DateUtils.getCurrentSystemTime())
-            results.save2Mysql("DM_DISC_TKT_ACT_BRANCH_DLY")
-            println(s"#### JOB_DM_30 数据插入完成时间为：" + DateUtils.getCurrentSystemTime())
-          }else{
-            println(s"#### JOB_DM_30 spark sql 清洗数据无结果集！")
-          }
+      println(s"#### JOB_DM_30 spark sql 清洗数据完成时间为:" + DateUtils.getCurrentSystemTime())
+      println(s"###JOB_DM_30----- results:"+results.count())
+      if(!Option(results).isEmpty){
+        println(s"#### JOB_DM_30 数据插入开始时间为：" + DateUtils.getCurrentSystemTime())
+        results.save2Mysql("DM_DISC_TKT_ACT_BRANCH_DLY")
+        println(s"#### JOB_DM_30 数据插入完成时间为：" + DateUtils.getCurrentSystemTime())
+      }else{
+        println(s"#### JOB_DM_30 spark sql 清洗数据无结果集！")
+      }
     }
   }
 
@@ -4622,7 +4620,7 @@ object SparkHive2Mysql {
 
           println(s"#### JOB_DM_36 spark sql 清洗[$today_dt]数据完成时间为:" + DateUtils.getCurrentSystemTime())
 
-//          println(s"###JOB_DM_36------$today_dt results:"+results.count())
+          //          println(s"###JOB_DM_36------$today_dt results:"+results.count())
           if(!Option(results).isEmpty){
             println(s"#### JOB_DM_36 [$today_dt]数据插入开始时间为：" + DateUtils.getCurrentSystemTime())
             results.save2Mysql("DM_DISC_TKT_ACT_MCHNT_IND_DLY")
@@ -4989,7 +4987,7 @@ object SparkHive2Mysql {
           """.stripMargin)
           println(s"#### JOB_DM_39 spark sql 清洗[$today_dt]数据完成时间为:" + DateUtils.getCurrentSystemTime())
 
-//          println(s"###JOB_DM_39------$today_dt results:"+results.count())
+          //          println(s"###JOB_DM_39------$today_dt results:"+results.count())
           if(!Option(results).isEmpty){
             println(s"#### JOB_DM_39 [$today_dt]数据插入开始时间为：" + DateUtils.getCurrentSystemTime())
             results.save2Mysql("DM_DISC_TKT_ACT_BRAND_INF_DLY")
@@ -6893,9 +6891,9 @@ object SparkHive2Mysql {
         println(s"#### JOB_DM_55 数据插入完成时间为：" + DateUtils.getCurrentSystemTime())
 
       }else{
-          println(s"#### JOB_DM_55 spark sql 清洗数据无结果集！")
+        println(s"#### JOB_DM_55 spark sql 清洗数据无结果集！")
       }
-  }
+    }
 
 
   }
