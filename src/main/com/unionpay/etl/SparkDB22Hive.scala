@@ -2348,7 +2348,7 @@ object SparkDB22Hive {
       println("#### JOB_HV_20 readDB2_ACC_4para--tbl_chmgm_term_inf 的时间为:" + DateUtils.getCurrentSystemTime())
 
       sqlContext.sql(s"use $hive_dbname")
-      val df_1 = sqlContext.sql(s"select * from hive_term_inf")
+      val df_1 = sqlContext.sql(s"select * from hive_term_inf_2")
       df_1.registerTempTable("hive_term_inf")
       println("#### 临时表 hive_term_inf 的时间为:" + DateUtils.getCurrentSystemTime())
 
@@ -2358,7 +2358,7 @@ object SparkDB22Hive {
 
       val JOB_HV_20_H =sqlContext.sql(
         """
-          select
+          |select
           |E.mchnt_cd         ,
           |E.term_id          ,
           |E.term_tp          ,

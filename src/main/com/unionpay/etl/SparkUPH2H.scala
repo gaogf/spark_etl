@@ -556,7 +556,6 @@ object SparkUPH2H {
                |mdc_key                          ,
                |rec_upd_ts                       ,
                |rec_crt_ts                       ,
-               |hp_settle_dt                     ,
                |'$today_dt' as p_settle_dt
                |from
                |spark_hive_cups_trans
