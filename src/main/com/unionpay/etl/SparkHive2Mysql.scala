@@ -4620,7 +4620,7 @@ object SparkHive2Mysql {
 
           println(s"#### JOB_DM_36 spark sql 清洗[$today_dt]数据完成时间为:" + DateUtils.getCurrentSystemTime())
 
-          //          println(s"###JOB_DM_36------$today_dt results:"+results.count())
+//          println(s"###JOB_DM_36------$today_dt results:"+results.count())
           if(!Option(results).isEmpty){
             println(s"#### JOB_DM_36 [$today_dt]数据插入开始时间为：" + DateUtils.getCurrentSystemTime())
             results.save2Mysql("DM_DISC_TKT_ACT_MCHNT_IND_DLY")
@@ -8759,6 +8759,7 @@ object SparkHive2Mysql {
            |                		trans.part_trans_dt >= '$start_dt' and trans.part_trans_dt <= '$end_dt' and
            |                		trans.oper_st in('0', '3') and
            |                		to_date(trans.acct_addup_bat_dt) >= '$start_dt' and to_date(trans.acct_addup_bat_dt) <= '$end_dt'
+           |                    and trans.plan_id is not null
            |                group by
            |                    trans.plan_id,
            |                    regexp_replace(trans.plan_nm,' ',''),to_date(trans.acct_addup_bat_dt))a) b
@@ -8933,80 +8934,82 @@ object SparkHive2Mysql {
       sqlContext.sql(s"use $hive_dbname")
       val results = sqlContext.sql(
         s"""
-           |SELECT
-           |    C.ACTIVITY_ID AS ACTIVITY_ID,
-           |    C.ACTIVITY_NM AS ACTIVITY_NM,
-           |    C.SETTLE_DT AS REPORT_DT,
-           |    C.PLAN_NUM AS PLAN_NUM,
-           |    C.ACTUAL_NUM AS ACTUAL_NUM
-           |FROM
+           |select
+           |    c.activity_id as activity_id,
+           |    c.activity_nm as activity_nm,
+           |    c.settle_dt as report_dt,
+           |    c.plan_num as plan_num,
+           |    c.actual_num as actual_num
+           |from
            |    (
-           |        SELECT
-           |            A.LOC_ACTIVITY_ID                                                  AS ACTIVITY_ID,
-           |            A.LOC_ACTIVITY_NM                                                  AS ACTIVITY_NM,
-           |            A.SETTLE_DT                                                        AS SETTLE_DT,
-           |            A.PLAN_NUM                                                         AS PLAN_NUM,
-           |            B.ACTUAL_NUM                                                       AS ACTUAL_NUM,
-           |            ROW_NUMBER() OVER(PARTITION BY A.SETTLE_DT ORDER BY B.ACTUAL_NUM DESC) AS RN
-           |        FROM
+           |        select
+           |            a.loc_activity_id                                                  as activity_id,
+           |            a.loc_activity_nm                                                  as activity_nm,
+           |            a.settle_dt                                                        as settle_dt,
+           |            a.plan_num                                                         as plan_num,
+           |            b.actual_num                                                       as actual_num,
+           |            row_number() over(partition by a.settle_dt order by b.actual_num desc) as rn
+           |        from
            |            (
-           |                SELECT
-           |                    PRIZE.LOC_ACTIVITY_ID,
-           |                    TRANSLATE(PRIZE.LOC_ACTIVITY_NM,' ','') AS LOC_ACTIVITY_NM,
-           |                    RSLT.SETTLE_DT,
-           |                    SUM(LVL.LVL_PRIZE_NUM) AS PLAN_NUM
-           |                FROM
-           |                    HIVE_PRIZE_ACTIVITY_BAS_INF PRIZE,
-           |                    HIVE_PRIZE_LVL LVL,
+           |                select
+           |                    prize.loc_activity_id,
+           |                    translate(prize.loc_activity_nm,' ','') as loc_activity_nm,
+           |                    rslt.settle_dt,
+           |                    sum(lvl.lvl_prize_num) as plan_num
+           |                from
+           |                    hive_prize_activity_bas_inf prize,
+           |                    hive_prize_lvl lvl,
            |                    (
-           |                        SELECT DISTINCT
-           |                            SETTLE_DT
-           |                        FROM
-           |                            HIVE_PRIZE_DISCOUNT_RESULT
-           |                        WHERE
-           |                            PART_SETTLE_DT >= '$start_dt'
-           |                        AND PART_SETTLE_DT <= '$end_dt') RSLT
-           |                WHERE
-           |                    PRIZE.LOC_ACTIVITY_ID = LVL.LOC_ACTIVITY_ID
-           |                AND PRIZE.ACTIVITY_BEGIN_DT<= RSLT.SETTLE_DT
-           |                AND PRIZE.ACTIVITY_END_DT>=RSLT.SETTLE_DT
-           |                AND PRIZE.RUN_ST!='3'
-           |                GROUP BY
-           |                    PRIZE.LOC_ACTIVITY_ID,
-           |                    TRANSLATE(PRIZE.LOC_ACTIVITY_NM,' ',''),
-           |                    RSLT.SETTLE_DT ) A
-           |        LEFT JOIN
+           |                        select distinct
+           |                            settle_dt
+           |                        from
+           |                            hive_prize_discount_result
+           |                        where
+           |                            part_settle_dt >= '$start_dt'
+           |                        and part_settle_dt <= '$end_dt') rslt
+           |                where
+           |                    prize.loc_activity_id = lvl.loc_activity_id
+           |                and prize.activity_begin_dt<= rslt.settle_dt
+           |                and prize.activity_end_dt>=rslt.settle_dt
+           |                and prize.run_st!='3'
+           |                and prize.loc_activity_id is not null
+           |                group by
+           |                    prize.loc_activity_id,
+           |                    translate(prize.loc_activity_nm,' ',''),
+           |                    rslt.settle_dt ) a
+           |        left join
            |            (
-           |                SELECT
-           |                    PRIZE.LOC_ACTIVITY_ID,
-           |                    PR.SETTLE_DT,
-           |                    COUNT(PR.SYS_TRA_NO_CONV) AS ACTUAL_NUM
-           |                FROM
-           |                    HIVE_PRIZE_ACTIVITY_BAS_INF PRIZE,
-           |                    HIVE_PRIZE_BAS BAS,
-           |                    HIVE_PRIZE_DISCOUNT_RESULT PR
-           |                WHERE
-           |                    PRIZE.LOC_ACTIVITY_ID = BAS.LOC_ACTIVITY_ID
-           |                AND BAS.PRIZE_ID = PR.PRIZE_ID
-           |                AND PRIZE.ACTIVITY_BEGIN_DT<= PR.SETTLE_DT
-           |                AND PRIZE.ACTIVITY_END_DT>= PR.SETTLE_DT
-           |                AND PR.trans_id='S22'
-           |                AND PR.PART_SETTLE_DT >= '$start_dt'
-           |                AND PR.PART_SETTLE_DT <= '$end_dt'
-           |                AND PR.TRANS_ID NOT LIKE 'V%'
-           |                AND PRIZE.RUN_ST!='3'
-           |                GROUP BY
-           |                    PRIZE.LOC_ACTIVITY_ID,
-           |                    SETTLE_DT ) B
-           |        ON
+           |                select
+           |                    prize.loc_activity_id,
+           |                    pr.settle_dt,
+           |                    count(pr.sys_tra_no_conv) as actual_num
+           |                from
+           |                    hive_prize_activity_bas_inf prize,
+           |                    hive_prize_bas bas,
+           |                    hive_prize_discount_result pr
+           |                where
+           |                    prize.loc_activity_id = bas.loc_activity_id
+           |                and bas.prize_id = pr.prize_id
+           |                and prize.activity_begin_dt<= pr.settle_dt
+           |                and prize.activity_end_dt>= pr.settle_dt
+           |                and pr.trans_id='S22'
+           |                and pr.part_settle_dt >= '$start_dt'
+           |                and pr.part_settle_dt <= '$end_dt'
+           |                and pr.trans_id not like 'V%'
+           |                and prize.run_st!='3'
+           |                and prize.loc_activity_id is not null
+           |                group by
+           |                    prize.loc_activity_id,
+           |                    settle_dt ) b
+           |        on
            |            (
-           |                A.LOC_ACTIVITY_ID = B.LOC_ACTIVITY_ID
-           |            AND A.SETTLE_DT = B.SETTLE_DT)
-           |        WHERE
-           |            B.ACTUAL_NUM IS NOT NULL
-           |) C
-           |WHERE
-           |    C.RN <= 10
+           |                a.loc_activity_id = b.loc_activity_id
+           |            and a.settle_dt = b.settle_dt)
+           |        where
+           |            b.actual_num is not null
+           |) c
+           |where
+           |    c.rn <= 10
            |
          | """.stripMargin)
 
