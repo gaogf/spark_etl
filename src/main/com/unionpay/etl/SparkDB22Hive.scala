@@ -80,8 +80,7 @@ object SparkDB22Hive {
         */
       case "JOB_HV_1" => JOB_HV_1 //CODE BY YX
       case "JOB_HV_3" => JOB_HV_3 //CODE BY YX
-      case "JOB_HV_4_old" => JOB_HV_4_old(sqlContext, start_dt, end_dt) //CODE BY TZQ
-      case "JOB_HV_8" => JOB_HV_8(sqlContext, start_dt, end_dt) //CODE BY XTP  already formatted
+      case "JOB_HV_8" => JOB_HV_8(sqlContext, start_dt, end_dt) //CODE BY XTP
       case "JOB_HV_9" => JOB_HV_9 //CODE BY TZQ
       case "JOB_HV_10" => JOB_HV_10 //CODE BY TZQ
       case "JOB_HV_11" => JOB_HV_11 //CODE BY TZQ
@@ -91,25 +90,25 @@ object SparkDB22Hive {
       case "JOB_HV_16" => JOB_HV_16 //CODE BY TZQ
       case "JOB_HV_18" => JOB_HV_18(sqlContext, start_dt, end_dt) //CODE BY YX
       case "JOB_HV_19" => JOB_HV_19 //CODE BY YX
-      case "JOB_HV_28" => JOB_HV_28(sqlContext, start_dt, end_dt) //CODE BY XTP   already formatted
-      case "JOB_HV_29" => JOB_HV_29(sqlContext, start_dt, end_dt) //CODE BY XTP   already formatted
+      case "JOB_HV_28" => JOB_HV_28(sqlContext, start_dt, end_dt) //CODE BY XTP
+      case "JOB_HV_29" => JOB_HV_29(sqlContext, start_dt, end_dt) //CODE BY XTP
       case "JOB_HV_30" => JOB_HV_30(sqlContext, start_dt, end_dt) //CODE BY YX
-      case "JOB_HV_32" => JOB_HV_32(sqlContext, start_dt, end_dt) //CODE BY XTP   already formatted
-      case "JOB_HV_33" => JOB_HV_33(sqlContext, start_dt, end_dt) //CODE BY XTP   already formatted
+      case "JOB_HV_32" => JOB_HV_32(sqlContext, start_dt, end_dt) //CODE BY XTP
+      case "JOB_HV_33" => JOB_HV_33(sqlContext, start_dt, end_dt) //CODE BY XTP
       case "JOB_HV_36" => JOB_HV_36 //CODE BY YX
       case "JOB_HV_44" => JOB_HV_44 //CODE BY TZQ
-      case "JOB_HV_46" => JOB_HV_46 //CODE BY XTP   already formatted
-      case "JOB_HV_47" => JOB_HV_47 //CODE BY XTP   already formatted
+      case "JOB_HV_46" => JOB_HV_46 //CODE BY XTP
+      case "JOB_HV_47" => JOB_HV_47 //CODE BY XTP
       case "JOB_HV_48" => JOB_HV_48 //CODE BY TZQ
       case "JOB_HV_54" => JOB_HV_54 //CODE BY TZQ
       case "JOB_HV_67" => JOB_HV_67 //CODE BY TZQ
       case "JOB_HV_68" => JOB_HV_68 //CODE BY TZQ
-      case "JOB_HV_69" => JOB_HV_69 //CODE BY XTP   already formatted
+      case "JOB_HV_69" => JOB_HV_69 //CODE BY XTP
       case "JOB_HV_70" => JOB_HV_70 //CODE BY YX
-      case "JOB_HV_79" => JOB_HV_79 //CODE BY XTP   already formatted
-      case "JOB_HV_80" => JOB_HV_80(sqlContext, start_dt, end_dt) //CODE BY XTP   already formatted
-      case "JOB_HV_81" => JOB_HV_81(sqlContext, start_dt, end_dt) //CODE BY XTP   already formatted
-      case "JOB_HV_82" => JOB_HV_82(sqlContext, start_dt, end_dt) //CODE BY XTP   already formatted
+      case "JOB_HV_79" => JOB_HV_79 //CODE BY XTP
+      case "JOB_HV_80" => JOB_HV_80(sqlContext, start_dt, end_dt) //CODE BY XTP
+      case "JOB_HV_81" => JOB_HV_81(sqlContext, start_dt, end_dt) //CODE BY XTP
+      case "JOB_HV_82" => JOB_HV_82(sqlContext, start_dt, end_dt) //CODE BY XTP
 
       /**
         * 指标套表job
@@ -449,412 +448,6 @@ object SparkDB22Hive {
 
 
 
-
-
-  /**
-    * JOB_HV_4/10-14
-    * hive_acc_trans->viw_chacc_acc_trans_dtl
-    * Code by Xue
-    *
-    * @param sqlContext
-    * @param start_dt
-    * @param end_dt
-    */
-  def JOB_HV_4_old (implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
-    val currntTime =System.currentTimeMillis()
-
-    val start_day = start_dt.replace("-","")
-    val end_day = end_dt.replace("-","")
-    println("#### JOB_HV_4 增量抽取的时间范围: "+start_day+"--"+end_day)
-
-    val df2_1 = sqlContext.readDB2_ACC_4para(s"$schemas_accdb.viw_chacc_acc_trans_dtl","trans_dt",s"$start_day",s"$end_day")
-    df2_1.registerTempTable("viw_chacc_acc_trans_dtl")
-    println("#### JOB_HV_4 readDB2_ACC_4para--viw_chacc_acc_trans_dtl 的时间为:"+DateUtils.getCurrentSystemTime())
-
-    val df2_2 = sqlContext.readDB2_ACC_4para(s"$schemas_accdb.viw_chacc_acc_trans_log","msg_settle_dt",s"$start_day",s"$end_day")
-    df2_2.registerTempTable("viw_chacc_acc_trans_log")
-    println("#### JOB_HV_4 readDB2_ACC_4para--viw_chacc_acc_trans_log 的时间为:"+DateUtils.getCurrentSystemTime())
-
-    val df2_3 = sqlContext.readDB2_MGM_4para(s"$schemas_mgmdb.viw_chmgm_swt_log","trans_dt",s"$start_day",s"$end_day")
-    df2_3.registerTempTable("viw_chmgm_swt_log")
-    println("#### JOB_HV_4 readDB2_ACC_4para--viw_chacc_acc_trans_log 的时间为:"+DateUtils.getCurrentSystemTime())
-
-    val results = sqlContext.sql(
-      s"""
-         |select
-         |ta.seq_id as seq_id,
-         |trim(ta.cdhd_usr_id) as cdhd_usr_id,
-         |trim(ta.card_no) as card_no,
-         |trim(ta.trans_tfr_tm) as trans_tfr_tm,
-         |trim(ta.sys_tra_no) as sys_tra_no,
-         |trim(ta.acpt_ins_id_cd) as acpt_ins_id_cd,
-         |trim(ta.fwd_ins_id_cd) as fwd_ins_id_cd,
-         |trim(ta.rcv_ins_id_cd) as rcv_ins_id_cd,
-         |trim(ta.oper_module) as oper_module,
-         |case
-         |	when
-         |		substr(ta.trans_dt,1,4) between '0001' and '9999' and substr(ta.trans_dt,5,2) between '01' and '12' and
-         |		substr(ta.trans_dt,7,2) between '01' and substr(last_day(concat_ws('-',substr(ta.trans_dt,1,4),substr(ta.trans_dt,5,2),substr(ta.trans_dt,7,2))),9,2)
-         |	then concat_ws('-',substr(ta.trans_dt,1,4),substr(ta.trans_dt,5,2),substr(ta.trans_dt,7,2))
-         |	else null
-         |end as trans_dt,
-         |case
-         |	when
-         |		substr(ta.trans_dt,1,4) between '0001' and '9999' and substr(ta.trans_dt,5,2) between '01' and '12' and
-         |		substr(ta.trans_dt,7,2) between '01' and substr(last_day(concat_ws('-',substr(ta.trans_dt,1,4),substr(ta.trans_dt,5,2),substr(ta.trans_dt,7,2))),9,2) and
-         |		substr(ta.trans_tm,1,2) between '00' and '24' and
-         |		substr(ta.trans_tm,3,2) between '00' and '59' and
-         |		substr(ta.trans_tm,5,2) between '00' and '59'
-         |	then concat(concat_ws('-',substr(ta.trans_dt,1,4),substr(ta.trans_dt,5,2),substr(ta.trans_dt,7,2)), ' ', concat_ws(':',substr(ta.trans_tm,1,2),substr(ta.trans_tm,3,2),substr(ta.trans_tm,5,2)))
-         |	else null
-         |end as trans_tm,
-         |trim(ta.buss_tp) as buss_tp,
-         |trim(ta.um_trans_id) as um_trans_id,
-         |trim(ta.swt_right_tp) as swt_right_tp,
-         |trim(ta.bill_id) as bill_id,
-         |ta.bill_nm as bill_nm,
-         |trim(ta.chara_acct_tp) as chara_acct_tp,
-         |case
-         |	when length(trim(translate(trim(ta.trans_at),'-0123456789',' ')))=0 then trim(ta.trans_at)
-         |	else null
-         |end as trans_at,
-         |ta.point_at as point_at,
-         |trim(ta.mchnt_tp) as mchnt_tp,
-         |trim(ta.resp_cd) as resp_cd,
-         |trim(ta.card_accptr_term_id) as card_accptr_term_id,
-         |trim(ta.card_accptr_cd) as card_accptr_cd,
-         |ta.trans_proc_start_ts  as frist_trans_proc_start_ts,
-         |td.second_trans_proc_start_ts as second_trans_proc_start_ts,
-         |td.third_trans_proc_start_ts as third_trans_proc_start_ts,
-         |ta.trans_proc_end_ts as trans_proc_end_ts,
-         |trim(ta.sys_det_cd) as sys_det_cd,
-         |trim(ta.sys_err_cd) as sys_err_cd,
-         |ta.rec_upd_ts as rec_upd_ts,
-         |trim(ta.chara_acct_nm) as chara_acct_nm,
-         |trim(ta.void_trans_tfr_tm) as void_trans_tfr_tm,
-         |trim(ta.void_sys_tra_no) as void_sys_tra_no,
-         |trim(ta.void_acpt_ins_id_cd) as void_acpt_ins_id_cd,
-         |trim(ta.void_fwd_ins_id_cd) as void_fwd_ins_id_cd,
-         |ta.orig_data_elemnt as orig_data_elemnt,
-         |ta.rec_crt_ts as rec_crt_ts,
-         |case
-         |	when length(trim(translate(trim(ta.discount_at),'-0123456789',' ')))=0 then trim(ta.discount_at)
-         |	else null
-         |end as discount_at,
-         |trim(ta.bill_item_id) as bill_item_id,
-         |ta.chnl_inf_index as chnl_inf_index,
-         |ta.bill_num as bill_num,
-         |case
-         |	when length(trim(translate(trim(ta.addn_discount_at),'-0123456789',' ')))=0 then trim(ta.addn_discount_at)
-         |	else null
-         |end as addn_discount_at,
-         |trim(ta.pos_entry_md_cd) as pos_entry_md_cd,
-         |ta.udf_fld as udf_fld,
-         |trim(ta.card_accptr_nm_addr) as card_accptr_nm_addr,
-         |trim(tb.msg_tp) as msg_tp,
-         |trim(tb.cdhd_fk) as cdhd_fk,
-         |trim(tb.bill_tp) as bill_tp,
-         |trim(tb.bill_bat_no) as bill_bat_no,
-         |tb.bill_inf as bill_inf,
-         |trim(tb.proc_cd) as proc_cd,
-         |trim(tb.trans_curr_cd) as trans_curr_cd,
-         |case
-         |	when length(trim(translate(trim(tb.settle_at),'-0123456789',' ')))=0 then trim(tb.settle_at)
-         |	else null
-         |end as settle_at,
-         |trim(tb.settle_curr_cd) as settle_curr_cd,
-         |trim(tb.card_accptr_local_tm) as card_accptr_local_tm,
-         |trim(tb.card_accptr_local_dt) as card_accptr_local_dt,
-         |trim(tb.expire_dt) as expire_dt,
-         |case
-         |	when
-         |		substr(tb.msg_settle_dt,1,4) between '0001' and '9999' and substr(tb.msg_settle_dt,5,2) between '01' and '12' and
-         |		substr(tb.msg_settle_dt,7,2) between '01' and substr(last_day(concat_ws('-',substr(tb.msg_settle_dt,1,4),substr(tb.msg_settle_dt,5,2),substr(tb.msg_settle_dt,7,2))),9,2)
-         |	then concat_ws('-',substr(tb.msg_settle_dt,1,4),substr(tb.msg_settle_dt,5,2),substr(tb.msg_settle_dt,7,2))
-         |	else null
-         |end as msg_settle_dt,
-         |trim(tb.pos_cond_cd) as pos_cond_cd,
-         |trim(tb.pos_pin_capture_cd) as pos_pin_capture_cd,
-         |trim(tb.retri_ref_no) as retri_ref_no,
-         |trim(tb.auth_id_resp_cd) as auth_id_resp_cd,
-         |trim(tb.notify_st) as notify_st,
-         |tb.addn_private_data as addn_private_data,
-         |trim(tb.addn_at) as addn_at,
-         |tb.acct_id_1 as acct_id_1,
-         |tb.acct_id_2 as acct_id_2,
-         |tb.resv_fld as resv_fld,
-         |tb.cdhd_auth_inf as cdhd_auth_inf,
-         |case
-         |	when
-         |		substr(tb.sys_settle_dt,1,4) between '0001' and '9999' and substr(tb.sys_settle_dt,5,2) between '01' and '12' and
-         |		substr(tb.sys_settle_dt,7,2) between '01' and substr(last_day(concat_ws('-',substr(tb.sys_settle_dt,1,4),substr(tb.sys_settle_dt,5,2),substr(tb.sys_settle_dt,7,2))),9,2)
-         |	then concat_ws('-',substr(tb.sys_settle_dt,1,4),substr(tb.sys_settle_dt,5,2),substr(tb.sys_settle_dt,7,2))
-         |	else null
-         |end as sys_settle_dt,
-         |trim(tb.recncl_in) as recncl_in,
-         |trim(tb.match_in) as match_in,
-         |trim(tb.sec_ctrl_inf) as sec_ctrl_inf,
-         |trim(tb.card_seq) as card_seq,
-         |tb.dtl_inq_data as dtl_inq_data,
-         |tc.pri_key1 as pri_key1,
-         |tc.fwd_chnl_head as fwd_chnl_head,
-         |tc.chswt_plat_seq as chswt_plat_seq,
-         |trim(tc.internal_trans_tp) as internal_trans_tp,
-         |trim(tc.settle_trans_id) as settle_trans_id,
-         |trim(tc.trans_tp) as trans_tp,
-         |trim(tc.cups_settle_dt) as cups_settle_dt,
-         |trim(tc.pri_acct_no) as pri_acct_no,
-         |trim(tc.card_bin) as card_bin,
-         |tc.req_trans_at as req_trans_at,
-         |tc.resp_trans_at as resp_trans_at,
-         |tc.trans_tot_at as trans_tot_at,
-         |trim(tc.iss_ins_id_cd) as iss_ins_id_cd,
-         |trim(tc.launch_trans_tm) as launch_trans_tm,
-         |trim(tc.launch_trans_dt) as launch_trans_dt,
-         |trim(tc.mchnt_cd) as mchnt_cd,
-         |trim(tc.fwd_proc_in) as fwd_proc_in,
-         |trim(tc.rcv_proc_in) as rcv_proc_in,
-         |trim(tc.proj_tp) as proj_tp,
-         |tc.usr_id as usr_id,
-         |tc.conv_usr_id as conv_usr_id,
-         |trim(tc.trans_st) as trans_st,
-         |tc.inq_dtl_req as inq_dtl_req,
-         |tc.inq_dtl_resp as inq_dtl_resp,
-         |tc.iss_ins_resv as iss_ins_resv,
-         |tc.ic_flds as ic_flds,
-         |tc.cups_def_fld as cups_def_fld,
-         |trim(tc.id_no) as id_no,
-         |tc.cups_resv as cups_resv,
-         |tc.acpt_ins_resv as acpt_ins_resv,
-         |trim(tc.rout_ins_id_cd) as rout_ins_id_cd,
-         |trim(tc.sub_rout_ins_id_cd) as sub_rout_ins_id_cd,
-         |trim(tc.recv_access_resp_cd) as recv_access_resp_cd,
-         |trim(tc.chswt_resp_cd) as chswt_resp_cd,
-         |trim(tc.chswt_err_cd) as chswt_err_cd,
-         |tc.resv_fld1 as resv_fld1,
-         |tc.resv_fld2 as resv_fld2,
-         |tc.to_ts as to_ts,
-         |tc.external_amt as external_amt,
-         |tc.card_pay_at as card_pay_at,
-         |tc.right_purchase_at as right_purchase_at,
-         |trim(tc.recv_second_resp_cd) as recv_second_resp_cd,
-         |tc.req_acpt_ins_resv as req_acpt_ins_resv,
-         |NULL as log_id,
-         |NULL as conv_acct_no,
-         |NULL as inner_pro_ind,
-         |NULL as acct_proc_in,
-         |NULL as order_id
-         |
-         |from (select * from viw_chacc_acc_trans_dtl where um_trans_id<>'AC02202000') ta
-         |left join  (select * from viw_chacc_acc_trans_log
-         |where um_trans_id<>'AC02202000') tb
-         |on trim(ta.trans_tfr_tm)=trim(tb.trans_tfr_tm) and trim(ta.sys_tra_no)=trim(tb.sys_tra_no) and trim(ta.acpt_ins_id_cd)=trim(tb.acpt_ins_id_cd) and trim(ta.fwd_ins_id_cd)=trim(tb.fwd_ins_id_cd)
-         |left join  ( select * from viw_chmgm_swt_log ) tc
-         |on trim(ta.trans_tfr_tm)=trim(tc.tfr_dt_tm)  and  trim(ta.sys_tra_no)=trim(tc.sys_tra_no) and trim(ta.acpt_ins_id_cd)=trim(tc.acpt_ins_id_cd) and trim(ta.fwd_ins_id_cd)=trim(tc.msg_fwd_ins_id_cd)
-         |left join
-         |(
-         |select
-         |trim(tempc.trans_tfr_tm) as trans_tfr_tm,
-         |trim(tempc.sys_tra_no) as sys_tra_no,
-         |trim(tempc.acpt_ins_id_cd) as acpt_ins_id_cd,
-         |trim(tempc.fwd_ins_id_cd) as fwd_ins_id_cd,
-         |max(case when tempc.rank=2 then tempc.trans_proc_start_ts else null end) as second_trans_proc_start_ts,
-         |max(case when tempc.rank=2 then tempc.trans_proc_start_ts else null end) as third_trans_proc_start_ts
-         |from
-         |(select
-         |tempa.trans_tfr_tm as trans_tfr_tm,
-         |tempa.sys_tra_no as sys_tra_no,
-         |tempa.acpt_ins_id_cd as acpt_ins_id_cd,
-         |tempa.fwd_ins_id_cd as fwd_ins_id_cd,
-         |tempa.trans_proc_start_ts as trans_proc_start_ts,
-         |row_number() over (order by tempa.trans_proc_start_ts) rank
-         |from (select * from viw_chacc_acc_trans_dtl) tempa,
-         |(select * from viw_chacc_acc_trans_log) tempb
-         |where tempa.um_trans_id='AC02202000' and tempb.um_trans_id='AC02202000'
-         |group by tempa.trans_tfr_tm,tempa.sys_tra_no,tempa.acpt_ins_id_cd,tempa.fwd_ins_id_cd,tempa.trans_proc_start_ts) tempc
-         |group by tempc.trans_tfr_tm,tempc.sys_tra_no,tempc.acpt_ins_id_cd,tempc.fwd_ins_id_cd
-         |)td
-         |on trim(ta.trans_tfr_tm)=trim(td.trans_tfr_tm) and trim(ta.sys_tra_no)=trim(td.sys_tra_no) and trim(ta.acpt_ins_id_cd)=trim(td.acpt_ins_id_cd) and trim(ta.fwd_ins_id_cd)=trim(td.fwd_ins_id_cd)
-         |
-         | """.stripMargin)
-
-    results.registerTempTable("spark_acc_trans")
-    println("#### JOB_HV_4 registerTempTable--spark_acc_trans 的时间为:"+DateUtils.getCurrentSystemTime())
-
-
-    if(!Option(results).isEmpty){
-      sqlContext.sql("use upw_hive")
-      sqlContext.sql(
-        s"""
-           |insert overwrite table hive_acc_trans partition (part_trans_dt)
-           | select
-           | seq_id,
-           |cdhd_usr_id,
-           |card_no,
-           |trans_tfr_tm,
-           |sys_tra_no,
-           |acpt_ins_id_cd,
-           |fwd_ins_id_cd,
-           |rcv_ins_id_cd,
-           |oper_module,
-           |trans_dt,
-           |trans_tm,
-           |buss_tp,
-           |um_trans_id,
-           |swt_right_tp,
-           |bill_id,
-           |bill_nm,
-           |chara_acct_tp,
-           |trans_at,
-           |point_at,
-           |mchnt_tp,
-           |resp_cd,
-           |card_accptr_term_id,
-           |card_accptr_cd,
-           |frist_trans_proc_start_ts,
-           |second_trans_proc_start_ts,
-           |third_trans_proc_start_ts,
-           |trans_proc_end_ts,
-           |sys_det_cd,
-           |sys_err_cd,
-           |rec_upd_ts,
-           |chara_acct_nm,
-           | void_trans_tfr_tm,
-           | void_sys_tra_no,
-           | void_acpt_ins_id_cd,
-           | void_fwd_ins_id_cd,
-           | orig_data_elemnt,
-           |rec_crt_ts,
-           |discount_at,
-           |bill_item_id,
-           | chnl_inf_index,
-           | bill_num,
-           |addn_discount_at,
-           | pos_entry_md_cd,
-           | udf_fld,
-           | card_accptr_nm_addr,
-           | msg_tp,
-           |cdhd_fk,
-           |bill_tp,
-           |bill_bat_no,
-           |bill_inf,
-           | proc_cd,
-           |trans_curr_cd,
-           |settle_at,
-           | settle_curr_cd,
-           |card_accptr_local_tm,
-           | card_accptr_local_dt,
-           |expire_dt,
-           | msg_settle_dt,
-           |pos_cond_cd,
-           |pos_pin_capture_cd,
-           | retri_ref_no,
-           | auth_id_resp_cd,
-           | notify_st,
-           |addn_private_data,
-           |addn_at,
-           |acct_id_1,
-           |acct_id_2,
-           |resv_fld,
-           |cdhd_auth_inf,
-           |sys_settle_dt,
-           |recncl_in,
-           |match_in,
-           | sec_ctrl_inf,
-           |card_seq,
-           | dtl_inq_data,
-           | pri_key1,
-           | fwd_chnl_head,
-           |chswt_plat_seq,
-           |internal_trans_tp,
-           |settle_trans_id,
-           |trans_tp,
-           | cups_settle_dt,
-           | pri_acct_no,
-           |card_bin,
-           | req_trans_at,
-           | resp_trans_at,
-           |trans_tot_at,
-           |iss_ins_id_cd,
-           | launch_trans_tm,
-           | launch_trans_dt,
-           |mchnt_cd,
-           | fwd_proc_in,
-           |rcv_proc_in,
-           |proj_tp,
-           | usr_id,
-           |conv_usr_id,
-           | trans_st,
-           |inq_dtl_req,
-           |inq_dtl_resp,
-           | iss_ins_resv,
-           | ic_flds,
-           |cups_def_fld,
-           |id_no,
-           |cups_resv,
-           |acpt_ins_resv,
-           |rout_ins_id_cd,
-           |sub_rout_ins_id_cd,
-           |recv_access_resp_cd,
-           |chswt_resp_cd,
-           | chswt_err_cd,
-           |resv_fld1,
-           | resv_fld2,
-           | to_ts,
-           | external_amt,
-           |card_pay_at,
-           |right_purchase_at,
-           | recv_second_resp_cd,
-           |req_acpt_ins_resv,
-           |NULL as log_id,
-           |NULL as conv_acct_no,
-           |NULL as inner_pro_ind,
-           |NULL as acct_proc_in,
-           |NULL as order_id,
-           |trans_dt
-           |from spark_acc_trans
-        """.stripMargin)
-      println("#### JOB_HV_4 插入分区完成的时间为："+DateUtils.getCurrentSystemTime())
-    }else{
-      println("#### JOB_HV_4 加载的表spark_acc_trans中无数据！")
-    }
-
-//    // don`t use now
-//    def PartitionFun_JOB_HV_4(start_dt: String, end_dt: String)  {
-//
-//      var sdf: SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd")
-//      val start = LocalDate.parse(start_dt, dateFormatter)
-//      val end = LocalDate.parse(end_dt, dateFormatter)
-//      val days = Days.daysBetween(start,end).getDays
-//      val dateStrs = for (day <- 0 to days) {
-//        val insertofTime = System.currentTimeMillis()
-//        val currentDay = (start.plusDays(day).toString(dateFormatter))
-//        println(s"=========插入'$currentDay'分区的数据=========")
-//        sqlContext.sql(s"use $hive_dbname")
-//        sqlContext.sql(s"alter table hive_acc_trans drop partition (part_trans_dt='$currentDay')")
-//        println(s"alter table hive_acc_trans drop partition (part_trans_dt='$currentDay') successfully!")
-//        sqlContext.sql(s"insert into hive_acc_trans partition (part_trans_dt='$currentDay') select * from spark_acc_trans htempa where htempa.trans_dt = '$currentDay'")
-//        println(s"insert into hive_acc_trans partition (part_trans_dt='$currentDay') successfully!")
-//        val usedInsertofTime = System.currentTimeMillis() - insertofTime
-//        val ss:Int =((System.currentTimeMillis() - insertofTime)/1000).toInt
-//        val MM:Int = ss/60
-//        val hh:Int = MM/60
-//        val dd:Int = hh/24
-//        println("运行插入分区花费的时间是:"+dd+"天"+(hh-dd*24)+"时"+(MM-hh*60)+"分"+(ss-MM*60)+"秒 , 合计："+usedInsertofTime+"毫秒")
-//
-//      }
-//    }
-
-    val usedTime = System.currentTimeMillis() - currntTime
-    val ss:Int =((System.currentTimeMillis() - currntTime)/1000).toInt
-    val MM:Int = ss/60
-    val hh:Int = MM/60
-    val dd:Int = hh/24
-    println("运行 JOB_HV_4 花费 :"+dd+"天"+(hh-dd*24)+"时"+(MM-hh*60)+"分"+(ss-MM*60)+"秒 , 合计："+usedTime+"毫秒")
-
-  }
-
-
   /**
     * JOB_HV_8/10-14
     * HIVE_STORE_TERM_RELATION->TBL_CHMGM_STORE_TERM_RELATION
@@ -871,10 +464,10 @@ object SparkDB22Hive {
     println("#### JOB_HV_8 为全量抽取的表")
 
     DateUtils.timeCost("JOB_HV_8") {
-      val df = sqlContext.readDB2_MGM(s"$schemas_mgmdb.TBL_CHMGM_STORE_TERM_RELATION")
+      val df = sqlContext.readDB2_MGM(s"$schemas_mgmdb.tbl_chmgm_store_term_relation")
       println("#### JOB_HV_8 readDB2_MGM 的系统时间为:"+DateUtils.getCurrentSystemTime())
 
-      df.registerTempTable("TBL_CHMGM_STORE_TERM_RELATION")
+      df.registerTempTable("tbl_chmgm_store_term_relation")
       println("#### JOB_HV_8 注册临时表的系统时间为:"+DateUtils.getCurrentSystemTime())
 
       sqlContext.sql(s"use $hive_dbname")
@@ -885,85 +478,85 @@ object SparkDB22Hive {
       val results = sqlContext.sql(
         """
          |select
-         |tempa.REC_ID AS REC_ID,
-         |tempa.MCHNT_CD AS MCHNT_CD,
-         |tempa.TERM_ID AS TERM_ID,
-         |tempa.THIRD_PARTY_INS_FK AS THIRD_PARTY_INS_FK,
-         |tempa.REC_UPD_USR_ID AS REC_UPD_USR_ID,
-         |tempa.REC_UPD_TS AS REC_UPD_TS,
-         |tempa.REC_CRT_USR_ID AS REC_CRT_USR_ID,
-         |tempa.REC_CRT_TS AS REC_CRT_TS,
-         |tempa.THIRD_PARTY_INS_ID AS THIRD_PARTY_INS_ID,
-         |'0' AS IS_TRANS_TP
+         |tempa.rec_id as rec_id,
+         |tempa.mchnt_cd as mchnt_cd,
+         |tempa.term_id as term_id,
+         |tempa.third_party_ins_fk as third_party_ins_fk,
+         |tempa.rec_upd_usr_id as rec_upd_usr_id,
+         |tempa.rec_upd_ts as rec_upd_ts,
+         |tempa.rec_crt_usr_id as rec_crt_usr_id,
+         |tempa.rec_crt_ts as rec_crt_ts,
+         |tempa.third_party_ins_id as third_party_ins_id,
+         |'0' as is_trans_tp
          |from
          |(
          |select
-         |A.REC_ID AS REC_ID,
-         |A.MCHNT_CD AS MCHNT_CD,
-         |A.TERM_ID AS TERM_ID,
-         |A.THIRD_PARTY_INS_FK AS THIRD_PARTY_INS_FK,
-         |A.REC_UPD_USR_ID AS REC_UPD_USR_ID,
-         |A.REC_UPD_TS AS REC_UPD_TS,
-         |A.REC_CRT_USR_ID AS REC_CRT_USR_ID,
-         |A.REC_CRT_TS AS REC_CRT_TS,
-         |A.THIRD_PARTY_INS_ID AS THIRD_PARTY_INS_ID,
-         |B.CARD_ACCPTR_CD AS CARD_ACCPTR_CD,
-         |B.CARD_ACCPTR_TERM_ID AS CARD_ACCPTR_TERM_ID
+         |a.rec_id as rec_id,
+         |a.mchnt_cd as mchnt_cd,
+         |a.term_id as term_id,
+         |a.third_party_ins_fk as third_party_ins_fk,
+         |a.rec_upd_usr_id as rec_upd_usr_id,
+         |a.rec_upd_ts as rec_upd_ts,
+         |a.rec_crt_usr_id as rec_crt_usr_id,
+         |a.rec_crt_ts as rec_crt_ts,
+         |a.third_party_ins_id as third_party_ins_id,
+         |b.card_accptr_cd as card_accptr_cd,
+         |b.card_accptr_term_id as card_accptr_term_id
          |from
-         |TBL_CHMGM_STORE_TERM_RELATION A
-         |LEFT JOIN
+         |tbl_chmgm_store_term_relation a
+         |left join
          |(
-         |SELECT DISTINCT
-         |CARD_ACCPTR_TERM_ID,
-         |CARD_ACCPTR_CD
-         |FROM
+         |select distinct
+         |card_accptr_term_id,
+         |card_accptr_cd
+         |from
          |hive_trans_dtl
-         |) B
-         |ON A.MCHNT_CD = B.CARD_ACCPTR_CD AND A.TERM_ID = B.CARD_ACCPTR_TERM_ID
+         |) b
+         |on a.mchnt_cd = b.card_accptr_cd and a.term_id = b.card_accptr_term_id
          |) tempa
-         |where tempa.CARD_ACCPTR_CD is null AND tempa.CARD_ACCPTR_TERM_ID is null
+         |where tempa.card_accptr_cd is null and tempa.card_accptr_term_id is null
          |
-         |UNION ALL
+         |union all
          |
          |
          |select
-         |tempb.REC_ID AS REC_ID,
-         |tempb.MCHNT_CD AS MCHNT_CD,
-         |tempb.TERM_ID AS TERM_ID,
-         |tempb.THIRD_PARTY_INS_FK AS THIRD_PARTY_INS_FK,
-         |tempb.REC_UPD_USR_ID AS REC_UPD_USR_ID,
-         |tempb.REC_UPD_TS AS REC_UPD_TS,
-         |tempb.REC_CRT_USR_ID AS REC_CRT_USR_ID,
-         |tempb.REC_CRT_TS AS REC_CRT_TS,
-         |tempb.THIRD_PARTY_INS_ID AS THIRD_PARTY_INS_ID,
-         |'1' AS IS_TRANS_TP
+         |tempb.rec_id as rec_id,
+         |tempb.mchnt_cd as mchnt_cd,
+         |tempb.term_id as term_id,
+         |tempb.third_party_ins_fk as third_party_ins_fk,
+         |tempb.rec_upd_usr_id as rec_upd_usr_id,
+         |tempb.rec_upd_ts as rec_upd_ts,
+         |tempb.rec_crt_usr_id as rec_crt_usr_id,
+         |tempb.rec_crt_ts as rec_crt_ts,
+         |tempb.third_party_ins_id as third_party_ins_id,
+         |'1' as is_trans_tp
          |from
          |(
          |select
-         |A.REC_ID AS REC_ID,
-         |A.MCHNT_CD AS MCHNT_CD,
-         |A.TERM_ID AS TERM_ID,
-         |A.THIRD_PARTY_INS_FK AS THIRD_PARTY_INS_FK,
-         |A.REC_UPD_USR_ID AS REC_UPD_USR_ID,
-         |A.REC_UPD_TS AS REC_UPD_TS,
-         |A.REC_CRT_USR_ID AS REC_CRT_USR_ID,
-         |A.REC_CRT_TS AS REC_CRT_TS,
-         |A.THIRD_PARTY_INS_ID AS THIRD_PARTY_INS_ID,
-         |B.CARD_ACCPTR_CD AS CARD_ACCPTR_CD,
-         |B.CARD_ACCPTR_TERM_ID AS CARD_ACCPTR_TERM_ID
+         |a.rec_id as rec_id,
+         |a.mchnt_cd as mchnt_cd,
+         |a.term_id as term_id,
+         |a.third_party_ins_fk as third_party_ins_fk,
+         |a.rec_upd_usr_id as rec_upd_usr_id,
+         |a.rec_upd_ts as rec_upd_ts,
+         |a.rec_crt_usr_id as rec_crt_usr_id,
+         |a.rec_crt_ts as rec_crt_ts,
+         |a.third_party_ins_id as third_party_ins_id,
+         |b.card_accptr_cd as card_accptr_cd,
+         |b.card_accptr_term_id as card_accptr_term_id
          |from
-         |TBL_CHMGM_STORE_TERM_RELATION A
-         |LEFT JOIN
+         |tbl_chmgm_store_term_relation a
+         |left join
          |(
-         |SELECT DISTINCT
-         |CARD_ACCPTR_TERM_ID,
-         |CARD_ACCPTR_CD
-         |FROM
+         |select distinct
+         |card_accptr_term_id,
+         |card_accptr_cd
+         |from
          |hive_trans_dtl
-         |) B
-         |ON A.MCHNT_CD = B.CARD_ACCPTR_CD AND A.TERM_ID = B.CARD_ACCPTR_TERM_ID
+         |) b
+         |on a.mchnt_cd = b.card_accptr_cd and a.term_id = b.card_accptr_term_id
          |) tempb
-         |where tempb.CARD_ACCPTR_CD is not null  AND tempb.CARD_ACCPTR_TERM_ID is not null
+         |where tempb.card_accptr_cd is not null  and tempb.card_accptr_term_id is not null
          | """.stripMargin)
 
       results.registerTempTable("spark_tbl_chmgm_store_term_relation")
@@ -971,7 +564,7 @@ object SparkDB22Hive {
 
      if(!Option(results).isEmpty){
        sqlContext.sql(s"use $hive_dbname")
-       sqlContext.sql("insert overwrite table HIVE_STORE_TERM_RELATION select * from spark_tbl_chmgm_store_term_relation")
+       sqlContext.sql("insert overwrite table hive_store_term_relation select * from spark_tbl_chmgm_store_term_relation")
        println("#### JOB_HV_8 全量数据插入完成的时间为："+DateUtils.getCurrentSystemTime())
      }else{
        println("#### JOB_HV_8 spark sql 逻辑处理后无数据！")
@@ -2732,28 +2325,28 @@ object SparkDB22Hive {
     */
   def JOB_HV_25 (implicit sqlContext: HiveContext) = {
     DateUtils.timeCost("JOB_HV_25"){
-      println("###JOB_HV_25(HIVE_MCHNT_TP->tbl_mcmgm_mchnt_tp)")
+      println("###JOB_HV_25(hive_mchnt_tp->tbl_mcmgm_mchnt_tp)")
       val df2_1 = sqlContext.readDB2_MGM(s"$schemas_mgmdb.tbl_mcmgm_mchnt_tp")
       df2_1.registerTempTable("tbl_mcmgm_mchnt_tp")
       val results = sqlContext.sql(
         """
           |select
-          |trim(ta.MCHNT_TP) as MCHNT_TP,
-          |trim(ta.MCHNT_TP_GRP) as MCHNT_TP_GRP,
-          |ta.MCHNT_TP_DESC_CN as MCHNT_TP_DESC_CN,
-          |ta.MCHNT_TP_DESC_EN as MCHNT_TP_DESC_EN,
-          |ta.REC_ID as REC_ID,
-          |ta.REC_ST as REC_ST,
-          |ta.MCC_TYPE as MCC_TYPE,
-          |ta.LAST_OPER_IN as LAST_OPER_IN,
-          |trim(ta.REC_UPD_USR_ID) as REC_UPD_USR_ID,
-          |ta.REC_UPD_TS as REC_UPD_TS,
-          |ta.REC_CRT_TS as REC_CRT_TS,
-          |ta.SYNC_ST as SYNC_ST,
-          |ta.SYNC_BAT_NO as SYNC_BAT_NO,
-          |ta.SYNC_TS as SYNC_TS
+          |trim(ta.mchnt_tp) as mchnt_tp,
+          |trim(ta.mchnt_tp_grp) as mchnt_tp_grp,
+          |ta.mchnt_tp_desc_cn as mchnt_tp_desc_cn,
+          |ta.mchnt_tp_desc_en as mchnt_tp_desc_en,
+          |ta.rec_id as rec_id,
+          |ta.rec_st as rec_st,
+          |ta.mcc_type as mcc_type,
+          |ta.last_oper_in as last_oper_in,
+          |trim(ta.rec_upd_usr_id) as rec_upd_usr_id,
+          |ta.rec_upd_ts as rec_upd_ts,
+          |ta.rec_crt_ts as rec_crt_ts,
+          |ta.sync_st as sync_st,
+          |ta.sync_bat_no as sync_bat_no,
+          |ta.sync_ts as sync_ts
           |
-          |from TBL_MCMGM_MCHNT_TP ta
+          |from tbl_mcmgm_mchnt_tp ta
           |
           | """.stripMargin)
 
@@ -2763,9 +2356,9 @@ object SparkDB22Hive {
       if(!Option(results).isEmpty){
         results.registerTempTable("spark_hive_mchnt_tp")
         sqlContext.sql(s"use $hive_dbname")
-        sqlContext.sql("truncate table  HIVE_MCHNT_TP")
-        sqlContext.sql("insert into table HIVE_MCHNT_TP select * from spark_hive_mchnt_tp")
-        println("insert into table HIVE_MCHNT_TP successfully!")
+        sqlContext.sql("truncate table  hive_mchnt_tp")
+        sqlContext.sql("insert into table hive_mchnt_tp select * from spark_hive_mchnt_tp")
+        println("insert into table hive_mchnt_tp successfully!")
       }else{
         println("加载的表spark_hive_mchnt_tp中无数据！")
       }
@@ -2839,132 +2432,132 @@ object SparkDB22Hive {
       sqlContext.sql(s"use $hive_dbname")
       val results = sqlContext.sql(
         s"""
-           |SELECT
-           |NVL(B.TFR_DT_TM,A.TRANS_TFR_TM) as TFR_DT_TM,
-           |NVL(B.SYS_TRA_NO,A.SYS_TRA_NO) as SYS_TRA_NO,
-           |NVL(B.ACPT_INS_ID_CD,A.ACPT_INS_ID_CD) as ACPT_INS_ID_CD,
-           |NVL(B.MSG_FWD_INS_ID_CD,A.FWD_INS_ID_CD) as FWD_INS_ID_CD,
-           |B.PRI_KEY1 as PRI_KEY1,
-           |B.FWD_CHNL_HEAD as FWD_CHNL_HEAD,
-           |B.CHSWT_PLAT_SEQ as CHSWT_PLAT_SEQ,
-           |trim(B.TRANS_TM) as TRANS_TM,
+           |select
+           |nvl(b.tfr_dt_tm,a.trans_tfr_tm) as tfr_dt_tm,
+           |nvl(b.sys_tra_no,a.sys_tra_no) as sys_tra_no,
+           |nvl(b.acpt_ins_id_cd,a.acpt_ins_id_cd) as acpt_ins_id_cd,
+           |nvl(b.msg_fwd_ins_id_cd,a.fwd_ins_id_cd) as fwd_ins_id_cd,
+           |b.pri_key1 as pri_key1,
+           |b.fwd_chnl_head as fwd_chnl_head,
+           |b.chswt_plat_seq as chswt_plat_seq,
+           |trim(b.trans_tm) as trans_tm,
            |case when
-           |substr(trim(B.TRANS_DT),1,4) between '0001' and '9999' and substr(trim(B.TRANS_DT),5,2) between '01' and '12' and
-           |substr(trim(B.TRANS_DT),7,2) between '01' and substr(last_day(concat_ws('-',substr(trim(B.TRANS_DT),1,4),substr(trim(B.TRANS_DT),5,2),substr(trim(B.TRANS_DT),7,2))),9,2)
-           |then concat_ws('-',substr(B.TRANS_DT,1,4),substr(B.TRANS_DT,5,2),substr(B.TRANS_DT,7,2))
-           |else null end as TRANS_DT,
+           |substr(trim(b.trans_dt),1,4) between '0001' and '9999' and substr(trim(b.trans_dt),5,2) between '01' and '12' and
+           |substr(trim(b.trans_dt),7,2) between '01' and substr(last_day(concat_ws('-',substr(trim(b.trans_dt),1,4),substr(trim(b.trans_dt),5,2),substr(trim(b.trans_dt),7,2))),9,2)
+           |then concat_ws('-',substr(b.trans_dt,1,4),substr(b.trans_dt,5,2),substr(b.trans_dt,7,2))
+           |else null end as trans_dt,
            |case when
-           |substr(NVL(trim(B.CSWT_SETTLE_DT),trim(A.SYS_SETTLE_DT)) ,1,4) between '0001' and '9999' and substr(NVL(trim(B.CSWT_SETTLE_DT),trim(A.SYS_SETTLE_DT)),5,2) between '01' and '12' and
-           |substr(NVL(trim(B.CSWT_SETTLE_DT),trim(A.SYS_SETTLE_DT)),7,2) between '01' and substr(last_day(concat_ws('-',substr(NVL(trim(B.CSWT_SETTLE_DT),trim(A.SYS_SETTLE_DT)),1,4),substr(NVL(trim(B.CSWT_SETTLE_DT),trim(A.SYS_SETTLE_DT)),5,2),substr(NVL(trim(B.CSWT_SETTLE_DT),trim(A.SYS_SETTLE_DT)),7,2))),9,2)
-           |then concat_ws('-',substr(NVL(trim(B.CSWT_SETTLE_DT),trim(A.SYS_SETTLE_DT)),1,4),substr(NVL(trim(B.CSWT_SETTLE_DT),trim(A.SYS_SETTLE_DT)),5,2),substr(NVL(trim(B.CSWT_SETTLE_DT),trim(A.SYS_SETTLE_DT)),7,2))
-           |else null end as CSWT_SETTLE_DT,
-           |trim(B.INTERNAL_TRANS_TP) as INTERNAL_TRANS_TP,
-           |trim(B.SETTLE_TRANS_ID) as SETTLE_TRANS_ID,
-           |trim(B.TRANS_TP) as TRANS_TP,
-           |trim(B.CUPS_SETTLE_DT) as CUPS_SETTLE_DT,
-           |NVL(B.MSG_TP,A.MSG_TP) as MSG_TP,
-           |trim(B.PRI_ACCT_NO) as PRI_ACCT_NO,
-           |trim(B.CARD_BIN) as CARD_BIN,
-           |NVL(B.PROC_CD,A.PROC_CD) as PROC_CD,
-           |B.REQ_TRANS_AT as REQ_TRANS_AT,
-           |B.RESP_TRANS_AT as RESP_TRANS_AT,
-           |NVL(B.TRANS_CURR_CD,A.TRANS_CURR_CD) as TRANS_CURR_CD,
-           |B.TRANS_TOT_AT as TRANS_TOT_AT,
-           |trim(B.ISS_INS_ID_CD) as ISS_INS_ID_CD,
-           |trim(B.LAUNCH_TRANS_TM) as LAUNCH_TRANS_TM,
-           |trim(B.LAUNCH_TRANS_DT) as LAUNCH_TRANS_DT,
-           |NVL(B.MCHNT_TP,A.MCHNT_TP) as MCHNT_TP,
-           |trim(B.POS_ENTRY_MD_CD) as POS_ENTRY_MD_CD,
-           |NVL(B.CARD_SEQ_ID,A.CARD_SEQ) as CARD_SEQ_ID,
-           |trim(B.POS_COND_CD) as POS_COND_CD,
-           |NVL(B.POS_PIN_CAPTURE_CD,A.POS_PIN_CAPTURE_CD) as POS_PIN_CAPTURE_CD,
-           |NVL(B.RETRI_REF_NO,A.RETRI_REF_NO) as RETRI_REF_NO,
-           |NVL(B.TERM_ID,A.CARD_ACCPTR_TERM_ID) as TERM_ID,
-           |NVL(B.MCHNT_CD,A.CARD_ACCPTR_CD) as MCHNT_CD,
-           |NVL(B.CARD_ACCPTR_NM_LOC,A.CARD_ACCPTR_NM_ADDR) as CARD_ACCPTR_NM_LOC,
-           |NVL(B.SEC_RELATED_CTRL_INF,A.SEC_CTRL_INF) as SEC_RELATED_CTRL_INF,
-           |NVL(B.ORIG_DATA_ELEMTS,A.ORIG_DATA_ELEMNT) as ORIG_DATA_ELEMTS,
-           |NVL(B.RCV_INS_ID_CD,A.RCV_INS_ID_CD) as RCV_INS_ID_CD,
-           |trim(B.FWD_PROC_IN) as FWD_PROC_IN,
-           |trim(B.RCV_PROC_IN) as RCV_PROC_IN,
-           |trim(B.PROJ_TP) as PROJ_TP,
-           |B.USR_ID as USR_ID,
-           |B.CONV_USR_ID as CONV_USR_ID,
-           |trim(B.TRANS_ST) as TRANS_ST,
-           |B.INQ_DTL_REQ as INQ_DTL_REQ,
-           |B.INQ_DTL_RESP as INQ_DTL_RESP,
-           |B.ISS_INS_RESV as ISS_INS_RESV,
-           |B.IC_FLDS as IC_FLDS,
-           |B.CUPS_DEF_FLD as CUPS_DEF_FLD,
-           |trim(B.ID_NO) as ID_NO,
-           |B.CUPS_RESV as CUPS_RESV,
-           |B.ACPT_INS_RESV as ACPT_INS_RESV,
-           |trim(B.ROUT_INS_ID_CD) as ROUT_INS_ID_CD,
-           |trim(B.SUB_ROUT_INS_ID_CD) as SUB_ROUT_INS_ID_CD,
-           |trim(B.RECV_ACCESS_RESP_CD) as RECV_ACCESS_RESP_CD,
-           |trim(B.CHSWT_RESP_CD) as CHSWT_RESP_CD,
-           |trim(B.CHSWT_ERR_CD) as CHSWT_ERR_CD,
-           |B.RESV_FLD1 as RESV_FLD1,
-           |B.RESV_FLD2 as RESV_FLD2,
-           |B.TO_TS as TO_TS,
-           |NVL(B.REC_UPD_TS,A.REC_UPD_TS) as REC_UPD_TS,
-           |B.REC_CRT_TS as REC_CRT_TS,
-           |NVL(B.SETTLE_AT,A.SETTLE_AT) as SETTLE_AT,
-           |B.EXTERNAL_AMT as EXTERNAL_AMT,
-           |B.DISCOUNT_AT as DISCOUNT_AT,
-           |B.CARD_PAY_AT as CARD_PAY_AT,
-           |B.RIGHT_PURCHASE_AT as RIGHT_PURCHASE_AT,
-           |trim(B.RECV_SECOND_RESP_CD) as RECV_SECOND_RESP_CD,
-           |B.REQ_ACPT_INS_RESV as REQ_ACPT_INS_RESV,
-           |trim(B.LOG_ID) as LOG_ID,
-           |trim(B.CONV_ACCT_NO) as CONV_ACCT_NO,
-           |trim(B.INNER_PRO_IND) as INNER_PRO_IND,
-           |trim(B.ACCT_PROC_IN) as ACCT_PROC_IN,
-           |B.ORDER_ID as ORDER_ID,
-           |A.SEQ_ID as SEQ_ID,
-           |trim(A.OPER_MODULE) as OPER_MODULE,
-           |trim(A.UM_TRANS_ID) as UM_TRANS_ID,
-           |trim(A.CDHD_FK) as CDHD_FK,
-           |trim(A.BILL_ID) as BILL_ID,
-           |trim(A.BILL_TP) as BILL_TP,
-           |trim(A.BILL_BAT_NO) as BILL_BAT_NO,
-           |A.BILL_INF as BILL_INF,
-           |trim(A.CARD_NO) as CARD_NO,
+           |substr(nvl(trim(b.cswt_settle_dt),trim(a.sys_settle_dt)) ,1,4) between '0001' and '9999' and substr(nvl(trim(b.cswt_settle_dt),trim(a.sys_settle_dt)),5,2) between '01' and '12' and
+           |substr(nvl(trim(b.cswt_settle_dt),trim(a.sys_settle_dt)),7,2) between '01' and substr(last_day(concat_ws('-',substr(nvl(trim(b.cswt_settle_dt),trim(a.sys_settle_dt)),1,4),substr(nvl(trim(b.cswt_settle_dt),trim(a.sys_settle_dt)),5,2),substr(nvl(trim(b.cswt_settle_dt),trim(a.sys_settle_dt)),7,2))),9,2)
+           |then concat_ws('-',substr(nvl(trim(b.cswt_settle_dt),trim(a.sys_settle_dt)),1,4),substr(nvl(trim(b.cswt_settle_dt),trim(a.sys_settle_dt)),5,2),substr(nvl(trim(b.cswt_settle_dt),trim(a.sys_settle_dt)),7,2))
+           |else null end as cswt_settle_dt,
+           |trim(b.internal_trans_tp) as internal_trans_tp,
+           |trim(b.settle_trans_id) as settle_trans_id,
+           |trim(b.trans_tp) as trans_tp,
+           |trim(b.cups_settle_dt) as cups_settle_dt,
+           |nvl(b.msg_tp,a.msg_tp) as msg_tp,
+           |trim(b.pri_acct_no) as pri_acct_no,
+           |trim(b.card_bin) as card_bin,
+           |nvl(b.proc_cd,a.proc_cd) as proc_cd,
+           |b.req_trans_at as req_trans_at,
+           |b.resp_trans_at as resp_trans_at,
+           |nvl(b.trans_curr_cd,a.trans_curr_cd) as trans_curr_cd,
+           |b.trans_tot_at as trans_tot_at,
+           |trim(b.iss_ins_id_cd) as iss_ins_id_cd,
+           |trim(b.launch_trans_tm) as launch_trans_tm,
+           |trim(b.launch_trans_dt) as launch_trans_dt,
+           |nvl(b.mchnt_tp,a.mchnt_tp) as mchnt_tp,
+           |trim(b.pos_entry_md_cd) as pos_entry_md_cd,
+           |nvl(b.card_seq_id,a.card_seq) as card_seq_id,
+           |trim(b.pos_cond_cd) as pos_cond_cd,
+           |nvl(b.pos_pin_capture_cd,a.pos_pin_capture_cd) as pos_pin_capture_cd,
+           |nvl(b.retri_ref_no,a.retri_ref_no) as retri_ref_no,
+           |nvl(b.term_id,a.card_accptr_term_id) as term_id,
+           |nvl(b.mchnt_cd,a.card_accptr_cd) as mchnt_cd,
+           |nvl(b.card_accptr_nm_loc,a.card_accptr_nm_addr) as card_accptr_nm_loc,
+           |nvl(b.sec_related_ctrl_inf,a.sec_ctrl_inf) as sec_related_ctrl_inf,
+           |nvl(b.orig_data_elemts,a.orig_data_elemnt) as orig_data_elemts,
+           |nvl(b.rcv_ins_id_cd,a.rcv_ins_id_cd) as rcv_ins_id_cd,
+           |trim(b.fwd_proc_in) as fwd_proc_in,
+           |trim(b.rcv_proc_in) as rcv_proc_in,
+           |trim(b.proj_tp) as proj_tp,
+           |b.usr_id as usr_id,
+           |b.conv_usr_id as conv_usr_id,
+           |trim(b.trans_st) as trans_st,
+           |b.inq_dtl_req as inq_dtl_req,
+           |b.inq_dtl_resp as inq_dtl_resp,
+           |b.iss_ins_resv as iss_ins_resv,
+           |b.ic_flds as ic_flds,
+           |b.cups_def_fld as cups_def_fld,
+           |trim(b.id_no) as id_no,
+           |b.cups_resv as cups_resv,
+           |b.acpt_ins_resv as acpt_ins_resv,
+           |trim(b.rout_ins_id_cd) as rout_ins_id_cd,
+           |trim(b.sub_rout_ins_id_cd) as sub_rout_ins_id_cd,
+           |trim(b.recv_access_resp_cd) as recv_access_resp_cd,
+           |trim(b.chswt_resp_cd) as chswt_resp_cd,
+           |trim(b.chswt_err_cd) as chswt_err_cd,
+           |b.resv_fld1 as resv_fld1,
+           |b.resv_fld2 as resv_fld2,
+           |b.to_ts as to_ts,
+           |nvl(b.rec_upd_ts,a.rec_upd_ts) as rec_upd_ts,
+           |b.rec_crt_ts as rec_crt_ts,
+           |nvl(b.settle_at,a.settle_at) as settle_at,
+           |b.external_amt as external_amt,
+           |b.discount_at as discount_at,
+           |b.card_pay_at as card_pay_at,
+           |b.right_purchase_at as right_purchase_at,
+           |trim(b.recv_second_resp_cd) as recv_second_resp_cd,
+           |b.req_acpt_ins_resv as req_acpt_ins_resv,
+           |trim(b.log_id) as log_id,
+           |trim(b.conv_acct_no) as conv_acct_no,
+           |trim(b.inner_pro_ind) as inner_pro_ind,
+           |trim(b.acct_proc_in) as acct_proc_in,
+           |b.order_id as order_id,
+           |a.seq_id as seq_id,
+           |trim(a.oper_module) as oper_module,
+           |trim(a.um_trans_id) as um_trans_id,
+           |trim(a.cdhd_fk) as cdhd_fk,
+           |trim(a.bill_id) as bill_id,
+           |trim(a.bill_tp) as bill_tp,
+           |trim(a.bill_bat_no) as bill_bat_no,
+           |a.bill_inf as bill_inf,
+           |trim(a.card_no) as card_no,
            |case
-           |	when length((translate(trim(A.TRANS_AT),'-0123456789',' ')))=0 then trim(A.TRANS_AT)
+           |	when length((translate(trim(a.trans_at),'-0123456789',' ')))=0 then trim(a.trans_at)
            |	else null
-           |end as TRANS_AT,
-           |trim(A.SETTLE_CURR_CD) as SETTLE_CURR_CD,
-           |trim(A.CARD_ACCPTR_LOCAL_TM) as CARD_ACCPTR_LOCAL_TM,
-           |trim(A.CARD_ACCPTR_LOCAL_DT) as CARD_ACCPTR_LOCAL_DT,
-           |trim(A.EXPIRE_DT) as EXPIRE_DT,
+           |end as trans_at,
+           |trim(a.settle_curr_cd) as settle_curr_cd,
+           |trim(a.card_accptr_local_tm) as card_accptr_local_tm,
+           |trim(a.card_accptr_local_dt) as card_accptr_local_dt,
+           |trim(a.expire_dt) as expire_dt,
            |case when
-           |substr(trim(A.MSG_SETTLE_DT),1,4) between '0001' and '9999' and substr(trim(A.MSG_SETTLE_DT),5,2) between '01' and '12' and
-           |substr(trim(A.MSG_SETTLE_DT),7,2) between '01' and substr(last_day(concat_ws('-',substr(trim(A.MSG_SETTLE_DT),1,4),substr(trim(A.MSG_SETTLE_DT),5,2),substr(trim(A.MSG_SETTLE_DT),7,2))),9,2)
-           |then concat_ws('-',substr(trim(A.MSG_SETTLE_DT),1,4),substr(trim(A.MSG_SETTLE_DT),5,2),substr(trim(A.MSG_SETTLE_DT),7,2))
-           |else null end as MSG_SETTLE_DT,
-           |trim(A.AUTH_ID_RESP_CD) as AUTH_ID_RESP_CD,
-           |trim(A.RESP_CD) as RESP_CD,
-           |trim(A.NOTIFY_ST) as NOTIFY_ST,
-           |A.ADDN_PRIVATE_DATA as ADDN_PRIVATE_DATA,
-           |A.UDF_FLD as UDF_FLD,
-           |trim(A.ADDN_AT) as ADDN_AT,
-           |A.ACCT_ID_1 as ACCT_ID_1,
-           |A.ACCT_ID_2 as ACCT_ID_2,
-           |A.RESV_FLD as RESV_FLD,
-           |A.CDHD_AUTH_INF as CDHD_AUTH_INF,
-           |trim(A.RECNCL_IN) as RECNCL_IN,
-           |trim(A.MATCH_IN) as MATCH_IN,
-           |A.TRANS_PROC_START_TS as TRANS_PROC_START_TS,
-           |A.TRANS_PROC_END_TS as TRANS_PROC_END_TS,
-           |trim(A.SYS_DET_CD) as SYS_DET_CD,
-           |trim(A.SYS_ERR_CD) as SYS_ERR_CD,
-           |A.DTL_INQ_DATA as DTL_INQ_DATA,
-           |A.part_msg_settle_dt as p_msg_settle_dt
-           |FROM
-           |(select * from HIVE_TRANS_LOG where PART_MSG_SETTLE_DT >= '$start_dt' and  part_msg_settle_dt <= '$end_dt' and UM_TRANS_ID='AC02003065' ) A
-           |FULL JOIN (select * from HIVE_SWT_LOG where PART_TRANS_DT >= '$start_dt' and part_trans_dt <= '$end_dt' and SETTLE_TRANS_ID='S38') B
-           |on A.TRANS_TFR_TM=B.TFR_DT_TM and A.SYS_TRA_NO=B.SYS_TRA_NO and A.ACPT_INS_ID_CD=B.ACPT_INS_ID_CD and A.FWD_INS_ID_CD=B.MSG_FWD_INS_ID_CD
+           |substr(trim(a.msg_settle_dt),1,4) between '0001' and '9999' and substr(trim(a.msg_settle_dt),5,2) between '01' and '12' and
+           |substr(trim(a.msg_settle_dt),7,2) between '01' and substr(last_day(concat_ws('-',substr(trim(a.msg_settle_dt),1,4),substr(trim(a.msg_settle_dt),5,2),substr(trim(a.msg_settle_dt),7,2))),9,2)
+           |then concat_ws('-',substr(trim(a.msg_settle_dt),1,4),substr(trim(a.msg_settle_dt),5,2),substr(trim(a.msg_settle_dt),7,2))
+           |else null end as msg_settle_dt,
+           |trim(a.auth_id_resp_cd) as auth_id_resp_cd,
+           |trim(a.resp_cd) as resp_cd,
+           |trim(a.notify_st) as notify_st,
+           |a.addn_private_data as addn_private_data,
+           |a.udf_fld as udf_fld,
+           |trim(a.addn_at) as addn_at,
+           |a.acct_id_1 as acct_id_1,
+           |a.acct_id_2 as acct_id_2,
+           |a.resv_fld as resv_fld,
+           |a.cdhd_auth_inf as cdhd_auth_inf,
+           |trim(a.recncl_in) as recncl_in,
+           |trim(a.match_in) as match_in,
+           |a.trans_proc_start_ts as trans_proc_start_ts,
+           |a.trans_proc_end_ts as trans_proc_end_ts,
+           |trim(a.sys_det_cd) as sys_det_cd,
+           |trim(a.sys_err_cd) as sys_err_cd,
+           |a.dtl_inq_data as dtl_inq_data,
+           |a.part_msg_settle_dt as p_msg_settle_dt
+           |from
+           |(select * from hive_trans_log where part_msg_settle_dt >= '$start_dt' and  part_msg_settle_dt <= '$end_dt' and um_trans_id='AC02003065' ) a
+           |full join (select * from hive_swt_log where part_trans_dt >= '$start_dt' and part_trans_dt <= '$end_dt' and settle_trans_id='S38') b
+           |on a.trans_tfr_tm=b.tfr_dt_tm and a.sys_tra_no=b.sys_tra_no and a.acpt_ins_id_cd=b.acpt_ins_id_cd and a.fwd_ins_id_cd=b.msg_fwd_ins_id_cd
            | """.stripMargin)
 
       println("#### JOB_HV_27 spark sql 逻辑完成的系统时间为:" + DateUtils.getCurrentSystemTime())
@@ -3857,29 +3450,29 @@ object SparkDB22Hive {
       val results = sqlContext.sql(
         s"""
            |select
-           |ta.PRIZE_RESULT_SEQ as PRIZE_RESULT_SEQ,
-           |trim(ta.TRANS_ID) as TRANS_ID,
-           |trim(ta.SYS_TRA_NO) as SYS_TRA_NO,
-           |trim(ta.SYS_TRA_NO_CONV) as SYS_TRA_NO_CONV,
-           |trim(ta.PRI_ACCT_NO) as PRI_ACCT_NO,
-           |ta.TRANS_AT as TRANS_AT,
-           |ta.TRANS_AT_CONV as TRANS_AT_CONV,
-           |ta.TRANS_POS_AT as TRANS_POS_AT,
-           |trim(ta.TRANS_DT_TM) as TRANS_DT_TM,
-           |trim(ta.LOC_TRANS_DT) as LOC_TRANS_DT,
-           |trim(ta.LOC_TRANS_TM) as LOC_TRANS_TM,
+           |ta.prize_result_seq as prize_result_seq,
+           |trim(ta.trans_id) as trans_id,
+           |trim(ta.sys_tra_no) as sys_tra_no,
+           |trim(ta.sys_tra_no_conv) as sys_tra_no_conv,
+           |trim(ta.pri_acct_no) as pri_acct_no,
+           |ta.trans_at as trans_at,
+           |ta.trans_at_conv as trans_at_conv,
+           |ta.trans_pos_at as trans_pos_at,
+           |trim(ta.trans_dt_tm) as trans_dt_tm,
+           |trim(ta.loc_trans_dt) as loc_trans_dt,
+           |trim(ta.loc_trans_tm) as loc_trans_tm,
            |case
            |	when
-           |		substr(ta.SETTLE_DT,1,4) between '0001' and '9999' and substr(ta.SETTLE_DT,5,2) between '01' and '12' and
-           |		substr(ta.SETTLE_DT,7,2) between '01' and substr(last_day(concat_ws('-',substr(ta.SETTLE_DT,1,4),substr(ta.SETTLE_DT,5,2),substr(ta.SETTLE_DT,7,2))),9,2)
-           |	then concat_ws('-',substr(ta.SETTLE_DT,1,4),substr(ta.SETTLE_DT,5,2),substr(ta.SETTLE_DT,7,2))
+           |		substr(ta.settle_dt,1,4) between '0001' and '9999' and substr(ta.settle_dt,5,2) between '01' and '12' and
+           |		substr(ta.settle_dt,7,2) between '01' and substr(last_day(concat_ws('-',substr(ta.settle_dt,1,4),substr(ta.settle_dt,5,2),substr(ta.settle_dt,7,2))),9,2)
+           |	then concat_ws('-',substr(ta.settle_dt,1,4),substr(ta.settle_dt,5,2),substr(ta.settle_dt,7,2))
            |	else null
-           |end as SETTLE_DT,
-           |trim(MCHNT_TP) as MCHNT_TP,
-           |trim(ACPT_INS_ID_CD) as ACPT_INS_ID_CD,
-           |trim(ISS_INS_ID_CD) as ISS_INS_ID_CD,
-           |trim(ACQ_INS_ID_CD) as ACQ_INS_ID_CD,
-           |CUP_BRANCH_INS_ID_CD as CUP_BRANCH_INS_ID_CD,
+           |end as settle_dt,
+           |trim(mchnt_tp) as mchnt_tp,
+           |trim(acpt_ins_id_cd) as acpt_ins_id_cd,
+           |trim(iss_ins_id_cd) as iss_ins_id_cd,
+           |trim(acq_ins_id_cd) as acq_ins_id_cd,
+           |cup_branch_ins_id_cd as cup_branch_ins_id_cd,
            |case
            |	when trim(ta.cup_branch_ins_id_cd)='00011000' then '北京'
            |	when trim(ta.cup_branch_ins_id_cd)='00011100' then '天津'
@@ -3918,47 +3511,47 @@ object SparkDB22Hive {
            |    when trim(ta.cup_branch_ins_id_cd)='00018700' then '宁夏'
            |    when trim(ta.cup_branch_ins_id_cd)='00018800' then '新疆'
            |else '总公司' end as cup_branch_ins_id_nm,
-           |trim(ta.MCHNT_CD) as MCHNT_CD,
-           |trim(ta.TERM_ID) as TERM_ID,
-           |trim(ta.TRANS_CURR_CD) as TRANS_CURR_CD,
-           |trim(ta.TRANS_CHNL) as TRANS_CHNL,
-           |trim(ta.PROD_IN) as PROD_IN,
-           |ta.AGIO_APP_ID as AGIO_APP_ID,
-           |trim(ta.AGIO_INF) as AGIO_INF,
-           |ta.PRIZE_APP_ID as PRIZE_APP_ID,
-           |ta.PRIZE_ID as PRIZE_ID,
-           |ta.PRIZE_LVL as PRIZE_LVL,
+           |trim(ta.mchnt_cd) as mchnt_cd,
+           |trim(ta.term_id) as term_id,
+           |trim(ta.trans_curr_cd) as trans_curr_cd,
+           |trim(ta.trans_chnl) as trans_chnl,
+           |trim(ta.prod_in) as prod_in,
+           |ta.agio_app_id as agio_app_id,
+           |trim(ta.agio_inf) as agio_inf,
+           |ta.prize_app_id as prize_app_id,
+           |ta.prize_id as prize_id,
+           |ta.prize_lvl as prize_lvl,
            |case
            |	when
-           |		substr(ta.REC_CRT_DT,1,4) between '0001' and '9999' and substr(ta.REC_CRT_DT,5,2) between '01' and '12' and
-           |		substr(ta.REC_CRT_DT,7,2) between '01' and substr(last_day(concat_ws('-',substr(ta.REC_CRT_DT,1,4),substr(ta.REC_CRT_DT,5,2),substr(ta.REC_CRT_DT,7,2))),9,2)
-           |	then concat_ws('-',substr(ta.REC_CRT_DT,1,4),substr(ta.REC_CRT_DT,5,2),substr(ta.REC_CRT_DT,7,2))
+           |		substr(ta.rec_crt_dt,1,4) between '0001' and '9999' and substr(ta.rec_crt_dt,5,2) between '01' and '12' and
+           |		substr(ta.rec_crt_dt,7,2) between '01' and substr(last_day(concat_ws('-',substr(ta.rec_crt_dt,1,4),substr(ta.rec_crt_dt,5,2),substr(ta.rec_crt_dt,7,2))),9,2)
+           |	then concat_ws('-',substr(ta.rec_crt_dt,1,4),substr(ta.rec_crt_dt,5,2),substr(ta.rec_crt_dt,7,2))
            |	else null
-           |end as REC_CRT_DT,
-           |trim(ta.IS_MATCH_IN) as IS_MATCH_IN,
-           |trim(ta.FWD_INS_ID_CD) as FWD_INS_ID_CD,
-           |trim(ta.ORIG_TRANS_TFR_TM) as ORIG_TRANS_TFR_TM,
-           |trim(ta.ORIG_SYS_TRA_NO) as ORIG_SYS_TRA_NO,
-           |trim(ta.ORIG_ACPT_INS_ID_CD) as ORIG_ACPT_INS_ID_CD,
-           |trim(ta.ORIG_FWD_INS_ID_CD) as ORIG_FWD_INS_ID_CD,
-           |trim(ta.SUB_CARD_NO) as SUB_CARD_NO,
-           |trim(ta.IS_PROCED) as IS_PROCED,
-           |ta.ENTITY_CARD_NO as ENTITY_CARD_NO,
-           |ta.CLOUD_PAY_IN as CLOUD_PAY_IN,
-           |trim(ta.CARD_MEDIA) as CARD_MEDIA,
+           |end as rec_crt_dt,
+           |trim(ta.is_match_in) as is_match_in,
+           |trim(ta.fwd_ins_id_cd) as fwd_ins_id_cd,
+           |trim(ta.orig_trans_tfr_tm) as orig_trans_tfr_tm,
+           |trim(ta.orig_sys_tra_no) as orig_sys_tra_no,
+           |trim(ta.orig_acpt_ins_id_cd) as orig_acpt_ins_id_cd,
+           |trim(ta.orig_fwd_ins_id_cd) as orig_fwd_ins_id_cd,
+           |trim(ta.sub_card_no) as sub_card_no,
+           |trim(ta.is_proced) as is_proced,
+           |ta.entity_card_no as entity_card_no,
+           |ta.cloud_pay_in as cloud_pay_in,
+           |trim(ta.card_media) as card_media,
            |case
            |	when
-           |		substr(ta.SETTLE_DT,1,4) between '0001' and '9999' and substr(ta.SETTLE_DT,5,2) between '01' and '12' and
-           |		substr(ta.SETTLE_DT,7,2) between '01' and substr(last_day(concat_ws('-',substr(ta.SETTLE_DT,1,4),substr(ta.SETTLE_DT,5,2),substr(ta.SETTLE_DT,7,2))),9,2)
-           |	then concat_ws('-',substr(ta.SETTLE_DT,1,4),substr(ta.SETTLE_DT,5,2),substr(ta.SETTLE_DT,7,2))
+           |		substr(ta.settle_dt,1,4) between '0001' and '9999' and substr(ta.settle_dt,5,2) between '01' and '12' and
+           |		substr(ta.settle_dt,7,2) between '01' and substr(last_day(concat_ws('-',substr(ta.settle_dt,1,4),substr(ta.settle_dt,5,2),substr(ta.settle_dt,7,2))),9,2)
+           |	then concat_ws('-',substr(ta.settle_dt,1,4),substr(ta.settle_dt,5,2),substr(ta.settle_dt,7,2))
            |	else
            |	(case when
-           |		substr(ta.REC_CRT_DT,1,4) between '0001' and '9999' and substr(ta.REC_CRT_DT,5,2) between '01' and '12' and
-           |		substr(ta.REC_CRT_DT,7,2) between '01' and substr(last_day(concat_ws('-',substr(ta.REC_CRT_DT,1,4),substr(ta.REC_CRT_DT,5,2),substr(ta.REC_CRT_DT,7,2))),9,2)
-           |	then concat_ws('-',substr(ta.REC_CRT_DT,1,4),substr(ta.REC_CRT_DT,5,2),substr(ta.REC_CRT_DT,7,2))
+           |		substr(ta.rec_crt_dt,1,4) between '0001' and '9999' and substr(ta.rec_crt_dt,5,2) between '01' and '12' and
+           |		substr(ta.rec_crt_dt,7,2) between '01' and substr(last_day(concat_ws('-',substr(ta.rec_crt_dt,1,4),substr(ta.rec_crt_dt,5,2),substr(ta.rec_crt_dt,7,2))),9,2)
+           |	then concat_ws('-',substr(ta.rec_crt_dt,1,4),substr(ta.rec_crt_dt,5,2),substr(ta.rec_crt_dt,7,2))
            |	else null end )
            |end as p_settle_dt
-           |from TBL_UMSVC_PRIZE_DISCOUNT_RESULT ta
+           |from tbl_umsvc_prize_discount_result ta
            | """.stripMargin)
 
       println("#### JOB_HV_32 spark sql 逻辑完成的系统时间为:" + DateUtils.getCurrentSystemTime())
@@ -4045,7 +3638,7 @@ object SparkDB22Hive {
       val df = sqlContext.readDB2_MGM_4para(s"$schemas_mgmdb.viw_chmgm_bill_sub_order_detail_inf", "trans_dt", s"$start_day", s"$end_day")
       println("#### JOB_HV_33 readDB2_MGM_4para 的系统时间为:" + DateUtils.getCurrentSystemTime())
 
-      df.registerTempTable("VIW_CHMGM_BILL_SUB_ORDER_DETAIL_INF")
+      df.registerTempTable("viw_chmgm_bill_sub_order_detail_inf")
       println("#### JOB_HV_33 注册临时表的系统时间为:" + DateUtils.getCurrentSystemTime())
 
       val results = sqlContext.sql(
@@ -4135,47 +3728,47 @@ object SparkDB22Hive {
     * @param sqlContext
     */
   def JOB_HV_34(implicit sqlContext: HiveContext) = {
-    println("###JOB_HV_34(TBL_CHMGM_CHARA_ACCT_DEF_TMP -> HIVE_BUSS_DIST)")
+    println("###JOB_HV_34(tbl_chmgm_chara_acct_def_tmp -> hive_buss_dist)")
     println("#### JOB_HV_34 为全量抽取的表")
 
     DateUtils.timeCost("JOB_HV_34"){
       sqlContext.sql(s"use $hive_dbname")
-      val df = sqlContext.readDB2_MGM(s"$schemas_mgmdb.TBL_CHMGM_CHARA_ACCT_DEF_TMP")
+      val df = sqlContext.readDB2_MGM(s"$schemas_mgmdb.tbl_chmgm_chara_acct_def_tmp")
       println("#### JOB_HV_34 readDB2_MGM 的系统时间为:"+DateUtils.getCurrentSystemTime())
-      df.registerTempTable("TBL_CHMGM_CHARA_ACCT_DEF_TMP")
+      df.registerTempTable("tbl_chmgm_chara_acct_def_tmp")
       println("#### JOB_HV_34 注册临时表的系统时间为:"+DateUtils.getCurrentSystemTime())
       val results = sqlContext.sql(
         """
-          |SELECT
-          |ta.REC_ID as REC_ID,
-          |trim(ta.CHARA_ACCT_TP) as CHARA_ACCT_TP,
-          |trim(ta.CHARA_ACCT_ATTR) as CHARA_ACCT_ATTR,
-          |ta.CHARA_ACCT_DESC as CHARA_ACCT_DESC,
-          |trim(ta.ENTRY_GRP_CD) as ENTRY_GRP_CD,
-          |trim(ta.ENTRY_BLKBILL_IN) as ENTRY_BLKBILL_IN,
-          |trim(ta.OUTPUT_GRP_CD)  as OUTPUT_GRP_CD,
-          |trim(ta.OUTPUT_BLKBILL_IN) as OUTPUT_BLKBILL_IN,
-          |trim(ta.CHARA_ACCT_ST) as CHARA_ACCT_ST,
-          |trim(ta.AUD_USR_ID) as AUD_USR_ID,
-          |ta.AUD_IDEA as AUD_IDEA,
-          |ta.AUD_TS as AUD_TS,
-          |trim(ta.AUD_IN) as AUD_IN,
-          |trim(ta.OPER_ACTION) as OPER_ACTION,
-          |ta.REC_CRT_TS as REC_CRT_TS,
-          |ta.REC_UPD_TS as REC_UPD_TS,
-          |trim(ta.REC_CRT_USR_ID) as REC_CRT_USR_ID,
-          |trim(ta.REC_UPD_USR_ID) as REC_UPD_USR_ID,
-          |ta.VER_NO as VER_NO,
-          |trim(ta.CHARA_ACCT_NM) as CHARA_ACCT_NM,
-          |ta.CH_INS_ID_CD as CH_INS_ID_CD,
-          |trim(ta.UM_INS_TP) as UM_INS_TP,
-          |ta.INS_NM  as INS_NM,
-          |trim(ta.OPER_IN) as OPER_IN,
-          |ta.EVENT_ID as EVENT_ID,
-          |trim(ta.SYNC_ST) as SYNC_ST,
-          |ta.CUP_BRANCH_INS_ID_CD as CUP_BRANCH_INS_ID_CD,
-          |ta.SCENE_USAGE_IN as SCENE_USAGE_IN
-          |FROM TBL_CHMGM_CHARA_ACCT_DEF_TMP ta
+          |select
+          |ta.rec_id as rec_id,
+          |trim(ta.chara_acct_tp) as chara_acct_tp,
+          |trim(ta.chara_acct_attr) as chara_acct_attr,
+          |ta.chara_acct_desc as chara_acct_desc,
+          |trim(ta.entry_grp_cd) as entry_grp_cd,
+          |trim(ta.entry_blkbill_in) as entry_blkbill_in,
+          |trim(ta.output_grp_cd)  as output_grp_cd,
+          |trim(ta.output_blkbill_in) as output_blkbill_in,
+          |trim(ta.chara_acct_st) as chara_acct_st,
+          |trim(ta.aud_usr_id) as aud_usr_id,
+          |ta.aud_idea as aud_idea,
+          |ta.aud_ts as aud_ts,
+          |trim(ta.aud_in) as aud_in,
+          |trim(ta.oper_action) as oper_action,
+          |ta.rec_crt_ts as rec_crt_ts,
+          |ta.rec_upd_ts as rec_upd_ts,
+          |trim(ta.rec_crt_usr_id) as rec_crt_usr_id,
+          |trim(ta.rec_upd_usr_id) as rec_upd_usr_id,
+          |ta.ver_no as ver_no,
+          |trim(ta.chara_acct_nm) as chara_acct_nm,
+          |ta.ch_ins_id_cd as ch_ins_id_cd,
+          |trim(ta.um_ins_tp) as um_ins_tp,
+          |ta.ins_nm  as ins_nm,
+          |trim(ta.oper_in) as oper_in,
+          |ta.event_id as event_id,
+          |trim(ta.sync_st) as sync_st,
+          |ta.cup_branch_ins_id_cd as cup_branch_ins_id_cd,
+          |ta.scene_usage_in as scene_usage_in
+          |from tbl_chmgm_chara_acct_def_tmp ta
         """.stripMargin
       )
       println("#### JOB_HV_34 spark sql 逻辑完成的系统时间为:"+DateUtils.getCurrentSystemTime())
@@ -4205,30 +3798,30 @@ object SparkDB22Hive {
     */
   def JOB_HV_35(implicit sqlContext: HiveContext) = {
     DateUtils.timeCost("JOB_HV_35"){
-      println("###JOB_HV_35(TBL_CHACC_CDHD_BILL_ACCT_INF -> HIVE_CDHD_BILL_ACCT_INF)")
+      println("###JOB_HV_35(tbl_chacc_cdhd_bill_acct_inf -> hive_cdhd_bill_acct_inf)")
       sqlContext.sql(s"use $hive_dbname")
-      val df = sqlContext.readDB2_ACC(s"$schemas_accdb.TBL_CHACC_CDHD_BILL_ACCT_INF")
-      df.registerTempTable("TBL_CHACC_CDHD_BILL_ACCT_INF")
+      val df = sqlContext.readDB2_ACC(s"$schemas_accdb.tbl_chacc_cdhd_bill_acct_inf")
+      df.registerTempTable("tbl_chacc_cdhd_bill_acct_inf")
       val results = sqlContext.sql(
         """
           |select
-          |ta.SEQ_ID as SEQ_ID,
-          |trim(ta.CDHD_USR_ID) as CDHD_USR_ID,
-          |trim(ta.CDHD_FK) as CDHD_FK,
-          |trim(ta.BILL_ID) as BILL_ID,
-          |trim(ta.BILL_BAT_NO) as BILL_BAT_NO,
-          |trim(ta.BILL_TP) as BILL_TP,
-          |ta.MEM_NM as MEM_NM,
-          |ta.BILL_NUM as BILL_NUM,
-          |ta.USAGE_NUM as USAGE_NUM,
-          |trim(ta.ACCT_ST) as ACCT_ST,
-          |ta.REC_CRT_TS as REC_CRT_TS,
-          |ta.REC_UPD_TS as REC_UPD_TS,
-          |ta.VER_NO as VER_NO,
-          |trim(ta.BILL_RELATED_CARD_NO) as BILL_RELATED_CARD_NO,
-          |trim(ta.SCENE_ID) as SCENE_ID,
-          |ta.FREEZE_BILL_NUM  as FREEZE_BILL_NUM
-          |from TBL_CHACC_CDHD_BILL_ACCT_INF ta
+          |ta.seq_id as seq_id,
+          |trim(ta.cdhd_usr_id) as cdhd_usr_id,
+          |trim(ta.cdhd_fk) as cdhd_fk,
+          |trim(ta.bill_id) as bill_id,
+          |trim(ta.bill_bat_no) as bill_bat_no,
+          |trim(ta.bill_tp) as bill_tp,
+          |ta.mem_nm as mem_nm,
+          |ta.bill_num as bill_num,
+          |ta.usage_num as usage_num,
+          |trim(ta.acct_st) as acct_st,
+          |ta.rec_crt_ts as rec_crt_ts,
+          |ta.rec_upd_ts as rec_upd_ts,
+          |ta.ver_no as ver_no,
+          |trim(ta.bill_related_card_no) as bill_related_card_no,
+          |trim(ta.scene_id) as scene_id,
+          |ta.freeze_bill_num  as freeze_bill_num
+          |from tbl_chacc_cdhd_bill_acct_inf ta
         """.stripMargin
       )
 
@@ -4830,20 +4423,20 @@ object SparkDB22Hive {
       val results = sqlContext.sql(
         """
           |select
-          |ta.PRIZE_ID_LVL as BILL_ID,
-          |ta.PRIZE_LVL as PRIZE_LVL,
-          |ta.REWARD_POINT_RATE as REWARD_POINT_RATE,
-          |ta.REWARD_POINT_MAX as REWARD_POINT_MAX,
-          |trim(ta.BILL_ID) as BILL_ID,
-          |ta.REWARD_BILL_NUM as REWARD_BILL_NUM,
-          |trim(ta.CHD_REWARD_MD) as CHD_REWARD_MD,
-          |trim(ta.CSH_REWARD_MD) as CSH_REWARD_MD,
-          |ta.CSH_REWARD_POINT_RATE as CSH_REWARD_POINT_RATE,
-          |ta.CSH_REWARD_POINT_MAX as CSH_REWARD_POINT_MAX,
-          |ta.CSH_REWARD_DAY_MAX as CSH_REWARD_DAY_MAX,
-          |trim(ta.BUSS_TP) as BUSS_TP
+          |ta.prize_id_lvl as bill_id,
+          |ta.prize_lvl as prize_lvl,
+          |ta.reward_point_rate as reward_point_rate,
+          |ta.reward_point_max as reward_point_max,
+          |trim(ta.bill_id) as bill_id,
+          |ta.reward_bill_num as reward_bill_num,
+          |trim(ta.chd_reward_md) as chd_reward_md,
+          |trim(ta.csh_reward_md) as csh_reward_md,
+          |ta.csh_reward_point_rate as csh_reward_point_rate,
+          |ta.csh_reward_point_max as csh_reward_point_max,
+          |ta.csh_reward_day_max as csh_reward_day_max,
+          |trim(ta.buss_tp) as buss_tp
           |
-          |from TBL_UMSVC_PRIZE_LVL_ADD_RULE ta
+          |from tbl_umsvc_prize_lvl_add_rule ta
           |
           | """.stripMargin)
       println("#### JOB_HV_47 spark sql 逻辑完成的系统时间为:"+DateUtils.getCurrentSystemTime())
@@ -5162,35 +4755,35 @@ object SparkDB22Hive {
       val results = sqlContext.sql(
         """
           |select
-          |ta.LOC_ACTIVITY_ID as LOC_ACTIVITY_ID,
-          |trim(ta.PRIZE_TP) as PRIZE_TP,
-          |ta.PRIZE_LVL as  PRIZE_LVL,
-          |ta.PRIZE_ID_LVL as PRIZE_ID_LVL,
-          |trim(ta.ACTIVITY_PLAT) as ACTIVITY_PLAT,
-          |ta.PRIZE_ID as PRIZE_ID,
-          |trim(ta.RUN_ST) as RUN_ST,
-          |trim(ta.SYNC_ST) as SYNC_ST,
-          |ta.SYNC_BAT_NO as SYNC_BAT_NO,
-          |ta.LVL_PRIZE_NUM as LVL_PRIZE_NUM,
-          |trim(ta.PRIZE_LVL_DESC) as PRIZE_LVL_DESC,
-          |trim(ta.REPRIZE_LIMIT) as REPRIZE_LIMIT,
-          |ta.PRIZE_PAY_TP as PRIZE_PAY_TP,
-          |ta.CYCLE_PRIZE_NUM as CYCLE_PRIZE_NUM,
-          |ta.CYCLE_SPAN as CYCLE_SPAN,
-          |trim(ta.CYCLE_UNIT) as CYCLE_UNIT,
-          |trim(ta.PROGRS_IN) as PROGRS_IN,
-          |ta.SEG_PRIZE_NUM as SEG_PRIZE_NUM,
-          |ta.MIN_PRIZE_TRANS_AT  as MIN_PRIZE_TRANS_AT,
-          |ta.MAX_PRIZE_TRANS_AT as MAX_PRIZE_TRANS_AT,
-          |ta.PRIZE_AT as PRIZE_AT,
-          |trim(ta.OPER_IN) as OPER_IN,
-          |ta.EVENT_ID as EVENT_ID,
-          |ta.REC_ID as REC_ID,
-          |trim(ta.REC_UPD_USR_ID) as REC_UPD_USR_ID,
-          |ta.REC_UPD_TS as REC_UPD_TS,
-          |ta.REC_CRT_TS as REC_CRT_TS,
-          |ta.VER_NO as VER_NO
-          |from TBL_UMSVC_PRIZE_LVL ta
+          |ta.loc_activity_id as loc_activity_id,
+          |trim(ta.prize_tp) as prize_tp,
+          |ta.prize_lvl as  prize_lvl,
+          |ta.prize_id_lvl as prize_id_lvl,
+          |trim(ta.activity_plat) as activity_plat,
+          |ta.prize_id as prize_id,
+          |trim(ta.run_st) as run_st,
+          |trim(ta.sync_st) as sync_st,
+          |ta.sync_bat_no as sync_bat_no,
+          |ta.lvl_prize_num as lvl_prize_num,
+          |trim(ta.prize_lvl_desc) as prize_lvl_desc,
+          |trim(ta.reprize_limit) as reprize_limit,
+          |ta.prize_pay_tp as prize_pay_tp,
+          |ta.cycle_prize_num as cycle_prize_num,
+          |ta.cycle_span as cycle_span,
+          |trim(ta.cycle_unit) as cycle_unit,
+          |trim(ta.progrs_in) as progrs_in,
+          |ta.seg_prize_num as seg_prize_num,
+          |ta.min_prize_trans_at  as min_prize_trans_at,
+          |ta.max_prize_trans_at as max_prize_trans_at,
+          |ta.prize_at as prize_at,
+          |trim(ta.oper_in) as oper_in,
+          |ta.event_id as event_id,
+          |ta.rec_id as rec_id,
+          |trim(ta.rec_upd_usr_id) as rec_upd_usr_id,
+          |ta.rec_upd_ts as rec_upd_ts,
+          |ta.rec_crt_ts as rec_crt_ts,
+          |ta.ver_no as ver_no
+          |from tbl_umsvc_prize_lvl ta
           | """.stripMargin)
       println("#### JOB_HV_69 spark sql 逻辑完成的系统时间为:"+DateUtils.getCurrentSystemTime())
 
@@ -5497,7 +5090,7 @@ object SparkDB22Hive {
       println("#### JOB_HV_76 spark sql 逻辑完成的系统时间为:"+DateUtils.getCurrentSystemTime())
 
       results.registerTempTable("spark_hive_region_cd")
-      println("#### JOB_HV_1 registerTempTable--spark_hive_region_cd 完成的系统时间为:"+DateUtils.getCurrentSystemTime())
+      println("#### JOB_HV_76 registerTempTable--spark_hive_region_cd 完成的系统时间为:"+DateUtils.getCurrentSystemTime())
 
       if(!Option(results).isEmpty){
         sqlContext.sql(s"use $hive_dbname")
@@ -5641,48 +5234,48 @@ object SparkDB22Hive {
              |insert overwrite table hive_trans_dtl partition (part_trans_dt)
              |select
              |dtl.seq_id                 ,
-             |dtl.cdhd_usr_id            ,
-             |dtl.card_no                ,
-             |dtl.trans_tfr_tm           ,
-             |dtl.sys_tra_no             ,
-             |dtl.acpt_ins_id_cd         ,
-             |dtl.fwd_ins_id_cd          ,
-             |dtl.rcv_ins_id_cd          ,
-             |dtl.oper_module            ,
+             |trim(dtl.cdhd_usr_id)            ,
+             |trim(dtl.card_no)                ,
+             |trim(dtl.trans_tfr_tm)           ,
+             |trim(dtl.sys_tra_no)             ,
+             |trim(dtl.acpt_ins_id_cd)         ,
+             |trim(dtl.fwd_ins_id_cd)          ,
+             |trim(dtl.rcv_ins_id_cd)          ,
+             |trim(dtl.oper_module)            ,
              |dtl.trans_dt               ,
-             |dtl.trans_tm               ,
-             |dtl.buss_tp                ,
-             |dtl.um_trans_id            ,
-             |dtl.swt_right_tp           ,
-             |dtl.bill_id                ,
+             |trim(dtl.trans_tm)               ,
+             |trim(dtl.buss_tp)                ,
+             |trim(dtl.um_trans_id)            ,
+             |trim(dtl.swt_right_tp)           ,
+             |trim(dtl.bill_id)                ,
              |dtl.bill_nm                ,
-             |dtl.chara_acct_tp          ,
-             |dtl.trans_at               ,
+             |trim(dtl.chara_acct_tp)          ,
+             |trim(dtl.trans_at)               ,
              |dtl.point_at               ,
-             |dtl.mchnt_tp               ,
-             |dtl.resp_cd                ,
-             |dtl.card_accptr_term_id    ,
-             |dtl.card_accptr_cd         ,
+             |trim(dtl.mchnt_tp)               ,
+             |trim(dtl.resp_cd)                ,
+             |trim(dtl.card_accptr_term_id)    ,
+             |trim(dtl.card_accptr_cd)         ,
              |dtl.trans_proc_start_ts    ,
              |dtl.trans_proc_end_ts      ,
-             |dtl.sys_det_cd             ,
-             |dtl.sys_err_cd             ,
+             |trim(dtl.sys_det_cd)             ,
+             |trim(dtl.sys_err_cd)             ,
              |dtl.rec_upd_ts             ,
-             |dtl.chara_acct_nm          ,
-             |dtl.void_trans_tfr_tm      ,
-             |dtl.void_sys_tra_no        ,
-             |dtl.void_acpt_ins_id_cd    ,
-             |dtl.void_fwd_ins_id_cd     ,
+             |trim(dtl.chara_acct_nm)          ,
+             |trim(dtl.void_trans_tfr_tm)      ,
+             |trim(dtl.void_sys_tra_no)        ,
+             |trim(dtl.void_acpt_ins_id_cd)    ,
+             |trim(dtl.void_fwd_ins_id_cd)     ,
              |dtl.rec_crt_ts             ,
              |dtl.orig_data_elemnt       ,
-             |dtl.discount_at            ,
-             |dtl.bill_item_id           ,
+             |trim(dtl.discount_at)            ,
+             |trim(dtl.bill_item_id)           ,
              |dtl.chnl_inf_index         ,
              |dtl.bill_num               ,
-             |dtl.addn_discount_at       ,
-             |dtl.pos_entry_md_cd        ,
+             |trim(dtl.addn_discount_at)       ,
+             |trim(dtl.pos_entry_md_cd)        ,
              |dtl.udf_fld                ,
-             |dtl.card_accptr_nm_addr    ,
+             |trim(dtl.card_accptr_nm_addr)    ,
              |case
              |	when
              |		substr(dtl.trans_dt,1,4) between '0001' and '9999' and substr(dtl.trans_dt,5,2) between '01' and '12' and
@@ -5924,6 +5517,7 @@ object SparkDB22Hive {
   /**
     * JOB_HV_83 2017年3月13日 星期一
     * code by liutao
+    *
     * @param sqlContext
     * @param start_dt
     * @param end_dt
@@ -5997,6 +5591,7 @@ object SparkDB22Hive {
   /**
     * JOB_HV_84
     * code by liutao
+    *
     * @param sqlContext
     * @param start_dt
     * @param end_dt
@@ -6075,6 +5670,7 @@ object SparkDB22Hive {
   /**
     * JOB_HV_85
     * code by liutao
+    *
     * @param sqlContext
     * @param start_dt
     * @param end_dt
@@ -6134,6 +5730,7 @@ object SparkDB22Hive {
   /**
     * JOB_HV_86
     * code by liutao
+    *
     * @param sqlContext
     * @param start_dt
     * @param end_dt
@@ -6175,6 +5772,7 @@ object SparkDB22Hive {
   /**
     * JOB_HV_87
     * code by liutao
+    *
     * @param sqlContext
     * @param start_dt
     * @param end_dt
@@ -6234,6 +5832,7 @@ object SparkDB22Hive {
   /**
     * JOB_HV_88
     * code by liutao
+    *
     * @param sqlContext
     * @param start_dt
     * @param end_dt
@@ -6323,6 +5922,7 @@ object SparkDB22Hive {
   /**
     * JOB_HV_89
     * code by liutao
+    *
     * @param sqlContext
     * @param start_dt
     * @param end_dt
