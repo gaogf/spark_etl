@@ -25,92 +25,96 @@ object Create_Hive_Tables {
 
     //    仅初始化使用，默认关闭
 
-    hive_ct //参数表
-    hive_life //参数表
-    hive_city_card //参数表
-    hive_province_card //参数表
-    hive_acc_trans
-    hive_achis_trans
-    hive_active_card_acq_branch_mon
-    hive_card_bind_inf
-    hive_discount_bas_inf
-    hive_download_trans
-    hive_inf_source_class
-    hive_ins_inf
-    hive_mchnt_para
-    hive_passive_code_pay_trans
-    hive_pri_acct_inf
-    hive_switch_point_trans
-    hive_ucbiz_cdhd_bas_inf
-    hive_access_bas_inf
-    hive_active_code_pay_trans
-    hive_branch_acpt_ins_inf
-    hive_brand_inf
-    hive_card_bin
-    hive_cdhd_cashier_maktg_reward_dtl
-    hive_cashier_point_acct_oper_dtl
-    hive_chara_grp_def_bat
-    hive_cups_trans
-    hive_filter_app_det
-    hive_filter_rule_det
-    hive_inf_source_dtl
-    hive_life_trans
-    hive_mchnt_inf_wallet
-    hive_mchnt_tp_grp
-    hive_org_tdapp_activitynew
-    hive_org_tdapp_device
-    hive_org_tdapp_devicenew
-    hive_org_tdapp_eventnew
-    hive_org_tdapp_exceptionnew
-    hive_org_tdapp_keyvalue
-    hive_org_tdapp_tlaunchnew
-    hive_org_tdapp_exception
-    hive_org_tdapp_newuser
-    hive_org_tdapp_tappevent
-    hive_preferential_mchnt_inf
-    hive_prize_bas
-    hive_signer_log
-    hive_ticket_bill_bas_inf
-    hive_undefine_store_inf
-    hive_user_td_d
-    hive_bill_order_trans
-    hive_bill_sub_order_trans
-    hive_mchnt_tp
-    hive_offline_point_trans
-    hive_online_point_trans
-    hive_prize_activity_bas_inf
-    hive_prize_discount_result
-    hive_prize_lvl_add_rule
-    hive_prize_lvl
-    hive_store_term_relation
-    hive_term_inf
-    hive_ach_order_inf
-    hive_bill_order_aux_inf
-    hive_bill_sub_order_detail_inf
-    hive_ticket_bill_acct_adj_task
-    hive_search_trans
-    hive_buss_dist
-    hive_cdhd_bill_acct_inf
-    hive_cashier_bas_inf
-    hive_access_static_inf
-    hive_region_cd
-    hive_aconl_ins_bas
-    hive_org_tdapp_tactivity
-    hive_org_tdapp_tlaunch
-    hive_org_tdapp_terminate
-    hive_trans_dtl
-    hive_trans_log
-    hive_swt_log
-    hive_cdhd_trans_year
-    hive_life_order_inf
-    hive_rtdtrs_dtl_ach_bill
-    hive_point_trans
-    hive_mksvc_order
-    hive_wlonl_transfer_order
-    hive_wlonl_uplan_coupon
-    hive_wlonl_acc_notes
-    hive_ubp_order
-    hive_mnsvc_business_instal_info
+//    hive_ct //参数表
+//    hive_life //参数表
+//    hive_city_card //参数表
+//    hive_province_card //参数表
+//    hive_acc_trans
+//    hive_achis_trans
+//    hive_active_card_acq_branch_mon
+//    hive_card_bind_inf
+//    hive_discount_bas_inf
+//    hive_download_trans
+//    hive_inf_source_class
+//    hive_ins_inf
+//    hive_mchnt_para
+//    hive_passive_code_pay_trans
+//    hive_pri_acct_inf
+//    hive_switch_point_trans
+//    hive_ucbiz_cdhd_bas_inf
+//    hive_access_bas_inf
+//    hive_active_code_pay_trans
+//    hive_branch_acpt_ins_inf
+//    hive_brand_inf
+//    hive_card_bin
+//    hive_cdhd_cashier_maktg_reward_dtl
+//    hive_cashier_point_acct_oper_dtl
+//    hive_chara_grp_def_bat
+//    hive_cups_trans
+//    hive_filter_app_det
+//    hive_filter_rule_det
+//    hive_inf_source_dtl
+//    hive_life_trans
+//    hive_mchnt_inf_wallet
+//    hive_mchnt_tp_grp
+//    hive_org_tdapp_activitynew
+//    hive_org_tdapp_device
+//    hive_org_tdapp_devicenew
+//    hive_org_tdapp_eventnew
+//    hive_org_tdapp_exceptionnew
+//    hive_org_tdapp_keyvalue
+//    hive_org_tdapp_tlaunchnew
+//    hive_org_tdapp_exception
+//    hive_org_tdapp_newuser
+//    hive_org_tdapp_tappevent
+//    hive_preferential_mchnt_inf
+//    hive_prize_bas
+//    hive_signer_log
+//    hive_ticket_bill_bas_inf
+//    hive_undefine_store_inf
+//    hive_user_td_d
+//    hive_bill_order_trans
+//    hive_bill_sub_order_trans
+//    hive_mchnt_tp
+//    hive_offline_point_trans
+//    hive_online_point_trans
+//    hive_prize_activity_bas_inf
+//    hive_prize_discount_result
+//    hive_prize_lvl_add_rule
+//    hive_prize_lvl
+//    hive_store_term_relation
+//    hive_term_inf
+//    hive_ach_order_inf
+//    hive_bill_order_aux_inf
+//    hive_bill_sub_order_detail_inf
+//    hive_ticket_bill_acct_adj_task
+//    hive_search_trans
+//    hive_buss_dist
+//    hive_cdhd_bill_acct_inf
+//    hive_cashier_bas_inf
+//    hive_access_static_inf
+//    hive_region_cd
+//    hive_aconl_ins_bas
+//    hive_org_tdapp_tactivity
+//    hive_org_tdapp_tlaunch
+//    hive_org_tdapp_terminate
+//    hive_trans_dtl
+//    hive_trans_log
+//    hive_swt_log
+//    hive_cdhd_trans_year
+//    hive_life_order_inf
+//    hive_rtdtrs_dtl_ach_bill
+//    hive_point_trans
+//    hive_mksvc_order
+//    hive_wlonl_transfer_order
+//    hive_wlonl_uplan_coupon
+//    hive_wlonl_acc_notes
+//    hive_ubp_order
+//    hive_mnsvc_business_instal_info
+//    hive_mtdtrs_dtl_ach_bat_file
+//    hive_mtdtrs_dtl_ach_bat_file_dtl
+//    hive_rtdtrs_dtl_achis_bill
+
 
     println("=======Create all tables on the hive successfully=======")
 
@@ -5053,4 +5057,274 @@ object Create_Hive_Tables {
 
     println("=======Create hive_mnsvc_business_instal_info successfully ! =======")
   }
+
+
+  /**
+    * JOB_HV_91
+    */
+  def hive_mtdtrs_dtl_ach_bat_file (implicit  sqlContext :HiveContext)={
+    println("=======Create hive_mtdtrs_dtl_ach_bat_file=======")
+    sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql(
+      s"""
+         |create table if not exists $hive_dbname.hive_mtdtrs_dtl_ach_bat_file
+         |(
+         |settle_dt              string,
+         |bat_id                 string,
+         |out_bat_id             string,
+         |machine_id             string,
+         |file_nm                string,
+         |file_path              string,
+         |rs_file_path           string,
+         |download_num           int,
+         |file_prio              string,
+         |file_tp                string,
+         |file_st                string,
+         |file_source            string,
+         |proc_begin_ts          string,
+         |proc_end_ts            string,
+         |proc_succ_num          int,
+         |proc_succ_at           decimal(12,0),
+         |mchnt_cd               string,
+         |mchnt_acct_no          string,
+         |acbat_settle_dt        string,
+         |trans_sum_num          int,
+         |verified_num           int,
+         |trans_sum_at           decimal(12,0),
+         |file_send_dt           string,
+         |oper_id                string,
+         |auth_oper_id           string,
+         |file_head_info         string,
+         |upload_oper            string,
+         |acq_ins_id_cd          string,
+         |file_req_sn            string,
+         |fail_reason            string,
+         |acq_audit_oper_id      string,
+         |acq_audit_ts           string,
+         |acq_adjust_oper_id     string,
+         |acq_adjust_ts          string,
+         |version                string,
+         |reserve1               string,
+         |reserve2               string,
+         |rec_upd_oper_id        string,
+         |rec_upd_trans_id       string,
+         |chnl_tp                string,
+         |conn_md                string,
+         |rec_crt_ts             string,
+         |rec_upd_ts             string
+         |)
+         |partitioned by (part_settle_dt string)
+         |row format delimited fields terminated by '!|'
+         |stored as parquet
+         |location '/user/ch_hypas/upw_hive/incident/trans/hive_mtdtrs_dtl_ach_bat_file'
+         | """.stripMargin)
+
+    println("=======Create hive_mtdtrs_dtl_ach_bat_file successfully ! =======")
+  }
+
+  /**
+    *  JOB_HV_92
+    */
+  def hive_mtdtrs_dtl_ach_bat_file_dtl (implicit  sqlcontext :hivecontext)={
+    println("=======create hive_mtdtrs_dtl_ach_bat_file_dtl=======")
+    sqlcontext.sql(s"use $hive_dbname")
+    sqlcontext.sql(
+      s"""
+         |create table if not exists $hive_dbname.hive_mtdtrs_dtl_ach_bat_file_dtl
+         |(
+         |settle_dt               string,
+         |trans_idx               string,
+         |bat_id                  string,
+         |mchnt_cd                string,
+         |mchnt_tp                string,
+         |mchnt_addr              string,
+         |trans_tp                string,
+         |buss_tp                 string,
+         |proc_st                 string,
+         |proc_sys                string,
+         |mchnt_order_id          string,
+         |usr_id_tp               string,
+         |usr_id                  string,
+         |cvn2                    string,
+         |expire_dt               string,
+         |bill_tp                 string,
+         |bill_no                 string,
+         |trans_at                decimal(12,0),
+         |fee_at                  decimal(12,0),
+         |trans_tm                string,
+         |trans_curr_cd           string,
+         |pay_acct                string,
+         |pay_acct_tp             string,
+         |pri_acct_no             string,
+         |iss_ins_id_cd           string,
+         |iss_ins_nm              string,
+         |customer_nm             string,
+         |customer_mobile         string,
+         |customer_email          string,
+         |org_order_id            string,
+         |org_trans_tm            string,
+         |org_trans_at            decimal(12,0),
+         |refund_rsn              string,
+         |cert_tp                 string,
+         |cert_id                 string,
+         |conn_md                 string,
+         |product_info            string,
+         |acct_balance            decimal(12,0),
+         |out_trans_idx           string,
+         |org_trans_idx           string,
+         |sys_tra_no              string,
+         |sys_tm                  string,
+         |retri_ref_no            string,
+         |fwd_ins_id_cd           string,
+         |rcv_ins_id_cd           string,
+         |trans_method            string,
+         |trans_terminal_tp       string,
+         |svr_cond_cd             string,
+         |sd_tag                  string,
+         |bill_interval           string,
+         |resp_cd                 string,
+         |org_rec_info            string,
+         |comments                string,
+         |machine_id              string,
+         |file_prio               string,
+         |file_tp                 string,
+         |trans_chnl              string,
+         |chnl_tp                 string,
+         |resp_desc               string,
+         |broker_seq              bigint,
+         |iss_province            string,
+         |iss_city                string,
+         |acq_ins_id_cd           string,
+         |dtl_req_sn              string,
+         |reserve1                string,
+         |reserve2                string,
+         |reserve3                string,
+         |reserve4                string,
+         |rec_upd_oper_id         string,
+         |rec_upd_trans_id        string,
+         |rec_crt_ts              string,
+         |rec_upd_ts              string
+         |)
+         |partitioned by (part_settle_dt string)
+         |row format delimited fields terminated by '!|'
+         |stored as parquet
+         |location '/user/ch_hypas/upw_hive/incident/trans/hive_mtdtrs_dtl_ach_bat_file_dtl'
+         | """.stripmargin)
+
+    println("=======create hive_mtdtrs_dtl_ach_bat_file_dtl successfully ! =======")
+  }
+
+
+  /**
+    *  JOB_HV_93
+    */
+  def hive_rtdtrs_dtl_achis_bill (implicit  sqlcontext :hivecontext)={
+    println("=======create hive_rtdtrs_dtl_achis_bill=======")
+    sqlcontext.sql(s"use $hive_dbname")
+    sqlcontext.sql(
+      s"""
+         |create table if not exists $hive_dbname.hive_rtdtrs_dtl_achis_bill
+         |(
+         |settle_dt           string ,
+         |trans_idx           string ,
+         |acq_trans_idx       string ,
+         |fwd_sys_cd          string ,
+         |trans_tp            string ,
+         |trans_class         string ,
+         |pri_acct_no         string ,
+         |acq_ins_id_cd       string ,
+         |fwd_ins_id_cd       string ,
+         |iss_ins_id_cd       string ,
+         |iss_head            string ,
+         |iss_head_nm         string ,
+         |mchnt_cd            string ,
+         |mchnt_nm            string ,
+         |mchnt_country       string ,
+         |mchnt_url           string ,
+         |mchnt_front_url     string ,
+         |mchnt_back_url      string ,
+         |mchnt_delv_tag      string ,
+         |mchnt_tp            string ,
+         |mchnt_risk_tag      string ,
+         |mchnt_order_id      string ,
+         |sys_tra_no          string ,
+         |sys_tm              string ,
+         |trans_tm            string ,
+         |trans_dt            string ,
+         |trans_at            bigint ,
+         |trans_curr_cd       string ,
+         |trans_st            string ,
+         |refund_at           bigint ,
+         |auth_id             string ,
+         |settle_at           bigint ,
+         |settle_curr_cd      string ,
+         |settle_conv_rt      bigint ,
+         |conv_dt             string ,
+         |cert_tp             string ,
+         |cert_id             string ,
+         |name                string ,
+         |phone_no            string ,
+         |org_trans_idx       string ,
+         |org_sys_tra_no      string ,
+         |org_sys_tm          string ,
+         |proc_st             string ,
+         |resp_cd             string ,
+         |proc_sys            string ,
+         |usr_id              int    ,
+         |mchnt_id            int    ,
+         |pay_method          string ,
+         |trans_ip            string ,
+         |trans_no            string ,
+         |encoding            string ,
+         |mac_addr            string ,
+         |card_attr           string ,
+         |kz_curr_cd          string ,
+         |kz_conv_rt          bigint ,
+         |kz_at               bigint ,
+         |sub_mchnt_cd        string ,
+         |sub_mchnt_nm        string ,
+         |verify_mode         string ,
+         |mchnt_reserve       string ,
+         |reserve             string ,
+         |mchnt_version       string ,
+         |biz_tp              string ,
+         |is_oversea          string ,
+         |reserve1            string ,
+         |reserve2            string ,
+         |reserve3            string ,
+         |reserve4            string ,
+         |reserve5            string ,
+         |reserve6            string ,
+         |rec_st              string ,
+         |comments            string ,
+         |rec_crt_ts          string ,
+         |rec_upd_ts          string ,
+         |tlr_st              string ,
+         |req_pri_data        string ,
+         |out_trans_tp        string ,
+         |org_out_trans_tp    string ,
+         |ebank_id            string ,
+         |ebank_mchnt_cd      string ,
+         |ebank_order_num     string ,
+         |ebank_idx           string ,
+         |ebank_rsp_tm        string ,
+         |mchnt_conn_tp       string ,
+         |access_tp           string ,
+         |trans_source        string ,
+         |bind_id             string ,
+         |card_risk_flag      string ,
+         |buss_chnl           string
+         |)
+         |partitioned by (part_settle_dt string)
+         |row format delimited fields terminated by '!|'
+         |stored as parquet
+         |location '/user/ch_hypas/upw_hive/incident/trans/hive_rtdtrs_dtl_achis_bill'
+         | """.stripmargin)
+
+    println("=======create hive_rtdtrs_dtl_achis_bill successfully ! =======")
+  }
+
+
+
+
 }
