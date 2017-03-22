@@ -111,9 +111,9 @@ object Create_Hive_Tables {
 //    hive_wlonl_acc_notes
 //    hive_ubp_order
 //    hive_mnsvc_business_instal_info
-//    hive_mtdtrs_dtl_ach_bat_file
-//    hive_mtdtrs_dtl_ach_bat_file_dtl
-//    hive_rtdtrs_dtl_achis_bill
+    hive_mtdtrs_dtl_ach_bat_file
+    hive_mtdtrs_dtl_ach_bat_file_dtl
+    hive_rtdtrs_dtl_achis_bill
 
 
     println("=======Create all tables on the hive successfully=======")
@@ -5125,91 +5125,91 @@ object Create_Hive_Tables {
   /**
     *  JOB_HV_92
     */
-  def hive_mtdtrs_dtl_ach_bat_file_dtl (implicit  sqlcontext :hivecontext)={
+  def hive_mtdtrs_dtl_ach_bat_file_dtl (implicit  sqlcontext :HiveContext)={
     println("=======create hive_mtdtrs_dtl_ach_bat_file_dtl=======")
     sqlcontext.sql(s"use $hive_dbname")
     sqlcontext.sql(
-      s"""
-         |create table if not exists $hive_dbname.hive_mtdtrs_dtl_ach_bat_file_dtl
-         |(
-         |settle_dt               string,
-         |trans_idx               string,
-         |bat_id                  string,
-         |mchnt_cd                string,
-         |mchnt_tp                string,
-         |mchnt_addr              string,
-         |trans_tp                string,
-         |buss_tp                 string,
-         |proc_st                 string,
-         |proc_sys                string,
-         |mchnt_order_id          string,
-         |usr_id_tp               string,
-         |usr_id                  string,
-         |cvn2                    string,
-         |expire_dt               string,
-         |bill_tp                 string,
-         |bill_no                 string,
-         |trans_at                decimal(12,0),
-         |fee_at                  decimal(12,0),
-         |trans_tm                string,
-         |trans_curr_cd           string,
-         |pay_acct                string,
-         |pay_acct_tp             string,
-         |pri_acct_no             string,
-         |iss_ins_id_cd           string,
-         |iss_ins_nm              string,
-         |customer_nm             string,
-         |customer_mobile         string,
-         |customer_email          string,
-         |org_order_id            string,
-         |org_trans_tm            string,
-         |org_trans_at            decimal(12,0),
-         |refund_rsn              string,
-         |cert_tp                 string,
-         |cert_id                 string,
-         |conn_md                 string,
-         |product_info            string,
-         |acct_balance            decimal(12,0),
-         |out_trans_idx           string,
-         |org_trans_idx           string,
-         |sys_tra_no              string,
-         |sys_tm                  string,
-         |retri_ref_no            string,
-         |fwd_ins_id_cd           string,
-         |rcv_ins_id_cd           string,
-         |trans_method            string,
-         |trans_terminal_tp       string,
-         |svr_cond_cd             string,
-         |sd_tag                  string,
-         |bill_interval           string,
-         |resp_cd                 string,
-         |org_rec_info            string,
-         |comments                string,
-         |machine_id              string,
-         |file_prio               string,
-         |file_tp                 string,
-         |trans_chnl              string,
-         |chnl_tp                 string,
-         |resp_desc               string,
-         |broker_seq              bigint,
-         |iss_province            string,
-         |iss_city                string,
-         |acq_ins_id_cd           string,
-         |dtl_req_sn              string,
-         |reserve1                string,
-         |reserve2                string,
-         |reserve3                string,
-         |reserve4                string,
-         |rec_upd_oper_id         string,
-         |rec_upd_trans_id        string,
-         |rec_crt_ts              string,
-         |rec_upd_ts              string
-         |)
-         |partitioned by (part_settle_dt string)
-         |row format delimited fields terminated by '!|'
-         |stored as parquet
-         |location '/user/ch_hypas/upw_hive/incident/trans/hive_mtdtrs_dtl_ach_bat_file_dtl'
-         | """.stripmargin)
+      """
+        |create table if not exists $hive_dbname.hive_mtdtrs_dtl_ach_bat_file_dtl
+        |(
+        |settle_dt               string,
+        |trans_idx               string,
+        |bat_id                  string,
+        |mchnt_cd                string,
+        |mchnt_tp                string,
+        |mchnt_addr              string,
+        |trans_tp                string,
+        |buss_tp                 string,
+        |proc_st                 string,
+        |proc_sys                string,
+        |mchnt_order_id          string,
+        |usr_id_tp               string,
+        |usr_id                  string,
+        |cvn2                    string,
+        |expire_dt               string,
+        |bill_tp                 string,
+        |bill_no                 string,
+        |trans_at                decimal(12,0),
+        |fee_at                  decimal(12,0),
+        |trans_tm                string,
+        |trans_curr_cd           string,
+        |pay_acct                string,
+        |pay_acct_tp             string,
+        |pri_acct_no             string,
+        |iss_ins_id_cd           string,
+        |iss_ins_nm              string,
+        |customer_nm             string,
+        |customer_mobile         string,
+        |customer_email          string,
+        |org_order_id            string,
+        |org_trans_tm            string,
+        |org_trans_at            decimal(12,0),
+        |refund_rsn              string,
+        |cert_tp                 string,
+        |cert_id                 string,
+        |conn_md                 string,
+        |product_info            string,
+        |acct_balance            decimal(12,0),
+        |out_trans_idx           string,
+        |org_trans_idx           string,
+        |sys_tra_no              string,
+        |sys_tm                  string,
+        |retri_ref_no            string,
+        |fwd_ins_id_cd           string,
+        |rcv_ins_id_cd           string,
+        |trans_method            string,
+        |trans_terminal_tp       string,
+        |svr_cond_cd             string,
+        |sd_tag                  string,
+        |bill_interval           string,
+        |resp_cd                 string,
+        |org_rec_info            string,
+        |comments                string,
+        |machine_id              string,
+        |file_prio               string,
+        |file_tp                 string,
+        |trans_chnl              string,
+        |chnl_tp                 string,
+        |resp_desc               string,
+        |broker_seq              bigint,
+        |iss_province            string,
+        |iss_city                string,
+        |acq_ins_id_cd           string,
+        |dtl_req_sn              string,
+        |reserve1                string,
+        |reserve2                string,
+        |reserve3                string,
+        |reserve4                string,
+        |rec_upd_oper_id         string,
+        |rec_upd_trans_id        string,
+        |rec_crt_ts              string,
+        |rec_upd_ts              string
+        |)
+        |partitioned by (part_settle_dt string)
+        |row format delimited fields terminated by '!|'
+        |stored as parquet
+        |location '/user/ch_hypas/upw_hive/incident/trans/hive_mtdtrs_dtl_ach_bat_file_dtl'
+      """.stripMargin)
 
     println("=======create hive_mtdtrs_dtl_ach_bat_file_dtl successfully ! =======")
   }
@@ -5218,7 +5218,7 @@ object Create_Hive_Tables {
   /**
     *  JOB_HV_93
     */
-  def hive_rtdtrs_dtl_achis_bill (implicit  sqlcontext :hivecontext)={
+  def hive_rtdtrs_dtl_achis_bill (implicit  sqlcontext :HiveContext)={
     println("=======create hive_rtdtrs_dtl_achis_bill=======")
     sqlcontext.sql(s"use $hive_dbname")
     sqlcontext.sql(
@@ -5319,7 +5319,7 @@ object Create_Hive_Tables {
          |row format delimited fields terminated by '!|'
          |stored as parquet
          |location '/user/ch_hypas/upw_hive/incident/trans/hive_rtdtrs_dtl_achis_bill'
-         | """.stripmargin)
+        """.stripMargin)
 
     println("=======create hive_rtdtrs_dtl_achis_bill successfully ! =======")
   }
