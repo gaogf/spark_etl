@@ -1881,7 +1881,7 @@ object SparkDB22Hive {
            | """.stripMargin)
 
       results.registerTempTable("spark_hive_term_inf_ini_2")
-      results.show(10)
+
       println("#### JOB_HV_20_INI_2 registerTempTable-- spark_hive_term_inf_ini_2 完成的时间为:" + DateUtils.getCurrentSystemTime())
 
 
@@ -2167,7 +2167,7 @@ object SparkDB22Hive {
            | """.stripMargin)
 
       results.registerTempTable("spark_hive_term_inf")
-      results.show(10)
+
       println("#### JOB_HV_20 registerTempTable--spark_hive_term_inf完成的时间为:" + DateUtils.getCurrentSystemTime())
 
 
