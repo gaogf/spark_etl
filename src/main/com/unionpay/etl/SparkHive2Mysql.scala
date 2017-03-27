@@ -1080,122 +1080,122 @@ object SparkHive2Mysql {
           val results = sqlContext.sql(
             s"""
                |select
-               |case when a.gb_region_nm is null then nvl(b.cup_branch_ins_id_nm,nvl(c.gb_region_nm,'其它')) else a.gb_region_nm end as BRANCH_AREA,
+               |case when a.gb_region_nm is null then nvl(b.cup_branch_ins_id_nm,nvl(c.gb_region_nm,'其它')) else a.gb_region_nm end as branch_area,
                |'$today_dt' as report_dt,
-               |sum(a.tpre)   as   STORE_TPRE_ADD_NUM  ,
-               |sum(a.years)  as   STORE_YEAR_ADD_NUM  ,
-               |sum(a.total)  as   STORE_TOTLE_ADD_NUM ,
-               |sum(b.tpre)   as   ACTIVE_TPRE_ADD_NUM ,
-               |sum(b.years)  as   ACTIVE_YEAR_ADD_NUM ,
-               |sum(b.total)  as   ACTIVE_TOTLE_ADD_NUM,
-               |sum(c.tpre)   as   COUPON_TPRE_ADD_NUM ,
-               |sum(c.years)  as   COUPON_YEAR_ADD_NUM ,
-               |sum(c.total)  as   COUPON_TOTLE_ADD_NUM
+               |sum(a.tpre)   as   store_tpre_add_num  ,
+               |sum(a.years)  as   store_year_add_num  ,
+               |sum(a.total)  as   store_totle_add_num ,
+               |sum(b.tpre)   as   active_tpre_add_num ,
+               |sum(b.years)  as   active_year_add_num ,
+               |sum(b.total)  as   active_totle_add_num,
+               |sum(c.tpre)   as   coupon_tpre_add_num ,
+               |sum(c.years)  as   coupon_year_add_num ,
+               |sum(c.total)  as   coupon_totle_add_num
                |FROM
                |(
                |select
-               |tempe.PROV_DIVISION_CD as gb_region_nm,
+               |tempe.prov_division_cd as gb_region_nm,
                |count(case when to_date(tempe.rec_crt_ts)='$today_dt'  then 1 end) as tpre,
                |count(case when to_date(tempe.rec_crt_ts)>=trunc('$today_dt','YYYY') and to_date(tempe.rec_crt_ts)<='$today_dt' then  1 end) as years,
                |count(case when to_date(tempe.rec_crt_ts)<='$today_dt' then 1 end) as total
                |from
                |(
-               |select distinct  PROV_DIVISION_CD,to_date(rec_crt_ts) as rec_crt_ts,mchnt_prov, mchnt_city_cd, mchnt_county_cd, mchnt_addr
-               |from HIVE_PREFERENTIAL_MCHNT_INF
+               |select distinct  prov_division_cd,to_date(rec_crt_ts) as rec_crt_ts,mchnt_prov, mchnt_city_cd, mchnt_county_cd, mchnt_addr
+               |from hive_preferential_mchnt_inf
                |where  mchnt_st='2' and mchnt_nm not like '%验证%' and mchnt_nm not like '%测试%' and  brand_id<>68988
                |union all
-               |select PROV_DIVISION_CD, to_date(rec_crt_ts) as rec_crt_ts,mchnt_prov, mchnt_city_cd, mchnt_county_cd, mchnt_addr
-               |from HIVE_PREFERENTIAL_MCHNT_INF
+               |select prov_division_cd, to_date(rec_crt_ts) as rec_crt_ts,mchnt_prov, mchnt_city_cd, mchnt_county_cd, mchnt_addr
+               |from hive_preferential_mchnt_inf
                |where mchnt_st='2' and mchnt_nm not like '%验证%' and mchnt_nm not like '%测试%' and brand_id=68988
                |)  tempe
-               |group by  tempe.PROV_DIVISION_CD
+               |group by  tempe.prov_division_cd
                |) a
                |
                |full outer join
                |(select
-               |tempb.PROV_DIVISION_CD as cup_branch_ins_id_nm,
+               |tempb.prov_division_cd as cup_branch_ins_id_nm,
                |sum(case when to_date(tempb.trans_dt)='$today_dt'  then tempb.cnt end) as tpre,
                |sum(case when to_date(tempb.trans_dt)>=trunc('$today_dt','YYYY') and to_date(tempb.trans_dt)<='$today_dt' then  tempb.cnt end) as years,
                |sum(case when to_date(tempb.trans_dt)<='$today_dt'  then  tempb.cnt end) as total
                |from
                |(
-               |select nvl(tp.PROV_DIVISION_CD,'总公司') as PROV_DIVISION_CD,tp.trans_dt, sum(cnt) as cnt
+               |select nvl(tp.prov_division_cd,'总公司') as prov_division_cd,tp.trans_dt, sum(cnt) as cnt
                |from(
                |select
-               |t1.PROV_DIVISION_CD,
+               |t1.prov_division_cd,
                |t1.trans_dt,
                |count(*) as cnt
                |from (
-               |select distinct mchnt.PROV_DIVISION_CD , mchnt_prov,mchnt_city_cd, mchnt_addr , a.trans_dt
+               |select distinct mchnt.prov_division_cd , mchnt_prov,mchnt_city_cd, mchnt_addr , a.trans_dt
                |from (
                |select distinct card_accptr_cd,card_accptr_term_id,trans_dt
-               |from HIVE_ACC_TRANS
-               |where UM_TRANS_ID in ('AC02000065','AC02000063') and
+               |from hive_acc_trans
+               |where um_trans_id in ('AC02000065','AC02000063') and
                |buss_tp in ('02','04','05','06') and sys_det_cd='S'
                |) a
-               |left join HIVE_STORE_TERM_RELATION b
+               |left join hive_store_term_relation b
                |on a.card_accptr_cd=b.mchnt_cd and a.card_accptr_term_id=b.term_id
-               |left join HIVE_PREFERENTIAL_MCHNT_INF mchnt
-               |on b.THIRD_PARTY_INS_ID=mchnt.mchnt_cd
-               |where b.THIRD_PARTY_INS_ID is not null
+               |left join hive_preferential_mchnt_inf mchnt
+               |on b.third_party_ins_id=mchnt.mchnt_cd
+               |where b.third_party_ins_id is not null
                |) t1
-               |group by t1.PROV_DIVISION_CD,t1.trans_dt
+               |group by t1.prov_division_cd,t1.trans_dt
                |
                |union all
                |
                |select
-               |t2.PROV_DIVISION_CD,
+               |t2.prov_division_cd,
                |t2.trans_dt,
                |count(*) as cnt
                |from (
-               |select distinct mcf.PROV_DIVISION_CD, a.card_accptr_cd,a.card_accptr_term_id, a.trans_dt
+               |select distinct mcf.prov_division_cd, a.card_accptr_cd,a.card_accptr_term_id, a.trans_dt
                |from (
                |select distinct card_accptr_cd,card_accptr_term_id, trans_dt,acpt_ins_id_cd
-               |from HIVE_ACC_TRANS
-               |where UM_TRANS_ID in ('AC02000065','AC02000063') and
+               |from hive_acc_trans
+               |where um_trans_id in ('AC02000065','AC02000063') and
                |buss_tp in ('02','04','05','06') and sys_det_cd='S'
                |) a
-               |left join HIVE_STORE_TERM_RELATION b
+               |left join hive_store_term_relation b
                |on a.card_accptr_cd=b.mchnt_cd and a.card_accptr_term_id=b.term_id
-               |left join  (select distinct ins_id_cd,CUP_BRANCH_INS_ID_NM as PROV_DIVISION_CD from HIVE_INS_INF where length(trim(cup_branch_ins_id_cd))<>0
+               |left join  (select distinct ins_id_cd,cup_branch_ins_id_nm as prov_division_cd from hive_ins_inf where length(trim(cup_branch_ins_id_cd))<>0
                |union all
-               |select distinct ins_id_cd, cup_branch_ins_id_nm as PROV_DIVISION_CD from HIVE_ACONL_INS_BAS where length(trim(cup_branch_ins_id_cd))<>0  )mcf
+               |select distinct ins_id_cd, cup_branch_ins_id_nm as prov_division_cd from hive_aconl_ins_bas where length(trim(cup_branch_ins_id_cd))<>0  )mcf
                |on a.acpt_ins_id_cd=concat('000',mcf.ins_id_cd)
                |
-               |where b.THIRD_PARTY_INS_ID is null
+               |where b.third_party_ins_id is null
                |) t2
-               |group by t2.PROV_DIVISION_CD,t2.trans_dt
+               |group by t2.prov_division_cd,t2.trans_dt
                |
                |union all
                |select
-               |dis.CUP_BRANCH_INS_ID_NM as PROV_DIVISION_CD,
+               |dis.cup_branch_ins_id_nm as prov_division_cd,
                |dis.settle_dt as trans_dt,
                |count(distinct dis.term_id) as cnt
                |from
-               |(select CUP_BRANCH_INS_ID_NM,term_id,settle_dt
-               |from HIVE_PRIZE_DISCOUNT_RESULT ) dis
+               |(select cup_branch_ins_id_nm,term_id,settle_dt
+               |from hive_prize_discount_result ) dis
                |left join
-               |(select term_id from HIVE_STORE_TERM_RELATION ) rt
+               |(select term_id from hive_store_term_relation ) rt
                |on dis.term_id=rt.term_id
                |where rt.term_id is null
-               |group by dis.CUP_BRANCH_INS_ID_NM,dis.settle_dt
+               |group by dis.cup_branch_ins_id_nm,dis.settle_dt
                |) tp
-               |group by tp.PROV_DIVISION_CD ,tp.trans_dt
+               |group by tp.prov_division_cd ,tp.trans_dt
                |
                |) tempb
-               |group by tempb.PROV_DIVISION_CD) b
+               |group by tempb.prov_division_cd) b
                |on a.gb_region_nm=b.cup_branch_ins_id_nm
                |
                |full  outer join
                |(
                |select
                |tempd.gb_region_nm as gb_region_nm,
-               |count(distinct(case when to_date(tempd.rec_crt_ts)='$today_dt'  then tempd.MCHNT_CD end)) as tpre,
-               |count(distinct(case when to_date(tempd.rec_crt_ts)>=trunc('$today_dt','YYYY') and to_date(tempd.rec_crt_ts)<='$today_dt' then  tempd.MCHNT_CD end)) as years,
-               |count(distinct(case when to_date(tempd.rec_crt_ts)<='$today_dt'  then tempd.MCHNT_CD end)) as total
-               |from HIVE_MCHNT_INF_WALLET tempd
-               |WHERE substr(tempd.OPEN_BUSS_BMP,1,2) in (10,11)
-               |GROUP BY tempd.gb_region_nm) c
+               |count(distinct(case when to_date(tempd.rec_crt_ts)='$today_dt'  then tempd.mchnt_cd end)) as tpre,
+               |count(distinct(case when to_date(tempd.rec_crt_ts)>=trunc('$today_dt','YYYY') and to_date(tempd.rec_crt_ts)<='$today_dt' then  tempd.mchnt_cd end)) as years,
+               |count(distinct(case when to_date(tempd.rec_crt_ts)<='$today_dt'  then tempd.mchnt_cd end)) as total
+               |from hive_mchnt_inf_wallet tempd
+               |where substr(tempd.open_buss_bmp,1,2) in (10,11)
+               |group by tempd.gb_region_nm) c
                |on a.gb_region_nm=c.gb_region_nm
                |group by
                |case when a.gb_region_nm is null then nvl(b.cup_branch_ins_id_nm,nvl(c.gb_region_nm,'其它')) else a.gb_region_nm end
@@ -7612,38 +7612,38 @@ object SparkHive2Mysql {
           println(s"#### JOB_DM_63 spark sql 清洗[$today_dt]数据开始时间为:" + DateUtils.getCurrentSystemTime())
           val results = sqlContext.sql(
             s"""
-               |SELECT
-               |NVL(A.BUSS_TP_NM,'--') as BUSS_TP_NM,
-               |NVL(A.CHNL_TP_NM,'--') as CHNL_TP_NM,
-               |A.TRANS_DT as REPORT_DT,
-               |SUM(B.TRAN_ALL_CNT) as TRAN_ALL_CNT,
-               |SUM(A.TRAN_SUCC_CNT) as TRAN_SUCC_CNT,
-               |SUM(A.TRANS_SUCC_AT) as TRANS_SUCC_AT
-               |FROM(
                |select
-               |BUSS_TP_NM,
-               |CHNL_TP_NM,
-               |TO_DATE(TRANS_DT) as TRANS_DT,
-               |COUNT( TRANS_NO) AS TRAN_SUCC_CNT,
-               |SUM(TRANS_AT) AS TRANS_SUCC_AT
-               |from HIVE_LIFE_TRANS
-               |where PROC_ST ='00'
-               |and TO_DATE(TRANS_DT)>='$today_dt' AND   TO_DATE(TRANS_DT)<='$today_dt'
-               |GROUP BY BUSS_TP_NM,CHNL_TP_NM,TO_DATE(TRANS_DT)) A
-               |LEFT JOIN
+               |nvl(a.buss_tp_nm,'--') as buss_tp_nm,
+               |nvl(a.chnl_tp_nm,'--') as chnl_tp_nm,
+               |a.trans_dt as report_dt,
+               |sum(b.tran_all_cnt) as tran_all_cnt,
+               |sum(a.tran_succ_cnt) as tran_succ_cnt,
+               |sum(a.trans_succ_at) as trans_succ_at
+               |from(
+               |select
+               |buss_tp_nm,
+               |chnl_tp_nm,
+               |to_date(trans_dt) as trans_dt,
+               |count( trans_no) as tran_succ_cnt,
+               |sum(trans_at) as trans_succ_at
+               |from hive_life_trans
+               |where proc_st ='00'
+               |and to_date(trans_dt)>='$today_dt' and   to_date(trans_dt)<='$today_dt'
+               |group by buss_tp_nm,chnl_tp_nm,to_date(trans_dt)) a
+               |left join
                |(
                |select
-               |BUSS_TP_NM,
-               |CHNL_TP_NM,
-               |TO_DATE(TRANS_DT) as TRANS_DT,
-               |COUNT(TRANS_NO) AS TRAN_ALL_CNT
-               |from HIVE_LIFE_TRANS
-               |where  TO_DATE(TRANS_DT)>='$today_dt' AND   TO_DATE(TRANS_DT)<='$today_dt'
-               |GROUP BY BUSS_TP_NM,CHNL_TP_NM,TO_DATE(TRANS_DT)) B
-               |ON A.BUSS_TP_NM=B.BUSS_TP_NM AND A.BUSS_TP_NM=B.BUSS_TP_NM and A.TRANS_DT=B.TRANS_DT
-               |GROUP BY A.BUSS_TP_NM,
-               |A.CHNL_TP_NM,
-               |A.TRANS_DT
+               |buss_tp_nm,
+               |chnl_tp_nm,
+               |to_date(trans_dt) as trans_dt,
+               |count(trans_no) as tran_all_cnt
+               |from hive_life_trans
+               |where  to_date(trans_dt)>='$today_dt' and   to_date(trans_dt)<='$today_dt'
+               |group by buss_tp_nm,chnl_tp_nm,to_date(trans_dt)) b
+               |on a.buss_tp_nm=b.buss_tp_nm and a.buss_tp_nm=b.buss_tp_nm and a.trans_dt=b.trans_dt
+               |group by a.buss_tp_nm,
+               |a.chnl_tp_nm,
+               |a.trans_dt
                | """.stripMargin)
           println(s"#### JOB_DM_63 spark sql 清洗[$today_dt]数据完成时间为:" + DateUtils.getCurrentSystemTime())
 
@@ -7682,37 +7682,37 @@ object SparkHive2Mysql {
           val results = sqlContext.sql(
             s"""
                |select
-               |a.IF_HCE as IF_HCE,
-               |'$today_dt' as REPORT_DT,
-               |SUM(a.coupon_class) as CLASS_TPRE_ADD_NUM,
-               |SUM(a.coupon_publish) as AMT_TPRE_ADD_NUM ,
-               |SUM(a.dwn_num) as DOWM_TPRE_ADD_NUM ,
-               |SUM(b.batch) as BATCH_TPRE_ADD_NUM
+               |a.if_hce as if_hce,
+               |'$today_dt' as report_dt,
+               |sum(a.coupon_class) as class_tpre_add_num,
+               |sum(a.coupon_publish) as amt_tpre_add_num ,
+               |sum(a.dwn_num) as dowm_tpre_add_num ,
+               |sum(b.batch) as batch_tpre_add_num
                |from
                |(select
-               |CASE WHEN substr(UDF_FLD,31,2) in ('01','02','03','04','05') THEN '仅限云闪付' ELSE '非仅限云闪付' END AS IF_HCE,
+               |case when substr(udf_fld,31,2) in ('01','02','03','04','05') then '仅限云闪付' else '非仅限云闪付' end as if_hce,
                |count(*) as coupon_class ,
                |sum(case when dwn_total_num = -1 then dwn_num else dwn_total_num end) as coupon_publish ,
                |sum(dwn_num) as dwn_num
-               |from HIVE_DOWNLOAD_TRANS as dtl,
-               |HIVE_TICKET_BILL_BAS_INF as bill
+               |from hive_download_trans as dtl,
+               |hive_ticket_bill_bas_inf as bill
                |where dtl.bill_id=bill.bill_id
                |and dtl.um_trans_id in ('12','17')
                |and dtl.trans_st='1' and part_trans_dt='$today_dt' and dtl.bill_nm not like '%机场%' and dtl.bill_nm not like '%住两晚送一晚%'
                |and bill.bill_sub_tp in ('01','03') and bill.bill_nm not like '%测试%' and bill.bill_nm not like '%验证%' and bill.bill_id <>'Z00000000020415'
                |and bill.bill_id<>'Z00000000020878' and bill.bill_nm not like '%满2元减1%' and bill.bill_nm not like '%满2分减1分%'
                |and bill.bill_nm not like '%满2减1%' and bill.bill_nm not like '%满2抵1%' and bill.bill_nm not like '测%' and dwn_total_num-dwn_num<100000
-               |group by CASE WHEN substr(UDF_FLD,31,2) in ('01','02','03','04','05') THEN '仅限云闪付' ELSE '非仅限云闪付' END )a
+               |group by case when substr(udf_fld,31,2) in ('01','02','03','04','05') then '仅限云闪付' else '非仅限云闪付' end )a
                |left join
                |(
                |select
-               |CASE WHEN substr(UDF_FLD,31,2) in ('01','02','03','04','05') THEN '仅限云闪付' ELSE '非仅限云闪付' END AS IF_HCE,
-               |sum(adj.ADJ_TICKET_BILL) as batch
+               |case when substr(udf_fld,31,2) in ('01','02','03','04','05') then '仅限云闪付' else '非仅限云闪付' end as if_hce,
+               |sum(adj.adj_ticket_bill) as batch
                |from
-               |HIVE_TICKET_BILL_ACCT_ADJ_TASK adj
+               |hive_ticket_bill_acct_adj_task adj
                |inner join
-               |(select cup_branch_ins_id_cd,bill.bill_id,UDF_FLD from HIVE_DOWNLOAD_TRANS as dtl,
-               |HIVE_TICKET_BILL_BAS_INF as bill
+               |(select cup_branch_ins_id_cd,bill.bill_id,udf_fld from hive_download_trans as dtl,
+               |hive_ticket_bill_bas_inf as bill
                |where dtl.bill_id=bill.bill_id
                |and dtl.um_trans_id in ('12','17')
                |and dtl.trans_st='1' and part_trans_dt='$today_dt' and dtl.bill_nm not like '%机场%' and dtl.bill_nm not like '%住两晚送一晚%'
@@ -7721,9 +7721,9 @@ object SparkHive2Mysql {
                |and bill.bill_nm not like '%满2减1%' and bill.bill_nm not like '%满2抵1%' and bill.bill_nm not like '测%' and dwn_total_num-dwn_num<100000
                |) b
                |on adj.bill_id=b.bill_id
-               |group by CASE WHEN substr(UDF_FLD,31,2) in ('01','02','03','04','05') THEN '仅限云闪付' ELSE '非仅限云闪付' END )b
-               |on a.IF_HCE=b.IF_HCE
-               |group by a.IF_HCE,'$today_dt'
+               |group by case when substr(udf_fld,31,2) in ('01','02','03','04','05') then '仅限云闪付' else '非仅限云闪付' end )b
+               |on a.if_hce=b.if_hce
+               |group by a.if_hce,'$today_dt'
                | """.stripMargin)
           println(s"#### JOB_DM_64 spark sql 清洗[$today_dt]数据完成时间为:" + DateUtils.getCurrentSystemTime())
 
@@ -7752,7 +7752,7 @@ object SparkHive2Mysql {
     println("###JOB_DM_65(dm_hce_coupon_tran->hive_ticket_bill_bas_inf)")
 
     DateUtils.timeCost("JOB_DM_65") {
-      UPSQL_JDBC.delete(s"DM_HCE_COUPON_TRAN","REPORT_DT",start_dt,end_dt)
+      UPSQL_JDBC.delete(s"dm_hce_coupon_tran","report_dt",start_dt,end_dt)
       println("#### JOB_DM_65 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
 
       var today_dt=start_dt
@@ -7763,16 +7763,16 @@ object SparkHive2Mysql {
           val results = sqlContext.sql(
             s"""
                |select
-               |tempe.CUP_BRANCH_INS_ID_NM as BRANCH_NM,
-               |'$today_dt' as REPORT_DT,
-               |tempe.dwn_total_num as YEAR_RELEASE_NUM,
-               |tempe.dwn_num as YEAR_DOWN_NUM,
-               |tempc.accept_year_num as YEAR_VOTE_AGAINST_NUM,
-               |tempc.accept_today_num as TODAY_VOTE_AGAINST_NUM
+               |tempe.cup_branch_ins_id_nm as branch_nm,
+               |'$today_dt' as report_dt,
+               |tempe.dwn_total_num as year_release_num,
+               |tempe.dwn_num as year_down_num,
+               |tempc.accept_year_num as year_vote_against_num,
+               |tempc.accept_today_num as today_vote_against_num
                |from
                |(
                |select
-               |tempa.CUP_BRANCH_INS_ID_NM,
+               |tempa.cup_branch_ins_id_nm,
                |count(*),
                |sum(dwn_total_num) as dwn_total_num,
                |sum(dwn_num)  as  dwn_num
@@ -7781,9 +7781,9 @@ object SparkHive2Mysql {
                |select
                |bill_id,
                |bill_nm,
-               |CUP_BRANCH_INS_ID_NM,
+               |cup_branch_ins_id_nm,
                |(case when dwn_total_num=-1 then dwn_num else dwn_total_num end) as dwn_total_num,dwn_num
-               |from HIVE_TICKET_BILL_BAS_INF
+               |from hive_ticket_bill_bas_inf
                |where to_date(valid_begin_dt)<='$today_dt' and to_date(valid_end_dt) >= trunc('$today_dt','YYYY')
                |and  exclusive_in ='1' and  bill_nm not like '%机场%' and bill_nm not like '%住两晚送一晚%' and
                |      bill_nm not like '%测试%'         and
@@ -7801,13 +7801,13 @@ object SparkHive2Mysql {
                |      dwn_num>=0                        and
                |      length(trim(translate(trim(bill_nm),'-0123456789','')))<>0
                |      ) tempa
-               |      group by tempa.CUP_BRANCH_INS_ID_NM
+               |      group by tempa.cup_branch_ins_id_nm
                |	  ) tempe
                |left join
                |
                |(
                |select
-               |tempb.CUP_BRANCH_INS_ID_NM as CUP_BRANCH_INS_ID_NM,
+               |tempb.cup_branch_ins_id_nm as cup_branch_ins_id_nm,
                |count(case when to_date(tempd.trans_dt)>=trunc('$today_dt','YYYY') and to_date(tempd.trans_dt)<='$today_dt' then tempd.bill_id end) as accept_year_num,
                |count(case when  to_date(tempd.trans_dt) ='$today_dt' then tempd.bill_id end) as accept_today_num
                |from
@@ -7815,10 +7815,10 @@ object SparkHive2Mysql {
                |select
                |bill_id,
                |trans_dt,
-               |substr(udf_fld,31,2) as CFP_SIGN
-               |from  HIVE_ACC_TRANS
+               |substr(udf_fld,31,2) as cfp_sign
+               |from  hive_acc_trans
                |where substr(udf_fld,31,2) not in ('',' ','  ','00') and
-               |      UM_TRANS_ID in ('AC02000065','AC02000063') and
+               |      um_trans_id in ('AC02000065','AC02000063') and
                |      buss_tp in ('04','05','06')
                |      and sys_det_cd='S' and
                |       bill_nm not like '%机场%'         and
@@ -7837,16 +7837,16 @@ object SparkHive2Mysql {
                |select
                |bill_id,
                |bill_nm,
-               |CUP_BRANCH_INS_ID_NM
-               |from HIVE_TICKET_BILL_BAS_INF
+               |cup_branch_ins_id_nm
+               |from hive_ticket_bill_bas_inf
                |)
                |tempb
                |on tempd.bill_id = tempb.bill_id
                |group by
-               |tempb.CUP_BRANCH_INS_ID_NM
+               |tempb.cup_branch_ins_id_nm
                |)
                |tempc
-               |on tempe.CUP_BRANCH_INS_ID_NM=tempc.CUP_BRANCH_INS_ID_NM
+               |on tempe.cup_branch_ins_id_nm=tempc.cup_branch_ins_id_nm
                | """.stripMargin)
           println(s"#### JOB_DM_65 spark sql 清洗[$today_dt]数据完成时间为:" + DateUtils.getCurrentSystemTime())
 
@@ -8796,114 +8796,114 @@ object SparkHive2Mysql {
       sqlContext.sql(s"use $hive_dbname")
       val results = sqlContext.sql(
         s"""
-           |SELECT
-           |    ta.CUP_BRANCH_INS_ID_NM as CUP_BRANCH_INS_ID_NM,
-           |    ta.SETTLE_DT as REPORT_DT,
-           |    MAX(ta.ACTIVITY_NUM) AS ACTIVITY_NUM,
-           |    MAX(ta.PLAN_NUM)     AS PLAN_NUM,
-           |    MAX(ta.ACTUAL_NUM)   AS ACTUAL_NUM
-           |FROM
+           |select
+           |    ta.cup_branch_ins_id_nm as cup_branch_ins_id_nm,
+           |    ta.settle_dt as report_dt,
+           |    max(ta.activity_num) as activity_num,
+           |    max(ta.plan_num)     as plan_num,
+           |    max(ta.actual_num)   as actual_num
+           |from
            |(
-           |        SELECT
-           |            A.CUP_BRANCH_INS_ID_NM as CUP_BRANCH_INS_ID_NM,
-           |            A.SETTLE_DT as SETTLE_DT,
-           |            C.ACTIVITY_NUM as ACTIVITY_NUM,
-           |            A.PLAN_NUM as PLAN_NUM,
-           |            B.ACTUAL_NUM as ACTUAL_NUM
-           |        FROM
+           |        select
+           |            a.cup_branch_ins_id_nm as cup_branch_ins_id_nm,
+           |            a.settle_dt as settle_dt,
+           |            c.activity_num as activity_num,
+           |            a.plan_num as plan_num,
+           |            b.actual_num as actual_num
+           |        from
            |            (
-           |                SELECT
-           |                    PRIZE.CUP_BRANCH_INS_ID_NM AS CUP_BRANCH_INS_ID_NM,
-           |                    RSLT.SETTLE_DT AS SETTLE_DT,
-           |                    SUM(LVL.LVL_PRIZE_NUM) AS PLAN_NUM
-           |                FROM
-           |                    HIVE_PRIZE_ACTIVITY_BAS_INF PRIZE,
-           |                    HIVE_PRIZE_LVL LVL,
+           |                select
+           |                    prize.cup_branch_ins_id_nm as cup_branch_ins_id_nm,
+           |                    rslt.settle_dt as settle_dt,
+           |                    sum(lvl.lvl_prize_num) as plan_num
+           |                from
+           |                    hive_prize_activity_bas_inf prize,
+           |                    hive_prize_lvl lvl,
            |                    (
-           |                        SELECT DISTINCT
-           |                            SETTLE_DT
-           |                        FROM
-           |                            HIVE_PRIZE_DISCOUNT_RESULT
-           |                        WHERE
-           |                            PART_SETTLE_DT >= '$start_dt'
-           |                        AND PART_SETTLE_DT <= '$end_dt') RSLT
-           |                WHERE
-           |                    PRIZE.LOC_ACTIVITY_ID = LVL.LOC_ACTIVITY_ID
-           |                AND PRIZE.ACTIVITY_BEGIN_DT<= RSLT.SETTLE_DT
-           |                AND PRIZE.ACTIVITY_END_DT>=RSLT.SETTLE_DT
-           |                AND PRIZE.RUN_ST!='3'
-           |                GROUP BY
-           |                    PRIZE.CUP_BRANCH_INS_ID_NM,
-           |                    RSLT.SETTLE_DT
-           |   ) A,
+           |                        select distinct
+           |                            settle_dt
+           |                        from
+           |                            hive_prize_discount_result
+           |                        where
+           |                            part_settle_dt >= '$start_dt'
+           |                        and part_settle_dt <= '$end_dt') rslt
+           |                where
+           |                    prize.loc_activity_id = lvl.loc_activity_id
+           |                and prize.activity_begin_dt<= rslt.settle_dt
+           |                and prize.activity_end_dt>=rslt.settle_dt
+           |                and prize.run_st!='3'
+           |                group by
+           |                    prize.cup_branch_ins_id_nm,
+           |                    rslt.settle_dt
+           |   ) a,
            |            (
-           |                SELECT
-           |                    PRIZE.CUP_BRANCH_INS_ID_NM AS CUP_BRANCH_INS_ID_NM,
-           |                    PR.SETTLE_DT AS SETTLE_DT,
-           |                    COUNT(PR.SYS_TRA_NO_CONV) AS ACTUAL_NUM
-           |                FROM
-           |                    HIVE_PRIZE_ACTIVITY_BAS_INF PRIZE,
-           |                    HIVE_PRIZE_BAS BAS,
-           |                    HIVE_PRIZE_DISCOUNT_RESULT PR
-           |                WHERE
-           |                    PRIZE.LOC_ACTIVITY_ID = BAS.LOC_ACTIVITY_ID
-           |                AND BAS.PRIZE_ID = PR.PRIZE_ID
-           |                AND PRIZE.ACTIVITY_BEGIN_DT<= PR.SETTLE_DT
-           |                AND PRIZE.ACTIVITY_END_DT>= PR.SETTLE_DT
-           |                AND PR.trans_id='S22'
-           |                AND PR.PART_SETTLE_DT >= '$start_dt'
-           |                AND PR.PART_SETTLE_DT <= '$end_dt'
-           |                AND PR.TRANS_ID NOT LIKE 'V%'
-           |                AND PRIZE.RUN_ST!='3'
-           |                GROUP BY
-           |                    PRIZE.CUP_BRANCH_INS_ID_NM,PR.SETTLE_DT
-           |   ) B,
+           |                select
+           |                    prize.cup_branch_ins_id_nm as cup_branch_ins_id_nm,
+           |                    pr.settle_dt as settle_dt,
+           |                    count(pr.sys_tra_no_conv) as actual_num
+           |                from
+           |                    hive_prize_activity_bas_inf prize,
+           |                    hive_prize_bas bas,
+           |                    hive_prize_discount_result pr
+           |                where
+           |                    prize.loc_activity_id = bas.loc_activity_id
+           |                and bas.prize_id = pr.prize_id
+           |                and prize.activity_begin_dt<= pr.settle_dt
+           |                and prize.activity_end_dt>= pr.settle_dt
+           |                and pr.trans_id='S22'
+           |                and pr.part_settle_dt >= '$start_dt'
+           |                and pr.part_settle_dt <= '$end_dt'
+           |                and pr.trans_id not like 'V%'
+           |                and prize.run_st!='3'
+           |                group by
+           |                    prize.cup_branch_ins_id_nm,pr.settle_dt
+           |   ) b,
            |            (
-           |                SELECT
-           |                    PRIZE.CUP_BRANCH_INS_ID_NM AS CUP_BRANCH_INS_ID_NM,
-           |                    RSLT.SETTLE_DT AS SETTLE_DT,
-           |                    COUNT(*) AS ACTIVITY_NUM
-           |                FROM
-           |                    HIVE_PRIZE_ACTIVITY_BAS_INF PRIZE,
+           |                select
+           |                    prize.cup_branch_ins_id_nm as cup_branch_ins_id_nm,
+           |                    rslt.settle_dt as settle_dt,
+           |                    count(*) as activity_num
+           |                from
+           |                    hive_prize_activity_bas_inf prize,
            |                    (
-           |                        SELECT DISTINCT
-           |                            SETTLE_DT
-           |                        FROM
-           |                            HIVE_PRIZE_DISCOUNT_RESULT
-           |                        WHERE
-           |                            PART_SETTLE_DT >= '$start_dt'
-           |                        AND PART_SETTLE_DT <= '$end_dt') RSLT
-           |                WHERE
-           |                    PRIZE.ACTIVITY_BEGIN_DT<= RSLT.SETTLE_DT
-           |                AND PRIZE.ACTIVITY_END_DT>=RSLT.SETTLE_DT
-           |                AND PRIZE.RUN_ST!='3'
-           |                GROUP BY
-           |                    PRIZE.CUP_BRANCH_INS_ID_NM,
-           |                    RSLT.SETTLE_DT
-           |   ) C
-           |        WHERE
-           |            A.CUP_BRANCH_INS_ID_NM=B.CUP_BRANCH_INS_ID_NM
-           |        AND B.CUP_BRANCH_INS_ID_NM=C.CUP_BRANCH_INS_ID_NM
-           |        AND A.SETTLE_DT = B.SETTLE_DT
-           |        AND B.SETTLE_DT = C.SETTLE_DT
+           |                        select distinct
+           |                            settle_dt
+           |                        from
+           |                            hive_prize_discount_result
+           |                        where
+           |                            part_settle_dt >= '$start_dt'
+           |                        and part_settle_dt <= '$end_dt') rslt
+           |                where
+           |                    prize.activity_begin_dt<= rslt.settle_dt
+           |                and prize.activity_end_dt>=rslt.settle_dt
+           |                and prize.run_st!='3'
+           |                group by
+           |                    prize.cup_branch_ins_id_nm,
+           |                    rslt.settle_dt
+           |   ) c
+           |        where
+           |            a.cup_branch_ins_id_nm=b.cup_branch_ins_id_nm
+           |        and b.cup_branch_ins_id_nm=c.cup_branch_ins_id_nm
+           |        and a.settle_dt = b.settle_dt
+           |        and b.settle_dt = c.settle_dt
            |
-           |UNION ALL
+           |union all
            |
-           |SELECT
-           |DISTINCT D.INS_CN_NM AS CUP_BRANCH_INS_ID_NM,RSLT.SETTLE_DT as SETTLE_DT,0 AS ACTIVITY_NUM,0 AS PLAN_NUM,0 AS ACTUAL_NUM
-           |FROM
-           |HIVE_INS_INF D,
+           |select
+           |distinct d.ins_cn_nm as cup_branch_ins_id_nm,rslt.settle_dt as settle_dt,0 as activity_num,0 as plan_num,0 as actual_num
+           |from
+           |hive_ins_inf d,
            |(
-           |SELECT DISTINCT
-           |SETTLE_DT
-           |FROM
-           |HIVE_PRIZE_DISCOUNT_RESULT
-           |WHERE
-           |PART_SETTLE_DT >='$start_dt'AND PART_SETTLE_DT <='$end_dt') RSLT
-           |WHERE TRIM(D.INS_CN_NM) LIKE '%中国银联股份有限公司%分公司' OR  TRIM(D.INS_CN_NM) LIKE '%信息中心'
+           |select distinct
+           |settle_dt
+           |from
+           |hive_prize_discount_result
+           |where
+           |part_settle_dt >='$start_dt'and part_settle_dt <='$end_dt') rslt
+           |where trim(d.ins_cn_nm) like '%中国银联股份有限公司%分公司' or  trim(d.ins_cn_nm) like '%信息中心'
            |)  ta
-           |GROUP BY
-           |ta.CUP_BRANCH_INS_ID_NM,ta.SETTLE_DT
+           |group by
+           |ta.cup_branch_ins_id_nm,ta.settle_dt
            |
          | """.stripMargin)
 
@@ -9042,64 +9042,64 @@ object SparkHive2Mysql {
       sqlContext.sql(s"use $hive_dbname")
       val results = sqlContext.sql(
         s"""
-           |SELECT
-           |  B.ACTIVITY_ID as ACTIVITY_ID,
-           |  B.ACTIVITY_NM as ACTIVITY_NM,
-           |  B.SETTLE_DT as REPORT_DT,
-           |  B.TRANS_CNT as TRANS_CNT,
-           |  B.TRANS_AT as TRANS_AT,
-           |  B.DISCOUNT_AT as DISCOUNT_AT
-           | FROM
+           |select
+           |  b.activity_id as activity_id,
+           |  b.activity_nm as activity_nm,
+           |  b.settle_dt as report_dt,
+           |  b.trans_cnt as trans_cnt,
+           |  b.trans_at as trans_at,
+           |  b.discount_at as discount_at
+           | from
            | (
-           | SELECT
-           | A.ACTIVITY_ID                         AS ACTIVITY_ID,
-           | A.ACTIVITY_NM                        AS ACTIVITY_NM,
-           | A.SETTLE_DT                           AS SETTLE_DT,
-           | A.TRANS_CNT                           AS TRANS_CNT,
-           | A.TRANS_POS_AT_TTL                    AS TRANS_AT,
-           | (A.TRANS_POS_AT_TTL - A.TRANS_AT_TTL) AS DISCOUNT_AT,
-           | ROW_NUMBER() OVER(PARTITION BY A.SETTLE_DT ORDER BY A.TRANS_CNT DESC) AS RN
-           | FROM
+           | select
+           | a.activity_id                         as activity_id,
+           | a.activity_nm                        as activity_nm,
+           | a.settle_dt                           as settle_dt,
+           | a.trans_cnt                           as trans_cnt,
+           | a.trans_pos_at_ttl                    as trans_at,
+           | (a.trans_pos_at_ttl - a.trans_at_ttl) as discount_at,
+           | row_number() over(partition by a.settle_dt order by a.trans_cnt desc) as rn
+           | from
            |  (
-           |   SELECT
-           |    DBI.LOC_ACTIVITY_ID                 AS ACTIVITY_ID,
-           |    TRANSLATE(DBI.LOC_ACTIVITY_NM,' ','') AS ACTIVITY_NM,
-           |    TRANS.SETTLE_DT,
-           |    SUM (
-           |     CASE
-           |      WHEN TRANS.TRANS_ID IN ('V52','R22','V50','R20','S30')
-           |      THEN -1
-           |      ELSE 1
-           |     END) AS TRANS_CNT,
-           |    SUM (
-           |     CASE
-           |      WHEN TRANS.TRANS_ID IN ('V52','R22','V50','R20','S30')
-           |      THEN -TRANS.TRANS_POS_AT
-           |      ELSE TRANS.TRANS_POS_AT
-           |     END) AS TRANS_POS_AT_TTL,
-           |    SUM (
-           |     CASE
-           |      WHEN TRANS.TRANS_ID IN ('V52','R22','V50','R20','S30')
-           |      THEN -TRANS.TRANS_AT
-           |      ELSE TRANS.TRANS_AT
-           |     END) AS TRANS_AT_TTL
-           |   FROM
-           |    HIVE_PRIZE_DISCOUNT_RESULT TRANS,
-           |    HIVE_DISCOUNT_BAS_INF DBI
-           |   WHERE
-           |    TRANS.AGIO_APP_ID=DBI.LOC_ACTIVITY_ID
-           |   AND TRANS.AGIO_APP_ID IS NOT NULL
-           |   AND TRANS.trans_id='S22'
-           |   AND TRANS.PART_SETTLE_DT >='$start_dt'
-           |   AND TRANS.PART_SETTLE_DT <='$end_dt'
-           |   GROUP BY
-           |    DBI.LOC_ACTIVITY_ID,
-           |    TRANSLATE(DBI.LOC_ACTIVITY_NM,' ',''),
-           |    TRANS.SETTLE_DT
-           |  ) A
-           | ) B
-           | WHERE
-           |  B.RN <= 10
+           |   select
+           |    dbi.loc_activity_id                 as activity_id,
+           |    translate(dbi.loc_activity_nm,' ','') as activity_nm,
+           |    trans.settle_dt,
+           |    sum (
+           |     case
+           |      when trans.trans_id in ('V52','R22','V50','R20','S30')
+           |      then -1
+           |      else 1
+           |     end) as trans_cnt,
+           |    sum (
+           |     case
+           |      when trans.trans_id in ('V52','R22','V50','R20','S30')
+           |      then -trans.trans_pos_at
+           |      else trans.trans_pos_at
+           |     end) as trans_pos_at_ttl,
+           |    sum (
+           |     case
+           |      when trans.trans_id in ('V52','R22','V50','R20','S30')
+           |      then -trans.trans_at
+           |      else trans.trans_at
+           |     end) as trans_at_ttl
+           |   from
+           |    hive_prize_discount_result trans,
+           |    hive_discount_bas_inf dbi
+           |   where
+           |    trans.agio_app_id=dbi.loc_activity_id
+           |   and trans.agio_app_id is not null
+           |   and trans.trans_id='S22'
+           |   and trans.part_settle_dt >='$start_dt'
+           |   and trans.part_settle_dt <='$end_dt'
+           |   group by
+           |    dbi.loc_activity_id,
+           |    translate(dbi.loc_activity_nm,' ',''),
+           |    trans.settle_dt
+           |  ) a
+           | ) b
+           | where
+           |  b.rn <= 10
            |
          | """.stripMargin)
 
@@ -9196,20 +9196,20 @@ object SparkHive2Mysql {
         for(i <- 0 to interval){
           val results = sqlContext.sql(
             s"""
-               |SELECT
-               |A.bank_nm AS ISS_NM,
-               |'$today_dt' AS REPORT_DT,
-               |A.card_attr AS CARD_ATTR,
-               |A.TOTAL_BIND_CNT AS TOTAL_BIND_CNT,
-               |B.LAST_QUARTER_ACTIVE_CNT AS LAST_QUARTER_ACTIVE,
-               |A.TODAY_CNT  AS TODAY_TRAN_NUM
+               |select
+               |a.bank_nm as iss_nm,
+               |'$today_dt' as report_dt,
+               |a.card_attr as card_attr,
+               |a.total_bind_cnt as total_bind_cnt,
+               |b.last_quarter_active_cnt as last_quarter_active,
+               |a.today_cnt  as today_tran_num
                |from
                |(
                |select
                |tempa.bank_nm as bank_nm,
                |tempa.card_attr as card_attr,
-               |count(case when tempa.bind_dt<='$today_dt' then 1 end ) as TOTAL_BIND_CNT,
-               |count(case when tempa.bind_dt='$today_dt' then 1 end ) as TODAY_CNT
+               |count(case when tempa.bind_dt<='$today_dt' then 1 end ) as total_bind_cnt,
+               |count(case when tempa.bind_dt='$today_dt' then 1 end ) as today_cnt
                |from
                |(
                |select
@@ -9223,7 +9223,7 @@ object SparkHive2Mysql {
                |select
                |to_date(bind_ts) as bind_dt,
                |substr(trim(bind_card_no),1,8) as card_bin
-               |from HIVE_CARD_BIND_INF where card_bind_st='0'
+               |from hive_card_bind_inf where card_bind_st='0'
                |) tempb
                |inner join
                |(
@@ -9249,7 +9249,7 @@ object SparkHive2Mysql {
                |when iss_ins_id_cd in ('04100000', '05105840', '06105840', '03070000', '03070010') then '平安银行'
                |else null end ) as bank_nm,
                |card_attr
-               |from HIVE_CARD_BIN
+               |from hive_card_bin
                |where iss_ins_id_cd in ('01020000','01030000','01040000','01040003','03070010',
                |   '01050000','01050001','61000000','01009999','01000000',
                |   '03010000','03020000','63020000','03030000','63030000',
@@ -9258,14 +9258,14 @@ object SparkHive2Mysql {
                |   '03100000','04031000','64031000','04010000','04012902',
                |   '04012900','04100000','05105840','06105840','03070000')
                |
-             |)tempc
+               |)tempc
                | on tempb.card_bin=tempc.card_bin
                |  ) tempa
                |where tempa.card_attr is not null
                |group by tempa.bank_nm, tempa.card_attr
-               |) A
+               |) a
                |
-             |LEFT JOIN
+               |left join
                |(
                |select
                |iss_root_ins_id_cd,
@@ -9294,9 +9294,9 @@ object SparkHive2Mysql {
                |     when month('$today_dt') in (04,05,06) and  trans_month>= concat(year('$today_dt'),'01')  and trans_month<=concat(year('$today_dt'),'01')  then active_card_num
                |     when month('$today_dt') in (07,08,09) and  trans_month>= concat(year('$today_dt'),'04')  and trans_month<=concat(year('$today_dt'),'06')  then active_card_num
                |     when month('$today_dt') in (10,11,12) and  trans_month>= concat(year('$today_dt'),'07')  and trans_month<=concat(year('$today_dt'),'09')  then active_card_num
-               |	 end) as LAST_QUARTER_ACTIVE_CNT
+               |	 end) as last_quarter_active_cnt
                |
-             |from HIVE_ACTIVE_CARD_ACQ_BRANCH_MON
+               |from hive_active_card_acq_branch_mon
                |where trans_class ='4' and
                |iss_root_ins_id_cd in ('0801020000','0801030000','0801040000','0801040003','0803070010',
                |   '0801050000','0801050001','0861000000','0801009999','0801000000',
@@ -9305,9 +9305,9 @@ object SparkHive2Mysql {
                |   '0803060000','0803080000','0803090000','0803090002','0803090010',
                |   '0803100000','0804031000','0864031000','0804010000','0804012902',
                |   '0804012900','0804100000','0805105840','0806105840','0803070000')
-               |GROUP BY iss_root_ins_id_cd,card_attr_id
-               |   ) B
-               |ON A.bank_nm=B.bank_nm AND A.card_attr=B.card_attr
+               |group by iss_root_ins_id_cd,card_attr_id
+               |   ) b
+               |on a.bank_nm=b.bank_nm and a.card_attr=b.card_attr
                | """.stripMargin)
 
           println(s"#### JOB_DM_78 spark sql 清洗[$today_dt]数据完成时间为:" + DateUtils.getCurrentSystemTime())
@@ -10154,52 +10154,52 @@ object SparkHive2Mysql {
         for(i <- 0 to interval){
           val results = sqlContext.sql(
             s"""
-               |SELECT
-               |tempb.PHONE_LOCATION AS BRANCH_NM,
-               |'$today_dt' as REPORT_DT,
-               |tempb.STOCK_NUM AS STOCK_NUM,
-               |tempb.TODAY_NUM AS TODAY_NUM,
-               |tempb.TOTAL_NUM AS TOTAL_NUM
-               |FROM
+               |select
+               |tempb.phone_location as branch_nm,
+               |'$today_dt' as report_dt,
+               |tempb.stock_num as stock_num,
+               |tempb.today_num as today_num,
+               |tempb.total_num as total_num
+               |from
                |(
-               |SELECT
-               |NVL(A.PHONE_LOCATION,A.PHONE_LOCATION) AS PHONE_LOCATION,
-               |COUNT(distinct (CASE WHEN to_date(A.rec_upd_ts) > to_date(A.rec_crt_ts) THEN A.cdhd_usr_id END)) AS STOCK_NUM,
-               |COUNT(distinct (CASE WHEN to_date(A.rec_upd_ts) = to_date(A.rec_crt_ts) THEN A.cdhd_usr_id END)) AS TODAY_NUM,
-               |B.TOTAL_NUM AS TOTAL_NUM
-               |FROM
+               |select
+               |nvl(a.phone_location,a.phone_location) as phone_location,
+               |count(distinct (case when to_date(a.rec_upd_ts) > to_date(a.rec_crt_ts) then a.cdhd_usr_id end)) as stock_num,
+               |count(distinct (case when to_date(a.rec_upd_ts) = to_date(a.rec_crt_ts) then a.cdhd_usr_id end)) as today_num,
+               |b.total_num as total_num
+               |from
                |(
                |select distinct
                |cdhd_usr_id,
-               |PHONE_LOCATION,
+               |phone_location,
                |rec_upd_ts,
                |rec_crt_ts
-               |FROM HIVE_PRI_ACCT_INF
+               |from hive_pri_acct_inf
                |where
                |to_date(rec_upd_ts)>='$today_dt'
                |and to_date(rec_upd_ts)<='$today_dt'
-               |and (usr_st='1' or (usr_st='2' and note='BDYX_FREEZE')) and  realnm_in='01'
-               |) A
-               |FULL OUTER JOIN
+               |and (usr_st='1' or (usr_st='2' and note='bdyx_freeze')) and  realnm_in='01'
+               |) a
+               |full outer join
                |(
-               |SELECT
-               |tempa.PHONE_LOCATION AS PHONE_LOCATION,
-               |count(distinct tempa.cdhd_usr_id) AS TOTAL_NUM
-               |FROM
+               |select
+               |tempa.phone_location as phone_location,
+               |count(distinct tempa.cdhd_usr_id) as total_num
+               |from
                |(
                |select
                |cdhd_usr_id,
-               |PHONE_LOCATION
-               |FROM
-               |HIVE_PRI_ACCT_INF
+               |phone_location
+               |from
+               |hive_pri_acct_inf
                |where  to_date(rec_upd_ts)<='$today_dt' and
                |(usr_st='1' or (usr_st='2' and note='BDYX_FREEZE'))
                |and  realnm_in='01'
                |)tempa
-               |GROUP BY tempa.PHONE_LOCATION
-               |) B
-               |ON A.PHONE_LOCATION=B.PHONE_LOCATION
-               |GROUP BY NVL(A.PHONE_LOCATION,A.PHONE_LOCATION),B.TOTAL_NUM
+               |group by tempa.phone_location
+               |) b
+               |on a.phone_location=b.phone_location
+               |group by nvl(a.phone_location,a.phone_location),b.total_num
                |)tempb
                | """.stripMargin)
 
