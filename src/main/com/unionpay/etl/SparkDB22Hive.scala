@@ -114,9 +114,9 @@ object SparkDB22Hive {
         * 指标套表job
         */
       case "JOB_HV_15" => JOB_HV_15 //CODE BY TZQ  //测试出错，未解决
-      case "JOB_HV_20_INI_I" => JOB_HV_20_INI_I //CODE BY YX
-//      case  "JOB_HV_20_INI_2" =>JOB_HV_20_INI_2(sqlContext) //CODE BY XTP 报错Map(), true, false
-//      case  "JOB_HV_20" =>  JOB_HV_20(sqlContext, start_dt, end_dt) //CODE BY XTP 报错Map(), true, false
+      case "JOB_HV_20_INI_1" => JOB_HV_20_INI_1 //CODE BY XTP
+      case "JOB_HV_20_INI_2" => JOB_HV_20_INI_2 //CODE BY XTP
+      case "JOB_HV_20" => JOB_HV_20(sqlContext, start_dt, end_dt) //CODE BY XTP
       case "JOB_HV_23" => JOB_HV_23 //CODE BY TZQ
       case "JOB_HV_24" => JOB_HV_24 //CODE BY YX
       case "JOB_HV_25" => JOB_HV_25 //CODE BY XTP
@@ -1703,23 +1703,23 @@ object SparkDB22Hive {
 
 
   /**
-    * JobName: JOB_HV_20_INI_I
+    * JobName: JOB_HV_20_INI_1
     * Feature: db2.tbl_chmgm_term_inf -> hive.hive_term_inf
     *
     * @author YangXue
     * @time 2016-10-31
     * @param sqlContext
     */
-  def JOB_HV_20_INI_I(implicit sqlContext: HiveContext) = {
+  def JOB_HV_20_INI_1 (implicit sqlContext: HiveContext) = {
 
-    println("#### JOB_HV_20_INI_I(tbl_chmgm_term_inf -> hive_term_inf)")
-    println("#### JOB_HV_20_INI_I 为全量抽取的表")
-    DateUtils.timeCost("JOB_HV_20_INI_I"){
-      val df = sqlContext.readDB2_MGM(s"$schemas_mgmdb.TBL_CHMGM_TERM_INF")
-      println("#### JOB_HV_20_INI_I readDB2_MGM 的系统时间为:"+DateUtils.getCurrentSystemTime())
+    println("#### JOB_HV_20_INI_1(tbl_chmgm_term_inf -> hive_term_inf)")
+    println("#### JOB_HV_20_INI_1 为全量抽取的表")
+    DateUtils.timeCost("JOB_HV_20_INI_1") {
+      val df = sqlContext.readDB2_MGM(s"$schemas_mgmdb.tbl_chmgm_term_inf")
+      println("#### JOB_HV_20_INI_1 readDB2_MGM 的系统时间为:" + DateUtils.getCurrentSystemTime())
 
       df.registerTempTable("spark_db2_tbl_chmgm_term_inf")
-      println("#### JOB_HV_20_INI_I 注册临时表的系统时间为:"+DateUtils.getCurrentSystemTime())
+      println("#### JOB_HV_20_INI_I 注册临时表的系统时间为:" + DateUtils.getCurrentSystemTime())
 
       val results = sqlContext.sql(
         s"""
@@ -1754,23 +1754,22 @@ object SparkDB22Hive {
            |from
            |spark_db2_tbl_chmgm_term_inf
            """.stripMargin)
-      println("#### JOB_HV_20_INI_I spark sql 逻辑完成的系统时间为:"+DateUtils.getCurrentSystemTime())
-      //println("#### JOB_HV_20_INI_I------>results:"+results.count())
+      println("#### JOB_HV_20_INI_1 spark sql 逻辑完成的系统时间为:" + DateUtils.getCurrentSystemTime())
+      //println("#### JOB_HV_20_INI_1------>results:"+results.count())
 
-      results.registerTempTable("spark_hive_term_inf")
-      println("#### JOB_HV_20_INI_I registerTempTable--spark_hive_term_inf 完成的系统时间为:"+DateUtils.getCurrentSystemTime())
+      results.registerTempTable("spark_hive_term_inf_1")
+      println("#### JOB_HV_20_INI_1 registerTempTable-- spark_hive_term_inf_1 完成的系统时间为:" + DateUtils.getCurrentSystemTime())
 
 
-      if(!Option(results).isEmpty){
+      if (!Option(results).isEmpty) {
         sqlContext.sql(s"use $hive_dbname")
-        sqlContext.sql(s"insert overwrite table hive_term_inf select * from spark_hive_term_inf")
-        println("#### JOB_HV_20_INI_I 全量数据插入完成的时间为："+DateUtils.getCurrentSystemTime())
+        sqlContext.sql(s"insert overwrite table hive_term_inf_1 select * from spark_hive_term_inf_1")
+        println("#### JOB_HV_20_INI_1 全量数据插入完成的时间为：" + DateUtils.getCurrentSystemTime())
       } else {
-        println("#### JOB_HV_20_INI_I spark sql 逻辑处理后无数据！")
+        println("#### JOB_HV_20_INI_1 spark sql 逻辑处理后无数据！")
       }
     }
   }
-
 
   /**
     * JOB_HV_20_INI_2/2017-01-12
@@ -1786,13 +1785,13 @@ object SparkDB22Hive {
     DateUtils.timeCost("JOB_HV_20_INI_2") {
 
       sqlContext.sql(s"use $hive_dbname")
-      val df_1 = sqlContext.sql(s"select * from hive_term_inf")
-      df_1.registerTempTable("hive_term_inf")
+      val df_1 = sqlContext.sql(s"select * from hive_term_inf_1")
+      df_1.registerTempTable("hive_term_inf_1")
       println("#### 临时表 hive_term_inf 的时间为:" + DateUtils.getCurrentSystemTime())
 
       val df_2 = sqlContext.sql(s"select distinct card_accptr_term_id,card_accptr_cd,trans_at from hive_acc_trans where trans_at is not NULL")
-      df_2.registerTempTable("hive_acc_trans")
-      println("#### 临时表 hive_acc_trans 的时间为:" + DateUtils.getCurrentSystemTime())
+      df_2.registerTempTable("hive_acc_trans_2")
+      println("#### 临时表 hive_acc_trans_2 的时间为:" + DateUtils.getCurrentSystemTime())
 
       val results = sqlContext.sql(
         s"""
@@ -1844,9 +1843,9 @@ object SparkDB22Hive {
            |A.rec_crt_ts   as rec_crt_ts    ,
            |'1' as is_trans_at_tp
            |from
-           |hive_term_inf  A
+           |hive_term_inf_1  A
            |left join
-           |hive_acc_trans B
+           |hive_acc_trans_2 B
            |on
            |A.mchnt_cd = B.card_accptr_cd and A.term_id = B.card_accptr_term_id
            |where B.card_accptr_cd is not null and B.card_accptr_term_id is not null
@@ -1872,7 +1871,7 @@ object SparkDB22Hive {
            |from
            |hive_term_inf  C
            |left join
-           |hive_acc_trans D
+           |hive_acc_trans_2 D
            |on
            |C.mchnt_cd = D.card_accptr_cd and C.term_id = D.card_accptr_term_id
            |where D.card_accptr_cd is null and D.card_accptr_term_id is null
@@ -1883,30 +1882,15 @@ object SparkDB22Hive {
 
       results.registerTempTable("spark_hive_term_inf_ini_2")
       results.show(10)
-      println("#### JOB_HV_20_INI_2 registerTempTable--spark_hive_term_inf_ini_2 完成的时间为:" + DateUtils.getCurrentSystemTime())
+      println("#### JOB_HV_20_INI_2 registerTempTable-- spark_hive_term_inf_ini_2 完成的时间为:" + DateUtils.getCurrentSystemTime())
 
 
       if (!Option(results).isEmpty) {
         sqlContext.sql(s"use $hive_dbname")
         sqlContext.sql(
           s"""
-             |insert overwrite table hive_term_inf
-             |select
-             |mchnt_cd         ,
-             |term_id          ,
-             |term_tp          ,
-             |term_st          ,
-             |open_dt          ,
-             |close_dt         ,
-             |bank_cd          ,
-             |rec_st           ,
-             |last_oper_in     ,
-             |event_id         ,
-             |rec_id           ,
-             |rec_upd_usr_id   ,
-             |rec_upd_ts       ,
-             |rec_crt_ts       ,
-             |is_trans_at_tp
+             |insert overwrite table hive_term_inf_copy
+             |select *
              |from spark_hive_term_inf_ini_2
           """.stripMargin)
         println("#### JOB_HV_20_INI_2 全量数据插入完成的时间为：" + DateUtils.getCurrentSystemTime())
@@ -1941,202 +1925,203 @@ object SparkDB22Hive {
       println("#### JOB_HV_20 readDB2_ACC_4para--tbl_chmgm_term_inf 的时间为:" + DateUtils.getCurrentSystemTime())
 
       sqlContext.sql(s"use $hive_dbname")
-      val df_1 = sqlContext.sql(s"select * from hive_term_inf_2")
-      df_1.registerTempTable("hive_term_inf")
-      println("#### 临时表 hive_term_inf 的时间为:" + DateUtils.getCurrentSystemTime())
+      val df_1 = sqlContext.sql(s"select * from hive_term_inf_copy")
+      df_1.registerTempTable("hive_term_inf_copy")
+      println("#### 临时表 hive_term_inf_copy 的时间为:" + DateUtils.getCurrentSystemTime())
 
+      sqlContext.sql(s"use $hive_dbname")
       val df_2 = sqlContext.sql(s"select * from hive_acc_trans where part_trans_dt>='$start_dt' and part_trans_dt<='$end_dt'")
       df_2.registerTempTable("hive_acc_trans")
       println("#### 临时表 hive_acc_trans 的时间为:" + DateUtils.getCurrentSystemTime())
 
-      val JOB_HV_20_H =sqlContext.sql(
+      val JOB_HV_20_H = sqlContext.sql(
         """
           |select
-          |E.mchnt_cd         ,
-          |E.term_id          ,
-          |E.term_tp          ,
-          |E.term_st          ,
-          |E.open_dt          ,
-          |E.close_dt         ,
-          |E.bank_cd          ,
-          |E.rec_st           ,
-          |E.last_oper_in     ,
-          |E.event_id         ,
-          |E.rec_id           ,
-          |E.rec_upd_usr_id   ,
-          |E.rec_upd_ts       ,
-          |E.rec_crt_ts       ,
-          |case when E.IS_TRANS_AT_TP = '0' AND F.TRANS_AT IS NOT NULL then '1'
-          |	 when E.IS_TRANS_AT_TP = '1' AND F.TRANS_AT IS NULL then '2'
-          |	 when E.IS_TRANS_AT_TP = '2' AND F.TRANS_AT IS NOT NULL then '1'
-          |	 else E.IS_TRANS_AT_TP
-          |	 end as IS_TRANS_AT_TP
+          |e.mchnt_cd         ,
+          |e.term_id          ,
+          |e.term_tp          ,
+          |e.term_st          ,
+          |e.open_dt          ,
+          |e.close_dt         ,
+          |e.bank_cd          ,
+          |e.rec_st           ,
+          |e.last_oper_in     ,
+          |e.event_id         ,
+          |e.rec_id           ,
+          |e.rec_upd_usr_id   ,
+          |e.rec_upd_ts       ,
+          |e.rec_crt_ts       ,
+          |case when e.is_trans_at_tp = '0' and f.trans_at is not null then '1'
+          |	 when e.is_trans_at_tp = '1' and f.trans_at is null then '2'
+          |	 when e.is_trans_at_tp = '2' and f.trans_at is not null then '1'
+          |	 else e.is_trans_at_tp
+          |	 end as is_trans_at_tp
           |from
           |
           |(
           |
           |select
-          |A.mchnt_cd   as   mchnt_cd    ,
-          |A.term_id  as    term_id      ,
-          |A.term_tp    as term_tp       ,
-          |A.term_st     as term_st      ,
-          |A.open_dt   as open_dt       ,
-          |A.close_dt  as close_dt       ,
-          |A.bank_cd    as bank_cd      ,
-          |A.rec_st    as rec_st       ,
-          |A.last_oper_in  as last_oper_in   ,
-          |A.event_id     as event_id    ,
-          |A.rec_id    as rec_id       ,
-          |A.rec_upd_usr_id   as rec_upd_usr_id ,
-          |A.rec_upd_ts   as rec_upd_ts    ,
-          |A.rec_crt_ts  as rec_crt_ts     ,
-          |B.IS_TRANS_AT_TP as IS_TRANS_AT_TP
+          |a.mchnt_cd   as   mchnt_cd    ,
+          |a.term_id  as    term_id      ,
+          |a.term_tp    as term_tp       ,
+          |a.term_st     as term_st      ,
+          |a.open_dt   as open_dt       ,
+          |a.close_dt  as close_dt       ,
+          |a.bank_cd    as bank_cd      ,
+          |a.rec_st    as rec_st       ,
+          |a.last_oper_in  as last_oper_in   ,
+          |a.event_id     as event_id    ,
+          |a.rec_id    as rec_id       ,
+          |a.rec_upd_usr_id   as rec_upd_usr_id ,
+          |a.rec_upd_ts   as rec_upd_ts    ,
+          |a.rec_crt_ts  as rec_crt_ts     ,
+          |b.is_trans_at_tp as is_trans_at_tp
           |from
-          |HIVE_TERM_INF B
-          |left  join TBL_CHMGM_TERM_INF A
-          |on B.MCHNT_CD = A.MCHNT_CD AND B.TERM_ID = A.TERM_ID
-          |where A.mchnt_cd is not null and A.TERM_ID is not null
+          |hive_term_inf_copy b
+          |left  join tbl_chmgm_term_inf a
+          |on b.mchnt_cd = a.mchnt_cd and b.term_id = a.term_id
+          |where a.mchnt_cd is not null and a.term_id is not null
           |
           |union all
           |
           |select
-          |A.mchnt_cd   as mchnt_cd      ,
-          |A.term_id     as term_id     ,
-          |A.term_tp     as term_tp     ,
-          |A.term_st    as term_st      ,
-          |A.open_dt    as open_dt      ,
-          |A.close_dt   as close_dt      ,
-          |A.bank_cd    as bank_cd      ,
-          |A.rec_st    as rec_st       ,
-          |A.last_oper_in   as last_oper_in   ,
-          |A.event_id    as event_id     ,
-          |A.rec_id    as rec_id       ,
-          |A.rec_upd_usr_id  as rec_upd_usr_id ,
-          |A.rec_upd_ts   as rec_upd_ts    ,
-          |A.rec_crt_ts    as rec_crt_ts   ,
-          |'0' as IS_TRANS_AT_TP
+          |a.mchnt_cd   as mchnt_cd      ,
+          |a.term_id     as term_id     ,
+          |a.term_tp     as term_tp     ,
+          |a.term_st    as term_st      ,
+          |a.open_dt    as open_dt      ,
+          |a.close_dt   as close_dt      ,
+          |a.bank_cd    as bank_cd      ,
+          |a.rec_st    as rec_st       ,
+          |a.last_oper_in   as last_oper_in   ,
+          |a.event_id    as event_id     ,
+          |a.rec_id    as rec_id       ,
+          |a.rec_upd_usr_id  as rec_upd_usr_id ,
+          |a.rec_upd_ts   as rec_upd_ts    ,
+          |a.rec_crt_ts    as rec_crt_ts   ,
+          |'0' as is_trans_at_tp
           |from
-          |HIVE_TERM_INF B
-          |left join TBL_CHMGM_TERM_INF A
-          |on B.MCHNT_CD = A.MCHNT_CD AND B.TERM_ID = A.TERM_ID
-          |where A.mchnt_cd is  null and A.TERM_ID is  null
+          |hive_term_inf_copy b
+          |left join tbl_chmgm_term_inf a
+          |on b.mchnt_cd = a.mchnt_cd and b.term_id = a.term_id
+          |where a.mchnt_cd is  null and a.term_id is  null
           |
-          |) E
+          |) e
           |
           |left join
           |
           |(
           |select
-          |tempb.CARD_ACCPTR_TERM_ID,
-          |tempb.CARD_ACCPTR_CD,
-          |tempb.TRANS_AT
+          |tempb.card_accptr_term_id,
+          |tempb.card_accptr_cd,
+          |tempb.trans_at
           |from
           |(
           |select
-          |CARD_ACCPTR_TERM_ID,
-          |CARD_ACCPTR_CD,
-          |TRANS_AT,
-          |rank() over (partition by CARD_ACCPTR_TERM_ID,CARD_ACCPTR_CD order by rec_upd_ts desc )  as rank
+          |card_accptr_term_id,
+          |card_accptr_cd,
+          |trans_at,
+          |rank() over (partition by card_accptr_term_id,card_accptr_cd order by rec_upd_ts desc )  as rank
           |from hive_acc_trans
           |) tempb
           |where tempb.rank=1
-          |) F
-          |on E.MCHNT_CD = F.CARD_ACCPTR_CD AND E.TERM_ID = F.CARD_ACCPTR_TERM_ID
-          |where F.CARD_ACCPTR_CD is not null and F.CARD_ACCPTR_TERM_ID is not null
+          |) f
+          |on e.mchnt_cd = f.card_accptr_cd and e.term_id = f.card_accptr_term_id
+          |where f.card_accptr_cd is not null and f.card_accptr_term_id is not null
         """.stripMargin)
       JOB_HV_20_H.registerTempTable("JOB_HV_20_H")
       println("#### 临时表 JOB_HV_20_H 的时间为:" + DateUtils.getCurrentSystemTime())
 
-      val JOB_HV_20_G =sqlContext.sql(
+      val JOB_HV_20_G = sqlContext.sql(
         """
           |select
-          |E.mchnt_cd         ,
-          |E.term_id          ,
-          |E.term_tp          ,
-          |E.term_st          ,
-          |E.open_dt          ,
-          |E.close_dt         ,
-          |E.bank_cd          ,
-          |E.rec_st           ,
-          |E.last_oper_in     ,
-          |E.event_id         ,
-          |E.rec_id           ,
-          |E.rec_upd_usr_id   ,
-          |E.rec_upd_ts       ,
-          |E.rec_crt_ts       ,
-          |E.IS_TRANS_AT_TP
+          |e.mchnt_cd         ,
+          |e.term_id          ,
+          |e.term_tp          ,
+          |e.term_st          ,
+          |e.open_dt          ,
+          |e.close_dt         ,
+          |e.bank_cd          ,
+          |e.rec_st           ,
+          |e.last_oper_in     ,
+          |e.event_id         ,
+          |e.rec_id           ,
+          |e.rec_upd_usr_id   ,
+          |e.rec_upd_ts       ,
+          |e.rec_crt_ts       ,
+          |e.is_trans_at_tp
           |
           |from
           |
           |(
           |
           |select
-          |A.mchnt_cd         ,
-          |A.term_id          ,
-          |A.term_tp          ,
-          |A.term_st          ,
-          |A.open_dt          ,
-          |A.close_dt         ,
-          |A.bank_cd          ,
-          |A.rec_st           ,
-          |A.last_oper_in     ,
-          |A.event_id         ,
-          |A.rec_id           ,
-          |A.rec_upd_usr_id   ,
-          |A.rec_upd_ts       ,
-          |A.rec_crt_ts       ,
-          |B.IS_TRANS_AT_TP
+          |a.mchnt_cd         ,
+          |a.term_id          ,
+          |a.term_tp          ,
+          |a.term_st          ,
+          |a.open_dt          ,
+          |a.close_dt         ,
+          |a.bank_cd          ,
+          |a.rec_st           ,
+          |a.last_oper_in     ,
+          |a.event_id         ,
+          |a.rec_id           ,
+          |a.rec_upd_usr_id   ,
+          |a.rec_upd_ts       ,
+          |a.rec_crt_ts       ,
+          |b.is_trans_at_tp
           |from
-          |HIVE_TERM_INF B
-          |left join TBL_CHMGM_TERM_INF A
-          |on B.MCHNT_CD = A.MCHNT_CD AND B.TERM_ID = A.TERM_ID
-          |where A.mchnt_cd is not null and A.TERM_ID is not null
+          |hive_term_inf_copy b
+          |left join tbl_chmgm_term_inf a
+          |on b.mchnt_cd = a.mchnt_cd and b.term_id = a.term_id
+          |where a.mchnt_cd is not null and a.term_id is not null
           |
           |union all
           |
           |select
-          |A.mchnt_cd         ,
-          |A.term_id          ,
-          |A.term_tp          ,
-          |A.term_st          ,
-          |A.open_dt          ,
-          |A.close_dt         ,
-          |A.bank_cd          ,
-          |A.rec_st           ,
-          |A.last_oper_in     ,
-          |A.event_id         ,
-          |A.rec_id           ,
-          |A.rec_upd_usr_id   ,
-          |A.rec_upd_ts       ,
-          |A.rec_crt_ts       ,
-          |'0' as IS_TRANS_AT_TP
+          |a.mchnt_cd         ,
+          |a.term_id          ,
+          |a.term_tp          ,
+          |a.term_st          ,
+          |a.open_dt          ,
+          |a.close_dt         ,
+          |a.bank_cd          ,
+          |a.rec_st           ,
+          |a.last_oper_in     ,
+          |a.event_id         ,
+          |a.rec_id           ,
+          |a.rec_upd_usr_id   ,
+          |a.rec_upd_ts       ,
+          |a.rec_crt_ts       ,
+          |'0' as is_trans_at_tp
           |from
-          |HIVE_TERM_INF B
-          |left join TBL_CHMGM_TERM_INF  A
-          |on B.MCHNT_CD = A.MCHNT_CD AND B.TERM_ID = A.TERM_ID
-          |where A.mchnt_cd is  null and A.TERM_ID is  null
-          |) E
+          |hive_term_inf_copy b
+          |left join tbl_chmgm_term_inf  a
+          |on b.mchnt_cd = a.mchnt_cd and b.term_id = a.term_id
+          |where a.mchnt_cd is  null and a.term_id is  null
+          |) e
           |
           |left join
           |
           |(
           |select
-          |tempb.CARD_ACCPTR_TERM_ID,
-          |tempb.CARD_ACCPTR_CD,
-          |tempb.TRANS_AT
+          |tempb.card_accptr_term_id,
+          |tempb.card_accptr_cd,
+          |tempb.trans_at
           |from
           |(
           |select
-          |CARD_ACCPTR_TERM_ID,
-          |CARD_ACCPTR_CD,
-          |TRANS_AT,
-          |rank() over (partition by CARD_ACCPTR_TERM_ID,CARD_ACCPTR_CD order by rec_upd_ts desc )  as rank
+          |card_accptr_term_id,
+          |card_accptr_cd,
+          |trans_at,
+          |rank() over (partition by card_accptr_term_id,card_accptr_cd order by rec_upd_ts desc )  as rank
           |from hive_acc_trans
           |) tempb
           |where tempb.rank=1
-          |) F
-          |on E.MCHNT_CD = F.CARD_ACCPTR_CD AND E.TERM_ID = F.CARD_ACCPTR_TERM_ID
-          |where F.CARD_ACCPTR_CD is null and F.CARD_ACCPTR_TERM_ID is  null
+          |) f
+          |on e.mchnt_cd = f.card_accptr_cd and e.term_id = f.card_accptr_term_id
+          |where f.card_accptr_cd is null and f.card_accptr_term_id is  null
         """.stripMargin)
       JOB_HV_20_G.registerTempTable("JOB_HV_20_G")
       println("#### 临时表 JOB_HV_20_G 的时间为:" + DateUtils.getCurrentSystemTime())
@@ -2144,41 +2129,41 @@ object SparkDB22Hive {
       val results = sqlContext.sql(
         s"""
            |select
-           |T.mchnt_cd          as       mchnt_cd         ,
-           |T.term_id           as       term_id          ,
-           |T.term_tp           as       term_tp          ,
-           |T.term_st           as       term_st          ,
+           |t.mchnt_cd          as       mchnt_cd         ,
+           |t.term_id           as       term_id          ,
+           |t.term_tp           as       term_tp          ,
+           |t.term_st           as       term_st          ,
            |case
            |	when
-           |		substr(T.open_dt,1,4) between '0001' and '9999' and substr(T.open_dt,5,2) between '01' and '12' and
-           |		substr(T.open_dt,7,2) between '01' and substr(last_day(concat_ws('-',substr(T.open_dt,1,4),substr(T.open_dt,5,2),substr(T.open_dt,7,2))),9,2)
-           |	then concat_ws('-',substr(T.open_dt,1,4),substr(T.open_dt,5,2),substr(T.open_dt,7,2))
-           |	else NULL
+           |		substr(t.open_dt,1,4) between '0001' and '9999' and substr(t.open_dt,5,2) between '01' and '12' and
+           |		substr(t.open_dt,7,2) between '01' and substr(last_day(concat_ws('-',substr(t.open_dt,1,4),substr(t.open_dt,5,2),substr(t.open_dt,7,2))),9,2)
+           |	then concat_ws('-',substr(t.open_dt,1,4),substr(t.open_dt,5,2),substr(t.open_dt,7,2))
+           |	else null
            |end as open_dt,
            |case
            |	when
-           |		substr(T.close_dt,1,4) between '0001' and '9999' and substr(T.close_dt,5,2) between '01' and '12' and
-           |		substr(T.close_dt,7,2) between '01' and substr(last_day(concat_ws('-',substr(T.close_dt,1,4),substr(T.close_dt,5,2),substr(T.close_dt,7,2))),9,2)
-           |	then concat_ws('-',substr(T.close_dt,1,4),substr(T.close_dt,5,2),substr(T.close_dt,7,2))
-           |	else NULL
+           |		substr(t.close_dt,1,4) between '0001' and '9999' and substr(t.close_dt,5,2) between '01' and '12' and
+           |		substr(t.close_dt,7,2) between '01' and substr(last_day(concat_ws('-',substr(t.close_dt,1,4),substr(t.close_dt,5,2),substr(t.close_dt,7,2))),9,2)
+           |	then concat_ws('-',substr(t.close_dt,1,4),substr(t.close_dt,5,2),substr(t.close_dt,7,2))
+           |	else null
            |end as close_dt,
-           |T.bank_cd           as       bank_cd          ,
-           |T.rec_st            as       rec_st           ,
-           |T.last_oper_in      as       last_oper_in     ,
-           |T.event_id          as       event_id         ,
-           |T.rec_id            as       rec_id           ,
-           |T.rec_upd_usr_id    as       rec_upd_usr_id   ,
-           |T.rec_upd_ts        as       rec_upd_ts       ,
-           |T.rec_crt_ts        as       rec_crt_ts       ,
-           |T.is_trans_at_tp    as       is_trans_at_tp
+           |t.bank_cd           as       bank_cd          ,
+           |t.rec_st            as       rec_st           ,
+           |t.last_oper_in      as       last_oper_in     ,
+           |t.event_id          as       event_id         ,
+           |t.rec_id            as       rec_id           ,
+           |t.rec_upd_usr_id    as       rec_upd_usr_id   ,
+           |t.rec_upd_ts        as       rec_upd_ts       ,
+           |t.rec_crt_ts        as       rec_crt_ts       ,
+           |t.is_trans_at_tp    as       is_trans_at_tp
            |from
            |(
            |select * from
-           |JOB_HV_20_H
+           |job_hv_20_h
            |union all
            |select * from
-           |JOB_HV_20_G
-           |) T
+           |job_hv_20_g
+           |) t
            | """.stripMargin)
 
       results.registerTempTable("spark_hive_term_inf")
@@ -2369,10 +2354,10 @@ object SparkDB22Hive {
   /**
     * JobName: hive-job-26
     * Feature: db2.tbl_mcmgm_mchnt_tp_grp->hive.hive_mchnt_tp_grp
-    *
-    * @author tzq
+  *
+  * @author tzq
     * @time 2016-09-18
-    * @param sqlContext
+  * @param sqlContext
     */
   def JOB_HV_26(implicit sqlContext: HiveContext) = {
     println("###JOB_HV_26[全量抽取](hive_mchnt_tp_grp-->tbl_mcmgm_mchnt_tp_grp)")

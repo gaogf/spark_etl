@@ -151,7 +151,7 @@ object Create_Hive_Tables {
          |resp_cd                           string    ,
          |card_accptr_term_id               string    ,
          |card_accptr_cd                    string    ,
-         |frist_trans_proc_start_ts         timestamp ,
+         |first_trans_proc_start_ts         timestamp ,
          |second_trans_proc_start_ts        timestamp ,
          |third_trans_proc_start_ts         timestamp ,
          |trans_proc_end_ts                 timestamp ,

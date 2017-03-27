@@ -56,7 +56,7 @@ object SparkUPWH2H {
         * 每日模板job
         */
       case "JOB_HV_4" => JOB_HV_4(sqlContext, start_dt, end_dt)  //CODE BY XTP
-      case "JOB_HV_40"  => JOB_HV_40(sqlContext,start_dt,end_dt) //CODE BY TZQ
+      case "JOB_HV_40"  => JOB_HV_40(sqlContext,start_dt,end_dt) //CODE BY TZQ.
       case "JOB_HV_42"  => JOB_HV_42(sqlContext,start_dt,end_dt) //CODE BY TZQ
       case "JOB_HV_43"  => JOB_HV_43(sqlContext,start_dt,end_dt)  //CODE BY YX
 
@@ -75,7 +75,7 @@ object SparkUPWH2H {
   }
 
   /**
-    * JOB_HV_4/03-06  数据清洗
+    * JOB_HV_4/03-27  数据清洗
     * hive_acc_trans->hive_trans_dtl,hive_trans_log,hive_swt_log,hive_cups_trans
     * Code by Xue
     *
@@ -147,7 +147,7 @@ object SparkUPWH2H {
            |trim(ta.resp_cd) as resp_cd,
            |trim(ta.card_accptr_term_id) as card_accptr_term_id,
            |trim(ta.card_accptr_cd) as card_accptr_cd,
-           |ta.frist_trans_proc_start_ts  as frist_trans_proc_start_ts,
+           |ta.first_trans_proc_start_ts  as first_trans_proc_start_ts,
            |ta.second_trans_proc_start_ts as second_trans_proc_start_ts,
            |ta.third_trans_proc_start_ts as third_trans_proc_start_ts,
            |ta.trans_proc_end_ts as trans_proc_end_ts,
@@ -297,7 +297,7 @@ object SparkUPWH2H {
            |tempd.resp_cd                            ,
            |tempd.card_accptr_term_id                ,
            |tempd.card_accptr_cd                     ,
-           |tempd.trans_proc_start_ts as frist_trans_proc_start_ts,
+           |tempd.trans_proc_start_ts as first_trans_proc_start_ts,
            |NULL as second_trans_proc_start_ts       ,
            |NULL as third_trans_proc_start_ts        ,
            |tempd.trans_proc_end_ts                  ,
@@ -359,93 +359,13 @@ object SparkUPWH2H {
            |union all
            |
            |select
-           |tempc.seq_id                             ,
-           |tempc.cdhd_usr_id                        ,
-           |tempc.card_no                            ,
-           |tempc.trans_tfr_tm                       ,
-           |tempc.sys_tra_no                         ,
-           |tempc.acpt_ins_id_cd                     ,
-           |tempc.fwd_ins_id_cd                      ,
-           |tempc.rcv_ins_id_cd                      ,
-           |tempc.oper_module                        ,
-           |tempc.trans_dt                           ,
-           |tempc.trans_tm                           ,
-           |tempc.buss_tp                            ,
-           |tempc.um_trans_id                        ,
-           |tempc.swt_right_tp                       ,
-           |tempc.bill_id                            ,
-           |tempc.bill_nm                            ,
-           |tempc.chara_acct_tp                      ,
-           |tempc.trans_at                           ,
-           |tempc.point_at                           ,
-           |tempc.mchnt_tp                           ,
-           |tempc.resp_cd                            ,
-           |tempc.card_accptr_term_id                ,
-           |tempc.card_accptr_cd                     ,
-           |max(case when tempc.rank=1 then tempc.trans_proc_start_ts else null end) as frist_trans_proc_start_ts,
-           |max(case when tempc.rank=2 then tempc.trans_proc_start_ts else null end) as second_trans_proc_start_ts,
-           |max(case when tempc.rank=3 then tempc.trans_proc_start_ts else null end) as third_trans_proc_start_ts,
-           |tempc.trans_proc_end_ts                  ,
-           |tempc.sys_det_cd                         ,
-           |tempc.sys_err_cd                         ,
-           |tempc.rec_upd_ts                         ,
-           |tempc.chara_acct_nm                      ,
-           |tempc.void_trans_tfr_tm                  ,
-           |tempc.void_sys_tra_no                    ,
-           |tempc.void_acpt_ins_id_cd                ,
-           |tempc.void_fwd_ins_id_cd                 ,
-           |tempc.orig_data_elemnt                   ,
-           |tempc.rec_crt_ts                         ,
-           |tempc.discount_at                        ,
-           |tempc.bill_item_id                       ,
-           |tempc.chnl_inf_index                     ,
-           |tempc.bill_num                           ,
-           |tempc.addn_discount_at                   ,
-           |tempc.pos_entry_md_cd                    ,
-           |tempc.udf_fld                            ,
-           |tempc.card_accptr_nm_addr                ,
-           |tempc.part_trans_dt                      ,
-           |tempc.msg_tp                             ,
-           |tempc.cdhd_fk                            ,
-           |tempc.bill_tp                            ,
-           |tempc.bill_bat_no                        ,
-           |tempc.bill_inf                           ,
-           |tempc.proc_cd                            ,
-           |tempc.trans_curr_cd                      ,
-           |tempc.settle_at                          ,
-           |tempc.settle_curr_cd                     ,
-           |tempc.card_accptr_local_tm               ,
-           |tempc.card_accptr_local_dt               ,
-           |tempc.expire_dt                          ,
-           |tempc.msg_settle_dt                      ,
-           |tempc.pos_cond_cd                        ,
-           |tempc.pos_pin_capture_cd                 ,
-           |tempc.retri_ref_no                       ,
-           |tempc.auth_id_resp_cd                    ,
-           |tempc.notify_st                          ,
-           |tempc.addn_private_data                  ,
-           |tempc.addn_at                            ,
-           |tempc.acct_id_1                          ,
-           |tempc.acct_id_2                          ,
-           |tempc.resv_fld                           ,
-           |tempc.cdhd_auth_inf                      ,
-           |tempc.sys_settle_dt                      ,
-           |tempc.recncl_in                          ,
-           |tempc.match_in                           ,
-           |tempc.sec_ctrl_inf                       ,
-           |tempc.card_seq                           ,
-           |tempc.dtl_inq_data
-           |
-           |from
-           |(
-           |select
            |tempw.seq_id                             ,
            |tempw.cdhd_usr_id                        ,
            |tempw.card_no                            ,
-           |tempx.trans_tfr_tm                       ,
-           |tempx.sys_tra_no                         ,
-           |tempx.acpt_ins_id_cd                     ,
-           |tempx.fwd_ins_id_cd                      ,
+           |tempw.trans_tfr_tm                       ,
+           |tempw.sys_tra_no                         ,
+           |tempw.acpt_ins_id_cd                     ,
+           |tempw.fwd_ins_id_cd                      ,
            |tempw.rcv_ins_id_cd                      ,
            |tempw.oper_module                        ,
            |tempw.trans_dt                           ,
@@ -462,7 +382,9 @@ object SparkUPWH2H {
            |tempw.resp_cd                            ,
            |tempw.card_accptr_term_id                ,
            |tempw.card_accptr_cd                     ,
-           |tempw.trans_proc_start_ts                ,
+           |tempv.first_trans_proc_start_ts as first_trans_proc_start_ts,
+           |tempv.second_trans_proc_start_ts as second_trans_proc_start_ts,
+           |tempv.third_trans_proc_start_ts as third_trans_proc_start_ts,
            |tempw.trans_proc_end_ts                  ,
            |tempw.sys_det_cd                         ,
            |tempw.sys_err_cd                         ,
@@ -512,8 +434,8 @@ object SparkUPWH2H {
            |tempw.match_in                           ,
            |tempw.sec_ctrl_inf                       ,
            |tempw.card_seq                           ,
-           |tempw.dtl_inq_data                       ,
-           |row_number() over (order by tempw.trans_proc_start_ts) rank
+           |tempw.dtl_inq_data
+           |
            |from
            |(
            |select
@@ -590,7 +512,8 @@ object SparkUPWH2H {
            |tempb.match_in                           ,
            |tempb.sec_ctrl_inf                       ,
            |tempb.card_seq                           ,
-           |tempb.dtl_inq_data
+           |tempb.dtl_inq_data                       ,
+           |row_number() over (partition by tempa.trans_tfr_tm,tempa.sys_tra_no,tempa.acpt_ins_id_cd,tempa.fwd_ins_id_cd order by tempa.trans_proc_start_ts) rank
            |from
            |(select * from viw_chacc_acc_trans_dtl where um_trans_id='AC02202000') tempa,
            |(select * from viw_chacc_acc_trans_log where um_trans_id='AC02202000') tempb
@@ -600,96 +523,35 @@ object SparkUPWH2H {
            |right join
            |(
            |select
+           |tempx.trans_tfr_tm,
+           |tempx.sys_tra_no,
+           |tempx.acpt_ins_id_cd,
+           |tempx.fwd_ins_id_cd,
+           |max(case when tempx.rank=1 then tempx.trans_proc_start_ts else null end) as first_trans_proc_start_ts,
+           |max(case when tempx.rank=2 then tempx.trans_proc_start_ts else null end) as second_trans_proc_start_ts,
+           |max(case when tempx.rank=3 then tempx.trans_proc_start_ts else null end) as third_trans_proc_start_ts
+           |from
+           |(
+           |select
            |tempz.trans_tfr_tm,
            |tempz.sys_tra_no,
            |tempz.acpt_ins_id_cd,
-           |tempz.fwd_ins_id_cd
-           |from (select * from viw_chacc_acc_trans_dtl where um_trans_id='AC02202000') tempz,
+           |tempz.fwd_ins_id_cd,
+           |tempz.trans_proc_start_ts,
+           |row_number() over (partition by tempz.trans_tfr_tm,tempz.sys_tra_no,tempz.acpt_ins_id_cd,tempz.fwd_ins_id_cd order by tempz.trans_proc_start_ts) rank
+           |from
+           |(select * from viw_chacc_acc_trans_dtl where um_trans_id='AC02202000') tempz,
            |(select * from viw_chacc_acc_trans_log where um_trans_id='AC02202000') tempy
+           |)tempx
+           |where tempx.rank<=3
            |group by
-           |tempz.trans_tfr_tm,
-           |tempz.sys_tra_no,
-           |tempz.acpt_ins_id_cd,
-           |tempz.fwd_ins_id_cd
-           |having  count(*)>1
-           |) tempx
-           |on tempw.trans_tfr_tm=tempx.trans_tfr_tm and tempw.sys_tra_no=tempx.sys_tra_no and tempw.acpt_ins_id_cd=tempx.acpt_ins_id_cd and tempw.fwd_ins_id_cd=tempx.fwd_ins_id_cd
-           |)
-           |tempc
-           |group by
-           |tempc.seq_id                             ,
-           |tempc.cdhd_usr_id                        ,
-           |tempc.card_no                            ,
-           |tempc.trans_tfr_tm                       ,
-           |tempc.sys_tra_no                         ,
-           |tempc.acpt_ins_id_cd                     ,
-           |tempc.fwd_ins_id_cd                      ,
-           |tempc.rcv_ins_id_cd                      ,
-           |tempc.oper_module                        ,
-           |tempc.trans_dt                           ,
-           |tempc.trans_tm                           ,
-           |tempc.buss_tp                            ,
-           |tempc.um_trans_id                        ,
-           |tempc.swt_right_tp                       ,
-           |tempc.bill_id                            ,
-           |tempc.bill_nm                            ,
-           |tempc.chara_acct_tp                      ,
-           |tempc.trans_at                           ,
-           |tempc.point_at                           ,
-           |tempc.mchnt_tp                           ,
-           |tempc.resp_cd                            ,
-           |tempc.card_accptr_term_id                ,
-           |tempc.card_accptr_cd                     ,
-           |tempc.trans_proc_end_ts                  ,
-           |tempc.sys_det_cd                         ,
-           |tempc.sys_err_cd                         ,
-           |tempc.rec_upd_ts                         ,
-           |tempc.chara_acct_nm                      ,
-           |tempc.void_trans_tfr_tm                  ,
-           |tempc.void_sys_tra_no                    ,
-           |tempc.void_acpt_ins_id_cd                ,
-           |tempc.void_fwd_ins_id_cd                 ,
-           |tempc.orig_data_elemnt                   ,
-           |tempc.rec_crt_ts                         ,
-           |tempc.discount_at                        ,
-           |tempc.bill_item_id                       ,
-           |tempc.chnl_inf_index                     ,
-           |tempc.bill_num                           ,
-           |tempc.addn_discount_at                   ,
-           |tempc.pos_entry_md_cd                    ,
-           |tempc.udf_fld                            ,
-           |tempc.card_accptr_nm_addr                ,
-           |tempc.part_trans_dt                      ,
-           |tempc.msg_tp                             ,
-           |tempc.cdhd_fk                            ,
-           |tempc.bill_tp                            ,
-           |tempc.bill_bat_no                        ,
-           |tempc.bill_inf                           ,
-           |tempc.proc_cd                            ,
-           |tempc.trans_curr_cd                      ,
-           |tempc.settle_at                          ,
-           |tempc.settle_curr_cd                     ,
-           |tempc.card_accptr_local_tm               ,
-           |tempc.card_accptr_local_dt               ,
-           |tempc.expire_dt                          ,
-           |tempc.msg_settle_dt                      ,
-           |tempc.pos_cond_cd                        ,
-           |tempc.pos_pin_capture_cd                 ,
-           |tempc.retri_ref_no                       ,
-           |tempc.auth_id_resp_cd                    ,
-           |tempc.notify_st                          ,
-           |tempc.addn_private_data                  ,
-           |tempc.addn_at                            ,
-           |tempc.acct_id_1                          ,
-           |tempc.acct_id_2                          ,
-           |tempc.resv_fld                           ,
-           |tempc.cdhd_auth_inf                      ,
-           |tempc.sys_settle_dt                      ,
-           |tempc.recncl_in                          ,
-           |tempc.match_in                           ,
-           |tempc.sec_ctrl_inf                       ,
-           |tempc.card_seq                           ,
-           |tempc.dtl_inq_data
+           |tempx.trans_tfr_tm,
+           |tempx.sys_tra_no,
+           |tempx.acpt_ins_id_cd,
+           |tempx.fwd_ins_id_cd
+           |) tempv
+           |on tempw.trans_tfr_tm=tempv.trans_tfr_tm and tempw.sys_tra_no=tempv.sys_tra_no and tempw.acpt_ins_id_cd=tempv.acpt_ins_id_cd and tempw.fwd_ins_id_cd=tempv.fwd_ins_id_cd
+           |where tempw.rank=1
            |
            |)ta
            |
@@ -730,7 +592,7 @@ object SparkUPWH2H {
              |resp_cd,
              |card_accptr_term_id,
              |card_accptr_cd,
-             |frist_trans_proc_start_ts,
+             |first_trans_proc_start_ts,
              |second_trans_proc_start_ts,
              |third_trans_proc_start_ts,
              |trans_proc_end_ts,
