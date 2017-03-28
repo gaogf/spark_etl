@@ -113,7 +113,7 @@ object SparkDB22Hive {
       /**
         * 指标套表job
         */
-      case "JOB_HV_15" => JOB_HV_15 //CODE BY TZQ  //测试出错，未解决
+      case "JOB_HV_15" => JOB_HV_15             //CODE BY TZQ
       case "JOB_HV_20_INI_1" => JOB_HV_20_INI_1 //CODE BY XTP
       case "JOB_HV_20_INI_2" => JOB_HV_20_INI_2 //CODE BY XTP
       case "JOB_HV_20" => JOB_HV_20(sqlContext, start_dt, end_dt) //CODE BY XTP
@@ -1237,15 +1237,10 @@ object SparkDB22Hive {
       if(!Option(results).isEmpty){
         results.registerTempTable("hive_undefine_store_inf_temp")
         println("#### JOB_HV_15 注册临时表 的系统时间为:" + DateUtils.getCurrentSystemTime())
-
-
         sqlContext.sql("truncate table  hive_undefine_store_inf")
         sqlContext.sql("insert into table hive_undefine_store_inf select * from hive_undefine_store_inf_temp")
-
         println("#### JOB_HV_15 全量数据插入完成的系统时间为:" + DateUtils.getCurrentSystemTime())
-
       }else{
-
         println("#### JOB_HV_15 spark sql 逻辑处理后无数据！")
       }
     }
@@ -1264,7 +1259,6 @@ object SparkDB22Hive {
   def JOB_HV_16(implicit sqlContext: HiveContext) = {
     println("###JOB_HV_16[全量抽取](hive_mchnt_inf_wallet->tbl_chmgm_mchnt_inf/TBL_CHMGM_STORE_TERM_RELATION/TBL_CHMGM_ACCESS_BAS_INF)")
     DateUtils.timeCost("JOB_HV_16"){
-
       val df = sqlContext.readDB2_MGM(s"$schemas_mgmdb.TBL_CHMGM_MCHNT_INF")
       println("#### JOB_HV_16 readDB2_MGM (TBL_CHMGM_MCHNT_INF) 的系统时间为:" + DateUtils.getCurrentSystemTime())
       df.registerTempTable("db2_tbl_chmgm_mchnt_inf")

@@ -3371,7 +3371,7 @@ object SparkHive2Mysql {
                |      where fwd_ins_id_cd not in ('00000049998',
                |                                  '00000050000')
                |        and buss_tp='02'
-               |        and um_trans_id='ac02000065'
+               |        and um_trans_id='AC02000065'
                |        and to_date(rec_crt_ts)='$today_dt'
                |      group by card_accptr_cd,mchnt_tp) as all
                |   left join
@@ -3726,8 +3726,8 @@ object SparkHive2Mysql {
            |        on
            |            trans.bill_id=bill.bill_id
            |        where
-           |            trans.um_trans_id in ('ac02000065',
-           |                                  'ac02000063')
+           |            trans.um_trans_id in ('AC02000065',
+           |                                  'AC02000063')
            |        and bill.bill_sub_tp in ('01',
            |                                 '03')
            |        and trans.part_trans_dt >= '$start_dt'
@@ -3764,7 +3764,7 @@ object SparkHive2Mysql {
            |        where
            |            trans.sys_det_cd = 'S'
            |        and trans.um_trans_id in ('AC02000065',
-           |                                  'ac02000063')
+           |                                  'AC02000063')
            |        and bill.bill_sub_tp in ('01',
            |                                 '03')
            |        and trans.part_trans_dt >= '$start_dt'
@@ -7874,7 +7874,7 @@ object SparkHive2Mysql {
     * @param sqlContext,start_dt,end_dt,interval
     */
   def JOB_DM_66(implicit sqlContext: HiveContext,start_dt:String,end_dt:String,interval:Int) = {
-    println("###JOB_DM_66(dm_coupon_cfp_tran->hive_acc_trans+hive_ticket_bill_bas_inf)")
+    println("#### JOB_DM_66(dm_coupon_cfp_tran->hive_acc_trans+hive_ticket_bill_bas_inf)")
 
     DateUtils.timeCost("JOB_DM_66"){
       UPSQL_JDBC.delete("dm_coupon_cfp_tran","report_dt",start_dt,end_dt)
