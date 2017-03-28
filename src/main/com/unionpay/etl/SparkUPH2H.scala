@@ -40,21 +40,21 @@ object SparkUPH2H {
       * 从数据库中获取当前JOB的执行起始和结束日期。
       * 日常调度使用。
       */
-    val rowParams=UPSQL_TIMEPARAMS_JDBC.readTimeParams(sqlContext)
-    start_dt=rowParams.getString(0)  //获取开始日期,大数据平台抽取T-1数据,start_dt取当前系统时间减一天
-    end_dt=rowParams.getString(1)//结束日期,大数据平台抽取T-1数据,end_dt取当前系统时间减一天
+//    val rowParams=UPSQL_TIMEPARAMS_JDBC.readTimeParams(sqlContext)
+//    start_dt=rowParams.getString(0)  //获取开始日期,大数据平台抽取T-1数据,start_dt取当前系统时间减一天
+//    end_dt=rowParams.getString(1)//结束日期,大数据平台抽取T-1数据,end_dt取当前系统时间减一天
 
     /**
       * 从命令行获取当前JOB的执行起始和结束日期。
       * 无规则日期的增量数据抽取，主要用于数据初始化和调试。
       */
-//    if (args.length > 1) {
-//      start_dt = args(1)
-//      end_dt = args(2)
-//    } else {
-//      println("#### 请指定 SparkUPH2H 数据抽取的起始日期和结束日期 ！")
-//      System.exit(0)
-//    }
+    if (args.length > 1) {
+      start_dt = args(1)
+      end_dt = args(2)
+    } else {
+      println("#### 请指定 SparkUPH2H 数据抽取的起始日期和结束日期 ！")
+      System.exit(0)
+    }
 
     //获取开始日期和结束日期的间隔天数或间隔月数
     val interval=DateUtils.getIntervalDays(start_dt,end_dt).toInt
