@@ -319,60 +319,60 @@ object SparkHive2Mysql {
           val results = sqlContext.sql(
             s"""
                |select
-               |NVL(a.ID_AREA_NM,'其它') as IDCARD_HOME,
+               |nvl(a.id_area_nm,'其它') as idcard_home,
                |'$today_dt' as report_dt,
-               |sum(a.tpre)   as   REG_TPRE_ADD_NUM    ,
-               |sum(a.years)  as   REG_YEAR_ADD_NUM    ,
-               |sum(a.total)  as   REG_TOTLE_ADD_NUM   ,
-               |sum(b.tpre)   as   EFFECT_TPRE_ADD_NUM ,
-               |sum(b.years)  as   EFFECT_YEAR_ADD_NUM ,
-               |sum(b.total)  as   EFFECT_TOTLE_ADD_NUM,
-               |sum(c.tpre)   as   DEAL_TPRE_ADD_NUM   ,
-               |sum(c.years)  as   DEAL_YEAR_ADD_NUM   ,
-               |sum(c.total)  as   DEAL_TOTLE_ADD_NUM
+               |sum(a.tpre)   as   reg_tpre_add_num    ,
+               |sum(a.years)  as   reg_year_add_num    ,
+               |sum(a.total)  as   reg_totle_add_num   ,
+               |sum(b.tpre)   as   effect_tpre_add_num ,
+               |sum(b.years)  as   effect_year_add_num ,
+               |sum(b.total)  as   effect_totle_add_num,
+               |sum(c.tpre)   as   deal_tpre_add_num   ,
+               |sum(c.years)  as   deal_year_add_num   ,
+               |sum(c.total)  as   deal_totle_add_num
                |from
                |(
                |select
-               |case when tempe.CITY_CARD in ('大连','宁波','厦门','青岛','深圳') then tempe.CITY_CARD else tempe.PROVINCE_CARD end as ID_AREA_NM,
+               |case when tempe.city_card in ('大连','宁波','厦门','青岛','深圳') then tempe.city_card else tempe.province_card end as id_area_nm,
                |count(distinct(case when tempe.rec_crt_ts='$today_dt'  then tempe.cdhd_usr_id end)) as tpre,
                |count(distinct(case when tempe.rec_crt_ts>=trunc('$today_dt','YYYY') and tempe.rec_crt_ts<='$today_dt'  then tempe.cdhd_usr_id end)) as years,
                |count(distinct(case when tempe.rec_crt_ts<='$today_dt' then  tempe.cdhd_usr_id end)) as total
                |from
-               |(select cdhd_usr_id,to_date(rec_crt_ts) as rec_crt_ts, CITY_CARD,PROVINCE_CARD from HIVE_PRI_ACCT_INF where usr_st='1' ) tempe
-               |group by (case when CITY_CARD in ('大连','宁波','厦门','青岛','深圳') then CITY_CARD else PROVINCE_CARD end)
+               |(select cdhd_usr_id,to_date(rec_crt_ts) as rec_crt_ts, city_card,province_card from hive_pri_acct_inf where usr_st='1' ) tempe
+               |group by (case when city_card in ('大连','宁波','厦门','青岛','深圳') then city_card else province_card end)
                |) a
                |left join
                |(
                |select
-               |case when tempa.CITY_CARD in ('大连','宁波','厦门','青岛','深圳') then tempa.CITY_CARD else tempa.PROVINCE_CARD end as ID_AREA_NM,
+               |case when tempa.city_card in ('大连','宁波','厦门','青岛','深圳') then tempa.city_card else tempa.province_card end as id_area_nm,
                |count(distinct(case when tempa.rec_crt_ts='$today_dt'  and tempb.bind_dt='$today_dt'  then  tempa.cdhd_usr_id end)) as tpre,
                |count(distinct(case when tempa.rec_crt_ts>=trunc('$today_dt','YYYY') and tempa.rec_crt_ts<='$today_dt'
                |and tempb.bind_dt>=trunc('$today_dt','YYYY') and  tempb.bind_dt<='$today_dt' then  tempa.cdhd_usr_id end)) as years,
                |count(distinct(case when tempa.rec_crt_ts<='$today_dt' and  tempb.bind_dt<='$today_dt'  then  tempa.cdhd_usr_id end)) as total
                |from
                |(
-               |select to_date(rec_crt_ts) as rec_crt_ts,CITY_CARD,PROVINCE_CARD,cdhd_usr_id from HIVE_PRI_ACCT_INF
+               |select to_date(rec_crt_ts) as rec_crt_ts,city_card,province_card,cdhd_usr_id from hive_pri_acct_inf
                |where usr_st='1' ) tempa
-               |inner join (select distinct cdhd_usr_id , to_date(rec_crt_ts) as  bind_dt  from HIVE_CARD_BIND_INF where card_auth_st in ('1','2','3') ) tempb
+               |inner join (select distinct cdhd_usr_id , to_date(rec_crt_ts) as  bind_dt  from hive_card_bind_inf where card_auth_st in ('1','2','3') ) tempb
                |on tempa.cdhd_usr_id=tempb.cdhd_usr_id
-               |group by (case when tempa.CITY_CARD in ('大连','宁波','厦门','青岛','深圳') then tempa.CITY_CARD else tempa.PROVINCE_CARD end) ) b
-               |on a.ID_AREA_NM =b.ID_AREA_NM
+               |group by (case when tempa.city_card in ('大连','宁波','厦门','青岛','深圳') then tempa.city_card else tempa.province_card end) ) b
+               |on a.id_area_nm =b.id_area_nm
                |left join
                |(
                |select
-               |case when tempc.CITY_CARD in ('大连','宁波','厦门','青岛','深圳') then tempc.CITY_CARD else tempc.PROVINCE_CARD end as ID_AREA_NM,
+               |case when tempc.city_card in ('大连','宁波','厦门','青岛','深圳') then tempc.city_card else tempc.province_card end as id_area_nm,
                |count(distinct(case when tempc.rec_crt_ts='$today_dt'  and tempd.trans_dt='$today_dt'  then tempc.cdhd_usr_id end)) as tpre,
                |count(distinct(case when tempc.rec_crt_ts>=trunc('$today_dt','YYYY') and tempc.rec_crt_ts<='$today_dt'
                |and tempd.trans_dt>=trunc('$today_dt','YYYY') and  tempd.trans_dt<='$today_dt' then  tempc.cdhd_usr_id end)) as years,
                |count(distinct(case when tempc.rec_crt_ts<='$today_dt' and  tempd.trans_dt<='$today_dt'  then  tempc.cdhd_usr_id end)) as total
                |from
-               |(select CITY_CARD,CITY_CARD,PROVINCE_CARD,cdhd_usr_id,to_date(rec_crt_ts) as rec_crt_ts  from HIVE_PRI_ACCT_INF
+               |(select city_card,city_card,province_card,cdhd_usr_id,to_date(rec_crt_ts) as rec_crt_ts  from hive_pri_acct_inf
                |where usr_st='1') tempc
-               |inner join (select distinct cdhd_usr_id,trans_dt from HIVE_ACC_TRANS ) tempd
+               |inner join (select distinct cdhd_usr_id,to_date(trans_dt) as trans_dt  from hive_acc_trans ) tempd
                |on tempc.cdhd_usr_id=tempd.cdhd_usr_id
-               |group by (case when tempc.CITY_CARD in ('大连','宁波','厦门','青岛','深圳') then tempc.CITY_CARD else tempc.PROVINCE_CARD end) ) c
-               |on a.ID_AREA_NM=c.ID_AREA_NM
-               |group by NVL(a.ID_AREA_NM,'其它'),'$today_dt'
+               |group by (case when tempc.city_card in ('大连','宁波','厦门','青岛','深圳') then tempc.city_card else tempc.province_card end) ) c
+               |on a.id_area_nm=c.id_area_nm
+               |group by nvl(a.id_area_nm,'其它'),'$today_dt'
                | """.stripMargin)
 
 
@@ -605,7 +605,7 @@ object SparkHive2Mysql {
   def JOB_DM_4 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String,interval:Int) = {
     println("###JOB_DM_4(dm_user_card_auth->hive_pri_acct_inf,hive_card_bind_inf,hive_acc_trans)")
     DateUtils.timeCost("JOB_DM_4") {
-      UPSQL_JDBC.delete("DM_USER_CARD_AUTH","REPORT_DT",start_dt,end_dt)
+      UPSQL_JDBC.delete("dm_user_card_auth","report_dt",start_dt,end_dt)
       println("#### JOB_DM_4 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
       var today_dt=start_dt
       if(interval>=0){
@@ -615,17 +615,17 @@ object SparkHive2Mysql {
           val results = sqlContext.sql(
             s"""
                |select
-               |a.card_auth_nm as CARD_AUTH,
-               |a.realnm_in as DIFF_NAME,
-               |'$today_dt' as REPORT_DT,
-               |sum(a.tpre)   as   EFFECT_TPRE_ADD_NUM ,
-               |sum(a.years)  as   EFFECT_YEAR_ADD_NUM ,
-               |sum(a.total)  as   EFFECT_TOTLE_ADD_NUM,
-               |sum(b.tpre)   as   DEAL_TPRE_ADD_NUM   ,
-               |sum(b.years)  as   DEAL_YEAR_ADD_NUM   ,
-               |sum(b.total)  as   DEAL_TOTLE_ADD_NUM
+               |a.card_auth_nm as card_auth,
+               |a.realnm_in as diff_name,
+               |'$today_dt' as report_dt,
+               |sum(a.tpre)   as   effect_tpre_add_num ,
+               |sum(a.years)  as   effect_year_add_num ,
+               |sum(a.total)  as   effect_totle_add_num,
+               |sum(b.tpre)   as   deal_tpre_add_num   ,
+               |sum(b.years)  as   deal_year_add_num   ,
+               |sum(b.total)  as   deal_totle_add_num
                |
-             |from (
+               |from (
                |select
                |(case when tempb.card_auth_st='0' then   '未认证'
                | when tempb.card_auth_st='1' then   '支付认证'
@@ -633,18 +633,18 @@ object SparkHive2Mysql {
                | when tempb.card_auth_st='3' then   '可信+支付认证'
                |else '未认证' end) as card_auth_nm,
                |tempa.realnm_in as realnm_in,
-               |count(distinct(case when tempa.rec_crt_ts='$today_dt'  and tempb.CARD_DT='$today_dt'  then tempa.cdhd_usr_id end)) as tpre,
+               |count(distinct(case when tempa.rec_crt_ts='$today_dt'  and tempb.card_dt='$today_dt'  then tempa.cdhd_usr_id end)) as tpre,
                |count(distinct(case when tempa.rec_crt_ts>=trunc('$today_dt','YYYY') and tempa.rec_crt_ts<='$today_dt'
-               |and tempb.CARD_DT>=trunc('$today_dt','YYYY')  and tempb.CARD_DT<='$today_dt' then  tempa.cdhd_usr_id end)) as years,
-               |count(distinct(case when tempa.rec_crt_ts<='$today_dt' and tempb.CARD_DT<='$today_dt'  then tempa.cdhd_usr_id end)) as total
+               |and tempb.card_dt>=trunc('$today_dt','YYYY')  and tempb.CARD_DT<='$today_dt' then  tempa.cdhd_usr_id end)) as years,
+               |count(distinct(case when tempa.rec_crt_ts<='$today_dt' and tempb.card_dt<='$today_dt'  then tempa.cdhd_usr_id end)) as total
                |from
-               |(select cdhd_usr_id,to_date(rec_crt_ts) as rec_crt_ts,realnm_in from HIVE_PRI_ACCT_INF
+               |(select cdhd_usr_id,to_date(rec_crt_ts) as rec_crt_ts,realnm_in from hive_pri_acct_inf
                |where usr_st='1' ) tempa
                |inner join
                |(select distinct tempe.cdhd_usr_id as cdhd_usr_id,
                |tempe.card_auth_st as card_auth_st,
-               |to_date(tempe.rec_crt_ts) as CARD_DT
-               |from HIVE_CARD_BIND_INF tempe) tempb
+               |to_date(tempe.rec_crt_ts) as card_dt
+               |from hive_card_bind_inf tempe) tempb
                |on tempa.cdhd_usr_id=tempb.cdhd_usr_id
                |group by
                |case when tempb.card_auth_st='0' then   '未认证'
@@ -654,9 +654,9 @@ object SparkHive2Mysql {
                |else '未认证' end,tempa.realnm_in
                |) a
                |
-             |left join
+               |left join
                |
-             |(
+               |(
                |select
                |(case when tempc.card_auth_st='0' then   '未认证'
                | when tempc.card_auth_st='1' then   '支付认证'
@@ -668,8 +668,8 @@ object SparkHive2Mysql {
                |and tempd.trans_dt>=trunc('$today_dt','YYYY') and  tempd.trans_dt<='$today_dt' then  tempc.cdhd_usr_id end)) as years,
                |count(distinct(case when tempc.rec_crt_ts<='$today_dt' and  tempd.trans_dt<='$today_dt'  then  tempc.cdhd_usr_id end)) as total
                |from
-               |(select distinct cdhd_usr_id,card_auth_st,to_date(rec_crt_ts) as rec_crt_ts from HIVE_CARD_BIND_INF) tempc
-               |inner join (select distinct cdhd_usr_id,trans_dt from HIVE_ACC_TRANS ) tempd
+               |(select distinct cdhd_usr_id,card_auth_st,to_date(rec_crt_ts) as rec_crt_ts from hive_card_bind_inf) tempc
+               |inner join (select distinct cdhd_usr_id,to_date(trans_dt) as trans_dt from hive_acc_trans ) tempd
                |on tempc.cdhd_usr_id=tempd.cdhd_usr_id
                |group by
                |case when tempc.card_auth_st='0' then   '未认证'
@@ -899,7 +899,7 @@ object SparkHive2Mysql {
     * @param sqlContext
     */
   def JOB_DM_7(implicit sqlContext: HiveContext,start_dt:String,end_dt:String,interval:Int) = {
-    println("###JOB_DM_7(dm_user_card_level->HIVE_CARD_BIN,HIVE_CARD_BIND_INF,HIVE_PRI_ACCT_INF)")
+    println("###JOB_DM_7(dm_user_card_level->hive_card_bin,hive_card_bind_inf,hive_pri_acct_inf)")
     DateUtils.timeCost("JOB_DM_7") {
       UPSQL_JDBC.delete("dm_user_card_level","report_dt",start_dt,end_dt)
       println("#### JOB_DM_7 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
@@ -912,7 +912,7 @@ object SparkHive2Mysql {
           val results = sqlContext.sql(
             s"""
                |select
-               |NVL(NVL(tempa.card_lvl,tempb.card_lvl),'其它') as card_level,
+               |nvl(nvl(tempa.card_lvl,tempb.card_lvl),'其它') as card_level,
                |'$today_dt' as report_dt,
                |sum(tempa.tpre)   as   effect_tpre_add_num  ,
                |sum(tempa.years)  as   effect_year_add_num  ,
@@ -920,35 +920,35 @@ object SparkHive2Mysql {
                |sum(tempb.tpre)   as   deal_tpre_add_num    ,
                |sum(tempb.years)  as   deal_year_add_num    ,
                |sum(tempb.total)  as   deal_totle_add_num
-               |FROM
+               |from
                |(
                |select a.card_lvl as card_lvl,
-               |count(distinct(case when to_date(c.rec_crt_ts)='$today_dt'  and to_date(b.CARD_DT)='$today_dt'  then b.cdhd_usr_id end)) as tpre,
-               |count(distinct(case when to_date(c.rec_crt_ts)>=trunc('$today_dt','YYYY-MM-DD') and to_date(c.rec_crt_ts)<='$today_dt'
-               |     and to_date(b.CARD_DT)>=trunc('$today_dt','YYYY-MM-DD') and  to_date(b.CARD_DT)<='$today_dt' then  b.cdhd_usr_id end)) as years,
-               |count(distinct(case when to_date(c.rec_crt_ts)<='$today_dt' and  to_date(b.CARD_DT)<='$today_dt'  then  b.cdhd_usr_id end)) as total
+               |count(distinct(case when to_date(c.rec_crt_ts)='$today_dt'  and to_date(b.card_dt)='$today_dt'  then b.cdhd_usr_id end)) as tpre,
+               |count(distinct(case when to_date(c.rec_crt_ts)>=trunc('$today_dt','YYYY') and to_date(c.rec_crt_ts)<='$today_dt'
+               |     and to_date(b.card_dt)>=trunc('$today_dt','YYYY') and  to_date(b.card_dt)<='$today_dt' then  b.cdhd_usr_id end)) as years,
+               |count(distinct(case when to_date(c.rec_crt_ts)<='$today_dt' and  to_date(b.card_dt)<='$today_dt'  then  b.cdhd_usr_id end)) as total
                |from
-               |(select card_lvl,card_bin from HIVE_CARD_BIN ) a
+               |(select card_lvl,card_bin from hive_card_bin ) a
                |inner join
-               |(select distinct cdhd_usr_id, rec_crt_ts as CARD_DT ,substr(bind_card_no,1,8) as card_bin from HIVE_CARD_BIND_INF where card_auth_st in ('1','2','3')  ) b
+               |(select distinct cdhd_usr_id, rec_crt_ts as card_dt ,substr(bind_card_no,1,8) as card_bin from hive_card_bind_inf where card_auth_st in ('1','2','3')  ) b
                |on a.card_bin=b.card_bin
                |inner join
-               |(select cdhd_usr_id,rec_crt_ts from HIVE_PRI_ACCT_INF where usr_st='1'  ) c on b.cdhd_usr_id=c.cdhd_usr_id
+               |(select cdhd_usr_id,rec_crt_ts from hive_pri_acct_inf where usr_st='1'  ) c on b.cdhd_usr_id=c.cdhd_usr_id
                |group by a.card_lvl ) tempa
                |
                |left join
                |(
                |select a.card_lvl as card_lvl,
                |count(distinct(case when to_date(b.trans_dt)='$today_dt'    then b.cdhd_usr_id end)) as tpre,
-               |count(distinct(case when to_date(b.trans_dt)>=trunc('$today_dt','YYYY-MM-DD') and to_date(b.trans_dt)<='$today_dt' then  b.cdhd_usr_id end)) as years,
+               |count(distinct(case when to_date(b.trans_dt)>=trunc('$today_dt','YYYY') and to_date(b.trans_dt)<='$today_dt' then  b.cdhd_usr_id end)) as years,
                |count(distinct(case when to_date(b.trans_dt)='$today_dt'  then  b.cdhd_usr_id end)) as total
                |from
                |(select card_lvl,card_bin from HIVE_CARD_BIN ) a
                |inner join
-               |(select distinct cdhd_usr_id,trans_dt,substr(card_no,1,8) as card_bin  from VIW_CHACC_ACC_TRANS_DTL ) b on a.card_bin=b.card_bin
+               |(select distinct cdhd_usr_id,trans_dt,substr(card_no,1,8) as card_bin  from hive_trans_dtl ) b on a.card_bin=b.card_bin
                |group by a.card_lvl ) tempb
                |on tempa.card_lvl=tempb.card_lvl
-               |group by NVL(NVL(tempa.card_lvl,tempb.card_lvl),'其它'),'$today_dt'
+               |group by nvl(nvl(tempa.card_lvl,tempb.card_lvl),'其它'),'$today_dt'
       """.stripMargin)
 
           println(s"#### JOB_DM_7 spark sql 清洗[$today_dt]数据完成时间为:" + DateUtils.getCurrentSystemTime())
@@ -988,59 +988,59 @@ object SparkHive2Mysql {
 
           val results = sqlContext.sql(
             s"""
-               |SELECT
-               |NVL(NVL(NVL(a.CUP_BRANCH_INS_ID_NM,c.BRANCH_DIVISION_CD),d.CUP_BRANCH_INS_ID_NM),'其它') as INPUT_BRANCH,
-               |'$today_dt' as REPORT_DT,
-               |sum(a.tpre)   as   STORE_TPRE_ADD_NUM  ,
-               |sum(a.years)  as   STORE_YEAR_ADD_NUM  ,
-               |sum(a.total)  as   STORE_TOTLE_ADD_NUM ,
-               |sum(c.tpre)   as   ACTIVE_TPRE_ADD_NUM ,
-               |sum(c.years)  as   ACTIVE_YEAR_ADD_NUM ,
-               |sum(c.total)  as   ACTIVE_TOTLE_ADD_NUM,
-               |sum(d.tpre)   as   COUPON_TPRE_ADD_NUM ,
-               |sum(d.years)  as   COUPON_YEAR_ADD_NUM ,
-               |sum(d.total)  as   COUPON_TOTLE_ADD_NUM
-               |from(
-               |select CUP_BRANCH_INS_ID_NM,
-               |count(distinct(case when to_date(rec_crt_ts)='$today_dt'  then MCHNT_CD end)) as tpre,
-               |count(distinct(case when to_date(rec_crt_ts)>=trunc('$today_dt','YYYY-MM-DD') and to_date(rec_crt_ts)<='$today_dt' then  MCHNT_CD end)) as years,
-               |count(distinct(case when to_date(rec_crt_ts)<='$today_dt'  then MCHNT_CD end)) as total
-               |from HIVE_MCHNT_INF_WALLET where substr(OPEN_BUSS_BMP,1,2)<>00
-               |group by  CUP_BRANCH_INS_ID_NM) a
-               |
-             |left join
-               |
-             |(
                |select
-               |tempa.BRANCH_DIVISION_CD as BRANCH_DIVISION_CD,
-               |count(distinct(case when to_date(tempa.rec_crt_ts)='$today_dt'  and tempa.valid_begin_dt='$today_dt' AND tempa.valid_end_dt='$today_dt'  then tempa.MCHNT_CD end)) as tpre,
-               |count(distinct(case when to_date(tempa.rec_crt_ts)>=trunc('$today_dt','YYYY-MM-DD') and to_date(tempa.rec_crt_ts)<='$today_dt'
-               |     and valid_begin_dt>=trunc('$today_dt','YYYY-MM-DD') and  tempa.valid_end_dt<='$today_dt' then  tempa.MCHNT_CD end)) as years,
-               |count(distinct(case when to_date(tempa.rec_crt_ts)<='$today_dt' and  tempa.valid_begin_dt='$today_dt' AND tempa.valid_end_dt='$today_dt'  then  tempa.MCHNT_CD end)) as total  --累计新增用户
+               |nvl(nvl(nvl(a.cup_branch_ins_id_nm,c.branch_division_cd),d.cup_branch_ins_id_nm),'其它') as input_branch,
+               |'$today_dt' as report_dt,
+               |sum(a.tpre)   as   store_tpre_add_num  ,
+               |sum(a.years)  as   store_year_add_num  ,
+               |sum(a.total)  as   store_totle_add_num ,
+               |sum(c.tpre)   as   active_tpre_add_num ,
+               |sum(c.years)  as   active_year_add_num ,
+               |sum(c.total)  as   active_totle_add_num,
+               |sum(d.tpre)   as   coupon_tpre_add_num ,
+               |sum(d.years)  as   coupon_year_add_num ,
+               |sum(d.total)  as   coupon_totle_add_num
+               |from(
+               |select cup_branch_ins_id_nm,
+               |count(distinct(case when to_date(rec_crt_ts)='$today_dt'  then mchnt_cd end)) as tpre,
+               |count(distinct(case when to_date(rec_crt_ts)>=trunc('$today_dt','YYYY') and to_date(rec_crt_ts)<='$today_dt' then  mchnt_cd end)) as years,
+               |count(distinct(case when to_date(rec_crt_ts)<='$today_dt'  then mchnt_cd end)) as total
+               |from hive_mchnt_inf_wallet where substr(open_buss_bmp,1,2)<>00
+               |group by  cup_branch_ins_id_nm) a
+               |
+               |left join
+               |
+               |(
+               |select
+               |tempa.branch_division_cd as branch_division_cd,
+               |count(distinct(case when to_date(tempa.rec_crt_ts)='$today_dt'  and to_date(tempa.valid_begin_dt)='$today_dt' and tempa.valid_end_dt='$today_dt'  then tempa.mchnt_cd end)) as tpre,
+               |count(distinct(case when to_date(tempa.rec_crt_ts)>=trunc('$today_dt','YYYY') and to_date(tempa.rec_crt_ts)<='$today_dt'
+               |     and to_date(valid_begin_dt)>=trunc('$today_dt','YYYY') and  to_date(tempa.valid_end_dt)<='$today_dt' then  tempa.mchnt_cd end)) as years,
+               |count(distinct(case when to_date(tempa.rec_crt_ts)<='$today_dt' and  to_date(tempa.valid_begin_dt)='$today_dt' and to_date(tempa.valid_end_dt)='$today_dt'  then  tempa.mchnt_cd end)) as total
                |from (
-               |select distinct access.CUP_BRANCH_INS_ID_NM as BRANCH_DIVISION_CD,b.rec_crt_ts as rec_crt_ts ,bill.valid_begin_dt as valid_begin_dt, bill.valid_end_dt as valid_end_dt,b.MCHNT_CD as MCHNT_CD
-               |from (select distinct mchnt_cd,rec_crt_ts from HIVE_PREFERENTIAL_MCHNT_INF
+               |select distinct access.cup_branch_ins_id_nm as branch_division_cd,b.rec_crt_ts as rec_crt_ts ,bill.valid_begin_dt as valid_begin_dt, bill.valid_end_dt as valid_end_dt,b.mchnt_cd as mchnt_cd
+               |from (select distinct mchnt_cd,rec_crt_ts from hive_preferential_mchnt_inf
                |where mchnt_cd like 'T%' and mchnt_st='2' and mchnt_nm not like '%验证%' and mchnt_nm not like '%测试%'
                |and brand_id<>68988 ) b
-               |inner join HIVE_CHARA_GRP_DEF_BAT grp on b.mchnt_cd=grp.chara_data
-               |inner join HIVE_access_bas_inf access on access.ch_ins_id_cd=b.mchnt_cd
-               |inner join (select distinct(chara_grp_cd),valid_begin_dt,valid_end_dt from HIVE_TICKET_BILL_BAS_INF  ) bill
+               |inner join hive_chara_grp_def_bat grp on b.mchnt_cd=grp.chara_data
+               |inner join hive_access_bas_inf access on access.ch_ins_id_cd=b.mchnt_cd
+               |inner join (select distinct(chara_grp_cd),valid_begin_dt,valid_end_dt from hive_ticket_bill_bas_inf  ) bill
                |on bill.chara_grp_cd=grp.chara_grp_cd
                |)tempa
-               |group by tempa.BRANCH_DIVISION_CD )c
-               |on a.CUP_BRANCH_INS_ID_NM=c.BRANCH_DIVISION_CD
+               |group by tempa.branch_division_cd )c
+               |on a.cup_branch_ins_id_nm=c.branch_division_cd
                |
-             |left join
+               |left join
                |
-             |(select
-               |CUP_BRANCH_INS_ID_NM,
-               |count(distinct(case when to_date(rec_crt_ts)='$today_dt'  then MCHNT_CD end)) as tpre,
-               |count(distinct(case when to_date(rec_crt_ts)>=trunc('$today_dt','YYYY-MM-DD') and to_date(rec_crt_ts)<='$today_dt' then MCHNT_CD end)) as years,
-               |count(distinct(case when to_date(rec_crt_ts)<='$today_dt'  then MCHNT_CD end)) as total
-               |from HIVE_MCHNT_INF_WALLET  where substr(OPEN_BUSS_BMP,1,2) in (10,11)
-               |group by CUP_BRANCH_INS_ID_NM) d
-               |on a.CUP_BRANCH_INS_ID_NM=d.CUP_BRANCH_INS_ID_NM
-               |group by NVL(NVL(NVL(a.CUP_BRANCH_INS_ID_NM,c.BRANCH_DIVISION_CD),d.CUP_BRANCH_INS_ID_NM),'其它'),'$today_dt'
+               |(select
+               |cup_branch_ins_id_nm,
+               |count(distinct(case when to_date(rec_crt_ts)='$today_dt'  then mchnt_cd end)) as tpre,
+               |count(distinct(case when to_date(rec_crt_ts)>=trunc('$today_dt','YYYY') and to_date(rec_crt_ts)<='$today_dt' then mchnt_cd end)) as years,
+               |count(distinct(case when to_date(rec_crt_ts)<='$today_dt'  then mchnt_cd end)) as total
+               |from hive_mchnt_inf_wallet  where substr(open_buss_bmp,1,2) in (10,11)
+               |group by cup_branch_ins_id_nm) d
+               |on a.cup_branch_ins_id_nm=d.cup_branch_ins_id_nm
+               |group by nvl(nvl(nvl(a.cup_branch_ins_id_nm,c.branch_division_cd),d.cup_branch_ins_id_nm),'其它'),'$today_dt'
       """.stripMargin)
 
           println(s"#### JOB_DM_8 spark sql 清洗[$today_dt]数据完成时间为:" + DateUtils.getCurrentSystemTime())
@@ -1095,9 +1095,9 @@ object SparkHive2Mysql {
                |(
                |select
                |tempe.prov_division_cd as gb_region_nm,
-               |count(case when to_date(tempe.rec_crt_ts)='$today_dt'  then 1 end) as tpre,
-               |count(case when to_date(tempe.rec_crt_ts)>=trunc('$today_dt','YYYY') and to_date(tempe.rec_crt_ts)<='$today_dt' then  1 end) as years,
-               |count(case when to_date(tempe.rec_crt_ts)<='$today_dt' then 1 end) as total
+               |count(case when tempe.rec_crt_ts='$today_dt'  then 1 end) as tpre,
+               |count(case when tempe.rec_crt_ts>=trunc('$today_dt','YYYY') and tempe.rec_crt_ts<='$today_dt' then  1 end) as years,
+               |count(case when tempe.rec_crt_ts<='$today_dt' then 1 end) as total
                |from
                |(
                |select distinct  prov_division_cd,to_date(rec_crt_ts) as rec_crt_ts,mchnt_prov, mchnt_city_cd, mchnt_county_cd, mchnt_addr
@@ -7624,7 +7624,7 @@ object SparkHive2Mysql {
                |buss_tp_nm,
                |chnl_tp_nm,
                |to_date(trans_dt) as trans_dt,
-               |count( trans_no) as tran_succ_cnt,
+               |count(trans_no) as tran_succ_cnt,
                |sum(trans_at) as trans_succ_at
                |from hive_life_trans
                |where proc_st ='00'
@@ -8813,7 +8813,7 @@ object SparkHive2Mysql {
            |        from
            |            (
            |                select
-           |                    prize.cup_branch_ins_id_nm as cup_branch_ins_id_nm,
+           |                    if(prize.cup_branch_ins_id_nm is null,'总公司',dbi.cup_branch_ins_id_nm)  as cup_branch_ins_id_nm,
            |                    rslt.settle_dt as settle_dt,
            |                    sum(lvl.lvl_prize_num) as plan_num
            |                from
@@ -8833,7 +8833,7 @@ object SparkHive2Mysql {
            |                and prize.activity_end_dt>=rslt.settle_dt
            |                and prize.run_st!='3'
            |                group by
-           |                    prize.cup_branch_ins_id_nm,
+           |                    if(prize.cup_branch_ins_id_nm is null,'总公司',dbi.cup_branch_ins_id_nm)  as cup_branch_ins_id_nm,
            |                    rslt.settle_dt
            |   ) a,
            |            (
@@ -9208,8 +9208,8 @@ object SparkHive2Mysql {
                |select
                |tempa.bank_nm as bank_nm,
                |tempa.card_attr as card_attr,
-               |count(case when tempa.bind_dt<='$today_dt' then 1 end ) as total_bind_cnt,
-               |count(case when tempa.bind_dt='$today_dt' then 1 end ) as today_cnt
+               |count(case when to_date(tempa.bind_dt)<='$today_dt' then 1 end ) as total_bind_cnt,
+               |count(case when to_date(tempa.bind_dt)='$today_dt' then 1 end ) as today_cnt
                |from
                |(
                |select
@@ -9346,124 +9346,124 @@ object SparkHive2Mysql {
         for (i <- 0 to interval) {
           val results = sqlContext.sql(
             s"""
-               |SELECT
-               |E.grp_nm as MCHNT_TYPE,
-               |'$today_dt'  AS REPORT_DT,
-               |SUM(C.quick_cnt),
-               |SUM(C.quick_cardcnt),
-               |SUM(D.quick_succ_cnt),
-               |SUM(D.quick_succ_cardcnt),
-               |SUM(D.quick_succ_trans_at),
-               |SUM(D.quick_succ_points_at),
-               |SUM(A.TRAN_CNT),
-               |SUM(A.CARDCNT),
-               |SUM(B.SUCC_CNT),
-               |SUM(B.SUCC_CARDCNT),
-               |SUM(B.SUCC_TRANS_AT),
-               |SUM(C.swp_quick_cnt),
-               |SUM(C.swp_quick_usrcnt),
-               |SUM(D.swp_quick_succ_cnt),
-               |SUM(D.swp_quick_succ_usrcnt) ,
-               |SUM(D.swp_quick_succ_trans_at),
-               |SUM(D.swp_quick_succ_points_at),
-               |SUM(A.swp_verify_cnt),
-               |SUM(A.swp_verify_usrcnt),
-               |SUM(B.swp_verify_succ_cnt),
-               |SUM(B.swp_verify_succ_usrcnt ),
-               |SUM(B.swp_verify_succ_trans_at)
-               |FROM
-               |(SELECT
-               |tp_grp.MCHNT_TP_GRP_DESC_CN AS grp_nm ,
-               |tp.MCHNT_TP
-               |FROM HIVE_MCHNT_TP tp
-               |LEFT JOIN HIVE_MCHNT_TP_GRP tp_grp
-               |ON tp.MCHNT_TP_GRP=tp_grp.MCHNT_TP_GRP) E
-               |LEFT JOIN
-               |(
-               |SELECT
-               |mchnt_tp,
-               |rec_crt,
-               |SUM(CNT) AS TRAN_CNT,
-               |SUM(CARDCNT) AS CARDCNT,
-               |sum(case when TRANS_SOURCE in('0001','9001') then cnt end ) as swp_verify_cnt,
-               |sum(case when TRANS_SOURCE in('0001','9001') then usrcnt end ) as swp_verify_usrcnt
-               |FROM (SELECT MCHNT_CD,mchnt_tp,TRANS_SOURCE,to_date(rec_crt_ts) as rec_crt,COUNT(*) AS CNT,
-               |COUNT(DISTINCT PRI_ACCT_NO) AS CARDCNT,
-               |count(distinct usr_id) as usrcnt
-               |FROM HIVE_ACTIVE_CODE_PAY_TRANS
-               |WHERE USR_ID=0 AND TO_DATE(REC_CRT_TS)='$today_dt'
-               |GROUP BY MCHNT_CD,mchnt_tp,TRANS_SOURCE,to_date(rec_crt_ts)
-               |) t1
-               |GROUP BY mchnt_tp,rec_crt) A
-               |on a.mchnt_tp=E.mchnt_tp
-               |LEFT JOIN
+               |select
+               |e.grp_nm as mchnt_type,
+               |'$today_dt'  as report_dt,
+               |sum(c.quick_cnt),
+               |sum(c.quick_cardcnt),
+               |sum(d.quick_succ_cnt),
+               |sum(d.quick_succ_cardcnt),
+               |sum(d.quick_succ_trans_at),
+               |sum(d.quick_succ_points_at),
+               |sum(a.tran_cnt),
+               |sum(a.cardcnt),
+               |sum(b.succ_cnt),
+               |sum(b.succ_cardcnt),
+               |sum(b.succ_trans_at),
+               |sum(c.swp_quick_cnt),
+               |sum(c.swp_quick_usrcnt),
+               |sum(d.swp_quick_succ_cnt),
+               |sum(d.swp_quick_succ_usrcnt) ,
+               |sum(d.swp_quick_succ_trans_at),
+               |sum(d.swp_quick_succ_points_at),
+               |sum(a.swp_verify_cnt),
+               |sum(a.swp_verify_usrcnt),
+               |sum(b.swp_verify_succ_cnt),
+               |sum(b.swp_verify_succ_usrcnt ),
+               |sum(b.swp_verify_succ_trans_at)
+               |from
+               |(select
+               |tp_grp.mchnt_tp_grp_desc_cn as grp_nm ,
+               |tp.mchnt_tp
+               |from hive_mchnt_tp tp
+               |left join hive_mchnt_tp_grp tp_grp
+               |on tp.mchnt_tp_grp=tp_grp.mchnt_tp_grp) e
+               |left join
                |(
                |select
                |mchnt_tp,
                |rec_crt,
-               |sum(cnt) as SUCC_CNT,
-               |sum(cardcnt) as SUCC_CARDCNT,
-               |sum(trans_at) as SUCC_TRANS_AT,
-               |sum(case when TRANS_SOURCE in('0001','9001') then cnt end ) as swp_verify_succ_cnt,
-               |sum(case when TRANS_SOURCE in('0001','9001') then usrcnt end ) as swp_verify_succ_usrcnt ,
-               |sum(case when TRANS_SOURCE in('0001','9001') then trans_at end) as swp_verify_succ_trans_at
+               |sum(cnt) as tran_cnt,
+               |sum(cardcnt) as cardcnt,
+               |sum(case when trans_source in('0001','9001') then cnt end ) as swp_verify_cnt,
+               |sum(case when trans_source in('0001','9001') then usrcnt end ) as swp_verify_usrcnt
+               |from (select mchnt_cd,mchnt_tp,trans_source,to_date(rec_crt_ts) as rec_crt,count(*) as cnt,
+               |count(distinct pri_acct_no) as cardcnt,
+               |count(distinct usr_id) as usrcnt
+               |from hive_active_code_pay_trans
+               |where usr_id=0 and to_date(rec_crt_ts)='$today_dt'
+               |group by mchnt_cd,mchnt_tp,trans_source,to_date(rec_crt_ts)
+               |) t1
+               |group by mchnt_tp,rec_crt) a
+               |on a.mchnt_tp=e.mchnt_tp
+               |left join
+               |(
+               |select
+               |mchnt_tp,
+               |rec_crt,
+               |sum(cnt) as succ_cnt,
+               |sum(cardcnt) as succ_cardcnt,
+               |sum(trans_at) as succ_trans_at,
+               |sum(case when trans_source in('0001','9001') then cnt end ) as swp_verify_succ_cnt,
+               |sum(case when trans_source in('0001','9001') then usrcnt end ) as swp_verify_succ_usrcnt ,
+               |sum(case when trans_source in('0001','9001') then trans_at end) as swp_verify_succ_trans_at
                |
-               |from (select mchnt_tp,TRANS_SOURCE,to_date(rec_crt_ts) as rec_crt,count(*) as cnt,
+               |from (select mchnt_tp,trans_source,to_date(rec_crt_ts) as rec_crt,count(*) as cnt,
                |count(distinct pri_acct_no) as cardcnt,sum(trans_at) as trans_at,
                |count(distinct usr_id) as usrcnt
-               |from HIVE_ACTIVE_CODE_PAY_TRANS
-               |where trans_st like '%000' and usr_id=0 and TO_DATE(REC_CRT_TS)='$today_dt'
-               |group by mchnt_tp,TRANS_SOURCE,to_date(rec_crt_ts)) t2
+               |from hive_active_code_pay_trans
+               |where trans_st like '%000' and usr_id=0 and to_date(rec_crt_ts)='$today_dt'
+               |group by mchnt_tp,trans_source,to_date(rec_crt_ts)) t2
                |group by mchnt_tp, rec_crt
-               |) B
-               |ON E.mchnt_tp=B.mchnt_tp and A.rec_crt=b.rec_crt
-               |LEFT JOIN
+               |) b
+               |on e.mchnt_tp=b.mchnt_tp and a.rec_crt=b.rec_crt
+               |left join
                |(
                |select
                |mchnt_tp,
                |rec_crt,
                |sum(cnt) as quick_cnt,
                |sum(cardcnt) as quick_cardcnt,
-               |sum(case when TRANS_SOURCE in('0001','9001') then cnt end ) as swp_quick_cnt,
-               |sum(case when TRANS_SOURCE in('0001','9001') then usrcnt end ) as swp_quick_usrcnt
+               |sum(case when trans_source in('0001','9001') then cnt end ) as swp_quick_cnt,
+               |sum(case when trans_source in('0001','9001') then usrcnt end ) as swp_quick_usrcnt
                |from
-               |(select mchnt_cd,mchnt_tp,TRANS_SOURCE,to_date(rec_crt_ts) as rec_crt,count(*) as cnt,
+               |(select mchnt_cd,mchnt_tp,trans_source,to_date(rec_crt_ts) as rec_crt,count(*) as cnt,
                |count(distinct pri_acct_no) as cardcnt,count(distinct usr_id) as usrcnt
-               |from HIVE_ACTIVE_CODE_PAY_TRANS
-               |where usr_id<>0 and TO_DATE(REC_CRT_TS)='$today_dt'
-               |group by mchnt_cd,mchnt_tp,TRANS_SOURCE,to_date(rec_crt_ts)) t3
+               |from hive_active_code_pay_trans
+               |where usr_id<>0 and to_date(rec_crt_ts)='$today_dt'
+               |group by mchnt_cd,mchnt_tp,trans_source,to_date(rec_crt_ts)) t3
                |group by mchnt_tp,rec_crt
-               |) C
-               |ON E.mchnt_tp=C.mchnt_tp and A.rec_crt=c.rec_crt
-               |LEFT JOIN
+               |) c
+               |on e.mchnt_tp=c.mchnt_tp and a.rec_crt=c.rec_crt
+               |left join
                |(
                |select mchnt_tp,
                |rec_crt,
                |sum(cnt) as quick_succ_cnt,
                |sum(cardcnt) as quick_succ_cardcnt ,
                |sum(trans_at) as quick_succ_trans_at,
-               |sum(POINTS_AT) as quick_succ_points_at,
-               |sum(case when TRANS_SOURCE in('0001','9001') then cnt end ) as swp_quick_succ_cnt,
-               |sum(case when TRANS_SOURCE in('0001','9001') then usrcnt end ) as swp_quick_succ_usrcnt ,
-               |sum(case when TRANS_SOURCE in('0001','9001') then trans_at end) as swp_quick_succ_trans_at,
-               |sum(case when TRANS_SOURCE in('0001','9001') then POINTS_AT end ) as swp_quick_succ_points_at
+               |sum(points_at) as quick_succ_points_at,
+               |sum(case when trans_source in('0001','9001') then cnt end ) as swp_quick_succ_cnt,
+               |sum(case when trans_source in('0001','9001') then usrcnt end ) as swp_quick_succ_usrcnt ,
+               |sum(case when trans_source in('0001','9001') then trans_at end) as swp_quick_succ_trans_at,
+               |sum(case when trans_source in('0001','9001') then points_at end ) as swp_quick_succ_points_at
                |from
                |(select
                |mchnt_tp,
-               |TRANS_SOURCE,
+               |trans_source,
                |to_date(rec_crt_ts) as rec_crt,
                |count(*) as cnt,
                |count(distinct pri_acct_no) as cardcnt,
-               |sum(POINTS_AT) as POINTS_AT,
+               |sum(points_at) as points_at,
                |sum(trans_at) as trans_at,
                |count(distinct usr_id) as usrcnt
-               |from HIVE_ACTIVE_CODE_PAY_TRANS
-               |where trans_st like '%000' and usr_id<>0 and TO_DATE(REC_CRT_TS)='$today_dt'
-               |group by mchnt_tp,TRANS_SOURCE,to_date(rec_crt_ts) ) t4
-               |group by mchnt_tp,rec_crt) D
-               |ON E.mchnt_tp=D.mchnt_tp and A.rec_crt=D.rec_crt
-               |WHERE A.mchnt_tp IS NOT NULL AND B.mchnt_tp IS NOT NULL AND C.mchnt_tp IS NOT NULL AND D.mchnt_tp IS NOT NULL
-               |GROUP BY E.grp_nm
+               |from hive_active_code_pay_trans
+               |where trans_st like '%000' and usr_id<>0 and to_date(rec_crt_ts)='$today_dt'
+               |group by mchnt_tp,trans_source,to_date(rec_crt_ts) ) t4
+               |group by mchnt_tp,rec_crt) d
+               |on e.mchnt_tp=d.mchnt_tp and a.rec_crt=d.rec_crt
+               |where a.mchnt_tp is not null and b.mchnt_tp is not null and c.mchnt_tp is not null and d.mchnt_tp is not null
+               |group by e.grp_nm
                | """.stripMargin)
           println(s"#### JOB_DM_79 spark sql 清洗[$today_dt]数据完成时间为:" + DateUtils.getCurrentSystemTime())
 
@@ -9500,90 +9500,90 @@ object SparkHive2Mysql {
         for (i <- 0 to interval) {
           val results = sqlContext.sql(
             s"""
-               |SELECT
-               |E.MCHNT_CN_NM as MCHNT_NM,
-               |'$today_dt'  AS REPORT_DT,
-               |sum(C.quick_cnt),
-               |sum(C.quick_cardcnt),
-               |sum(D.quick_succ_cnt),
-               |sum(D.quick_succ_cardcnt ),
-               |sum(D.quick_succ_trans_at),
-               |sum(D.quick_succ_points_at),
-               |sum(A.TRAN_CNT),
-               |sum(A.CARDCNT),
-               |sum(B.SUCC_CNT),
-               |sum(B.SUCC_CARDCNT),
-               |sum(B.SUCC_TRANS_AT),
-               |sum(C.swp_quick_cardcnt),
-               |sum(C.swp_quick_usrcnt),
-               |sum(D.swp_quick_succ_cnt),
-               |sum(D.swp_quick_succ_usrcnt ),
-               |sum(D.swp_quick_succ_trans_at),
-               |sum(D.swp_quick_succ_points_at),
-               |sum(A.swp_verify_cnt),
-               |sum(A.swp_verify_cardcnt),
-               |sum(B.swp_succ_verify_cnt),
-               |sum(B.swp_succ_verify_cardcnt),
-               |sum(B.swp_succ_verify_trans_at)
+               |select
+               |e.mchnt_cn_nm as mchnt_nm,
+               |'$today_dt'  as report_dt,
+               |sum(c.quick_cnt),
+               |sum(c.quick_cardcnt),
+               |sum(d.quick_succ_cnt),
+               |sum(d.quick_succ_cardcnt ),
+               |sum(d.quick_succ_trans_at),
+               |sum(d.quick_succ_points_at),
+               |sum(a.tran_cnt),
+               |sum(a.cardcnt),
+               |sum(b.succ_cnt),
+               |sum(b.succ_cardcnt),
+               |sum(b.succ_trans_at),
+               |sum(c.swp_quick_cardcnt),
+               |sum(c.swp_quick_usrcnt),
+               |sum(d.swp_quick_succ_cnt),
+               |sum(d.swp_quick_succ_usrcnt ),
+               |sum(d.swp_quick_succ_trans_at),
+               |sum(d.swp_quick_succ_points_at),
+               |sum(a.swp_verify_cnt),
+               |sum(a.swp_verify_cardcnt),
+               |sum(b.swp_succ_verify_cnt),
+               |sum(b.swp_succ_verify_cardcnt),
+               |sum(b.swp_succ_verify_trans_at)
                |
-               |FROM
-               |HIVE_MCHNT_INF_WALLET E
-               |LEFT JOIN
-               |(
-               |SELECT
-               |mchnt_tp,
-               |rec_crt,
-               |CNT AS TRAN_CNT,
-               |CARDCNT,
-               |sum(case when TRANS_SOURCE in('0001','9001') then CNT end ) as swp_verify_cnt,
-               |sum(case when TRANS_SOURCE in('0001','9001') then CARDCNT end) as swp_verify_cardcnt
-               |FROM
-               |(
-               |SELECT
-               |mchnt_tp,
-               |TRANS_SOURCE,
-               |to_date(rec_crt_ts) as rec_crt,
-               |COUNT(*) AS CNT,
-               |COUNT(DISTINCT PRI_ACCT_NO) AS CARDCNT
-               |FROM HIVE_ACTIVE_CODE_PAY_TRANS
-               |WHERE USR_ID=0 AND TO_DATE(REC_CRT_TS)='$today_dt'
-               |GROUP BY mchnt_tp,TRANS_SOURCE,to_date(rec_crt_ts)) t1
-               |GROUP BY mchnt_tp,rec_crt,CNT,CARDCNT
-               |) A
-               |on a.mchnt_tp=E.mchnt_tp
-               |LEFT JOIN
+               |from
+               |hive_mchnt_inf_wallet e
+               |left join
                |(
                |select
                |mchnt_tp,
                |rec_crt,
-               |sum(cnt) as SUCC_CNT,
-               |sum(cardcnt) as SUCC_CARDCNT,
-               |sum(trans_at) as SUCC_TRANS_AT,
-               |sum(case when TRANS_SOURCE in('0001','9001') then cnt end ) as swp_succ_verify_cnt,
-               |sum(case when TRANS_SOURCE in('0001','9001') then cardcnt end) as swp_succ_verify_cardcnt,
-               |sum(case when TRANS_SOURCE in('0001','9001') then trans_at end) as swp_succ_verify_trans_at
-               |from (select mchnt_tp,TRANS_SOURCE,to_date(rec_crt_ts) as rec_crt ,count(*) as cnt,
+               |cnt as tran_cnt,
+               |cardcnt,
+               |sum(case when trans_source in('0001','9001') then cnt end ) as swp_verify_cnt,
+               |sum(case when trans_source in('0001','9001') then cardcnt end) as swp_verify_cardcnt
+               |from
+               |(
+               |select
+               |mchnt_tp,
+               |trans_source,
+               |to_date(rec_crt_ts) as rec_crt,
+               |count(*) as cnt,
+               |count(distinct pri_acct_no) as cardcnt
+               |from hive_active_code_pay_trans
+               |where usr_id=0 and to_date(rec_crt_ts)='$today_dt'
+               |group by mchnt_tp,trans_source,to_date(rec_crt_ts)) t1
+               |group by mchnt_tp,rec_crt,cnt,cardcnt
+               |) a
+               |on a.mchnt_tp=e.mchnt_tp
+               |left join
+               |(
+               |select
+               |mchnt_tp,
+               |rec_crt,
+               |sum(cnt) as succ_cnt,
+               |sum(cardcnt) as succ_cardcnt,
+               |sum(trans_at) as succ_trans_at,
+               |sum(case when trans_source in('0001','9001') then cnt end ) as swp_succ_verify_cnt,
+               |sum(case when trans_source in('0001','9001') then cardcnt end) as swp_succ_verify_cardcnt,
+               |sum(case when trans_source in('0001','9001') then trans_at end) as swp_succ_verify_trans_at
+               |from (select mchnt_tp,trans_source,to_date(rec_crt_ts) as rec_crt ,count(*) as cnt,
                |count(distinct pri_acct_no) as cardcnt,sum(trans_at) as trans_at
-               |from HIVE_ACTIVE_CODE_PAY_TRANS
-               |where trans_st like '%000' and usr_id=0 and TO_DATE(REC_CRT_TS)='$today_dt'
-               |group by mchnt_tp,TRANS_SOURCE,to_date(rec_crt_ts)) t2
+               |from hive_active_code_pay_trans
+               |where trans_st like '%000' and usr_id=0 and to_date(rec_crt_ts)='$today_dt'
+               |group by mchnt_tp,trans_source,to_date(rec_crt_ts)) t2
                |group by mchnt_tp,rec_crt
-               |) B
-               |ON E.mchnt_tp=B.mchnt_tp
-               |LEFT JOIN
+               |) b
+               |on e.mchnt_tp=b.mchnt_tp
+               |left join
                |(
                |select
                |mchnt_tp,
                |to_date(rec_crt_ts) as rec_crt,
                |count(*) as quick_cnt,
                |count(distinct pri_acct_no) as quick_cardcnt,
-               |count(distinct(case when TRANS_SOURCE in('0001','9001') then pri_acct_no end)) as swp_quick_cardcnt,
-               |count(distinct(case when TRANS_SOURCE in('0001','9001') then usr_id end )) as swp_quick_usrcnt
-               |from HIVE_ACTIVE_CODE_PAY_TRANS
-               |where usr_id<>0 and TO_DATE(REC_CRT_TS)='$today_dt'
-               |group by mchnt_tp,to_date(rec_crt_ts) ) C
-               |ON E.mchnt_tp=C.mchnt_tp
-               |LEFT JOIN
+               |count(distinct(case when trans_source in('0001','9001') then pri_acct_no end)) as swp_quick_cardcnt,
+               |count(distinct(case when trans_source in('0001','9001') then usr_id end )) as swp_quick_usrcnt
+               |from hive_active_code_pay_trans
+               |where usr_id<>0 and to_date(rec_crt_ts)='$today_dt'
+               |group by mchnt_tp,to_date(rec_crt_ts) ) c
+               |on e.mchnt_tp=c.mchnt_tp
+               |left join
                |(
                |select
                |mchnt_tp,
@@ -9591,28 +9591,28 @@ object SparkHive2Mysql {
                |sum(cnt) as quick_succ_cnt,
                |sum(cardcnt) as quick_succ_cardcnt ,
                |sum(trans_at) as quick_succ_trans_at,
-               |sum(POINTS_AT) as quick_succ_points_at,
-               |sum(case when TRANS_SOURCE in('0001','9001') then cnt end ) as swp_quick_succ_cnt,
-               |sum(case when TRANS_SOURCE in('0001','9001') then usrcnt end ) as swp_quick_succ_usrcnt ,
-               |sum(case when TRANS_SOURCE in('0001','9001') then trans_at end) as swp_quick_succ_trans_at,
-               |sum(case when TRANS_SOURCE in('0001','9001') then POINTS_AT end ) as swp_quick_succ_points_at
+               |sum(points_at) as quick_succ_points_at,
+               |sum(case when trans_source in('0001','9001') then cnt end ) as swp_quick_succ_cnt,
+               |sum(case when trans_source in('0001','9001') then usrcnt end ) as swp_quick_succ_usrcnt ,
+               |sum(case when trans_source in('0001','9001') then trans_at end) as swp_quick_succ_trans_at,
+               |sum(case when trans_source in('0001','9001') then points_at end ) as swp_quick_succ_points_at
                |from
                |(select
                |mchnt_tp,
                |to_date(rec_crt_ts) as rec_crt,
-               |TRANS_SOURCE,
+               |trans_source,
                |count(*) as cnt,
                |count(distinct pri_acct_no) as cardcnt,
-               |sum(POINTS_AT) as POINTS_AT,
+               |sum(points_at) as points_at,
                |sum(trans_at) as trans_at,
                |count(distinct usr_id) as usrcnt
-               |from HIVE_ACTIVE_CODE_PAY_TRANS
-               |where trans_st like '%000' and usr_id<>0 and TO_DATE(REC_CRT_TS)='$today_dt'
-               |group by mchnt_tp,to_date(rec_crt_ts),TRANS_SOURCE ) t3
-               |group by mchnt_tp,rec_crt ) D
-               |ON E.mchnt_tp=D.mchnt_tp
-               |where A.mchnt_tp IS NOT NULL and B.mchnt_tp IS NOT NULL and C.mchnt_tp IS NOT NULL and d.mchnt_tp IS NOT NULL
-               |group by E.MCHNT_CN_NM
+               |from hive_active_code_pay_trans
+               |where trans_st like '%000' and usr_id<>0 and to_date(rec_crt_ts)='$today_dt'
+               |group by mchnt_tp,to_date(rec_crt_ts),trans_source ) t3
+               |group by mchnt_tp,rec_crt ) d
+               |on e.mchnt_tp=d.mchnt_tp
+               |where a.mchnt_tp is not null and b.mchnt_tp is not null and c.mchnt_tp is not null and d.mchnt_tp is not null
+               |group by e.mchnt_cn_nm
                |
                | """.stripMargin)
           println(s"#### JOB_DM_80 spark sql 清洗[$today_dt]数据完成时间为:" + DateUtils.getCurrentSystemTime())
@@ -9650,72 +9650,72 @@ object SparkHive2Mysql {
         for (i <- 0 to interval) {
           val results = sqlContext.sql(
             s"""
-               |SELECT
-               |trim(E.ISS_INS_CN_NM) as ISS_NM,
-               |'$today_dt' as REPORT_DT,
-               |sum(C.swp_quick_cnt) as SWP_QUICK_CNT,
-               |sum(C.swp_quick_usrcnt) as SWP_QUICK_USRCNT,
-               |sum(D.swp_quick_succ_cnt) as SWP_QUICK_SUCC_CNT,
-               |sum(D.swp_quick_succ_usrcnt) as SWP_QUICK_SUCC_USRCNT,
-               |sum(D.swp_quick_succ_trans_at) as SWP_QUICK_SUCC_TRANS_AT,
-               |sum(D.swp_quick_succ_points_at) as SWP_QUICK_SUCC_POINTS_AT,
-               |sum(A.swp_verify_cnt) as SWP_VERIFY_CNT,
-               |sum(A.swp_verify_cardcnt) as SWP_VERIFY_CARDCNT,
-               |sum(B.swp_verify_cnt) as SWP_VERIFY_SUCC_CNT,
-               |sum(B.swp_verify_cardcnt) as SWP_VERIFY_SUCC_CARDCNT,
-               |sum(B.swp_verify_trans_at) as SWP_VERIFY_SUCC_TRANS_AT
-               |FROM
-               |(SELECT ISS_INS_CN_NM,SUBSTR(ISS_INS_ID_CD,3,8) as ISS_INS_ID_CD
-               |FROM HIVE_CARD_BIND_INF )E
-               |LEFT JOIN
-               |(
-               |SELECT
-               |ISS_INS_ID_CD,
-               |TO_DATE(REC_CRT_TS) AS REC_CRT,
-               |COUNT(*) AS swp_verify_cnt,
-               |COUNT(DISTINCT PRI_ACCT_NO) as swp_verify_cardcnt
-               |FROM HIVE_ACTIVE_CODE_PAY_TRANS
-               |WHERE USR_ID=0 AND TRANS_SOURCE in('0001','9001') AND TO_DATE(REC_CRT_TS)='$today_dt'
-               |GROUP BY ISS_INS_ID_CD,TO_DATE(REC_CRT_TS)) A
-               |ON A.ISS_INS_ID_CD=E.ISS_INS_ID_CD
-               |LEFT JOIN
+               |select
+               |trim(e.iss_ins_cn_nm) as iss_nm,
+               |'$today_dt' as report_dt,
+               |sum(c.swp_quick_cnt) as swp_quick_cnt,
+               |sum(c.swp_quick_usrcnt) as swp_quick_usrcnt,
+               |sum(d.swp_quick_succ_cnt) as swp_quick_succ_cnt,
+               |sum(d.swp_quick_succ_usrcnt) as swp_quick_succ_usrcnt,
+               |sum(d.swp_quick_succ_trans_at) as swp_quick_succ_trans_at,
+               |sum(d.swp_quick_succ_points_at) as swp_quick_succ_points_at,
+               |sum(a.swp_verify_cnt) as swp_verify_cnt,
+               |sum(a.swp_verify_cardcnt) as swp_verify_cardcnt,
+               |sum(b.swp_verify_cnt) as swp_verify_succ_cnt,
+               |sum(b.swp_verify_cardcnt) as swp_verify_succ_cardcnt,
+               |sum(b.swp_verify_trans_at) as swp_verify_succ_trans_at
+               |from
+               |(select iss_ins_cn_nm,substr(iss_ins_id_cd,3,8) as iss_ins_id_cd
+               |from hive_card_bind_inf )e
+               |left join
                |(
                |select
-               |ISS_INS_ID_CD,
-               |TO_DATE(REC_CRT_TS) AS REC_CRT,
+               |iss_ins_id_cd,
+               |to_date(rec_crt_ts) as rec_crt,
+               |count(*) as swp_verify_cnt,
+               |count(distinct pri_acct_no) as swp_verify_cardcnt
+               |from hive_active_code_pay_trans
+               |where usr_id=0 and trans_source in('0001','9001') and to_date(rec_crt_ts)='$today_dt'
+               |group by iss_ins_id_cd,to_date(rec_crt_ts)) a
+               |on a.iss_ins_id_cd=e.iss_ins_id_cd
+               |left join
+               |(
+               |select
+               |iss_ins_id_cd,
+               |to_date(rec_crt_ts) as rec_crt,
                |count(*) as swp_verify_cnt,
                |count(distinct pri_acct_no) as swp_verify_cardcnt,
                |sum(trans_at) as swp_verify_trans_at
-               |from HIVE_ACTIVE_CODE_PAY_TRANS
+               |from hive_active_code_pay_trans
                |where trans_st like '%000' and usr_id=0
-               |AND TRANS_SOURCE in('0001','9001') and TO_DATE(REC_CRT_TS)='$today_dt'
-               |group by ISS_INS_ID_CD,TO_DATE(REC_CRT_TS)
-               |) B
-               |ON E.ISS_INS_ID_CD=B.ISS_INS_ID_CD
+               |and trans_source in('0001','9001') and to_date(rec_crt_ts)='$today_dt'
+               |group by iss_ins_id_cd,to_date(rec_crt_ts)
+               |) b
+               |on e.iss_ins_id_cd=b.iss_ins_id_cd
                |full outer join
                |(
                |select
-               |ISS_INS_ID_CD,
-               |TO_DATE(REC_CRT_TS) AS REC_CRT,
+               |iss_ins_id_cd,
+               |to_date(rec_crt_ts) as rec_crt,
                |count(*) as swp_quick_cnt,
                |count(distinct usr_id) as swp_quick_usrcnt
-               |from HIVE_ACTIVE_CODE_PAY_TRANS
-               |where usr_id<>0 and TRANS_SOURCE in('0001','9001') AND TO_DATE(REC_CRT_TS)='$today_dt'
-               |group by ISS_INS_ID_CD,TO_DATE(REC_CRT_TS) ) C
-               |ON E.ISS_INS_ID_CD=C.ISS_INS_ID_CD
+               |from hive_active_code_pay_trans
+               |where usr_id<>0 and trans_source in('0001','9001') and to_date(rec_crt_ts)='$today_dt'
+               |group by iss_ins_id_cd,to_date(rec_crt_ts) ) c
+               |on e.iss_ins_id_cd=c.iss_ins_id_cd
                |full outer join
                |(select
-               |ISS_INS_ID_CD,
-               |TO_DATE(REC_CRT_TS) as REC_CRT,
+               |iss_ins_id_cd,
+               |to_date(rec_crt_ts) as rec_crt,
                |count(*) as swp_quick_succ_cnt,
                |count(distinct usr_id) as swp_quick_succ_usrcnt ,
                |sum(trans_at) as swp_quick_succ_trans_at,
-               |sum(POINTS_AT) as swp_quick_succ_points_at
-               |from HIVE_ACTIVE_CODE_PAY_TRANS
-               |where trans_st like '%000' and usr_id<>0 and TO_DATE(REC_CRT_TS)='$today_dt'
-               |group by ISS_INS_ID_CD,TO_DATE(REC_CRT_TS) ) D
-               |ON E.ISS_INS_ID_CD=D.ISS_INS_ID_CD
-               |group by trim(E.ISS_INS_CN_NM),'$today_dt'
+               |sum(points_at) as swp_quick_succ_points_at
+               |from hive_active_code_pay_trans
+               |where trans_st like '%000' and usr_id<>0 and to_date(rec_crt_ts)='$today_dt'
+               |group by iss_ins_id_cd,to_date(rec_crt_ts) ) d
+               |on e.iss_ins_id_cd=d.iss_ins_id_cd
+               |group by trim(e.iss_ins_cn_nm),'$today_dt'
                | """.stripMargin)
           println(s"#### JOB_DM_81 spark sql 清洗[$today_dt]数据完成时间为:" + DateUtils.getCurrentSystemTime())
 
@@ -9752,75 +9752,75 @@ object SparkHive2Mysql {
         for (i <- 0 to interval) {
           val results = sqlContext.sql(
             s"""
-               |SELECT
-               |CASE WHEN A.CARD_ATTR IS NULL THEN NVL(B.CARD_ATTR,NVL(C.CARD_ATTR,NVL(D.CARD_ATTR,'其它'))) ELSE A.CARD_ATTR END AS CARD_ATTR,
-               |'$today_dt' AS REPORT_DT,
-               |sum(C.swp_quick_cnt),
-               |sum(C.swp_quick_usrcnt),
-               |sum(D.swp_quick_succ_cnt),
-               |sum(D.swp_quick_succ_usrcnt),
-               |sum(D.swp_quick_succ_trans_at),
-               |sum(D.swp_quick_succ_points_at),
-               |sum(A.swp_verify_cnt),
-               |sum(A.swp_verify_usrcnt),
-               |sum(B.swp_succ_verify_cnt),
-               |sum(B.swp_succ_verify_usrcnt),
-               |sum(B.swp_succ_verify_trans_at)
-               |FROM
-               |(
-               |SELECT
-               |(case when card_attr in ('01') then '借记卡'
-               |when card_attr in ('02', '03') then '贷记卡' end
-               |) as CARD_ATTR,
-               |COUNT(*) AS swp_verify_cnt,
-               |COUNT(distinct usr_id) as swp_verify_usrcnt
-               |FROM HIVE_ACTIVE_CODE_PAY_TRANS
-               |WHERE USR_ID=0 AND TRANS_SOURCE in('0001','9001') AND TO_DATE(REC_CRT_TS)='$today_dt'
-               |GROUP BY (case when card_attr in ('01') then '借记卡'
-               |when card_attr in ('02', '03') then '贷记卡' end)) A
-               |FULL OUTER JOIN
+               |select
+               |case when a.card_attr is null then nvl(b.card_attr,nvl(c.card_attr,nvl(d.card_attr,'其它'))) else a.card_attr end as card_attr,
+               |'$today_dt' as report_dt,
+               |sum(c.swp_quick_cnt),
+               |sum(c.swp_quick_usrcnt),
+               |sum(d.swp_quick_succ_cnt),
+               |sum(d.swp_quick_succ_usrcnt),
+               |sum(d.swp_quick_succ_trans_at),
+               |sum(d.swp_quick_succ_points_at),
+               |sum(a.swp_verify_cnt),
+               |sum(a.swp_verify_usrcnt),
+               |sum(b.swp_succ_verify_cnt),
+               |sum(b.swp_succ_verify_usrcnt),
+               |sum(b.swp_succ_verify_trans_at)
+               |from
                |(
                |select
                |(case when card_attr in ('01') then '借记卡'
                |when card_attr in ('02', '03') then '贷记卡' end
-               |) as CARD_ATTR,
+               |) as card_attr,
+               |count(*) as swp_verify_cnt,
+               |count(distinct usr_id) as swp_verify_usrcnt
+               |from hive_active_code_pay_trans
+               |where usr_id=0 and trans_source in('0001','9001') and to_date(rec_crt_ts)='$today_dt'
+               |group by (case when card_attr in ('01') then '借记卡'
+               |when card_attr in ('02', '03') then '贷记卡' end)) a
+               |full outer join
+               |(
+               |select
+               |(case when card_attr in ('01') then '借记卡'
+               |when card_attr in ('02', '03') then '贷记卡' end
+               |) as card_attr,
                |count(*) as swp_succ_verify_cnt,
                |count(distinct usr_id) as swp_succ_verify_usrcnt,
                |sum(trans_at) as swp_succ_verify_trans_at
-               |from HIVE_ACTIVE_CODE_PAY_TRANS
+               |from hive_active_code_pay_trans
                |where trans_st like '%000' and usr_id=0
-               |AND TRANS_SOURCE in('0001','9001') and TO_DATE(REC_CRT_TS)='$today_dt'
+               |and trans_source in('0001','9001') and to_date(rec_crt_ts)='$today_dt'
                |group by (case when card_attr in ('01') then '借记卡'
                |when card_attr in ('02', '03') then '贷记卡' end)
-               |) B
-               |ON A.CARD_ATTR=B.CARD_ATTR
-               |FULL OUTER JOIN
+               |) b
+               |on a.card_attr=b.card_attr
+               |full outer join
                |(
                |select
                |(case when card_attr in ('01') then '借记卡'
-               |when card_attr in ('02', '03') then '贷记卡' end) as CARD_ATTR,
+               |when card_attr in ('02', '03') then '贷记卡' end) as card_attr,
                |count(*) as swp_quick_cnt,
                |count(distinct usr_id) as swp_quick_usrcnt
-               |from HIVE_ACTIVE_CODE_PAY_TRANS
-               |where usr_id<>0 and TRANS_SOURCE in('0001','9001') AND TO_DATE(REC_CRT_TS)='$today_dt'
+               |from hive_active_code_pay_trans
+               |where usr_id<>0 and trans_source in('0001','9001') and to_date(rec_crt_ts)='$today_dt'
                |group by (case when card_attr in ('01') then '借记卡'
-               |when card_attr in ('02', '03') then '贷记卡' end) ) C
-               |ON A.CARD_ATTR=C.CARD_ATTR
-               |FULL OUTER JOIN
+               |when card_attr in ('02', '03') then '贷记卡' end) ) c
+               |on a.card_attr=c.card_attr
+               |full outer join
                |(select
                |(case when card_attr in ('01') then '借记卡'
                |when card_attr in ('02', '03') then '贷记卡' end
-               |) as CARD_ATTR,
+               |) as card_attr,
                |count(*) as swp_quick_succ_cnt,
                |count(distinct usr_id) as swp_quick_succ_usrcnt ,
                |sum(trans_at) as swp_quick_succ_trans_at,
-               |sum(POINTS_AT) as swp_quick_succ_points_at
-               |from HIVE_ACTIVE_CODE_PAY_TRANS
-               |where trans_st like '%000' and usr_id<>0 and TO_DATE(REC_CRT_TS)='$today_dt'
+               |sum(points_at) as swp_quick_succ_points_at
+               |from hive_active_code_pay_trans
+               |where trans_st like '%000' and usr_id<>0 and to_date(rec_crt_ts)='$today_dt'
                |group by (case when card_attr in ('01') then '借记卡'
-               |when card_attr in ('02', '03') then '贷记卡' end) ) D
-               |ON A.CARD_ATTR=D.CARD_ATTR
-               |group by CASE WHEN A.CARD_ATTR IS NULL THEN NVL(B.CARD_ATTR,NVL(C.CARD_ATTR,NVL(D.CARD_ATTR,'其它'))) ELSE A.CARD_ATTR END
+               |when card_attr in ('02', '03') then '贷记卡' end) ) d
+               |on a.card_attr=d.card_attr
+               |group by case when a.card_attr is null then nvl(b.card_attr,nvl(c.card_attr,nvl(d.card_attr,'其它'))) else a.card_attr end
                | """.stripMargin)
           println(s"#### JOB_DM_82 spark sql 清洗[$today_dt]数据完成时间为:" + DateUtils.getCurrentSystemTime())
 
@@ -9857,23 +9857,23 @@ object SparkHive2Mysql {
         for (i <- 0 to interval) {
           val results = sqlContext.sql(
             s"""
-               |SELECT
-               |trim(E.CARD_LVL_NM) as  CARD_LVL_NM,
-               |'$today_dt' AS REPORT_DT,
-               |sum(C.swp_quick_cnt) as swp_quick_cnt,
-               |sum(C.swp_quick_usrcnt) as swp_quick_usrcnt,
-               |sum(D.swp_quick_succ_cnt) as swp_quick_succ_cnt,
-               |sum(D.swp_quick_succ_usrcnt) as swp_quick_succ_usrcnt,
-               |sum(D.swp_quick_succ_trans_at) as swp_quick_succ_trans_at,
-               |sum(D.swp_quick_succ_points_at) as swp_quick_succ_points_at,
-               |sum(A.swp_verify_cnt) as swp_verify_cnt,
-               |sum(A.swp_verify_usrcnt) as swp_verify_usrcnt,
-               |sum(B.swp_succ_verify_cnt) as swp_succ_verify_cnt,
-               |sum(B.swp_succ_verify_usrcnt) as swp_succ_verify_usrcnt,
-               |sum(B.swp_succ_verify_trans_at) as swp_succ_verify_trans_at
-               |FROM
+               |select
+               |trim(e.card_lvl_nm) as  card_lvl_nm,
+               |'$today_dt' as report_dt,
+               |sum(c.swp_quick_cnt) as swp_quick_cnt,
+               |sum(c.swp_quick_usrcnt) as swp_quick_usrcnt,
+               |sum(d.swp_quick_succ_cnt) as swp_quick_succ_cnt,
+               |sum(d.swp_quick_succ_usrcnt) as swp_quick_succ_usrcnt,
+               |sum(d.swp_quick_succ_trans_at) as swp_quick_succ_trans_at,
+               |sum(d.swp_quick_succ_points_at) as swp_quick_succ_points_at,
+               |sum(a.swp_verify_cnt) as swp_verify_cnt,
+               |sum(a.swp_verify_usrcnt) as swp_verify_usrcnt,
+               |sum(b.swp_succ_verify_cnt) as swp_succ_verify_cnt,
+               |sum(b.swp_succ_verify_usrcnt) as swp_succ_verify_usrcnt,
+               |sum(b.swp_succ_verify_trans_at) as swp_succ_verify_trans_at
+               |from
                |(
-               |SELECT
+               |select
                |(case when card_attr in ('0') then '未知'
                |when card_attr in ('1') then '普卡'
                |when card_attr in ('2') then '银卡'
@@ -9882,54 +9882,54 @@ object SparkHive2Mysql {
                |when card_attr in ('5') then '钻石卡'
                |when card_attr in ('6') then '无限卡'
                |else '其它' end
-               |) as CARD_LVL_NM,
-               |substr(CARD_BIN,1,8) AS CARD_BIN
-               |FROM HIVE_CARD_BIN ) E
-               |LEFT JOIN
-               |(
-               |SELECT
-               |substr(CARD_BIN,1,8) as CARD_BIN,
-               |COUNT(*) AS swp_verify_cnt,
-               |COUNT(distinct usr_id) as swp_verify_usrcnt
-               |FROM HIVE_ACTIVE_CODE_PAY_TRANS
-               |WHERE USR_ID=0 AND TRANS_SOURCE in('0001','9001') AND TO_DATE(REC_CRT_TS)='$today_dt'
-               |GROUP BY substr(CARD_BIN,1,8)) A
-               |ON A.CARD_BIN=E.CARD_BIN
-               |LEFT JOIN
+               |) as card_lvl_nm,
+               |substr(card_bin,1,8) as card_bin
+               |from hive_card_bin ) e
+               |left join
                |(
                |select
-               |substr(CARD_BIN,1,8) AS CARD_BIN,
+               |substr(card_bin,1,8) as card_bin,
+               |count(*) as swp_verify_cnt,
+               |count(distinct usr_id) as swp_verify_usrcnt
+               |from hive_active_code_pay_trans
+               |where usr_id=0 and trans_source in('0001','9001') and to_date(rec_crt_ts)='$today_dt'
+               |group by substr(card_bin,1,8)) a
+               |on a.card_bin=e.card_bin
+               |left join
+               |(
+               |select
+               |substr(card_bin,1,8) as card_bin,
                |count(*) as swp_succ_verify_cnt,
                |count(distinct usr_id) as swp_succ_verify_usrcnt,
                |sum(trans_at) as swp_succ_verify_trans_at
-               |from HIVE_ACTIVE_CODE_PAY_TRANS
+               |from hive_active_code_pay_trans
                |where trans_st like '%000' and usr_id=0
-               |AND TRANS_SOURCE in('0001','9001') and TO_DATE(REC_CRT_TS)='$today_dt'
-               |group by substr(CARD_BIN,1,8)
-               |) B
-               |ON E.CARD_BIN=B.CARD_BIN
-               |LEFT JOIN
+               |and trans_source in('0001','9001') and to_date(rec_crt_ts)='$today_dt'
+               |group by substr(card_bin,1,8)
+               |) b
+               |on e.card_bin=b.card_bin
+               |left join
                |(
                |select
-               |substr(CARD_BIN,1,8) AS CARD_BIN,
+               |substr(card_bin,1,8) as card_bin,
                |count(*) as swp_quick_cnt,
                |count(distinct usr_id) as swp_quick_usrcnt
-               |from HIVE_ACTIVE_CODE_PAY_TRANS
-               |where usr_id<>0 and TRANS_SOURCE in('0001','9001') AND TO_DATE(REC_CRT_TS)='$today_dt'
-               |group by substr(CARD_BIN,1,8) ) C
-               |ON E.CARD_BIN=C.CARD_BIN
-               |LEFT JOIN
+               |from hive_active_code_pay_trans
+               |where usr_id<>0 and trans_source in('0001','9001') and to_date(rec_crt_ts)='$today_dt'
+               |group by substr(card_bin,1,8) ) c
+               |on e.card_bin=c.card_bin
+               |left join
                |(select
-               |substr(CARD_BIN,1,8) AS CARD_BIN,
+               |substr(card_bin,1,8) as card_bin,
                |count(*) as swp_quick_succ_cnt,
                |count(distinct usr_id) as swp_quick_succ_usrcnt ,
                |sum(trans_at) as swp_quick_succ_trans_at,
-               |sum(POINTS_AT) as swp_quick_succ_points_at
-               |from HIVE_ACTIVE_CODE_PAY_TRANS
-               |where trans_st like '%000' and usr_id<>0 and TO_DATE(REC_CRT_TS)='$today_dt'
-               |group by substr(CARD_BIN,1,8)) D
-               |ON E.CARD_BIN=D.CARD_BIN
-               |group by trim(E.CARD_LVL_NM)
+               |sum(points_at) as swp_quick_succ_points_at
+               |from hive_active_code_pay_trans
+               |where trans_st like '%000' and usr_id<>0 and to_date(rec_crt_ts)='$today_dt'
+               |group by substr(card_bin,1,8)) d
+               |on e.card_bin=d.card_bin
+               |group by trim(e.card_lvl_nm)
                | """.stripMargin)
           println(s"#### JOB_DM_83 spark sql 清洗[$today_dt]数据完成时间为:" + DateUtils.getCurrentSystemTime())
 
@@ -9966,115 +9966,115 @@ object SparkHive2Mysql {
         for (i <- 0 to interval) {
           val results = sqlContext.sql(
             s"""
-               |SELECT
-               |E.CUP_BRANCH_INS_ID_NM as AREA_NM,
-               |'$today_dt' AS REPORT_DT,
-               |sum(C.quick_cnt) as quick_cnt,
-               |sum(C.quick_usrcnt) as quick_usrcnt,
-               |sum(D.quick_succ_cnt) as quick_succ_cnt,
-               |sum(D.quick_succ_usrcnt) as quick_succ_usrcnt,
-               |sum(D.quick_succ_trans_at) as quick_succ_trans_at,
-               |sum(D.quick_succ_points_at) as quick_succ_points_at,
-               |sum(A.TRAN_CNT) as TRAN_CNT,
-               |sum(A.usrcnt) as usrcnt,
-               |sum(B.SUCC_CNT) as SUCC_CNT,
-               |sum(B.SUCC_USRCNT) as SUCC_USRCNT,
-               |sum(B.SUCC_TRANS_AT) as SUCC_TRANS_AT,
-               |sum(C.swp_quick_cnt) as swp_quick_cnt,
-               |sum(C.swp_quick_usrcnt) as swp_quick_usrcnt,
-               |sum(D.swp_quick_succ_cnt) as swp_quick_succ_cnt,
-               |sum(D.swp_quick_succ_usrcnt) as swp_quick_succ_usrcnt,
-               |sum(D.swp_quick_succ_trans_at) as swp_quick_succ_trans_at,
-               |sum(D.swp_quick_succ_points_at) as swp_quick_succ_points_at,
-               |sum(A.swp_verify_cnt) as swp_verify_cnt,
-               |sum(A.swp_verify_usrcnt) as swp_verify_usrcnt,
-               |sum(B.swp_verify_succ_cnt) as swp_verify_succ_cnt,
-               |sum(B.swp_verify_succ_usrcnt) as swp_verify_succ_usrcnt,
-               |sum(B.swp_verify_succ_trans_at) as swp_verify_succ_trans_at,
-               |sum(B.swp_verify_succ_points_at) as swp_verify_succ_points_at
-               |FROM
-               |HIVE_MCHNT_INF_WALLET E
-               |LEFT JOIN
+               |select
+               |e.cup_branch_ins_id_nm as area_nm,
+               |'$today_dt' as report_dt,
+               |sum(c.quick_cnt) as quick_cnt,
+               |sum(c.quick_usrcnt) as quick_usrcnt,
+               |sum(d.quick_succ_cnt) as quick_succ_cnt,
+               |sum(d.quick_succ_usrcnt) as quick_succ_usrcnt,
+               |sum(d.quick_succ_trans_at) as quick_succ_trans_at,
+               |sum(d.quick_succ_points_at) as quick_succ_points_at,
+               |sum(a.tran_cnt) as tran_cnt,
+               |sum(a.usrcnt) as usrcnt,
+               |sum(b.succ_cnt) as succ_cnt,
+               |sum(b.succ_usrcnt) as succ_usrcnt,
+               |sum(b.succ_trans_at) as succ_trans_at,
+               |sum(c.swp_quick_cnt) as swp_quick_cnt,
+               |sum(c.swp_quick_usrcnt) as swp_quick_usrcnt,
+               |sum(d.swp_quick_succ_cnt) as swp_quick_succ_cnt,
+               |sum(d.swp_quick_succ_usrcnt) as swp_quick_succ_usrcnt,
+               |sum(d.swp_quick_succ_trans_at) as swp_quick_succ_trans_at,
+               |sum(d.swp_quick_succ_points_at) as swp_quick_succ_points_at,
+               |sum(a.swp_verify_cnt) as swp_verify_cnt,
+               |sum(a.swp_verify_usrcnt) as swp_verify_usrcnt,
+               |sum(b.swp_verify_succ_cnt) as swp_verify_succ_cnt,
+               |sum(b.swp_verify_succ_usrcnt) as swp_verify_succ_usrcnt,
+               |sum(b.swp_verify_succ_trans_at) as swp_verify_succ_trans_at,
+               |sum(b.swp_verify_succ_points_at) as swp_verify_succ_points_at
+               |from
+               |hive_mchnt_inf_wallet e
+               |left join
                |(
-               |SELECT
+               |select
                |mchnt_tp ,
-               |SUM(CNT) AS TRAN_CNT,
-               |SUM(usrcnt) AS usrcnt,
-               |sum(case when TRANS_SOURCE in('0001','9001') then cnt end ) as swp_verify_cnt,
-               |sum(case when TRANS_SOURCE in('0001','9001') then usrcnt end ) as swp_verify_usrcnt
-               |FROM (SELECT mchnt_tp,TRANS_SOURCE,COUNT(*) AS CNT,
+               |sum(cnt) as tran_cnt,
+               |sum(usrcnt) as usrcnt,
+               |sum(case when trans_source in('0001','9001') then cnt end ) as swp_verify_cnt,
+               |sum(case when trans_source in('0001','9001') then usrcnt end ) as swp_verify_usrcnt
+               |from (select mchnt_tp,trans_source,count(*) as cnt,
                |count(distinct usr_id) as usrcnt
-               |FROM HIVE_ACTIVE_CODE_PAY_TRANS
-               |WHERE USR_ID=0 AND TO_DATE(REC_CRT_TS)='$today_dt'
-               |GROUP BY mchnt_tp,TRANS_SOURCE
-               |) T1
-               |GROUP BY mchnt_tp) A
-               |ON A.mchnt_tp=E.mchnt_tp
-               |LEFT JOIN
+               |from hive_active_code_pay_trans
+               |where usr_id=0 and to_date(rec_crt_ts)='$today_dt'
+               |group by mchnt_tp,trans_source
+               |) t1
+               |group by mchnt_tp) a
+               |on a.mchnt_tp=e.mchnt_tp
+               |left join
                |(
                |select
                |mchnt_tp,
-               |sum(cnt) as SUCC_CNT,
-               |sum(usrcnt) as SUCC_usrcnt,
-               |sum(trans_at) as SUCC_TRANS_AT,
-               |sum(case when TRANS_SOURCE in('0001','9001') then cnt end ) as swp_verify_succ_cnt,
-               |sum(case when TRANS_SOURCE in('0001','9001') then usrcnt end ) as swp_verify_succ_usrcnt ,
-               |sum(case when TRANS_SOURCE in('0001','9001') then trans_at end) as swp_verify_succ_trans_at,
-               |sum(case when TRANS_SOURCE in('0001','9001') then POINTS_AT end ) as swp_verify_succ_points_at
-               |from (select mchnt_tp,TRANS_SOURCE,count(*) as cnt,
+               |sum(cnt) as succ_cnt,
+               |sum(usrcnt) as succ_usrcnt,
+               |sum(trans_at) as succ_trans_at,
+               |sum(case when trans_source in('0001','9001') then cnt end ) as swp_verify_succ_cnt,
+               |sum(case when trans_source in('0001','9001') then usrcnt end ) as swp_verify_succ_usrcnt ,
+               |sum(case when trans_source in('0001','9001') then trans_at end) as swp_verify_succ_trans_at,
+               |sum(case when trans_source in('0001','9001') then points_at end ) as swp_verify_succ_points_at
+               |from (select mchnt_tp,trans_source,count(*) as cnt,
                |sum(trans_at) as trans_at,
-               |sum(points_at) as POINTS_AT,
+               |sum(points_at) as points_at,
                |count(distinct usr_id) as usrcnt
-               |from HIVE_ACTIVE_CODE_PAY_TRANS
-               |where trans_st like '%000' and usr_id=0 and TO_DATE(REC_CRT_TS)=='$today_dt'
-               |group by mchnt_tp,TRANS_SOURCE) T2
-               |GROUP BY mchnt_tp
-               |) B
-               |ON E.mchnt_tp=B.mchnt_tp
-               |LEFT JOIN
+               |from hive_active_code_pay_trans
+               |where trans_st like '%000' and usr_id=0 and to_date(rec_crt_ts)=='$today_dt'
+               |group by mchnt_tp,trans_source) t2
+               |group by mchnt_tp
+               |) b
+               |on e.mchnt_tp=b.mchnt_tp
+               |left join
                |(
                |select
                |mchnt_tp,
                |sum(cnt) as quick_cnt,
                |sum(usrcnt) as quick_usrcnt,
-               |sum(case when TRANS_SOURCE in('0001','9001') then cnt end ) as swp_quick_cnt,
-               |sum(case when TRANS_SOURCE in('0001','9001') then usrcnt end ) as swp_quick_usrcnt
+               |sum(case when trans_source in('0001','9001') then cnt end ) as swp_quick_cnt,
+               |sum(case when trans_source in('0001','9001') then usrcnt end ) as swp_quick_usrcnt
                |from
-               |(select mchnt_tp,TRANS_SOURCE,count(*) as cnt,
+               |(select mchnt_tp,trans_source,count(*) as cnt,
                |count(distinct usr_id) as usrcnt
-               |from HIVE_ACTIVE_CODE_PAY_TRANS
-               |where usr_id<>0 and TO_DATE(REC_CRT_TS)='$today_dt'
-               |group by mchnt_tp,TRANS_SOURCE) t3
-               |GROUP BY mchnt_tp
-               |) C
-               |ON E.mchnt_tp=C.mchnt_tp
-               |LEFT JOIN
+               |from hive_active_code_pay_trans
+               |where usr_id<>0 and to_date(rec_crt_ts)='$today_dt'
+               |group by mchnt_tp,trans_source) t3
+               |group by mchnt_tp
+               |) c
+               |on e.mchnt_tp=c.mchnt_tp
+               |left join
                |(
                |select mchnt_tp,
                |sum(cnt) as quick_succ_cnt,
                |sum(usrcnt) as quick_succ_usrcnt ,
                |sum(trans_at) as quick_succ_trans_at,
-               |sum(POINTS_AT) as quick_succ_points_at,
-               |sum(case when TRANS_SOURCE in('0001','9001') then cnt end ) as swp_quick_succ_cnt,
-               |sum(case when TRANS_SOURCE in('0001','9001') then usrcnt end ) as swp_quick_succ_usrcnt ,
-               |sum(case when TRANS_SOURCE in('0001','9001') then trans_at end) as swp_quick_succ_trans_at,
-               |sum(case when TRANS_SOURCE in('0001','9001') then POINTS_AT end ) as swp_quick_succ_points_at
+               |sum(points_at) as quick_succ_points_at,
+               |sum(case when trans_source in('0001','9001') then cnt end ) as swp_quick_succ_cnt,
+               |sum(case when trans_source in('0001','9001') then usrcnt end ) as swp_quick_succ_usrcnt ,
+               |sum(case when trans_source in('0001','9001') then trans_at end) as swp_quick_succ_trans_at,
+               |sum(case when trans_source in('0001','9001') then points_at end ) as swp_quick_succ_points_at
                |from
                |(select
                |mchnt_tp,
-               |TRANS_SOURCE,
+               |trans_source,
                |count(*) as cnt,
-               |sum(POINTS_AT) as POINTS_AT,
+               |sum(points_at) as points_at,
                |sum(trans_at) as trans_at,
                |count(distinct usr_id) as usrcnt
-               |from HIVE_ACTIVE_CODE_PAY_TRANS
-               |where trans_st like '%000' and usr_id<>0 and TO_DATE(REC_CRT_TS)='$today_dt'
-               |group by mchnt_tp,TRANS_SOURCE) t4
-               |GROUP BY mchnt_tp
-               |) D
-               |ON E.mchnt_tp=D.mchnt_tp
-               |WHERE A.mchnt_tp IS NOT NULL AND B.mchnt_tp IS NOT NULL AND C.mchnt_tp IS NOT NULL AND D.mchnt_tp IS NOT NULL
-               |GROUP BY E.CUP_BRANCH_INS_ID_NM
+               |from hive_active_code_pay_trans
+               |where trans_st like '%000' and usr_id<>0 and to_date(rec_crt_ts)='$today_dt'
+               |group by mchnt_tp,trans_source) t4
+               |group by mchnt_tp
+               |) d
+               |on e.mchnt_tp=d.mchnt_tp
+               |where a.mchnt_tp is not null and b.mchnt_tp is not null and c.mchnt_tp is not null and d.mchnt_tp is not null
+               |group by e.cup_branch_ins_id_nm
                | """.stripMargin)
           println(s"#### JOB_DM_84 spark sql 清洗[$today_dt]数据完成时间为:" + DateUtils.getCurrentSystemTime())
 
@@ -10111,14 +10111,14 @@ object SparkHive2Mysql {
         for (i <- 0 to interval) {
           val results = sqlContext.sql(
             s"""
-               |SELECT
-               |RESP_CD as RESP_CD,
-               |TO_DATE(REC_CRT_TS) as report_dt,
-               |COUNT(*) AS  tran_cnt,
+               |select
+               |resp_cd as resp_cd,
+               |to_date(rec_crt_ts) as report_dt,
+               |count(*) as  tran_cnt,
                |sum(trans_at) as trans_at
-               |FROM HIVE_ACTIVE_CODE_PAY_TRANS
-               |WHERE  length(RESP_CD)=2  and  TO_DATE(REC_CRT_TS)>='$today_dt'  and  TO_DATE(REC_CRT_TS)<= '$today_dt'
-               |GROUP BY RESP_CD,TO_DATE(REC_CRT_TS)
+               |from hive_active_code_pay_trans
+               |where  length(resp_cd)=2  and  to_date(rec_crt_ts)>='$today_dt'  and  to_date(rec_crt_ts)<= '$today_dt'
+               |group by resp_cd,to_date(rec_crt_ts)
                | """.stripMargin)
           println(s"#### JOB_DM_85 spark sql 清洗[$today_dt]数据完成时间为:" + DateUtils.getCurrentSystemTime())
 
