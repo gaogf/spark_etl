@@ -115,6 +115,10 @@ object Create_Hive_Tables {
     hive_mtdtrs_dtl_ach_bat_file_dtl
     hive_rtdtrs_dtl_achis_bill
 
+    hive_rtdtrs_dtl_achis_note
+    hive_rtdtrs_dtl_achis_order
+    hive_rtdtrs_dtl_achis_order_error
+    hive_rtdtrs_dtl_sor_cmsp
 
     println("=======Create all tables on the hive successfully=======")
 
@@ -5325,6 +5329,258 @@ object Create_Hive_Tables {
   }
 
 
+  /**
+    *  JOB_HV_94
+    */
+  def hive_rtdtrs_dtl_achis_note (implicit  sqlcontext :HiveContext)={
+    println("=======create hive_rtdtrs_dtl_achis_note=======")
+    sqlcontext.sql(s"use $hive_dbname")
+    sqlcontext.sql(
+      s"""
+         |create table if not exists $hive_dbname.hive_rtdtrs_dtl_achis_note(
+         |settle_dt       string   ,
+         |trans_no        string   ,
+         |cli_tp          string   ,
+         |cli_ver         string   ,
+         |os_type         string   ,
+         |os_ver          string   ,
+         |phone_res       string   ,
+         |locale          string   ,
+         |imei            string   ,
+         |uid             string   ,
+         |up_vid          string   ,
+         |up_uid          string   ,
+         |sid             string   ,
+         |ip              string   ,
+         |gw_ip           string   ,
+         |mac             string   ,
+         |rec_crt_ts      string   ,
+         |rec_upd_ts      string
+         |)
+         |partitioned by (part_settle_dt string)
+         |row format delimited fields terminated by '!|'
+         |stored as parquet
+         |location '/user/ch_hypas/upw_hive/incident/trans/hive_rtdtrs_dtl_achis_note'
+        """.stripMargin)
+
+    println("=======create hive_rtdtrs_dtl_achis_note successfully ! =======")
+  }
+
+
+  /**
+    *  JOB_HV_95
+    */
+  def hive_rtdtrs_dtl_achis_order (implicit  sqlcontext :HiveContext)={
+    println("=======create hive_rtdtrs_dtl_achis_order=======")
+    sqlcontext.sql(s"use $hive_dbname")
+    sqlcontext.sql(
+      s"""
+         |create table if not exists $hive_dbname.hive_rtdtrs_dtl_achis_order(
+         |settle_dt                  string     ,
+         |trans_no                   string     ,
+         |trans_tp                   string     ,
+         |trans_class                string     ,
+         |trans_source               string     ,
+         |buss_chnl                  string     ,
+         |pri_acct_no                string     ,
+         |fwd_ins_id_cd              string     ,
+         |acq_ins_id_cd              string     ,
+         |iss_ins_id_cd              string     ,
+         |iss_head                   string     ,
+         |iss_head_nm                string     ,
+         |mchnt_cd                   string     ,
+         |mchnt_nm                   string     ,
+         |mchnt_country              string     ,
+         |mchnt_url                  string     ,
+         |mchnt_front_url            string     ,
+         |mchnt_back_url             string     ,
+         |mchnt_delv_tag             string     ,
+         |mchnt_tp                   string     ,
+         |mchnt_risk_tag             string     ,
+         |mchnt_order_id             string     ,
+         |sys_tra_no                 string     ,
+         |sys_tm                     string     ,
+         |trans_tm                   string     ,
+         |trans_dt                   string     ,
+         |trans_at                   bigint     ,
+         |trans_curr_cd              string     ,
+         |trans_st                   string     ,
+         |auth_id                    string     ,
+         |settle_at                  bigint     ,
+         |settle_curr_cd             string     ,
+         |settle_conv_rt             bigint     ,
+         |conv_dt                    string     ,
+         |cert_tp                    string     ,
+         |cert_id                    string     ,
+         |name                       string     ,
+         |phone_no                   string     ,
+         |org_trans_idx              string     ,
+         |org_sys_tra_no             string     ,
+         |org_sys_tm                 string     ,
+         |proc_st                    string     ,
+         |resp_cd                    string     ,
+         |proc_sys                   string     ,
+         |usr_id                     int        ,
+         |mchnt_id                   int        ,
+         |pay_method                 string     ,
+         |trans_ip                   string     ,
+         |refund_at                  bigint     ,
+         |card_attr                  string     ,
+         |kz_curr_cd                 string     ,
+         |kz_conv_rt                 bigint     ,
+         |kz_at                      bigint     ,
+         |sub_mchnt_cd               string     ,
+         |sub_mchnt_nm               string     ,
+         |points_at                  bigint     ,
+         |verify_mode                string     ,
+         |is_oversea                 string     ,
+         |pri_data                   string     ,
+         |access_tp                  string     ,
+         |rcv_ins_id_cd              string     ,
+         |zero_cost                  string     ,
+         |advance_payment            string     ,
+         |pos_cond_cd                string     ,
+         |reserve_fld                string     ,
+         |reserve1                   string     ,
+         |reserve2                   string     ,
+         |reserve3                   string     ,
+         |reserve4                   string     ,
+         |reserve5                   string     ,
+         |reserve6                   string     ,
+         |comments                   string     ,
+         |rec_st                     string     ,
+         |rec_crt_ts                 string     ,
+         |rec_upd_ts                 string     ,
+         |trans_chnl                 string     ,
+         |source_idt                 string     ,
+         |out_trans_tp               string     ,
+         |md_id                      string     ,
+         |ud_id                      string     ,
+         |syssp_id                   string     ,
+         |src_sys_flag               string     ,
+         |auth_at                    bigint     ,
+         |iss_ins_tp                 string
+         |)
+         |partitioned by (part_settle_dt string)
+         |row format delimited fields terminated by '!|'
+         |stored as parquet
+         |location '/user/ch_hypas/upw_hive/incident/trans/hive_rtdtrs_dtl_achis_order'
+        """.stripMargin)
+
+    println("=======create hive_rtdtrs_dtl_achis_order successfully ! =======")
+  }
+
+  /**
+    *  JOB_HV_96
+    */
+  def hive_rtdtrs_dtl_achis_order_error (implicit  sqlcontext :HiveContext)={
+    println("=======create hive_rtdtrs_dtl_achis_order_error=======")
+    sqlcontext.sql(s"use $hive_dbname")
+    sqlcontext.sql(
+      s"""
+         |create table if not exists $hive_dbname.hive_rtdtrs_dtl_achis_order_error(
+         |settle_dt           string    ,
+         |trans_idx           string    ,
+         |pri_acct_no         string    ,
+         |trans_at            bigint    ,
+         |trans_tm            string    ,
+         |trans_tp            string    ,
+         |out_trans_tp        string    ,
+         |acq_ins_id_cd       string    ,
+         |trans_curr_cd       string    ,
+         |mchnt_cd            string    ,
+         |mchnt_order_id      string    ,
+         |rec_crt_ts          string    ,
+         |trans_source        string    ,
+         |buss_chnl           string    ,
+         |iss_ins_id_cd       string    ,
+         |error_tp            string    ,
+         |error_msg           string    ,
+         |error_cd            string    ,
+         |advice_msg          string    ,
+         |resp_cd             string    ,
+         |sub_trans_tp        string
+         |)
+         |partitioned by (part_settle_dt string)
+         |row format delimited fields terminated by '!|'
+         |stored as parquet
+         |location '/user/ch_hypas/upw_hive/incident/trans/hive_rtdtrs_dtl_achis_order_error'
+        """.stripMargin)
+
+    println("=======create hive_rtdtrs_dtl_achis_order_error successfully ! =======")
+  }
+
+  /**
+    *  JOB_HV_97
+    */
+  def hive_rtdtrs_dtl_sor_cmsp (implicit  sqlcontext :HiveContext)={
+    println("=======create hive_rtdtrs_dtl_sor_cmsp=======")
+    sqlcontext.sql(s"use $hive_dbname")
+    sqlcontext.sql(
+      s"""
+         |create table if not exists $hive_dbname.hive_rtdtrs_dtl_sor_cmsp(
+         |trans_seq                          string    ,
+         |trans_submit_tm                    string    ,
+         |new_trans_submit_tm                string    ,
+         |trans_tp_cd                        string    ,
+         |trans_rcv_tm                       string    ,
+         |trans_fin_tm                       string    ,
+         |to_tm                              string    ,
+         |to_moni_in                         string    ,
+         |moni_dist                          string    ,
+         |ab_in                              string    ,
+         |trans_st_cd                        string    ,
+         |rvsl_st_cd                         string    ,
+         |source_line_svc                    string    ,
+         |source_msg_cd                      string    ,
+         |term_csn                           string    ,
+         |trans_tp                           string    ,
+         |mchnt_cd                           string    ,
+         |mchnt_nm                           string    ,
+         |order_seq                          string    ,
+         |trans_at                           bigint    ,
+         |trans_curr_cd                      string    ,
+         |acctnum1                           string    ,
+         |acctnum2                           string    ,
+         |rspcode                            string    ,
+         |spcode                             string    ,
+         |terminal_id                        string    ,
+         |settle_dt                          string    ,
+         |syssp_id                           string    ,
+         |pos_cd                             string    ,
+         |card_no                            string    ,
+         |app_cd                             int       ,
+         |trans_type_id                      int       ,
+         |cmsp_card_type_id                  int       ,
+         |pboc_card_type_id                  int       ,
+         |md_ins_id_cd                       string    ,
+         |issuer_ins_id_cd                   string    ,
+         |trans_cd                           string    ,
+         |resp_cd1                           string    ,
+         |resp_cd4                           string    ,
+         |card_attr_id                       int       ,
+         |card_brand_id                      int       ,
+         |acpt_ins_id_cd                     string    ,
+         |fwd_ins_id_cd                      string    ,
+         |rcv_ins_id_cd                      string    ,
+         |iss_ins_id_cd                      string    ,
+         |settle_flag                        string    ,
+         |ic_flds_cvert                      string    ,
+         |src_sys                            string    ,
+         |trans_seq_conv                     string    ,
+         |new_trans_submit_tm_conv           string    ,
+         |acpt_ins_id_cd_conv                string    ,
+         |fwd_ins_id_cd_conv                 string    ,
+         |proc_sys_flag                      string
+         |)
+         |partitioned by (part_settle_dt string)
+         |row format delimited fields terminated by '!|'
+         |stored as parquet
+         |location '/user/ch_hypas/upw_hive/incident/trans/hive_rtdtrs_dtl_sor_cmsp'
+        """.stripMargin)
+
+    println("=======create hive_rtdtrs_dtl_sor_cmsp successfully ! =======")
+  }
 
 
 }

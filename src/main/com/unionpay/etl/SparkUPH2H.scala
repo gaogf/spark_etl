@@ -1613,6 +1613,7 @@ object SparkUPH2H {
     * hive_ach_order_inf -> hbkdb.rtdtrs_dtl_ach_order_inf
     *
     * 测试时段:2015-11-09~2015-11-10
+    *
     * @author tzq
     * @param sqlContext
     * @param end_dt
@@ -1714,6 +1715,7 @@ object SparkUPH2H {
     * JOB_HIVE_90  2017-3-9
     * hbkdb.rtdtrs_dtl_ach_bill --> upw_hive.hive_rtdtrs_dtl_ach_bill
     * notice: 测试分区 2016-07-19
+    *
     * @author tzq
     * @param sqlContext
     * @param end_dt
@@ -1865,7 +1867,8 @@ object SparkUPH2H {
       * JOB_HV_91  2017-3-22
       * hbkdb.mtdtrs_dtl_ach_bat_file --> upw_hive.hive_mtdtrs_dtl_ach_bat_file
       * notice: 测试分区(源头分区hp_settle_dt=20151127  24 条数据)
-      * @author tzq
+    *
+    * @author tzq
       * @param sqlContext
       * @param end_dt
       * @param start_dt
@@ -1954,6 +1957,7 @@ object SparkUPH2H {
     * JOB_HV_92  2017-3-23
     * hbkdb.mtdtrs_dtl_ach_bat_file_dtl --> upw_hive.hive_mtdtrs_dtl_ach_bat_file_dtl
     * notice: 测试分区(源头分区hp_settle_dt=20151127  27 条数据)
+    *
     * @author tzq
     * @param sqlContext
     * @param end_dt
@@ -2071,6 +2075,7 @@ object SparkUPH2H {
     * JOB_HV_93  2017-3-27
     * hbkdb.mtdtrs_dtl_ach_bat_file_dtl --> upw_hive.hive_rtdtrs_dtl_achis_bill
     * notice: 测试分区(源头分区hp_settle_dt=20150601 无数据) 待测试
+    *
     * @author tzq
     * @param sqlContext
     * @param end_dt
@@ -2196,6 +2201,339 @@ object SparkUPH2H {
           println(s"#### JOB_HV_93 自动分区插入大数据平台，完成时间为:" + DateUtils.getCurrentSystemTime())
           part_dt = DateUtils.addOneDay(part_dt)
         }
+      }
+    }
+  }
+
+
+  /**
+    * hive-job-94 2017-03-30
+    * rtdtrs_dtl_achis_note -> hive_rtdtrs_dtl_achis_note
+    *
+    * @author Xue
+    * @param sqlContext
+    */
+  def JOB_HV_94(implicit sqlContext: HiveContext,start_dt:String,end_dt: String, interval: Int) {
+    println("#### JOB_HV_94(rtdtrs_dtl_achis_note -> hive_rtdtrs_dtl_achis_note)")
+
+    var today_dt = start_dt
+    if (interval >= 0) {
+      println("#### JOB_HV_94 增量抽取的时间范围为: "+start_dt+ "-"+ end_dt)
+      DateUtils.timeCost("JOB_HV_94") {
+        val df = sqlContext.read.parquet(s"$up_namenode/$up_hivedataroot/incident/trans/hive_rtdtrs_dtl_achis_note/part_settle_dt=$today_dt")
+        println(s"#### JOB_HV_94 read $up_namenode/ 数据完成时间为:" + DateUtils.getCurrentSystemTime())
+
+        df.registerTempTable("spark_hive_rtdtrs_dtl_achis_note")
+        println("#### JOB_HV_94 registerTempTable--spark_hive_rtdtrs_dtl_achis_note 完成的系统时间为:" + DateUtils.getCurrentSystemTime())
+
+        if (!Option(df).isEmpty) {
+          sqlContext.sql(s"use $hive_dbname")
+          sqlContext.sql(
+            s"""
+               |insert overwrite table hive_rtdtrs_dtl_achis_note partition (part_settle_dt)
+               |select
+               |settle_dt      ,
+               |trans_no       ,
+               |cli_tp         ,
+               |cli_ver        ,
+               |os_type        ,
+               |os_ver         ,
+               |phone_res      ,
+               |locale         ,
+               |imei           ,
+               |uid            ,
+               |up_vid         ,
+               |up_uid         ,
+               |sid            ,
+               |ip             ,
+               |gw_ip          ,
+               |mac            ,
+               |rec_crt_ts     ,
+               |rec_upd_ts     ,
+               |$today_dt
+               |from
+               |spark_hive_rtdtrs_dtl_achis_note
+           """.stripMargin)
+          println("#### JOB_HV_94 分区数据插入完成的时间为：" + DateUtils.getCurrentSystemTime())
+        } else {
+          println(s"#### JOB_HV_94 read $up_namenode/ 无数据！")
+        }
+        today_dt = DateUtils.addOneDay(today_dt)
+      }
+    }
+  }
+
+  /**
+    * hive-job-95 2017-03-30
+    * rtdtrs_dtl_achis_order -> hive_rtdtrs_dtl_achis_order
+    *
+    * @author Xue
+    * @param sqlContext
+    */
+  def JOB_HV_95(implicit sqlContext: HiveContext,start_dt:String,end_dt: String, interval: Int) {
+    println("#### JOB_HV_95(rtdtrs_dtl_achis_order -> hive_rtdtrs_dtl_achis_order)")
+
+    var today_dt = start_dt
+    if (interval >= 0) {
+      println("#### JOB_HV_95 增量抽取的时间范围为: "+start_dt+ "-"+ end_dt)
+      DateUtils.timeCost("JOB_HV_95") {
+        val df = sqlContext.read.parquet(s"$up_namenode/$up_hivedataroot/incident/trans/hive_rtdtrs_dtl_achis_order/part_settle_dt=$today_dt")
+        println(s"#### JOB_HV_95 read $up_namenode/ 数据完成时间为:" + DateUtils.getCurrentSystemTime())
+
+        df.registerTempTable("spark_hive_rtdtrs_dtl_achis_order")
+        println("#### JOB_HV_95 registerTempTable--spark_hive_rtdtrs_dtl_achis_order 完成的系统时间为:" + DateUtils.getCurrentSystemTime())
+
+        if (!Option(df).isEmpty) {
+          sqlContext.sql(s"use $hive_dbname")
+          sqlContext.sql(
+            s"""
+               |insert overwrite table hive_rtdtrs_dtl_achis_order partition (part_settle_dt)
+               |select
+               |settle_dt               ,
+               |trans_no                ,
+               |trans_tp                ,
+               |trans_class             ,
+               |trans_source            ,
+               |buss_chnl               ,
+               |pri_acct_no             ,
+               |fwd_ins_id_cd           ,
+               |acq_ins_id_cd           ,
+               |iss_ins_id_cd           ,
+               |iss_head                ,
+               |iss_head_nm             ,
+               |mchnt_cd                ,
+               |mchnt_nm                ,
+               |mchnt_country           ,
+               |mchnt_url               ,
+               |mchnt_front_url         ,
+               |mchnt_back_url          ,
+               |mchnt_delv_tag          ,
+               |mchnt_tp                ,
+               |mchnt_risk_tag          ,
+               |mchnt_order_id          ,
+               |sys_tra_no              ,
+               |sys_tm                  ,
+               |trans_tm                ,
+               |trans_dt                ,
+               |trans_at                ,
+               |trans_curr_cd           ,
+               |trans_st                ,
+               |auth_id                 ,
+               |settle_at               ,
+               |settle_curr_cd          ,
+               |settle_conv_rt          ,
+               |conv_dt                 ,
+               |cert_tp                 ,
+               |cert_id                 ,
+               |name                    ,
+               |phone_no                ,
+               |org_trans_idx           ,
+               |org_sys_tra_no          ,
+               |org_sys_tm              ,
+               |proc_st                 ,
+               |resp_cd                 ,
+               |proc_sys                ,
+               |usr_id                  ,
+               |mchnt_id                ,
+               |pay_method              ,
+               |trans_ip                ,
+               |refund_at               ,
+               |card_attr               ,
+               |kz_curr_cd              ,
+               |kz_conv_rt              ,
+               |kz_at                   ,
+               |sub_mchnt_cd            ,
+               |sub_mchnt_nm            ,
+               |points_at               ,
+               |verify_mode             ,
+               |is_oversea              ,
+               |pri_data                ,
+               |access_tp               ,
+               |rcv_ins_id_cd           ,
+               |zero_cost               ,
+               |advance_payment         ,
+               |pos_cond_cd             ,
+               |reserve_fld             ,
+               |reserve1                ,
+               |reserve2                ,
+               |reserve3                ,
+               |reserve4                ,
+               |reserve5                ,
+               |reserve6                ,
+               |comments                ,
+               |rec_st                  ,
+               |rec_crt_ts              ,
+               |rec_upd_ts              ,
+               |trans_chnl              ,
+               |source_idt              ,
+               |out_trans_tp            ,
+               |md_id                   ,
+               |ud_id                   ,
+               |syssp_id                ,
+               |src_sys_flag            ,
+               |auth_at                 ,
+               |iss_ins_tp              ,
+               |$today_dt
+               |from
+               |spark_hive_rtdtrs_dtl_achis_order
+           """.stripMargin)
+          println("#### JOB_HV_95 分区数据插入完成的时间为：" + DateUtils.getCurrentSystemTime())
+        } else {
+          println(s"#### JOB_HV_95 read $up_namenode/ 无数据！")
+        }
+        today_dt = DateUtils.addOneDay(today_dt)
+      }
+    }
+  }
+
+  /**
+    * hive-job-96 2017-03-30
+    * rtdtrs_dtl_achis_order_error -> hive_rtdtrs_dtl_achis_order_error
+    *
+    * @author Xue
+    * @param sqlContext
+    */
+  def JOB_HV_96(implicit sqlContext: HiveContext,start_dt:String,end_dt: String, interval: Int) {
+    println("#### JOB_HV_96(rtdtrs_dtl_achis_order_error -> hive_rtdtrs_dtl_achis_order_error)")
+
+    var today_dt = start_dt
+    if (interval >= 0) {
+      println("#### JOB_HV_96 增量抽取的时间范围为: "+start_dt+ "-"+ end_dt)
+      DateUtils.timeCost("JOB_HV_96") {
+        val df = sqlContext.read.parquet(s"$up_namenode/$up_hivedataroot/incident/trans/hive_rtdtrs_dtl_achis_order_error/part_settle_dt=$today_dt")
+        println(s"#### JOB_HV_96 read $up_namenode/ 数据完成时间为:" + DateUtils.getCurrentSystemTime())
+
+        df.registerTempTable("spark_hive_rtdtrs_dtl_achis_order_error")
+        println("#### JOB_HV_96 registerTempTable--spark_hive_rtdtrs_dtl_achis_order_error 完成的系统时间为:" + DateUtils.getCurrentSystemTime())
+
+        if (!Option(df).isEmpty) {
+          sqlContext.sql(s"use $hive_dbname")
+          sqlContext.sql(
+            s"""
+               |insert overwrite table hive_rtdtrs_dtl_achis_order_error partition (part_settle_dt)
+               |select
+               |settle_dt            ,
+               |trans_idx            ,
+               |pri_acct_no          ,
+               |trans_at             ,
+               |trans_tm             ,
+               |trans_tp             ,
+               |out_trans_tp         ,
+               |acq_ins_id_cd        ,
+               |trans_curr_cd        ,
+               |mchnt_cd             ,
+               |mchnt_order_id       ,
+               |rec_crt_ts           ,
+               |trans_source         ,
+               |buss_chnl            ,
+               |iss_ins_id_cd        ,
+               |error_tp             ,
+               |error_msg            ,
+               |error_cd             ,
+               |advice_msg           ,
+               |resp_cd              ,
+               |sub_trans_tp         ,
+               |$today_dt
+               |from
+               |spark_hive_rtdtrs_dtl_achis_order_error
+           """.stripMargin)
+          println("#### JOB_HV_96 分区数据插入完成的时间为：" + DateUtils.getCurrentSystemTime())
+        } else {
+          println(s"#### JOB_HV_96 read $up_namenode/ 无数据！")
+        }
+        today_dt = DateUtils.addOneDay(today_dt)
+      }
+    }
+  }
+
+  /**
+    * hive-job-97 2017-03-30
+    * rtdtrs_dtl_sor_cmsp -> hive_rtdtrs_dtl_sor_cmsp
+    *
+    * @author Xue
+    * @param sqlContext
+    */
+  def JOB_HV_97(implicit sqlContext: HiveContext,start_dt:String,end_dt: String, interval: Int) {
+    println("#### JOB_HV_97(rtdtrs_dtl_sor_cmsp -> hive_rtdtrs_dtl_sor_cmsp)")
+
+    var today_dt = start_dt
+    if (interval >= 0) {
+      println("#### JOB_HV_97 增量抽取的时间范围为: "+start_dt+ "-"+ end_dt)
+      DateUtils.timeCost("JOB_HV_97") {
+        val df = sqlContext.read.parquet(s"$up_namenode/$up_hivedataroot/incident/trans/hive_rtdtrs_dtl_sor_cmsp/part_settle_dt=$today_dt")
+        println(s"#### JOB_HV_97 read $up_namenode/ 数据完成时间为:" + DateUtils.getCurrentSystemTime())
+
+        df.registerTempTable("spark_hive_rtdtrs_dtl_sor_cmsp")
+        println("#### JOB_HV_97 registerTempTable--spark_hive_rtdtrs_dtl_sor_cmsp 完成的系统时间为:" + DateUtils.getCurrentSystemTime())
+
+        if (!Option(df).isEmpty) {
+          sqlContext.sql(s"use $hive_dbname")
+          sqlContext.sql(
+            s"""
+               |insert overwrite table hive_rtdtrs_dtl_sor_cmsp partition (part_settle_dt)
+               |select
+               |trans_seq                         ,
+               |trans_submit_tm                   ,
+               |new_trans_submit_tm               ,
+               |trans_tp_cd                       ,
+               |trans_rcv_tm                      ,
+               |trans_fin_tm                      ,
+               |to_tm                             ,
+               |to_moni_in                        ,
+               |moni_dist                         ,
+               |ab_in                             ,
+               |trans_st_cd                       ,
+               |rvsl_st_cd                        ,
+               |source_line_svc                   ,
+               |source_msg_cd                     ,
+               |term_csn                          ,
+               |trans_tp                          ,
+               |mchnt_cd                          ,
+               |mchnt_nm                          ,
+               |order_seq                         ,
+               |trans_at                          ,
+               |trans_curr_cd                     ,
+               |acctnum1                          ,
+               |acctnum2                          ,
+               |rspcode                           ,
+               |spcode                            ,
+               |terminal_id                       ,
+               |settle_dt                         ,
+               |syssp_id                          ,
+               |pos_cd                            ,
+               |card_no                           ,
+               |app_cd                            ,
+               |trans_type_id                     ,
+               |cmsp_card_type_id                 ,
+               |pboc_card_type_id                 ,
+               |md_ins_id_cd                      ,
+               |issuer_ins_id_cd                  ,
+               |trans_cd                          ,
+               |resp_cd1                          ,
+               |resp_cd4                          ,
+               |card_attr_id                      ,
+               |card_brand_id                     ,
+               |acpt_ins_id_cd                    ,
+               |fwd_ins_id_cd                     ,
+               |rcv_ins_id_cd                     ,
+               |iss_ins_id_cd                     ,
+               |settle_flag                       ,
+               |ic_flds_cvert                     ,
+               |src_sys                           ,
+               |trans_seq_conv                    ,
+               |new_trans_submit_tm_conv          ,
+               |acpt_ins_id_cd_conv               ,
+               |fwd_ins_id_cd_conv                ,
+               |proc_sys_flag                     ,
+               |$today_dt
+               |from
+               |spark_hive_rtdtrs_dtl_sor_cmsp
+           """.stripMargin)
+          println("#### JOB_HV_97 分区数据插入完成的时间为：" + DateUtils.getCurrentSystemTime())
+        } else {
+          println(s"#### JOB_HV_97 read $up_namenode/ 无数据！")
+        }
+        today_dt = DateUtils.addOneDay(today_dt)
       }
     }
   }
