@@ -220,222 +220,26 @@ object SparkDB22Hive {
 
   /**
     * JobName: JOB_HV_3
-    * Feature: db2.tbl_chacc_cdhd_pri_acct_inf -> hive.hive_pri_acct_inf
+    * Feature: db2.tbl_chacc_cdhd_pri_acct_inf -> hive.hive_cdhd_pri_acct_inf
     *
     * @author YangXue
-    * @time 2016-08-19
+    * @time 2017-03-30
     * @param sqlContext
     */
   def JOB_HV_3(implicit sqlContext: HiveContext) = {
-    println("#### JOB_HV_3(tbl_chacc_cdhd_pri_acct_inf -> hive_pri_acct_inf)")
+    println("#### JOB_HV_3(tbl_chacc_cdhd_pri_acct_inf -> hive_cdhd_pri_acct_inf)")
     println("#### JOB_HV_3 为全量抽取的表")
 
     DateUtils.timeCost("JOB_HV_3"){
       val df1 = sqlContext.readDB2_ACC(s"$schemas_accdb.TBL_CHACC_CDHD_PRI_ACCT_INF")
       println("#### JOB_HV_3 readDB2_ACC 的系统时间为:"+DateUtils.getCurrentSystemTime())
 
-      df1.registerTempTable("spark_db2_pri_acct_inf")
+      val results=df1.registerTempTable("spark_db2_cdhd_pri_acct_inf")
       println("#### JOB_HV_3 注册临时表的系统时间为:"+DateUtils.getCurrentSystemTime())
 
-      sqlContext.sql(s"use $hive_dbname")
-      val results = sqlContext.sql(
-        s"""
-           |select
-           |trim(t1.cdhd_usr_id) as cdhd_usr_id,
-           |case
-           |	when
-           |		substr(t1.reg_dt,1,4) between '0001' and '9999' and substr(t1.reg_dt,5,2) between '01' and '12' and
-           |		substr(t1.reg_dt,7,2) between '01' and substr(last_day(concat_ws('-',substr(t1.reg_dt,1,4),substr(t1.reg_dt,5,2),substr(t1.reg_dt,7,2))),9,2)
-           |	then concat_ws('-',substr(t1.reg_dt,1,4),substr(t1.reg_dt,5,2),substr(t1.reg_dt,7,2))
-           |	else null
-           |end as reg_dt,
-           |t1.usr_nm as usr_nm,
-           |trim(t1.mobile) as mobile,
-           |trim(t1.mobile_vfy_st) as mobile_vfy_st,
-           |t1.email_addr as email_addr,
-           |trim(t1.email_vfy_st) as email_vfy_st,
-           |trim(t1.inf_source) as inf_source,
-           |t1.real_nm as real_nm,
-           |trim(t1.real_nm_st) as real_nm_st,
-           |t1.nick_nm as nick_nm,
-           |trim(t1.certif_tp) as certif_tp,
-           |trim(t1.certif_id) as certif_id,
-           |trim(t1.certif_vfy_st) as certif_vfy_st,
-           |case
-           |	when
-           |		substr(t1.birth_dt,1,4) between '0001' and '9999' and substr(t1.birth_dt,5,2) between '01' and '12' and
-           |		substr(t1.birth_dt,7,2) between '01' and substr(last_day(concat_ws('-',substr(t1.birth_dt,1,4),substr(t1.birth_dt,5,2),substr(t1.birth_dt,7,2))),9,2)
-           |	then concat_ws('-',substr(t1.birth_dt,1,4),substr(t1.birth_dt,5,2),substr(t1.birth_dt,7,2))
-           |	else null
-           |end as birth_dt,
-           |trim(t1.sex) as sex,
-           |trim(t1.age) as age,
-           |trim(t1.marital_st) as marital_st,
-           |trim(t1.home_mem_num) as home_mem_num,
-           |trim(t1.cntry_cd) as cntry_cd,
-           |trim(t1.gb_region_cd) as gb_region_cd,
-           |t1.comm_addr as comm_addr,
-           |trim(t1.zip_cd) as zip_cd,
-           |trim(t1.nationality) as nationality,
-           |trim(t1.ed_lvl) as ed_lvl,
-           |t1.msn_no as msn_no,
-           |trim(t1.qq_no) as qq_no,
-           |t1.person_homepage as person_homepage,
-           |trim(t1.industry_id) as industry_id,
-           |trim(t1.annual_income_lvl) as annual_income_lvl,
-           |trim(t1.hobby) as hobby,
-           |trim(t1.brand_prefer) as brand_prefer,
-           |trim(t1.buss_dist_prefer) as buss_dist_prefer,
-           |trim(t1.head_pic_file_path) as head_pic_file_path,
-           |trim(t1.pwd_cue_ques) as pwd_cue_ques,
-           |trim(t1.pwd_cue_answ) as pwd_cue_answ,
-           |trim(t1.usr_eval_lvl) as usr_eval_lvl,
-           |trim(t1.usr_class_lvl)as usr_class_lvl,
-           |trim(t1.usr_st) as usr_st,
-           |t1.open_func as open_func,
-           |t1.rec_crt_ts as rec_crt_ts,
-           |t1.rec_upd_ts as rec_upd_ts,
-           |trim(t1.mobile_new) as mobile_new,
-           |t1.email_addr_new as email_addr_new,
-           |t1.activate_ts as activate_ts,
-           |t1.activate_pwd as activate_pwd,
-           |trim(t1.region_cd) as region_cd,
-           |t1.ver_no as ver_no,
-           |trim(t1.func_bmp) as func_bmp,
-           |t1.point_pre_open_ts as point_pre_open_ts,
-           |t1.refer_usr_id as refer_usr_id,
-           |t1.vendor_fk as vendor_fk,
-           |t1.phone as phone,
-           |t1.vip_svc as vip_svc,
-           |t1.user_lvl_id as user_lvl_id,
-           |t1.auto_adjust_lvl_in as auto_adjust_lvl_in,
-           |case
-           |	when
-           |		substr(t1.lvl_begin_dt,1,4) between '0001' and '9999' and substr(t1.lvl_begin_dt,5,2) between '01' and '12' and
-           |		substr(t1.lvl_begin_dt,7,2) between '01' and substr(last_day(concat_ws('-',substr(t1.lvl_begin_dt,1,4),substr(t1.lvl_begin_dt,5,2),substr(t1.lvl_begin_dt,7,2))),9,2)
-           |	then concat_ws('-',substr(t1.lvl_begin_dt,1,4),substr(t1.lvl_begin_dt,5,2),substr(t1.lvl_begin_dt,7,2))
-           |	else null
-           |end  as lvl_begin_dt,
-           |t1.customer_title as customer_title,
-           |t1.company as company,
-           |t1.dept as dept,
-           |t1.duty as duty,
-           |t1.resv_phone as resv_phone,
-           |t1.join_activity_list as join_activity_list,
-           |t1.remark as remark,
-           |t1.note as note,
-           |case
-           |	when
-           |		substr(t1.usr_lvl_expire_dt,1,4) between '0001' and '9999' and substr(t1.usr_lvl_expire_dt,5,2) between '01' and '12' and
-           |		substr(t1.usr_lvl_expire_dt,7,2) between '01' and substr(last_day(concat_ws('-',substr(t1.usr_lvl_expire_dt,1,4),substr(t1.usr_lvl_expire_dt,5,2),substr(t1.usr_lvl_expire_dt,7,2))),9,2)
-           |	then concat_ws('-',substr(t1.usr_lvl_expire_dt,1,4),substr(t1.usr_lvl_expire_dt,5,2),substr(t1.usr_lvl_expire_dt,7,2))
-           |	else null
-           |end as usr_lvl_expire_dt,
-           |trim(t1.reg_card_no) as reg_card_no,
-           |trim(t1.reg_tm) as reg_tm,
-           |t1.activity_source as activity_source,
-           |trim(t1.chsp_svc_in) as chsp_svc_in,
-           |trim(t1.accept_sms_in) as accept_sms_in,
-           |trim(t1.prov_division_cd) as prov_division_cd,
-           |trim(t1.city_division_cd) as city_division_cd,
-           |trim(t1.vid_last_login) as vid_last_login,
-           |trim(t1.pay_pwd) as pay_pwd,
-           |trim(t1.pwd_set_st) as pwd_set_st,
-           |trim(t1.realnm_in) as realnm_in,
-           |case
-           |	when length(t1.certif_id)=15 then concat('19',substr(t1.certif_id,7,6))
-           |	when length(t1.certif_id)=18 and substr(t1.certif_id,7,2) in ('19','20') then substr(t1.certif_id,7,8)
-           |	else null
-           |end as birthday,
-           |case
-           |when length(trim(t1.certif_id)) in (15,18) then t2.name
-           |else null
-           |end as province_card,
-           |case
-           |when length(trim(t1.certif_id)) in (15,18) then t3.name
-           |else null
-           |end as city_card,
-           |case
-           |	when length(trim(t1.mobile)) >= 11
-           |	then t4.name
-           |	else null
-           |end as mobile_provider,
-           |case
-           |	when length(t1.certif_id)=15
-           |	then
-           |		case
-           |			when int(substr(t1.certif_id,15,1))%2 = 0 then '女'
-           |			when int(substr(t1.certif_id,15,1))%2 = 1 then '男'
-           |			else null
-           |		end
-           |	when length(t1.certif_id)=18
-           |	then
-           |		case
-           |			when int(substr(t1.certif_id,17,1))%2 = 0 then '女'
-           |			when int(substr(t1.certif_id,15,1))%2 = 1 then '男'
-           |			else null
-           |		end
-           |	else null
-           |end as sex_card,
-           |case
-           |	when trim(t1.city_division_cd)='210200' then '大连'
-           |	when trim(t1.city_division_cd)='330200' then '宁波'
-           |	when trim(t1.city_division_cd)='350200' then '厦门'
-           |	when trim(t1.city_division_cd)='370200' then '青岛'
-           |	when trim(t1.city_division_cd)='440300' then '深圳'
-           |	when trim(t1.prov_division_cd) like '11%' then '北京'
-           |	when trim(t1.prov_division_cd) like '12%' then '天津'
-           |	when trim(t1.prov_division_cd) like '13%' then '河北'
-           |	when trim(t1.prov_division_cd) like '14%' then '山西'
-           |	when trim(t1.prov_division_cd) like '15%' then '内蒙古'
-           |	when trim(t1.prov_division_cd) like '21%' then '辽宁'
-           |	when trim(t1.prov_division_cd) like '22%' then '吉林'
-           |	when trim(t1.prov_division_cd) like '23%' then '黑龙江'
-           |	when trim(t1.prov_division_cd) like '31%' then '上海'
-           |	when trim(t1.prov_division_cd) like '32%' then '江苏'
-           |	when trim(t1.prov_division_cd) like '33%' then '浙江'
-           |	when trim(t1.prov_division_cd) like '34%' then '安徽'
-           |	when trim(t1.prov_division_cd) like '35%' then '福建'
-           |	when trim(t1.prov_division_cd) like '36%' then '江西'
-           |	when trim(t1.prov_division_cd) like '37%' then '山东'
-           |	when trim(t1.prov_division_cd) like '41%' then '河南'
-           |	when trim(t1.prov_division_cd) like '42%' then '湖北'
-           |	when trim(t1.prov_division_cd) like '43%' then '湖南'
-           |	when trim(t1.prov_division_cd) like '44%' then '广东'
-           |	when trim(t1.prov_division_cd) like '45%' then '广西'
-           |	when trim(t1.prov_division_cd) like '46%' then '海南'
-           |	when trim(t1.prov_division_cd) like '50%' then '重庆'
-           |	when trim(t1.prov_division_cd) like '51%' then '四川'
-           |	when trim(t1.prov_division_cd) like '52%' then '贵州'
-           |	when trim(t1.prov_division_cd) like '53%' then '云南'
-           |	when trim(t1.prov_division_cd) like '54%' then '西藏'
-           |	when trim(t1.prov_division_cd) like '61%' then '陕西'
-           |	when trim(t1.prov_division_cd) like '62%' then '甘肃'
-           |	when trim(t1.prov_division_cd) like '63%' then '青海'
-           |	when trim(t1.prov_division_cd) like '64%' then '宁夏'
-           |	when trim(t1.prov_division_cd) like '65%' then '新疆'
-           |	else '总公司'
-           |end as phone_location,
-           |t5.relate_id as relate_id
-           |from
-           |spark_db2_pri_acct_inf t1
-           |left join
-           |hive_province_card t2 on trim(substr(t1.certif_id,1,2)) = trim(t2.id)
-           |left join
-           |hive_city_card t3 on trim(substr(t1.certif_id,1,4)) = trim(t3.id)
-           |left join
-           |hive_ct t4 on trim(substr(substr(t1.mobile,-11,11),1,4)) = trim(t4.id)
-           |left join
-           |hive_ucbiz_cdhd_bas_inf t5 on trim(t1.cdhd_usr_id) = trim(t5.usr_id)
-         """.stripMargin)
-      println("#### JOB_HV_3 spark sql 逻辑完成的系统时间为:"+DateUtils.getCurrentSystemTime())
-      println("#### JOB_HV_3------>results:"+results.count())
-
-      results.registerTempTable("spark_pri_acct_inf")
-      println("#### JOB_HV_3 registerTempTable--spark_pri_acct_inf 完成的系统时间为:"+DateUtils.getCurrentSystemTime())
-
       if(!Option(results).isEmpty){
-        sqlContext.sql("insert overwrite table hive_pri_acct_inf select * from spark_pri_acct_inf")
+        sqlContext.sql(s"use $hive_dbname")
+        sqlContext.sql("insert overwrite table hive_cdhd_pri_acct_inf select * from spark_db2_cdhd_pri_acct_inf")
         println("#### JOB_HV_3 全量数据插入完成的时间为："+DateUtils.getCurrentSystemTime())
       }else{
         println("#### JOB_HV_3 spark sql 逻辑处理后无数据！")
