@@ -39,6 +39,7 @@ object Create_Hive_Tables {
 //    hive_ins_inf
 //    hive_mchnt_para
 //    hive_passive_code_pay_trans
+    hive_cdhd_pri_acct_inf
 //    hive_pri_acct_inf
 //    hive_switch_point_trans
 //    hive_ucbiz_cdhd_bas_inf
@@ -1157,6 +1158,100 @@ object Create_Hive_Tables {
     println("=======Create hive_passive_code_pay_trans successfully ! =======")
 
   }
+
+  def hive_cdhd_pri_acct_inf(implicit sqlContext: HiveContext) = {
+    println("=======Create hive_cdhd_pri_acct_inf=======")
+    sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql(
+      s"""
+         |create table if not exists $hive_dbname.hive_cdhd_pri_acct_inf(
+         |cdhd_usr_id               string     ,
+         |reg_dt                    timestamp  ,
+         |usr_nm                    string     ,
+         |mobile                    string     ,
+         |mobile_vfy_st             string     ,
+         |email_addr                string     ,
+         |email_vfy_st              string     ,
+         |inf_source                string     ,
+         |real_nm                   string     ,
+         |real_nm_st                string     ,
+         |nick_nm                   string     ,
+         |certif_tp                 string     ,
+         |certif_id                 string     ,
+         |certif_vfy_st             string     ,
+         |birth_dt                  timestamp  ,
+         |sex                       string     ,
+         |age                       string     ,
+         |marital_st                string     ,
+         |home_mem_num              string     ,
+         |cntry_cd                  string     ,
+         |gb_region_cd              string     ,
+         |comm_addr                 string     ,
+         |zip_cd                    string     ,
+         |nationality               string     ,
+         |ed_lvl                    string     ,
+         |msn_no                    string     ,
+         |qq_no                     string     ,
+         |person_homepage           string     ,
+         |industry_id               string     ,
+         |annual_income_lvl         string     ,
+         |hobby                     string     ,
+         |brand_prefer              string     ,
+         |buss_dist_prefer          string     ,
+         |head_pic_file_path        string     ,
+         |pwd_cue_ques              string     ,
+         |pwd_cue_answ              string     ,
+         |usr_eval_lvl              string     ,
+         |usr_class_lvl             string     ,
+         |usr_st                    string     ,
+         |open_func                 string     ,
+         |rec_crt_ts                timestamp  ,
+         |rec_upd_ts                timestamp  ,
+         |mobile_new                string     ,
+         |email_addr_new            string     ,
+         |activate_ts               timestamp  ,
+         |activate_pwd              string     ,
+         |region_cd                 string     ,
+         |ver_no                    int        ,
+         |func_bmp                  string     ,
+         |point_pre_open_ts         timestamp  ,
+         |refer_usr_id              string     ,
+         |vendor_fk                 bigint     ,
+         |phone                     string     ,
+         |vip_svc                   string     ,
+         |user_lvl_id               int        ,
+         |auto_adjust_lvl_in        int        ,
+         |lvl_begin_dt              timestamp  ,
+         |customer_title            string     ,
+         |company                   string     ,
+         |dept                      string     ,
+         |duty                      string     ,
+         |resv_phone                string     ,
+         |join_activity_list        string     ,
+         |remark                    string     ,
+         |note                      string     ,
+         |usr_lvl_expire_dt         timestamp  ,
+         |reg_card_no               string     ,
+         |reg_tm                    string     ,
+         |activity_source           string     ,
+         |chsp_svc_in               string     ,
+         |accept_sms_in             string     ,
+         |prov_division_cd          string     ,
+         |city_division_cd          string     ,
+         |vid_last_login            string     ,
+         |pay_pwd                   string     ,
+         |pwd_set_st                string     ,
+         |realnm_in                 string
+         |)
+         |row format delimited fields terminated by '!|'
+         |stored as parquet
+         |location '/user/ch_hypas/upw_hive/participant/user/hive_cdhd_pri_acct_inf'
+         | """.stripMargin)
+
+    println("=======Create hive_cdhd_pri_acct_inf successfully ! =======")
+
+  }
+
 
   def hive_pri_acct_inf(implicit sqlContext: HiveContext) = {
     println("=======Create hive_pri_acct_inf=======")
