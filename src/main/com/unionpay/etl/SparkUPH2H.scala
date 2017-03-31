@@ -103,6 +103,10 @@ object SparkUPH2H {
       case "JOB_HV_91"  =>  JOB_HV_91(sqlContext,start_dt,end_dt,interval) //CODE BY TZQ
       case "JOB_HV_92"  =>  JOB_HV_92(sqlContext,start_dt,end_dt,interval) //CODE BY TZQ
       case "JOB_HV_93"  =>  JOB_HV_93(sqlContext,start_dt,end_dt,interval) //CODE BY TZQ
+      case "JOB_HV_94"  =>  JOB_HV_94(sqlContext,start_dt,end_dt,interval) //CODE BY XTP
+      case "JOB_HV_95"  =>  JOB_HV_95(sqlContext,start_dt,end_dt,interval) //CODE BY XTP
+      case "JOB_HV_96"  =>  JOB_HV_96(sqlContext,start_dt,end_dt,interval) //CODE BY XTP
+      case "JOB_HV_97"  =>  JOB_HV_97(sqlContext,start_dt,end_dt,interval) //CODE BY XTP
 
       case _ => println("#### No Case Job,Please Input JobName")
 
