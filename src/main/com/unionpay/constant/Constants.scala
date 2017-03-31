@@ -1,7 +1,7 @@
 package com.unionpay.constant
 
 /**
-  * 相关常量定义
+  * 常量定义
   * Created by tzq on 2016/10/10.
   */
 object Constants {
@@ -25,20 +25,33 @@ object Constants {
   val DB2_USER_SWT="db2.user.swt"
   val DB2_USER_ACC="db2.user.acc"
   val DB2_USER_MGM="db2.user.mgm"
+  val DB2_USER_UPOUP="db2.user.upoup"
+  val DB2_USER_MNSVC="db2.user.mnsvc"
+  val DB2_USER_WLONL="db2.user.wlonl"
+
 
   val DB2_PASSWORD_SWT ="db2.password.swt"
   val DB2_PASSWORD_ACC ="db2.password.acc"
   val DB2_PASSWORD_MGM ="db2.password.mgm"
+  val DB2_PASSWORD_UPOUP="db2.password.upoup"
+  val DB2_PASSWORD_MNSVC="db2.password.mnsvc"
+  val DB2_PASSWORD_WLONL="db2.password.wlonl"
 
   val DB2_URL_SWTDB="db2.url_swtdb"
   val DB2_URL_ACCDB="db2.url_accdb"
   val DB2_URL_MGMDB="db2.url_mgmdb"
+  val DB2_URL_UPOUPDB="db2.url_upoupdb"
+  val DB2_URL_MNSVCDB="db2.url_mnsvcdb"
+  val DB2_URL_WLONLDB="db2.url_wlonldb"
 
   val DB2_DRIVER="db2.driver"
 
   val SCHEMAS_SWTDB="db2.swtdb_schemas_name"
   val SCHEMAS_ACCDB="db2.accdb_schemas_name"
   val SCHEMAS_MGMDB="db2.mgmdb_schemas_name"
+  val SCHEMAS_UPOUPDB="db2.upoupdb_schemas_name"
+  val SCHEMAS_MNSVCDB="db2.mnsvcdb_schemas_name"
+  val SCHEMAS_WLONLDB="db2.wlonldb_schemas_name"
 
   //Hive Database_name
   val HIVE_DBNAME = "hive.dbname"
@@ -55,23 +68,5 @@ object Constants {
   //Config UP Hive repository
   val UP_NAMENODE ="up.namenode"
   val UP_HIVEDATAROOT ="up.hivedataroot"
-
-  val DB2_USER_MAK="db2.user.mak"
-  val DB2_PASSWORD_MAk="db2.password.mak"
-  val DB2_URL_MAKDB="db2.url_makdb"
-  val SCHEMAS_MAKDB="db2.makdb_schemas_name"
-
-  val DB2_USER_ORDER="db2.user.order"
-  val DB2_USER_MBG="db2.user.mbg"
-
-  val DB2_PASSWORD_ORDER="db2.password.order"
-  val DB2_PASSWORD_MBG="db2.password.mbg"
-
-  val DB2_URL_ORDERDB="db2.url_orderdb"
-  val DB2_URL_MBGDB="db2.url_mbgdb"
-
-  val SCHEMAS_ORDERDB="db2.orderdb_schemas_name"
-  val SCHEMAS_MBGDB="db2.mbgdb_schemas_name"
-
 
 }

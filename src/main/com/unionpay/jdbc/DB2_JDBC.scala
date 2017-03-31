@@ -1,38 +1,31 @@
 package com.unionpay.jdbc
 
-import java.sql.DriverManager
 import java.util.Properties
-import java.sql.{Connection, DriverManager}
-
 import com.unionpay.conf.ConfigurationManager
 import com.unionpay.constant.Constants
-import org.apache.spark.sql.{DataFrame, SQLContext}
+import org.apache.spark.sql.{DataFrame,SQLContext}
 
 /**
   * DB2 CONNECTION INFO
   * Created by tzq on 2016/10/10.
   */
 object DB2_JDBC {
-  //账户库
-  private lazy val url_accdb: String =ConfigurationManager.getProperty(Constants.DB2_URL_ACCDB)
   private lazy val user_acc =ConfigurationManager.getProperty(Constants.DB2_USER_ACC)
   private lazy val password_acc =ConfigurationManager.getProperty(Constants.DB2_PASSWORD_ACC)
-  //管理库
-  private lazy val url_mgmdb: String =ConfigurationManager.getProperty(Constants.DB2_URL_MGMDB)
   private lazy val user_mgm =ConfigurationManager.getProperty(Constants.DB2_USER_MGM)
   private lazy val password_mgm =ConfigurationManager.getProperty(Constants.DB2_PASSWORD_MGM)
-  //营销库
-  private lazy val url_makdb: String =ConfigurationManager.getProperty(Constants.DB2_URL_MAKDB)
-  private lazy val user_mak=ConfigurationManager.getProperty(Constants.DB2_USER_MAK)
-  private lazy val password_mak=ConfigurationManager.getProperty(Constants.DB2_PASSWORD_MAk)
-  //订单库
-  private lazy val user_order=ConfigurationManager.getProperty(Constants.DB2_USER_ORDER)
-  private lazy val url_orderdb:String =ConfigurationManager.getProperty(Constants.DB2_URL_ORDERDB)
-  private lazy val  password_order=ConfigurationManager.getProperty(Constants.DB2_PASSWORD_ORDER)
-  //手机后台库
-  private lazy val url_mbgdb:String =ConfigurationManager.getProperty(Constants.DB2_URL_MBGDB)
-  private lazy  val user_mbg=ConfigurationManager.getProperty(Constants.DB2_USER_MBG)
-  private lazy val  password_mbg=ConfigurationManager.getProperty(Constants.DB2_PASSWORD_MBG)
+  private lazy val user_upoup=ConfigurationManager.getProperty(Constants.DB2_USER_UPOUP)
+  private lazy val password_upoup=ConfigurationManager.getProperty(Constants.DB2_PASSWORD_UPOUP)
+  private lazy val user_mnsvc=ConfigurationManager.getProperty(Constants.DB2_USER_MNSVC)
+  private lazy val  password_mnsvc=ConfigurationManager.getProperty(Constants.DB2_PASSWORD_MNSVC)
+  private lazy  val user_wlonl=ConfigurationManager.getProperty(Constants.DB2_USER_WLONL)
+  private lazy val  password_wlonl=ConfigurationManager.getProperty(Constants.DB2_PASSWORD_WLONL)
+
+  private lazy val url_accdb: String =ConfigurationManager.getProperty(Constants.DB2_URL_ACCDB)
+  private lazy val url_mgmdb: String =ConfigurationManager.getProperty(Constants.DB2_URL_MGMDB)
+  private lazy val url_upoupdb: String =ConfigurationManager.getProperty(Constants.DB2_URL_UPOUPDB)
+  private lazy val url_mnsvcdb:String =ConfigurationManager.getProperty(Constants.DB2_URL_MNSVCDB)
+  private lazy val url_wlonldb:String =ConfigurationManager.getProperty(Constants.DB2_URL_WLONLDB)
 
   private lazy val driver =ConfigurationManager.getProperty(Constants.DB2_DRIVER)
   private lazy val properties = new Properties()
@@ -51,57 +44,58 @@ object DB2_JDBC {
       properties.put("driver", driver)
       sqlContext.read.jdbc(url_mgmdb, s"$table with ur --", properties)
     }
-
+    //读取财务库
     def readDB2_ACC_4para(table: String, field: String, start_dt: String, end_dt: String): DataFrame = {
       properties.put("user", user_acc)
       properties.put("password", password_acc)
       properties.put("driver", driver)
       sqlContext.read.jdbc(url_accdb, s"$table where $field >= '$start_dt' and $field <= '$end_dt' with ur --", properties)
     }
-
+    //读取管理库
     def readDB2_MGM_4para(table: String, field: String, start_dt: String, end_dt: String): DataFrame = {
       properties.put("user", user_mgm)
       properties.put("password", password_mgm)
       properties.put("driver", driver)
       sqlContext.read.jdbc(url_mgmdb, s"$table where $field >= '$start_dt' and $field <= '$end_dt' with ur --", properties)
     }
+    //读取营销库
     def readDB2_MarketingWith4param(table:String,field:String,start_dt:String,end_dt:String):DataFrame={
-      properties.put("user", user_mak)
-      properties.put("password", password_mak)
+      properties.put("user", user_upoup)
+      properties.put("password", password_upoup)
       properties.put("driver", driver)
-      sqlContext.read.jdbc(url_makdb, s"$table where $field >= '$start_dt' and $field <= '$end_dt' with ur --", properties)
+      sqlContext.read.jdbc(url_upoupdb, s"$table where $field >= '$start_dt' and $field <= '$end_dt' with ur --", properties)
     }
     //读取订单库
     def readDB2_OrderWith4param(table:String,field:String,start_dt:String,end_dt:String) : DataFrame={
-      properties.put("user", user_order)
-      properties.put("password", password_order)
+      properties.put("user", user_mnsvc)
+      properties.put("password", password_mnsvc)
       properties.put("driver", driver)
-      sqlContext.read.jdbc(url_orderdb, s"$table where $field >= '$start_dt' and $field <= '$end_dt' with ur --", properties)
+      sqlContext.read.jdbc(url_mnsvcdb, s"$table where $field >= '$start_dt' and $field <= '$end_dt' with ur --", properties)
     }
     def readDB2_Order(table:String):DataFrame ={
-      properties.put("user", user_order)
-      properties.put("password", password_order)
+      properties.put("user", user_mnsvc)
+      properties.put("password", password_mnsvc)
       properties.put("driver", driver)
-      sqlContext.read.jdbc(url_orderdb, s"$table with ur --", properties)
+      sqlContext.read.jdbc(url_mnsvcdb, s"$table with ur --", properties)
     }
     //读取手机后台库(联机库)
     def readDB2_MbgWith4param(table:String,field:String,start_dt:String,end_dt:String) :DataFrame ={
-      properties.put("user", user_mbg)
-      properties.put("password", password_mbg)
+      properties.put("user", user_wlonl)
+      properties.put("password", password_wlonl)
       properties.put("driver", driver)
-      sqlContext.read.jdbc(url_mbgdb, s"$table where $field >= '$start_dt' and $field <= '$end_dt' with ur --", properties)
+      sqlContext.read.jdbc(url_wlonldb, s"$table where $field >= '$start_dt' and $field <= '$end_dt' with ur --", properties)
     }
     def readDB2_MbgWith3param(table:String,start_dt:String,end_dt:String): DataFrame ={
-      properties.put("user", user_mbg)
-      properties.put("password", password_mbg)
+      properties.put("user", user_wlonl)
+      properties.put("password", password_wlonl)
       properties.put("driver", driver)
-      sqlContext.read.jdbc(url_mbgdb,s"$table with ur --",properties)
+      sqlContext.read.jdbc(url_wlonldb,s"$table with ur --",properties)
     }
     def readDB2_Mbg(table:String) :DataFrame ={
-      properties.put("user", user_mbg)
-      properties.put("password", password_mbg)
+      properties.put("user", user_wlonl)
+      properties.put("password", password_wlonl)
       properties.put("driver", driver)
-      sqlContext.read.jdbc(url_mbgdb, s"$table with ur --", properties)
+      sqlContext.read.jdbc(url_wlonldb, s"$table with ur --", properties)
     }
   }
 
@@ -126,12 +120,11 @@ object DB2_JDBC {
         "numPartitions" -> s"$numPartitions")
       sqlContext.read.format("jdbc").options(map).load()
     }
-
     def jdbc_makdb_DF(table :String,numPartitions: Int = 1) :DataFrame={
       val map = Map(
-        "url" -> url_makdb,
-        "user" -> user_mak,
-        "password" -> password_mak,
+        "url" -> url_upoupdb,
+        "user" -> user_upoup,
+        "password" -> password_upoup,
         "driver" -> driver,
         "dbtable" -> table,
         "numPartitions" -> s"$numPartitions")
@@ -139,9 +132,9 @@ object DB2_JDBC {
     }
     def jdbc_orderdb_DF(table :String,numPartitions: Int = 1) :DataFrame ={
       val map = Map(
-        "url" -> url_orderdb,
-        "user" -> user_order,
-        "password" -> password_order,
+        "url" -> url_mnsvcdb,
+        "user" -> user_mnsvc,
+        "password" -> password_mnsvc,
         "driver" -> driver,
         "dbtable" -> table,
         "numPartitions" -> s"$numPartitions")
@@ -149,9 +142,9 @@ object DB2_JDBC {
     }
     def jdbc_mbgdb_DF(table :String,numPartitions: Int = 1):DataFrame ={
       val map = Map(
-        "url" -> url_mbgdb,
-        "user" -> user_mbg,
-        "password" -> password_mbg,
+        "url" -> url_wlonldb,
+        "user" -> user_wlonl,
+        "password" -> password_wlonl,
         "driver" -> driver,
         "dbtable" -> table,
         "numPartitions" -> s"$numPartitions")

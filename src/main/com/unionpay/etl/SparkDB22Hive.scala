@@ -19,13 +19,11 @@ object SparkDB22Hive {
   private lazy val dateFormatter = DateTimeFormat.forPattern("yyyy-MM-dd")
   //指定HIVE数据库名
   private lazy val hive_dbname = ConfigurationManager.getProperty(Constants.HIVE_DBNAME)
-  //指定DB2数据库Schema名称
   private lazy val schemas_accdb = ConfigurationManager.getProperty(Constants.SCHEMAS_ACCDB)
   private lazy val schemas_mgmdb = ConfigurationManager.getProperty(Constants.SCHEMAS_MGMDB)
-
-  private lazy  val schemas_marketdb=ConfigurationManager.getProperty(Constants.SCHEMAS_MAKDB)
-  private lazy val schemas_orderdb=ConfigurationManager.getProperty(Constants.SCHEMAS_ORDERDB)
-  private lazy val schemas_mbgdb=ConfigurationManager.getProperty(Constants.SCHEMAS_MBGDB)
+  private lazy  val schemas_upoupdb=ConfigurationManager.getProperty(Constants.SCHEMAS_UPOUPDB)
+  private lazy val schemas_mnsvcdb=ConfigurationManager.getProperty(Constants.SCHEMAS_MNSVCDB)
+  private lazy val schemas_wlonldb=ConfigurationManager.getProperty(Constants.SCHEMAS_WLONLDB)
 
   def main(args: Array[String]) {
 
@@ -5220,84 +5218,84 @@ object SparkDB22Hive {
 
   }
 
+
   /**
-    * JOB_HV_83 2017年3月13日 星期一
-    * code by liutao
-    *
+    * JOB_HV_83 2017年3月15日
+    * hive_point_trans->tbl_point_trans
+    * @author  liutao
     * @param sqlContext
     * @param start_dt
     * @param end_dt
     */
   def JOB_HV_83 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
     println("#### job_hv_83(hive_point_trans->tbl_point_trans)")
-    DateUtils.timeCost("JOB_HV_83") {
-      val start_day = start_dt.replace("-", "")
-      val end_day = end_dt.replace("-", "")
-      println("#### JOB_HV_83 落地增量抽取的时间范围: " + start_day + "--" + end_day)
 
-      val df = sqlContext.readDB2_MarketingWith4param(s"$schemas_marketdb.tbl_point_trans", "trans_dt", s"$start_day", s"$end_day")
-      println("#### JOB_HV_83 读取营销库的系统时间为:" + DateUtils.getCurrentSystemTime())
-
+    DateUtils.timeCost("JOB_HV_83"){
+      val start_day = start_dt.replace("-","")
+      val end_day = end_dt.replace("-","")
+      println("#### JOB_HV_83 落地增量抽取的时间范围: "+start_day+"--"+end_day)
+      val df =sqlContext.readDB2_MarketingWith4param(s"$schemas_upoupdb.tbl_point_trans","trans_dt",start_day,end_day)
+      println("#### JOB_HV_83readDB2_Marketing 的系统时间为:"+DateUtils.getCurrentSystemTime())
       df.registerTempTable("spark_db2_tbl_point_trans")
-      //println("#### JOB_HV_83------>results:"+df.count())
-      println("#### JOB_HV_83 注册临时表的系统时间为:" + DateUtils.getCurrentSystemTime())
+      println("#### JOB_HV_83 注册临时表的系统时间为:"+DateUtils.getCurrentSystemTime())
 
-      if (!Option(df).isEmpty) {
+      if(!Option(df).isEmpty){
         sqlContext.sql(s"use $hive_dbname")
         sqlContext.sql(
           s"""
              |insert overwrite table hive_point_trans partition (part_trans_dt)
              |select
-             |trim(trans.trans_id) as trans_id ,
+             |trim(trans.trans_id)                    ,
              |case
              |when
              |substr(trans.trans_dt,1,4) between '0001' and '9999' and substr(trans.trans_dt,5,2) between '01' and '12' and
              |substr(trans.trans_dt,7,2) between '01' and substr(last_day(concat_ws('-',substr(trans.trans_dt,1,4),substr(trans.trans_dt,5,2),substr(trans.trans_dt,7,2))),9,2)
              |then concat_ws('-',substr(trans.trans_dt,1,4),substr(trans.trans_dt,5,2),substr(trans.trans_dt,7,2))
              |else substr(trans.rec_crt_ts,1,10)
-             |end as  trans_dt             ,
-             |trans.trans_ts               ,
-             |trim(trans.trans_tp)         ,
-             |trans.src_id                 ,
-             |trim(trans.orig_trans_id)    ,
-             |trans.refund_at              ,
-             |trans.mchnt_order_at         ,
-             |trim(trans.mchnt_order_curr) ,
-             |trim(trans.mchnt_order_dt)   ,
-             |trim(trans.mchnt_order_id)   ,
-             |trim(trans.mchnt_cd)         ,
-             |trim(trans.mchnt_tp)         ,
-             |trans.mchnt_nm               ,
-             |trans.usr_id                 ,
-             |trim(trans.mobile)           ,
-             |trim(trans.card_no)          ,
-             |trim(trans.result_cd)        ,
-             |trans.result_msg             ,
-             |trans.rec_crt_ts             ,
-             |trans.rec_upd_ts             ,
-             |trim(trans.tran_src)         ,
-             |trim(trans.chnl_mchnt_cd)    ,
-             |trans.extra_info             ,
+             |end as  trans_dt                        ,
+             |trans.trans_ts                          ,
+             |trim(trans.trans_tp)                    ,
+             |trans.src_id                            ,
+             |trim(trans.orig_trans_id)               ,
+             |trans.refund_at                         ,
+             |trans.mchnt_order_at                    ,
+             |trim(trans.mchnt_order_curr)           ,
+             |trim(trans.mchnt_order_dt)             ,
+             |trim(trans.mchnt_order_id)             ,
+             |trim(trans.mchnt_cd)                   ,
+             |trim(trans.mchnt_tp)                   ,
+             |trans.mchnt_nm                         ,
+             |trans.usr_id                           ,
+             |trim(trans.mobile)                     ,
+             |trim(trans.card_no)                    ,
+             |trim(trans.result_cd)                  ,
+             |trans.result_msg                      ,
+             |trans.rec_crt_ts                      ,
+             |trans.rec_upd_ts                      ,
+             |trim(trans.tran_src)                  ,
+             |trim(trans.chnl_mchnt_cd)             ,
+             |trans.extra_info                      ,
              |case
              |when
              |substr(trans.trans_dt,1,4) between '0001' and '9999' and substr(trans.trans_dt,5,2) between '01' and '12' and
              |substr(trans.trans_dt,7,2) between '01' and substr(last_day(concat_ws('-',substr(trans.trans_dt,1,4),substr(trans.trans_dt,5,2),substr(trans.trans_dt,7,2))),9,2)
              |then concat_ws('-',substr(trans.trans_dt,1,4),substr(trans.trans_dt,5,2),substr(trans.trans_dt,7,2))
              |else substr(trans.rec_crt_ts,1,10) end as  part_trans_dt
-             |
              |from spark_db2_tbl_point_trans trans
         """.stripMargin)
-        println("#### JOB_HV_83动态分区插入 hive_point_trans 成功！")
-      } else {
-        println("#### db2表 tbl_point_trans 表中无数据！")
+        println("#### JOB_HV_83动态分区插入hive_point_trans成功！")
+      }else{
+        println("#### db2_tbl_point_trans 表中无数据！")
       }
     }
+
+
   }
 
   /**
-    * JOB_HV_84
-    * code by liutao
-    *
+    * JOB_HV_84 2017年3月16日
+    * hive_mksvc_order->tbl_mksvc_order
+    * @author liutao
     * @param sqlContext
     * @param start_dt
     * @param end_dt
@@ -5309,8 +5307,7 @@ object SparkDB22Hive {
       val start_day = start_dt.replace("-","")
       val end_day = end_dt.replace("-","")
       println("#### JOB_HV_84 落地增量抽取的时间范围: "+start_day+"--"+end_day)
-      //通过jdbc读取钱包的db2数据库的营销库的tbl_mksvc_order表
-      val df =sqlContext.readDB2_MarketingWith4param(s"$schemas_marketdb.tbl_mksvc_order","order_dt",start_day,end_day)
+      val df =sqlContext.readDB2_MarketingWith4param(s"$schemas_upoupdb.tbl_mksvc_order","order_dt",start_day,end_day)
       println("#### JOB_HV_84读取营销库的系统时间为:"+DateUtils.getCurrentSystemTime())
 
       df.registerTempTable("spark_db2_tbl_mksvc_order")
@@ -5375,8 +5372,8 @@ object SparkDB22Hive {
 
   /**
     * JOB_HV_85
-    * code by liutao
-    *
+    * hive_wlonl_transfer_order->tbl_wlonl_transfer_order
+    * @author liutao
     * @param sqlContext
     * @param start_dt
     * @param end_dt
@@ -5388,8 +5385,7 @@ object SparkDB22Hive {
       val start_day = start_dt.replace("-","")
       val end_day = end_dt.replace("-","")
       println("#### JOB_HV_85 落地增量抽取的时间范围: "+start_day+"--"+end_day)
-
-      val df=sqlContext.readDB2_MbgWith3param(s"$schemas_mbgdb.tbl_wlonl_transfer_order",start_day,end_day)
+      val df=sqlContext.readDB2_MbgWith3param(s"$schemas_wlonldb.tbl_wlonl_transfer_order",start_day,end_day)
       println("#### JOB_HV_85读取营销库的系统时间为:"+DateUtils.getCurrentSystemTime())
 
       df.registerTempTable("spark_db2_tbl_wlonl_transfer_order")
@@ -5434,36 +5430,32 @@ object SparkDB22Hive {
   }
 
   /**
-    * JOB_HV_86
-    * code by liutao
-    *
+    * JOB_HV_86 2017年3月18日
+    * hive_wlonl_uplan_coupon->tbl_wlonl_uplan_coupon
+    * @author  liutao
     * @param sqlContext
-    * @param start_dt
-    * @param end_dt
     */
   def JOB_HV_86(implicit sqlContext: HiveContext)={
     println("#### job_hv_86(hive_wlonl_uplan_coupon->tbl_wlonl_uplan_coupon)")
 
     DateUtils.timeCost("JOB_HV_86"){
-      val df =sqlContext.readDB2_Mbg(s"$schemas_mbgdb.tbl_wlonl_uplan_coupon")
+      val df =sqlContext.readDB2_Mbg(s"$schemas_wlonldb.tbl_wlonl_uplan_coupon")
       println("#### JOB_HV_86读取联机库的系统时间为:"+DateUtils.getCurrentSystemTime())
-
       df.registerTempTable("spark_db2_tbl_wlonl_uplan_coupon")
       println("#### JOB_HV_86 注册临时表的系统时间为:"+DateUtils.getCurrentSystemTime())
-
       if(!Option(df).isEmpty){
         sqlContext.sql(s"use $hive_dbname")
         sqlContext.sql(
           s"""
              |insert overwrite table hive_wlonl_uplan_coupon
              |select
-             | id                                     ,
-             |user_id                                ,
-             |pmt_code                               ,
-             |proc_dt                                ,
-             |coupon_id                                ,
-             |refnum                                 ,
-             |valid_start_date                       ,
+             | id                 ,
+             |user_id             ,
+             |pmt_code            ,
+             |proc_dt             ,
+             |coupon_id           ,
+             |refnum              ,
+             |valid_start_date    ,
              |valid_end_date
              |from spark_db2_tbl_wlonl_uplan_coupon coupon
         """.stripMargin)
@@ -5476,18 +5468,16 @@ object SparkDB22Hive {
   }
 
   /**
-    * JOB_HV_87
-    * code by liutao
-    *
+    * JOB_HV_87 2017年3月31日
+    * hive_wlonl_acc_notes->tbl_wlonl_acc_notes
+    * @author  liutao
     * @param sqlContext
-    * @param start_dt
-    * @param end_dt
     */
   def JOB_HV_87(implicit sqlContext: HiveContext)={
     println("#### job_hv_87(hive_wlonl_acc_notes->tbl_wlonl_acc_notes)")
 
     DateUtils.timeCost("JOB_HV_87"){
-      val df =sqlContext.readDB2_Mbg(s"$schemas_mbgdb.tbl_wlonl_acc_notes")
+      val df =sqlContext.readDB2_Mbg(s"$schemas_wlonldb.tbl_wlonl_acc_notes")
       println("#### JOB_HV_87读取联机库的系统时间为:"+DateUtils.getCurrentSystemTime())
 
       df.registerTempTable("spark_db2_tbl_wlonl_acc_notes")
@@ -5499,14 +5489,14 @@ object SparkDB22Hive {
           s"""
              |insert overwrite table hive_wlonl_acc_notes
              |select
-             |notes_id                               ,
-             |notes_tp                               ,
-             |notes_at                               ,
-             |trans_tm                               ,
-             |trans_in_acc                             ,
-             |trans_in_acc_tp                        ,
-             |trans_out_acc                          ,
-             |trans_out_acc_tp                      ,
+             |notes_id                           ,
+             |notes_tp                           ,
+             |notes_at                           ,
+             |trans_tm                           ,
+             |trans_in_acc                       ,
+             |trans_in_acc_tp                    ,
+             |trans_out_acc                      ,
+             |trans_out_acc_tp                   ,
              |mchnt_nm                           ,
              |notes_class                        ,
              |notes_class_nm                     ,
@@ -5536,9 +5526,9 @@ object SparkDB22Hive {
   }
 
   /**
-    * JOB_HV_88
-    * code by liutao
-    *
+    * JOB_HV_88  2017年3月31日
+    * hive_ubp_order->tbl_ubp_order
+    * @author liutao
     * @param sqlContext
     * @param start_dt
     * @param end_dt
@@ -5550,7 +5540,7 @@ object SparkDB22Hive {
       val start_day = start_dt.replace("-","")
       val end_day = end_dt.replace("-","")
       println("#### JOB_HV_88 落地增量抽取的时间范围: "+start_day+"--"+end_day)
-      val df =sqlContext.readDB2_OrderWith4param(s"$schemas_orderdb.tbl_ubp_order","order_dt",start_day,end_day)
+      val df =sqlContext.readDB2_OrderWith4param(s"$schemas_mnsvcdb.tbl_ubp_order","order_dt",start_day,end_day)
       println("#### JOB_HV_88读取订单库的系统时间为:"+DateUtils.getCurrentSystemTime())
 
       df.registerTempTable("spark_db2_tbl_ubp_order")
@@ -5626,18 +5616,17 @@ object SparkDB22Hive {
   }
 
   /**
-    * JOB_HV_89
-    * code by liutao
-    *
+    * JOB_HV_89 2017年3月20日
+    * hive_mnsvc_business_instal_info->tbl_mnsvc_business_instal_info
+    * @author liutao
     * @param sqlContext
-    * @param start_dt
-    * @param end_dt
     */
   def JOB_HV_89(implicit sqlContext: HiveContext)={
     println("#### job_hv_89(hive_mnsvc_business_instal_info->tbl_mnsvc_business_instal_info)")
 
     DateUtils.timeCost("JOB_HV_89"){
-      val df =sqlContext.readDB2_Order(s"$schemas_orderdb.tbl_mnsvc_business_instal_info")
+      //通过jdbc读取钱包的db2数据库的订单库的tbl_mnsvc_business_instal_info
+      val df =sqlContext.readDB2_Order(s"$schemas_mnsvcdb.tbl_mnsvc_business_instal_info")
       println("#### JOB_HV_89读取订单库的系统时间为:"+DateUtils.getCurrentSystemTime())
 
       df.registerTempTable("spark_db2_tbl_mnsvc_business_instal_info")
@@ -5649,15 +5638,15 @@ object SparkDB22Hive {
           s"""
              |insert overwrite table hive_mnsvc_business_instal_info
              |select
-             |instal_info_id                       ,
-             |token_id                             ,
-             |trim(user_id)                        ,
-             |card_no                              ,
-             |bank_cd                              ,
-             |instal_amt                           ,
-             |curr_num                             ,
-             |period                               ,
-             |trim(fee_option)                     ,
+             |instal_info_id                      ,
+             |token_id                            ,
+             |trim(user_id)                       ,
+             |card_no                             ,
+             |bank_cd                             ,
+             |instal_amt                          ,
+             |curr_num                            ,
+             |period                              ,
+             |trim(fee_option)                    ,
              |cred_no                             ,
              |prod_id                             ,
              |samt_pnt                            ,
@@ -5679,6 +5668,5 @@ object SparkDB22Hive {
     }
 
   }
-
 
 }// ### END LINE ###
