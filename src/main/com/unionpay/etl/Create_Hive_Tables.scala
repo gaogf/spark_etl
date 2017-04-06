@@ -39,7 +39,7 @@ object Create_Hive_Tables {
 //    hive_ins_inf
 //    hive_mchnt_para
 //    hive_passive_code_pay_trans
-    hive_cdhd_pri_acct_inf
+//    hive_cdhd_pri_acct_inf
 //    hive_pri_acct_inf
 //    hive_switch_point_trans
 //    hive_ucbiz_cdhd_bas_inf
@@ -72,7 +72,8 @@ object Create_Hive_Tables {
 //    hive_prize_bas
 //    hive_signer_log
 //    hive_ticket_bill_bas_inf
-//    hive_undefine_store_inf
+    hive_undefine_store_inf
+    hive_undefine_store_inf_temp
 //    hive_user_td_d
 //    hive_bill_order_trans
 //    hive_bill_sub_order_trans
@@ -3077,6 +3078,26 @@ object Create_Hive_Tables {
 
   }
 
+  def hive_undefine_store_inf_temp(implicit sqlContext: HiveContext) = {
+    println("=======Create hive_undefine_store_inf_temp=======")
+    sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql(
+      s"""
+         |create table if not exists $hive_dbname.hive_undefine_store_inf_temp(
+         |mchnt_cd          	string,
+         |term_id             string,
+         |store_cd            string,
+         |store_grp_cd        string,
+         |brand_id            bigint
+         |)
+         |row format delimited fields terminated by '!|'
+         |stored as parquet
+         |location '/user/ch_hypas/upw_hive/participant/mchnt/hive_undefine_store_inf_temp'
+         | """.stripMargin)
+
+    println("=======Create hive_undefine_store_inf_temp successfully ! =======")
+
+  }
   def hive_user_td_d(implicit sqlContext: HiveContext) = {
     println("=======Create hive_use_td_d=======")
     sqlContext.sql(s"use $hive_dbname")
@@ -5228,7 +5249,7 @@ object Create_Hive_Tables {
     println("=======create hive_mtdtrs_dtl_ach_bat_file_dtl=======")
     sqlcontext.sql(s"use $hive_dbname")
     sqlcontext.sql(
-      """
+     s"""
         |create table if not exists $hive_dbname.hive_mtdtrs_dtl_ach_bat_file_dtl
         |(
         |settle_dt               string,

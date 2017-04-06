@@ -980,13 +980,12 @@ object SparkDB22Hive {
   }
 
   /**
-    * JobName:hive-job-15
-    * Feature:hive_undefine_store_inf-->  hive_acc_trans + hive_store_term_relation
+    * JobName: JOB_HV_15
+    * Feature: hive_undefine_store_inf-->  hive_acc_trans + hive_store_term_relation
     *
     * @author tzq
     * @time 2016-8-23
     * @param sqlContext
-    *
     */
   def JOB_HV_15(implicit sqlContext: HiveContext) = {
     println("###JOB_HV_15(hive_undefine_store_inf-->  hive_acc_trans + hive_store_term_relation)")
@@ -997,9 +996,9 @@ object SparkDB22Hive {
           |select
           |c.card_accptr_cd as mchnt_cd,
           |c.card_accptr_term_id as term_id,
-          |nvl(store_cd,null) as store_cd,
-          |nvl(store_grp_cd,null) as store_grp_cd,
-          |nvl(brand_id,0) as brand_id
+          |null as store_cd,
+          |null as store_grp_cd,
+          |null as brand_id
           |from
           |(select
           |a.card_accptr_cd,a.card_accptr_term_id
@@ -1036,10 +1035,11 @@ object SparkDB22Hive {
         """.stripMargin)
       println("#### JOB_HV_15 spark sql 逻辑完成的系统时间为:" + DateUtils.getCurrentSystemTime())
       if(!Option(results).isEmpty){
-        results.registerTempTable("hive_undefine_store_inf_temp")
+        results.registerTempTable("hive_undefine_store_inf_tmp")
         println("#### JOB_HV_15 注册临时表 的系统时间为:" + DateUtils.getCurrentSystemTime())
-        sqlContext.sql("truncate table  hive_undefine_store_inf")
-        sqlContext.sql("insert into table hive_undefine_store_inf select * from hive_undefine_store_inf_temp")
+        sqlContext.sql("truncate table  hive_undefine_store_inf_temp ")
+        sqlContext.sql("insert into  table hive_undefine_store_inf_temp select * from hive_undefine_store_inf_tmp")
+        sqlContext.sql("insert into  table hive_undefine_store_inf select * from hive_undefine_store_inf_temp")
         println("#### JOB_HV_15 全量数据插入完成的系统时间为:" + DateUtils.getCurrentSystemTime())
       }else{
         println("#### JOB_HV_15 spark sql 逻辑处理后无数据！")
