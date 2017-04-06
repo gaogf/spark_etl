@@ -6919,7 +6919,7 @@ object SparkHive2Mysql {
         s"""
            |select
            |    acpt_ins.cup_branch_ins_id_nm as cup_branch_ins_id_nm,
-           |    trans.settle_dt as roport_dt,
+           |    trans.settle_dt as report_dt,
            |    count(1)                                 as trans_cnt,
            |    sum(trans.trans_pos_at)                  as trans_at,
            |    sum(trans.trans_pos_at - trans.trans_at) as discount_at
@@ -9195,7 +9195,7 @@ object SparkHive2Mysql {
     */
   def JOB_DM_78 (implicit sqlContext: HiveContext,start_dt:String,end_dt:String,interval:Int) = {
     println("#### JOB_DM_78(dm_iss_disc_cfp_tran->hive_card_bin,hive_card_bind_inf,hive_active_card_acq_branch_mon)")
-    DateUtils.timeCost("JOB_DM_9") {
+    DateUtils.timeCost("JOB_DM_78") {
       UPSQL_JDBC.delete(s"dm_iss_disc_cfp_tran","report_dt",start_dt,end_dt)
       println("#### JOB_DM_78 删除重复数据完成的时间为：" + DateUtils.getCurrentSystemTime())
       var today_dt=start_dt
