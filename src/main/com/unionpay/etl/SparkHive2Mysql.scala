@@ -2988,6 +2988,7 @@ object SparkHive2Mysql {
   /**
     * JobName: JOB_DM_24
     * Feature: DM_UNIONPAY_RED_DOMAIN_BRANCH
+    *
     * @author tzq
     * @time 2016-12-14
     * @param sqlContext
@@ -3059,6 +3060,7 @@ object SparkHive2Mysql {
   /**
     * JobName: JOB_DM_25
     * Feature: DM_UNIONPAY_RED_PHONE_AREA
+    *
     * @author tzq
     * @time 2016-12-14
     * @param sqlContext
@@ -3139,6 +3141,7 @@ object SparkHive2Mysql {
   /**
     * JobName: JOB_DM_26
     * Feature: DM_UNIONPAY_RED_DIRECT_CONTACT_TRAN
+    *
     * @author tzq
     * @time 2016-12-15
     * @param sqlContext
@@ -3326,6 +3329,7 @@ object SparkHive2Mysql {
   /**
     * JobName: JOB_DM_27
     * Feature: DM_UNIONPAY_RED_MCC
+    *
     * @author tzq
     * @time 2016-12-15
     * @param sqlContext
@@ -3423,6 +3427,7 @@ object SparkHive2Mysql {
   /**
     * JobName: JOB_DM_28
     * Feature: DM_UNIONPAY_RED_ISS
+    *
     * @author tzq
     * @time 2017-1-3
     * @param sqlContext
@@ -3515,6 +3520,7 @@ object SparkHive2Mysql {
   /**
     * JobName: JOB_DM_29
     * Feature: DM_UNIONPAY_RED_GIVE_BRANCH
+    *
     * @author tzq
     * @time 2017-1-3
     * @param sqlContext
@@ -3587,6 +3593,7 @@ object SparkHive2Mysql {
   /**
     * JobName: JOB_DM_30
     * Feature: DM_DISC_TKT_ACT_BRANCH_DLY
+    *
     * @author tzq
     * @time 2016-12-15
     * @param sqlContext
@@ -3678,6 +3685,7 @@ object SparkHive2Mysql {
   /**
     * JobName: JOB_DM_31
     * Feature: DM_DISC_TKT_ACT_MCHNT_BRANCH_DLY
+    *
     * @author tzq
     * @time 2016-12-15
     * @param sqlContext
@@ -4135,6 +4143,7 @@ object SparkHive2Mysql {
   /**
     * JobName: JOB_DM_34
     * Feature:DM_DISC_TKT_ACT_TRANS_NORM_DLY
+    *
     * @author tzq
     * @time 2016-12-19
     * @param sqlContext
@@ -4241,6 +4250,7 @@ object SparkHive2Mysql {
   /**
     * JobName: JOB_DM_35
     * Feature:DM_DISC_TKT_ACT_TERM_UPG_DLY
+    *
     * @author tzq
     * @time 2016-12-20
     * @param sqlContext
@@ -4353,6 +4363,7 @@ object SparkHive2Mysql {
   /**
     * JobName: JOB_DM_36
     * Feature:DM_DISC_TKT_ACT_MCHNT_IND_DLY
+    *
     * @author tzq
     * @time 2016-12-21
     * @param sqlContext
@@ -4637,6 +4648,7 @@ object SparkHive2Mysql {
   /**
     * JobName: JOB_DM_37
     * Feature:DM_DISC_TKT_ACT_MCHNT_TP_DLY
+    *
     * @author tzq
     * @time 2016-12-22
     * @param sqlContext
@@ -4784,6 +4796,7 @@ object SparkHive2Mysql {
   /**
     * JobName: JOB_DM_38
     * Feature:DM_DISC_TKT_ACT_ISS_INS_DLY
+    *
     * @author tzq
     * @time 2016-12-22
     * @param sqlContext
@@ -4883,6 +4896,7 @@ object SparkHive2Mysql {
   /**
     * JobName: JOB_DM_39
     * Feature:DM_DISC_TKT_ACT_BRAND_INF_DLY
+    *
     * @author tzq
     * @time 2016-12-22
     * @param sqlContext
@@ -5005,6 +5019,7 @@ object SparkHive2Mysql {
   /**
     * JobName: JOB_DM_40
     * Feature:DM_SWT_PNT_INS_INF_DLY
+    *
     * @author tzq
     * @time 2016-12-22
     * @param sqlContext
@@ -5067,6 +5082,7 @@ object SparkHive2Mysql {
   /**
     * JobName: JOB_DM_41
     * Feature:DM_SWT_PNT_MCHNT_BRANCH_DLY
+    *
     * @author tzq
     * @time 2016-12-23
     * @param sqlContext
@@ -5135,6 +5151,7 @@ object SparkHive2Mysql {
   /**
     * JobName: JOB_DM_42
     * Feature:DM_SWT_PNT_MOBILE_LOC_DLY
+    *
     * @author tzq
     * @time 2016-12-27
     * @param sqlContext
@@ -5195,6 +5212,7 @@ object SparkHive2Mysql {
   /**
     * JobName: JOB_DM_43
     * Feature:DM_SWT_PNT_ISS_INS_DLY
+    *
     * @author tzq
     * @time 2016-12-26
     * @param sqlContext
@@ -5282,8 +5300,8 @@ object SparkHive2Mysql {
            |    b.transcardcnt as trans_card_cnt
            |from
            |    (
-           |        select
-           |            bd.chara_acct_nm,
+           |select
+           |if(bd.chara_acct_nm is null,'其他',bd.chara_acct_nm) as chara_acct_nm,
            |            trans.trans_dt,
            |            count(1) as transcnt
            |        from
@@ -5299,12 +5317,12 @@ object SparkHive2Mysql {
            |        and trans.part_trans_dt >= '$start_dt'
            |        and trans.part_trans_dt <= '$end_dt'
            |        group by
-           |            bd.chara_acct_nm,
+           |if(bd.chara_acct_nm is null,'其他',bd.chara_acct_nm),
            |            trans_dt) a
            |left join
            |    (
-           |        select
-           |            bd.chara_acct_nm,
+           |select
+           |if(bd.chara_acct_nm is null,'其他',bd.chara_acct_nm) as chara_acct_nm,
            |            trans.trans_dt,
            |            count(1) as suctranscnt,
            |            sum(trans.trans_at) as transat,
@@ -5325,7 +5343,7 @@ object SparkHive2Mysql {
            |        and trans.part_trans_dt >= '$start_dt'
            |        and trans.part_trans_dt <= '$end_dt'
            |        group by
-           |            bd.chara_acct_nm,
+           |if(bd.chara_acct_nm is null,'其他',bd.chara_acct_nm),
            |            trans_dt)b
            |on
            |    (
@@ -5364,7 +5382,7 @@ object SparkHive2Mysql {
       val results = sqlContext.sql(
         s"""
            |select
-           |    a.cup_branch_ins_id_nm as cup_branch_ins_id_nm,
+           |if(acpt_ins.cup_branch_ins_id_nm,'总公司',acpt_ins.cup_branch_ins_id_nm) as cup_branch_ins_id_nm,
            |    a.trans_dt as report_dt,
            |    a.transcnt as trans_cnt,
            |    b.suctranscnt as suc_trans_cnt,
@@ -5376,7 +5394,7 @@ object SparkHive2Mysql {
            |from
            |    (
            |        select
-           |            acpt_ins.cup_branch_ins_id_nm,
+           |if(acpt_ins.cup_branch_ins_id_nm,'总公司',acpt_ins.cup_branch_ins_id_nm) as cup_branch_ins_id_nm,
            |            trans.trans_dt,
            |            count(1) as transcnt
            |        from
@@ -5402,12 +5420,12 @@ object SparkHive2Mysql {
            |        and trans.part_trans_dt >= '$start_dt'
            |        and trans.part_trans_dt <= '$end_dt'
            |        group by
-           |            acpt_ins.cup_branch_ins_id_nm,
+           |if(acpt_ins.cup_branch_ins_id_nm,'总公司',acpt_ins.cup_branch_ins_id_nm),
            |            trans_dt) a
            |left join
            |    (
            |        select
-           |            acpt_ins.cup_branch_ins_id_nm,
+           |if(acpt_ins.cup_branch_ins_id_nm,'总公司',acpt_ins.cup_branch_ins_id_nm) as cup_branch_ins_id_nm,
            |            trans.trans_dt,
            |            count(1) as suctranscnt,
            |            sum(trans.trans_at) as transat,
@@ -5438,13 +5456,12 @@ object SparkHive2Mysql {
            |        and trans.trans_dt >= '$start_dt'
            |        and trans.trans_dt <= '$end_dt'
            |        group by
-           |            acpt_ins.cup_branch_ins_id_nm,
+           |if(acpt_ins.cup_branch_ins_id_nm,'总公司',acpt_ins.cup_branch_ins_id_nm),
            |            trans_dt)b
            |on
            |    (
            |        a.cup_branch_ins_id_nm = b.cup_branch_ins_id_nm
            |    and a.trans_dt = b.trans_dt )
-           |	where a.cup_branch_ins_id_nm is not null
            |
            | """.stripMargin)
       println(s"#### JOB_DM_45 spark sql 清洗数据完成时间为:" + DateUtils.getCurrentSystemTime())
@@ -5592,9 +5609,9 @@ object SparkHive2Mysql {
            |    b.transcardcnt as trans_card_cnt
            |from
            |    (
-           |        select
-           |            mp.mchnt_para_cn_nm  as first_para_nm,
-           |            mp1.mchnt_para_cn_nm as second_para_nm,
+           |select
+           |if(mp.mchnt_para_cn_nm is null,'其他',mp.mchnt_para_cn_nm) as first_para_nm,
+           |if(mp1.mchnt_para_cn_nm is null,'其他',mp1.mchnt_para_cn_nm) as second_para_nm,
            |            trans.trans_dt,
            |            count(1) as transcnt
            |        from
@@ -5632,14 +5649,14 @@ object SparkHive2Mysql {
            |        and trans.part_trans_dt >= '$start_dt'
            |        and trans.part_trans_dt <= '$end_dt'
            |        group by
-           |            mp.mchnt_para_cn_nm,
-           |            mp1.mchnt_para_cn_nm,
+           |if(mp.mchnt_para_cn_nm is null,'其他',mp.mchnt_para_cn_nm),
+           |if(mp1.mchnt_para_cn_nm is null,'其他',mp1.mchnt_para_cn_nm),
            |            trans_dt) a
            |left join
            |    (
-           |        select
-           |            mp.mchnt_para_cn_nm  as first_para_nm,
-           |            mp1.mchnt_para_cn_nm as second_para_nm,
+           |select
+           |if(mp.mchnt_para_cn_nm is null,'其他',mp.mchnt_para_cn_nm) as first_para_nm,
+           |if(mp1.mchnt_para_cn_nm is null,'其他',mp1.mchnt_para_cn_nm) as second_para_nm,
            |            trans.trans_dt,
            |            count(1)                          as suctranscnt,
            |            sum(trans.trans_at)               as transat,
@@ -5682,8 +5699,8 @@ object SparkHive2Mysql {
            |        and trans.part_trans_dt >= '$start_dt'
            |        and trans.part_trans_dt <= '$end_dt'
            |        group by
-           |            mp.mchnt_para_cn_nm,
-           |            mp1.mchnt_para_cn_nm,
+           |if(mp.mchnt_para_cn_nm is null,'其他',mp.mchnt_para_cn_nm),
+           |if(mp1.mchnt_para_cn_nm is null,'其他',mp1.mchnt_para_cn_nm),
            |            trans_dt)b
            |on
            |    (
@@ -5704,8 +5721,8 @@ object SparkHive2Mysql {
            |from
            |    (
            |        select
-           |            mp.mchnt_para_cn_nm  as first_para_nm,
-           |            mp1.mchnt_para_cn_nm as second_para_nm,
+           |if(mp.mchnt_para_cn_nm is null,'其他',mp.mchnt_para_cn_nm) as first_para_nm,
+           |if(mp1.mchnt_para_cn_nm is null,'其他',mp1.mchnt_para_cn_nm) as second_para_nm,
            |            trans.trans_dt,
            |            count(1) as transcnt
            |        from
@@ -5755,14 +5772,14 @@ object SparkHive2Mysql {
            |        and trans.part_trans_dt >= '$start_dt'
            |        and trans.part_trans_dt <= '$end_dt'
            |        group by
-           |            mp.mchnt_para_cn_nm,
-           |            mp1.mchnt_para_cn_nm,
+           |if(mp.mchnt_para_cn_nm is null,'其他',mp.mchnt_para_cn_nm),
+           |if(mp1.mchnt_para_cn_nm is null,'其他',mp1.mchnt_para_cn_nm),
            |            trans_dt) a
            |left join
            |    (
-           |        select
-           |            mp.mchnt_para_cn_nm  as first_para_nm,
-           |            mp1.mchnt_para_cn_nm as second_para_nm,
+           |    select
+           |if(mp.mchnt_para_cn_nm is null,'其他',mp.mchnt_para_cn_nm) as first_para_nm,
+           |if(mp1.mchnt_para_cn_nm is null,'其他',mp1.mchnt_para_cn_nm) as second_para_nm,
            |            trans.trans_dt,
            |            count(1)                          as suctranscnt,
            |            sum(trans.trans_at)               as transat,
@@ -5817,8 +5834,8 @@ object SparkHive2Mysql {
            |        and trans.part_trans_dt >= '$start_dt'
            |        and trans.part_trans_dt <= '$end_dt'
            |        group by
-           |            mp.mchnt_para_cn_nm,
-           |            mp1.mchnt_para_cn_nm,
+           |if(mp.mchnt_para_cn_nm is null,'其他',mp.mchnt_para_cn_nm),
+           |if(mp1.mchnt_para_cn_nm is null,'其他',mp1.mchnt_para_cn_nm),
            |            trans_dt)b
            |on
            |    (
@@ -5868,8 +5885,8 @@ object SparkHive2Mysql {
            |    b.transcardcnt as trans_card_cnt
            |from
            |    (
-           |        select
-           |            cbi.iss_ins_cn_nm,
+           |select
+           |if(cbi.iss_ins_cn_nm is null,'其他',cbi.iss_ins_cn_nm) as iss_ins_cn_nm,
            |            trans.trans_dt,
            |            count(1) as transcnt
            |        from
@@ -5890,12 +5907,12 @@ object SparkHive2Mysql {
            |        and trans.part_trans_dt >= '$start_dt'
            |        and trans.part_trans_dt <= '$end_dt'
            |        group by
-           |            cbi.iss_ins_cn_nm,
+           |if(cbi.iss_ins_cn_nm is null,'其他',cbi.iss_ins_cn_nm),
            |            trans_dt) a
            |left join
            |    (
-           |        select
-           |            cbi.iss_ins_cn_nm,
+           |select
+           |if(cbi.iss_ins_cn_nm is null,'其他',cbi.iss_ins_cn_nm) as iss_ins_cn_nm,
            |            trans.trans_dt,
            |            count(1) as suctranscnt,
            |            sum(trans.trans_at) as transat,
@@ -5921,7 +5938,7 @@ object SparkHive2Mysql {
            |        and trans.part_trans_dt >= '$start_dt'
            |        and trans.part_trans_dt <= '$end_dt'
            |        group by
-           |            cbi.iss_ins_cn_nm,
+           |if(cbi.iss_ins_cn_nm is null,'其他',cbi.iss_ins_cn_nm),
            |            trans_dt)b
            |on
            |    (
@@ -5946,6 +5963,7 @@ object SparkHive2Mysql {
   /**
     * JobName: JOB_DM_49
     * Feature:DM_BUSS_DIST_PNT_ONLINE_POINT_DLY
+    *
     * @author tzq
     * @time 2016-12-26
     * @param sqlContext
@@ -5998,6 +6016,7 @@ object SparkHive2Mysql {
   /**
     * JobName: JOB_DM_50
     * Feature:DM_VAL_TKT_ACT_BRANCH_DLY
+    *
     * @author tzq
     * @time 2016-12-26
     * @param sqlContext
@@ -6135,6 +6154,7 @@ object SparkHive2Mysql {
     * JobName: JOB_DM_51
     * Feature:DM_VAL_TKT_ACT_MOBILE_LOC_DLY
     * Notice:
+    *
     * @author tzq
     * @time 2016-12-26
     * @param sqlContext
@@ -6289,6 +6309,7 @@ object SparkHive2Mysql {
     * JobName: JOB_DM_52
     * Feature: DM_VAL_TKT_ACT_ISS_INS_DLY
     * Notice:
+    *
     * @author tzq
     * @time 2016-12-26
     * @param sqlContext
@@ -6459,9 +6480,9 @@ object SparkHive2Mysql {
       println("开始创建临时表Spark_JOB_DM_53_A ")
       val JOB_DM_53_A =sqlContext.sql(
         s"""
-           |        select
-           |            mp.mchnt_para_cn_nm  as first_para_nm,
-           |            mp1.mchnt_para_cn_nm as second_para_nm,
+           |select
+           |if(mp.mchnt_para_cn_nm is null,'其他',mp.mchnt_para_cn_nm) as first_para_nm,
+           |if(mp1.mchnt_para_cn_nm is null,'其他',mp1.mchnt_para_cn_nm) as second_para_nm,
            |            trans.trans_dt,
            |            count(1) as transcnt,
            |            count(distinct trans.cdhd_usr_id) as transusrcnt
@@ -6507,8 +6528,8 @@ object SparkHive2Mysql {
            |        and trans.part_trans_dt >= '$start_dt'
            |        and trans.part_trans_dt <= '$end_dt'
            |        group by
-           |            mp.mchnt_para_cn_nm,
-           |            mp1.mchnt_para_cn_nm,
+           |if(mp.mchnt_para_cn_nm is null,'其他',mp.mchnt_para_cn_nm),
+           |if(mp1.mchnt_para_cn_nm is null,'其他',mp1.mchnt_para_cn_nm),
            |            trans.trans_dt
            """.stripMargin)
       JOB_DM_53_A.registerTempTable("spark_job_dm_53_a")
@@ -6517,8 +6538,8 @@ object SparkHive2Mysql {
       val JOB_DM_53_B =sqlContext.sql(
         s"""
            |select
-           |            mp.mchnt_para_cn_nm  as first_para_nm,
-           |            mp1.mchnt_para_cn_nm as second_para_nm,
+           |if(mp.mchnt_para_cn_nm is null,'其他',mp.mchnt_para_cn_nm) as first_para_nm,
+           |if(mp1.mchnt_para_cn_nm is null,'其他',mp1.mchnt_para_cn_nm) as second_para_nm,
            |            trans.trans_dt,
            |            count(distinct trans.cdhd_usr_id) as payusrcnt
            |        from
@@ -6568,8 +6589,8 @@ object SparkHive2Mysql {
            |        and trans.part_trans_dt >= '$start_dt'
            |        and trans.part_trans_dt <= '$end_dt'
            |        group by
-           |            mp.mchnt_para_cn_nm,
-           |            mp1.mchnt_para_cn_nm,
+           |if(mp.mchnt_para_cn_nm is null,'其他',mp.mchnt_para_cn_nm),
+           |if(mp1.mchnt_para_cn_nm is null,'其他',mp1.mchnt_para_cn_nm),
            |            trans.trans_dt
            """.stripMargin)
       JOB_DM_53_B.registerTempTable("spark_job_dm_53_b")
@@ -6577,8 +6598,8 @@ object SparkHive2Mysql {
       val JOB_DM_53_C =sqlContext.sql(
         s"""
            |select
-           |            mp.mchnt_para_cn_nm  as first_para_nm,
-           |            mp1.mchnt_para_cn_nm as second_para_nm,
+           |if(mp.mchnt_para_cn_nm is null,'其他',mp.mchnt_para_cn_nm) as first_para_nm,
+           |if(mp1.mchnt_para_cn_nm is null,'其他',mp1.mchnt_para_cn_nm) as second_para_nm,
            |            trans.trans_dt,
            |            count(1)                          as suctranscnt,
            |            sum(bill.bill_original_price)     as bill_original_price,
@@ -6627,8 +6648,8 @@ object SparkHive2Mysql {
            |        and trans.part_trans_dt >= '$start_dt'
            |        and trans.part_trans_dt <= '$end_dt'
            |        group by
-           |            mp.mchnt_para_cn_nm,
-           |            mp1.mchnt_para_cn_nm,
+           |if(mp.mchnt_para_cn_nm is null,'其他',mp.mchnt_para_cn_nm),
+           |if(mp1.mchnt_para_cn_nm is null,'其他',mp1.mchnt_para_cn_nm),
            |            trans.trans_dt
            """.stripMargin)
       JOB_DM_53_C.registerTempTable("spark_job_dm_53_c")
@@ -6918,7 +6939,7 @@ object SparkHive2Mysql {
       val results = sqlContext.sql(
         s"""
            |select
-           |    acpt_ins.cup_branch_ins_id_nm as cup_branch_ins_id_nm,
+           |if(acpt_ins.cup_branch_ins_id_nm,'总公司',acpt_ins.cup_branch_ins_id_nm) as cup_branch_ins_id_nm,
            |    trans.settle_dt as report_dt,
            |    count(1)                                 as trans_cnt,
            |    sum(trans.trans_pos_at)                  as trans_at,
@@ -6941,7 +6962,7 @@ object SparkHive2Mysql {
            |and trans.part_settle_dt <= '$end_dt'
            |and acpt_ins.cup_branch_ins_id_nm is not null
            |group by
-           |    acpt_ins.cup_branch_ins_id_nm,
+           |if(acpt_ins.cup_branch_ins_id_nm,'总公司',acpt_ins.cup_branch_ins_id_nm),
            |    trans.settle_dt
            | """.stripMargin)
       println(s"#### JOB_DM_56 spark sql 清洗数据完成时间为:" + DateUtils.getCurrentSystemTime())
@@ -6975,8 +6996,8 @@ object SparkHive2Mysql {
       val results = sqlContext.sql(
         s"""
            |select
-           |    tp_grp.mchnt_tp_grp_desc_cn as mchnt_tp_grp ,
-           |    tp.mchnt_tp_desc_cn         as mchnt_tp,
+           |if(tp_grp.mchnt_tp_grp_desc_cn is null,'其他',tp_grp.mchnt_tp_grp_desc_cn) as grp_nm,
+           |if(tp.mchnt_tp_desc_cn is null,'其他',tp.mchnt_tp_desc_cn) as tp_nm,
            |    trans.settle_dt as 	report_dt,
            |    count(1)                                 as trans_cnt,
            |    sum(trans.trans_pos_at)                  as trans_at,
@@ -7002,8 +7023,8 @@ object SparkHive2Mysql {
            |and trans.settle_dt <= '$end_dt'
            |and tp_grp.mchnt_tp_grp_desc_cn is not null  and tp.mchnt_tp_desc_cn is not null
            |group by
-           |    tp_grp.mchnt_tp_grp_desc_cn,
-           |    tp.mchnt_tp_desc_cn,
+           |if(tp_grp.mchnt_tp_grp_desc_cn is null,'其他',tp_grp.mchnt_tp_grp_desc_cn),
+           |if(tp.mchnt_tp_desc_cn is null,'其他',tp.mchnt_tp_desc_cn),
            |    trans.settle_dt
            | """.stripMargin)
       println(s"#### JOB_DM_57 spark sql 清洗数据完成时间为:" + DateUtils.getCurrentSystemTime())
@@ -7035,7 +7056,7 @@ object SparkHive2Mysql {
       val results = sqlContext.sql(
         s"""
            |select
-           |    cbi.iss_ins_cn_nm as iss_ins_cn_nm,
+           |if(cbi.iss_ins_cn_nm is null,'其他',cbi.iss_ins_cn_nm) as iss_ins_cn_nm,
            |    trans.settle_dt as report_dt,
            |    count(1)                                 as trans_cnt,
            |    sum(trans.trans_pos_at)                  as trans_at,
@@ -7053,8 +7074,7 @@ object SparkHive2Mysql {
            |and trans.part_settle_dt <= '$end_dt'
            |and cbi.iss_ins_cn_nm is not null
            |group by
-           |    cbi.iss_ins_cn_nm,
-           |    trans.settle_dt
+           |if(cbi.iss_ins_cn_nm is null,'其他',cbi.iss_ins_cn_nm)
            | """.stripMargin)
       println(s"#### JOB_DM_58 spark sql 清洗数据完成时间为:" + DateUtils.getCurrentSystemTime())
       if (!Option(results).isEmpty) {
@@ -7206,7 +7226,7 @@ object SparkHive2Mysql {
            |    (
            |        select
            |            trans.acpt_ins_id_cd,
-           |            ins.ins_cn_nm,
+           |if(ins.ins_cn_nm is null,'其他',ins.ins_cn_nm) as ins_cn_nm,
            |            trans.sys_settle_dt,
            |            case
            |                when trans.fwd_ins_id_cd in ('00097310',
@@ -7276,7 +7296,7 @@ object SparkHive2Mysql {
            |        and trans.sys_settle_dt <= '$end_dt'
            |        group by
            |            trans.acpt_ins_id_cd ,
-           |            ins.ins_cn_nm,
+           |if(ins.ins_cn_nm is null,'其他',ins.ins_cn_nm),
            |            trans.sys_settle_dt,
            |            case
            |                when trans.fwd_ins_id_cd in ('00097310',
@@ -7335,7 +7355,7 @@ object SparkHive2Mysql {
            |    (
            |        select
            |            trans.acpt_ins_id_cd ,
-           |            ins.ins_cn_nm,
+           |if(ins.ins_cn_nm is null,'其他',ins.ins_cn_nm) as ins_cn_nm,
            |            trans.sys_settle_dt,
            |            case
            |                when trans.fwd_ins_id_cd in ('00097310',
@@ -7410,7 +7430,7 @@ object SparkHive2Mysql {
            |        and trans.sys_settle_dt <= '$end_dt'
            |        group by
            |            trans.acpt_ins_id_cd ,
-           |            ins.ins_cn_nm,
+           |if(ins.ins_cn_nm is null,'其他',ins.ins_cn_nm),
            |            trans.sys_settle_dt,
            |            case
            |                when trans.fwd_ins_id_cd in ('00097310',
@@ -10750,6 +10770,7 @@ object SparkHive2Mysql {
   /**
     * JobName: JOB_DM_88
     * Feature: DM_UNIONPAY_RED_DOMAIN_BRANCH
+    *
     * @author tzq
     * @time 2016-12-26
     * @param sqlContext
@@ -10827,6 +10848,7 @@ object SparkHive2Mysql {
   /**
     * JobName: JOB_DM_89
     * Feature: DM_USR_REGISTER_PHOEN_AREA
+    *
     * @author tzq
     * @time 2016-12-26
     * @param sqlContext
@@ -11112,6 +11134,7 @@ object SparkHive2Mysql {
   /**
     * JobName: JOB_DM_92
     * Feature: DM_ACPT_DIRECT_TRAN_STANDARD
+    *
     * @author tzq
     * @time 2016-12-28
     * @param sqlContext
@@ -11325,6 +11348,7 @@ object SparkHive2Mysql {
   /**
     * JobName: JOB_DM_93
     * Feature: DM_COUPON_ACPT_PHONE_AREA
+    *
     * @author tzq
     * @time 2016-12-28
     * @param sqlContext
@@ -11529,6 +11553,7 @@ object SparkHive2Mysql {
   /**
     * JobName: JOB_DM_95
     * Feature: DM_COUPON_TKT_MCHNT_TP_DLY
+    *
     * @author tzq
     * @time 2017-1-13
     * @param sqlContext
@@ -11670,6 +11695,7 @@ object SparkHive2Mysql {
   /**
     * JobName: JOB_DM_96
     * Feature: DM_COUPON_TKT_ISS_INS_DLY
+    *
     * @author tzq
     * @time 2017-1-13
     * @param sqlContext
@@ -11789,7 +11815,7 @@ object SparkHive2Mysql {
       val results = sqlContext.sql(
         s"""
            |select
-           |    a.cup_branch_ins_id_nm as cup_branch_ins_id_nm,
+           |if(bill.cup_branch_ins_id_nm,'总公司',bill.cup_branch_ins_id_nm) as cup_branch_ins_id_nm,
            |    a.trans_dt as report_dt,
            |    a.transcnt as trans_cnt,
            |    b.suctranscnt  as suc_trans_cnt,
@@ -11800,7 +11826,7 @@ object SparkHive2Mysql {
            |from
            |    (
            |        select
-           |            bill.cup_branch_ins_id_nm,
+           |if(bill.cup_branch_ins_id_nm,'总公司',bill.cup_branch_ins_id_nm) as cup_branch_ins_id_nm,
            |            trans.trans_dt,
            |            count(1) as transcnt
            |        from
@@ -11817,12 +11843,12 @@ object SparkHive2Mysql {
            |        and trans.part_trans_dt >= '$start_dt'
            |        and trans.part_trans_dt <= '$end_dt'
            |        group by
-           |            bill.cup_branch_ins_id_nm,
+           |if(bill.cup_branch_ins_id_nm,'总公司',bill.cup_branch_ins_id_nm),
            |            trans_dt) a
            |left join
            |    (
            |        select
-           |            bill.cup_branch_ins_id_nm,
+           |if(bill.cup_branch_ins_id_nm,'总公司',bill.cup_branch_ins_id_nm) as cup_branch_ins_id_nm,
            |            trans.trans_dt,
            |            count(1) as suctranscnt,
            |            sum(trans.trans_at) as transat,
@@ -11844,7 +11870,7 @@ object SparkHive2Mysql {
            |        and trans.part_trans_dt >= '$start_dt'
            |        and trans.part_trans_dt <= '$end_dt'
            |        group by
-           |            bill.cup_branch_ins_id_nm,
+           |if(bill.cup_branch_ins_id_nm,'总公司',bill.cup_branch_ins_id_nm),
            |            trans_dt)b
            |on
            |    (
@@ -11891,9 +11917,9 @@ object SparkHive2Mysql {
            |    b.transcardcnt as trans_card_cnt
            |from
            |    (
-           |        select
-           |            mp.mchnt_para_cn_nm  as first_para_nm,
-           |            mp1.mchnt_para_cn_nm as second_para_nm,
+           |select
+           |if(mp.mchnt_para_cn_nm is null,'其他',mp.mchnt_para_cn_nm) as first_para_nm,
+           |if(mp1.mchnt_para_cn_nm is null,'其他',mp1.mchnt_para_cn_nm) as second_para_nm,
            |            trans.trans_dt,
            |            count(1) as transcnt
            |        from
@@ -11929,14 +11955,14 @@ object SparkHive2Mysql {
            |        and trans.part_trans_dt >= '$start_dt'
            |        and trans.part_trans_dt <= '$end_dt'
            |        group by
-           |            mp.mchnt_para_cn_nm,
-           |            mp1.mchnt_para_cn_nm,
+           |if(mp.mchnt_para_cn_nm is null,'其他',mp.mchnt_para_cn_nm),
+           |if(mp1.mchnt_para_cn_nm is null,'其他',mp1.mchnt_para_cn_nm),
            |            trans_dt) a
            |left join
            |    (
-           |        select
-           |            mp.mchnt_para_cn_nm  as first_para_nm,
-           |            mp1.mchnt_para_cn_nm as second_para_nm,
+           |    select
+           |if(mp.mchnt_para_cn_nm is null,'其他',mp.mchnt_para_cn_nm) as first_para_nm,
+           |if(mp1.mchnt_para_cn_nm is null,'其他',mp1.mchnt_para_cn_nm) as second_para_nm,
            |            trans.trans_dt,
            |            count(1)                          as suctranscnt,
            |            sum(trans.trans_at)               as transat,
@@ -11977,8 +12003,9 @@ object SparkHive2Mysql {
            |        and trans.part_trans_dt >= '$start_dt'
            |        and trans.part_trans_dt <= '$end_dt'
            |        group by
-           |            mp.mchnt_para_cn_nm,
-           |            mp1.mchnt_para_cn_nm,
+           |if(mp.mchnt_para_cn_nm is null,'其他',mp.mchnt_para_cn_nm),
+           |if(mp1.mchnt_para_cn_nm is null,'其他',mp1.mchnt_para_cn_nm),
+           |
            |            trans_dt)b
            |on
            |    (
@@ -11998,9 +12025,9 @@ object SparkHive2Mysql {
            |    b.transcardcnt as trans_card_cnt
            |from
            |    (
-           |        select
-           |            mp.mchnt_para_cn_nm  as first_para_nm,
-           |            mp1.mchnt_para_cn_nm as second_para_nm,
+           |select
+           |if(mp.mchnt_para_cn_nm is null,'其他',mp.mchnt_para_cn_nm) as first_para_nm,
+           |if(mp1.mchnt_para_cn_nm is null,'其他',mp1.mchnt_para_cn_nm) as second_para_nm,
            |            trans.trans_dt,
            |            count(1) as transcnt
            |        from
@@ -12046,14 +12073,14 @@ object SparkHive2Mysql {
            |        and trans.part_trans_dt >= '$start_dt'
            |        and trans.part_trans_dt <= '$end_dt'
            |        group by
-           |            mp.mchnt_para_cn_nm,
-           |            mp1.mchnt_para_cn_nm,
+           |if(mp.mchnt_para_cn_nm is null,'其他',mp.mchnt_para_cn_nm),
+           |if(mp1.mchnt_para_cn_nm is null,'其他',mp1.mchnt_para_cn_nm),
            |            trans_dt) a
            |left join
            |    (
-           |        select
-           |            mp.mchnt_para_cn_nm  as first_para_nm,
-           |            mp1.mchnt_para_cn_nm as second_para_nm,
+           |    select
+           |if(mp.mchnt_para_cn_nm is null,'其他',mp.mchnt_para_cn_nm) as first_para_nm,
+           |if(mp1.mchnt_para_cn_nm is null,'其他',mp1.mchnt_para_cn_nm) as second_para_nm,
            |            trans.trans_dt,
            |            count(1)                          as suctranscnt,
            |            sum(trans.trans_at)               as transat,
@@ -12104,8 +12131,8 @@ object SparkHive2Mysql {
            |        and trans.part_trans_dt >= '$start_dt'
            |        and trans.part_trans_dt <= '$end_dt'
            |        group by
-           |            mp.mchnt_para_cn_nm,
-           |            mp1.mchnt_para_cn_nm,
+           |if(mp.mchnt_para_cn_nm is null,'其他',mp.mchnt_para_cn_nm),
+           |if(mp1.mchnt_para_cn_nm is null,'其他',mp1.mchnt_para_cn_nm),
            |            trans_dt)b
            |on
            |    (

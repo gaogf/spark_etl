@@ -741,7 +741,7 @@ object SparkUPWH2H {
            |)
            |tempw
            |
-           |right join
+           |inner join
            |(
            |select
            |tempx.trans_tfr_tm,
