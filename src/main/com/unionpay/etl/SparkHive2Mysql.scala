@@ -5384,7 +5384,7 @@ object SparkHive2Mysql {
       val results = sqlContext.sql(
         s"""
            |select
-           |if(acpt_ins.cup_branch_ins_id_nm,'总公司',acpt_ins.cup_branch_ins_id_nm) as cup_branch_ins_id_nm,
+           |    a.cup_branch_ins_id_nm as cup_branch_ins_id_nm,
            |    a.trans_dt as report_dt,
            |    a.transcnt as trans_cnt,
            |    b.suctranscnt as suc_trans_cnt,
@@ -5396,7 +5396,7 @@ object SparkHive2Mysql {
            |from
            |    (
            |        select
-           |if(acpt_ins.cup_branch_ins_id_nm,'总公司',acpt_ins.cup_branch_ins_id_nm) as cup_branch_ins_id_nm,
+           |if(acpt_ins.cup_branch_ins_id_nm is null,'总公司',acpt_ins.cup_branch_ins_id_nm) as cup_branch_ins_id_nm,
            |            trans.trans_dt,
            |            count(1) as transcnt
            |        from
@@ -5422,12 +5422,12 @@ object SparkHive2Mysql {
            |        and trans.part_trans_dt >= '$start_dt'
            |        and trans.part_trans_dt <= '$end_dt'
            |        group by
-           |if(acpt_ins.cup_branch_ins_id_nm,'总公司',acpt_ins.cup_branch_ins_id_nm),
+           |if(acpt_ins.cup_branch_ins_id_nm is null,'总公司',acpt_ins.cup_branch_ins_id_nm),
            |            trans_dt) a
            |left join
            |    (
            |        select
-           |if(acpt_ins.cup_branch_ins_id_nm,'总公司',acpt_ins.cup_branch_ins_id_nm) as cup_branch_ins_id_nm,
+           |if(acpt_ins.cup_branch_ins_id_nm is null,'总公司',acpt_ins.cup_branch_ins_id_nm) as cup_branch_ins_id_nm,
            |            trans.trans_dt,
            |            count(1) as suctranscnt,
            |            sum(trans.trans_at) as transat,
@@ -5458,7 +5458,7 @@ object SparkHive2Mysql {
            |        and trans.trans_dt >= '$start_dt'
            |        and trans.trans_dt <= '$end_dt'
            |        group by
-           |if(acpt_ins.cup_branch_ins_id_nm,'总公司',acpt_ins.cup_branch_ins_id_nm),
+           |if(acpt_ins.cup_branch_ins_id_nm is null,'总公司',acpt_ins.cup_branch_ins_id_nm),
            |            trans_dt)b
            |on
            |    (
@@ -6961,7 +6961,6 @@ object SparkHive2Mysql {
            |    trans.prod_in = '0'
            |and trans.part_settle_dt >= '$start_dt'
            |and trans.part_settle_dt <= '$end_dt'
-           |and acpt_ins.cup_branch_ins_id_nm is not null
            |group by
            |if(acpt_ins.cup_branch_ins_id_nm is null,'总公司',acpt_ins.cup_branch_ins_id_nm),
            |    trans.settle_dt
@@ -7022,7 +7021,6 @@ object SparkHive2Mysql {
            |    trans.prod_in = '0'
            |and trans.settle_dt >= '$start_dt'
            |and trans.settle_dt <= '$end_dt'
-           |and tp_grp.mchnt_tp_grp_desc_cn is not null  and tp.mchnt_tp_desc_cn is not null
            |group by
            |if(tp_grp.mchnt_tp_grp_desc_cn is null,'其他',tp_grp.mchnt_tp_grp_desc_cn),
            |if(tp.mchnt_tp_desc_cn is null,'其他',tp.mchnt_tp_desc_cn),
@@ -7073,7 +7071,6 @@ object SparkHive2Mysql {
            |    trans.prod_in = '0'
            |and trans.part_settle_dt >= '$start_dt'
            |and trans.part_settle_dt <= '$end_dt'
-           |and cbi.iss_ins_cn_nm is not null
            |group by
            |if(trim(cbi.iss_ins_cn_nm) is null,'其他',trim(cbi.iss_ins_cn_nm)),
            |trans.settle_dt
