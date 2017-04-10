@@ -7056,7 +7056,7 @@ object SparkHive2Mysql {
       val results = sqlContext.sql(
         s"""
            |select
-           |if(cbi.iss_ins_cn_nm is null,'其他',cbi.iss_ins_cn_nm) as iss_ins_cn_nm,
+           |if(trim(cbi.iss_ins_cn_nm) is null,'其他',trim(cbi.iss_ins_cn_nm)) as iss_ins_cn_nm,
            |    trans.settle_dt as report_dt,
            |    count(1)                                 as trans_cnt,
            |    sum(trans.trans_pos_at)                  as trans_at,
@@ -7074,7 +7074,8 @@ object SparkHive2Mysql {
            |and trans.part_settle_dt <= '$end_dt'
            |and cbi.iss_ins_cn_nm is not null
            |group by
-           |if(cbi.iss_ins_cn_nm is null,'其他',cbi.iss_ins_cn_nm)
+           |if(trim(cbi.iss_ins_cn_nm) is null,'其他',trim(cbi.iss_ins_cn_nm)),
+           |trans.settle_dt
            | """.stripMargin)
       println(s"#### JOB_DM_58 spark sql 清洗数据完成时间为:" + DateUtils.getCurrentSystemTime())
       if (!Option(results).isEmpty) {
