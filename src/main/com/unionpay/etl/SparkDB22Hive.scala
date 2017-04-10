@@ -111,7 +111,7 @@ object SparkDB22Hive {
       /**
         * 指标套表job
         */
-      case "JOB_HV_15" => JOB_HV_15             //CODE BY TZQ
+      case "JOB_HV_15" => JOB_HV_15(sqlContext, start_dt, end_dt)//CODE BY TZQ
       case "JOB_HV_20_INI_1" => JOB_HV_20_INI_1 //CODE BY XTP
       case "JOB_HV_20_INI_2" => JOB_HV_20_INI_2 //CODE BY XTP
       case "JOB_HV_20" => JOB_HV_20(sqlContext, start_dt, end_dt) //CODE BY XTP
@@ -982,17 +982,20 @@ object SparkDB22Hive {
   /**
     * JobName: JOB_HV_15
     * Feature: hive_undefine_store_inf-->  hive_acc_trans + hive_store_term_relation
-    *
-    * @author tzq
-    * @time 2016-8-23
+@author tzq
+  @time
+  @param sqlContext
+    * 2016-8-23
     * @param sqlContext
+    * @param start_dt
+    * @param end_dt
     */
-  def JOB_HV_15(implicit sqlContext: HiveContext) = {
+  def JOB_HV_15(implicit sqlContext: HiveContext,start_dt:String,end_dt:String) = {
     println("###JOB_HV_15(hive_undefine_store_inf-->  hive_acc_trans + hive_store_term_relation)")
     DateUtils.timeCost("JOB_HV_15"){
       sqlContext.sql(s"use $hive_dbname")
       val results = sqlContext.sql(
-        """
+        s"""
           |select
           |c.card_accptr_cd as mchnt_cd,
           |c.card_accptr_term_id as term_id,
@@ -1007,6 +1010,7 @@ object SparkDB22Hive {
           |card_accptr_term_id,
           |card_accptr_cd
           |from hive_acc_trans
+          |where part_trans_dt >='$start_dt'and part_trans_dt<='$end_dt'
           |group by card_accptr_term_id,card_accptr_cd) a
           |
           |left join
