@@ -980,12 +980,9 @@ object SparkDB22Hive {
   }
 
   /**
-    * JobName: JOB_HV_15
+    * JobName: JOB_HV_15/2016-8-23
     * Feature: hive_undefine_store_inf-->  hive_acc_trans + hive_store_term_relation
-@author tzq
-  @time
-  @param sqlContext
-    * 2016-8-23
+    * @author tzq
     * @param sqlContext
     * @param start_dt
     * @param end_dt
