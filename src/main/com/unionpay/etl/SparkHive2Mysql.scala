@@ -9780,7 +9780,7 @@ object SparkHive2Mysql {
           val results = sqlContext.sql(
             s"""
                |select
-               |case when a.card_attr is null then nvl(b.card_attr,nvl(c.card_attr,nvl(d.card_attr,'其它'))) else a.card_attr end as card_attr,
+               |case when a.card_attr is null then nvl(b.card_attr,nvl(c.card_attr,nvl(d.card_attr,'其它'))) else a.card_attr end as card_attr_nm,
                |'$today_dt' as report_dt,
                |sum(c.swp_quick_cnt),
                |sum(c.swp_quick_usrcnt),
