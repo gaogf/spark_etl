@@ -234,12 +234,100 @@ object SparkDB22Hive {
       val df1 = sqlContext.readDB2_ACC(s"$schemas_accdb.TBL_CHACC_CDHD_PRI_ACCT_INF")
       println("#### JOB_HV_3 readDB2_ACC 的系统时间为:"+DateUtils.getCurrentSystemTime())
 
-      val results=df1.registerTempTable("spark_db2_cdhd_pri_acct_inf")
+      df1.registerTempTable("spark_db2_cdhd_pri_acct_inf")
       println("#### JOB_HV_3 注册临时表的系统时间为:"+DateUtils.getCurrentSystemTime())
+
+      val results = sqlContext.sql(
+        """
+          |select
+          |cdhd_usr_id        ,
+          |reg_dt             ,
+          |usr_nm             ,
+          |mobile             ,
+          |mobile_vfy_st      ,
+          |email_addr         ,
+          |email_vfy_st       ,
+          |inf_source         ,
+          |real_nm            ,
+          |real_nm_st         ,
+          |nick_nm            ,
+          |certif_tp          ,
+          |certif_id          ,
+          |certif_vfy_st      ,
+          |birth_dt           ,
+          |sex                ,
+          |age                ,
+          |marital_st         ,
+          |home_mem_num       ,
+          |cntry_cd           ,
+          |gb_region_cd       ,
+          |comm_addr          ,
+          |zip_cd             ,
+          |nationality        ,
+          |ed_lvl             ,
+          |msn_no             ,
+          |qq_no              ,
+          |person_homepage    ,
+          |industry_id        ,
+          |annual_income_lvl  ,
+          |hobby              ,
+          |brand_prefer       ,
+          |buss_dist_prefer   ,
+          |head_pic_file_path ,
+          |pwd_cue_ques       ,
+          |pwd_cue_answ       ,
+          |usr_eval_lvl       ,
+          |usr_class_lvl      ,
+          |usr_st             ,
+          |open_func          ,
+          |rec_crt_ts         ,
+          |rec_upd_ts         ,
+          |mobile_new         ,
+          |email_addr_new     ,
+          |activate_ts        ,
+          |activate_pwd       ,
+          |region_cd          ,
+          |ver_no             ,
+          |func_bmp           ,
+          |point_pre_open_ts  ,
+          |refer_usr_id       ,
+          |vendor_fk          ,
+          |phone              ,
+          |vip_svc            ,
+          |user_lvl_id        ,
+          |auto_adjust_lvl_in ,
+          |lvl_begin_dt       ,
+          |customer_title     ,
+          |company            ,
+          |dept               ,
+          |duty               ,
+          |resv_phone         ,
+          |join_activity_list ,
+          |remark             ,
+          |note               ,
+          |usr_lvl_expire_dt  ,
+          |reg_card_no        ,
+          |reg_tm             ,
+          |activity_source    ,
+          |chsp_svc_in        ,
+          |accept_sms_in      ,
+          |prov_division_cd   ,
+          |city_division_cd   ,
+          |vid_last_login     ,
+          |pay_pwd            ,
+          |pwd_set_st         ,
+          |realnm_in
+          |from spark_db2_cdhd_pri_acct_inf
+        """.stripMargin
+      )
+      println("#### JOB_HV_3 spark sql 逻辑完成的系统时间为:"+DateUtils.getCurrentSystemTime())
+
+      results.registerTempTable("spark_cdhd_pri_acct_inf")
+      println("#### JOB_HV_3 registerTempTable--spark_cdhd_pri_acct_inf完成的系统时间为:"+DateUtils.getCurrentSystemTime())
 
       if(!Option(results).isEmpty){
         sqlContext.sql(s"use $hive_dbname")
-        sqlContext.sql("insert overwrite table hive_cdhd_pri_acct_inf select * from spark_db2_cdhd_pri_acct_inf")
+        sqlContext.sql("insert overwrite table hive_cdhd_pri_acct_inf select * from spark_cdhd_pri_acct_inf")
         println("#### JOB_HV_3 全量数据插入完成的时间为："+DateUtils.getCurrentSystemTime())
       }else{
         println("#### JOB_HV_3 spark sql 逻辑处理后无数据！")
