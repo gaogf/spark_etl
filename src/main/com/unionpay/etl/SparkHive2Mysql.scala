@@ -6996,8 +6996,8 @@ object SparkHive2Mysql {
       val results = sqlContext.sql(
         s"""
            |select
-           |if(tp_grp.mchnt_tp_grp_desc_cn is null,'其他',tp_grp.mchnt_tp_grp_desc_cn) as grp_nm,
-           |if(tp.mchnt_tp_desc_cn is null,'其他',tp.mchnt_tp_desc_cn) as tp_nm,
+           |if(tp_grp.mchnt_tp_grp_desc_cn is null,'其他',tp_grp.mchnt_tp_grp_desc_cn) as mchnt_tp_grp,
+           |if(tp.mchnt_tp_desc_cn is null,'其他',tp.mchnt_tp_desc_cn) as mchnt_tp,
            |    trans.settle_dt as 	report_dt,
            |    count(1)                                 as trans_cnt,
            |    sum(trans.trans_pos_at)                  as trans_at,
@@ -11065,12 +11065,12 @@ object SparkHive2Mysql {
                |case when a.cup_branch_ins_id_nm is null then b.cup_branch_ins_id_nm else a.cup_branch_ins_id_nm end as branch_nm,
                |case when a.if_hce is null then b.if_hce else a.if_hce end as if_hce,
                |'$today_dt' as report_dt,
-               |sum(a.coupon_class),
-               |sum(a.coupon_pub_num),
-               |sum(a.coupon_dow_num),
-               |sum(b.batch_num),
-               |sum(a.dow_usr_num),
-               |sum(b.batch_sur_num)
+               |sum(a.coupon_class) as coupon_class,
+               |sum(a.coupon_pub_num) as coupon_pub_num,
+               |sum(a.coupon_dow_num) as coupon_dow_num,
+               |sum(b.batch_num) as batch_num,
+               |sum(a.dow_usr_num) as dow_usr_num,
+               |sum(b.batch_sur_num) as batch_sur_num
                |from
                |(select bill.cup_branch_ins_id_nm,
                |case when substr(udf_fld,31,2) in ('01','02','03','04','05') then '仅限云闪付' else '非仅限云闪付' end as if_hce,
