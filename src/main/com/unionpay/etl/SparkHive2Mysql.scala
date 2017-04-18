@@ -4387,248 +4387,263 @@ object SparkHive2Mysql {
           val results =sqlContext.sql(
             s"""
                |select
-               |    a.first_para_nm    as first_ind_nm,
-               |    a.second_para_nm   as second_ind_nm,
-               |    a.trans_dt         as report_dt,
-               |    a.transcnt         as trans_cnt,
-               |    b.suctranscnt      as suc_trans_cnt,
-               |    b.transat          as trans_at,
-               |    b.discountat       as discount_at,
-               |    b.transusrcnt      as trans_usr_cnt,
-               |    b.transcardcnt     as trans_card_cnt
+               |    if(t.first_ind_nm is null,'????',t.first_ind_nm),
+               |    if(t.second_ind_nm is null,'????',t.second_ind_nm),
+               |    t.report_dt,
+               |    sum(t.trans_cnt),
+               |    sum(t.suc_trans_cnt),
+               |    sum(t.trans_at),
+               |    sum(t.discount_at),
+               |    sum(t.trans_usr_cnt),
+               |    sum(t.trans_card_cnt)
                |from
                |    (
                |        select
-               |            trim(if(mp.mchnt_para_cn_nm is null,'其他',mp.mchnt_para_cn_nm)) as first_para_nm,
-               |            trim(if(mp1.mchnt_para_cn_nm is null,'其他',mp1.mchnt_para_cn_nm)) as second_para_nm,
-               |            to_date(trans.trans_dt) as trans_dt,
-               |            count(1) as transcnt
+               |            a.first_para_nm  as first_ind_nm,
+               |            a.second_para_nm as second_ind_nm,
+               |            a.trans_dt       as report_dt,
+               |            a.transcnt       as trans_cnt,
+               |            b.suctranscnt    as suc_trans_cnt,
+               |            b.transat        as trans_at,
+               |            b.discountat     as discount_at,
+               |            b.transusrcnt    as trans_usr_cnt,
+               |            b.transcardcnt   as trans_card_cnt
                |        from
-               |            hive_acc_trans trans
-               |        inner join
-               |            hive_store_term_relation str
-               |        on
                |            (
-               |                trans.card_accptr_cd = str.mchnt_cd
-               |            and trans.card_accptr_term_id = str.term_id)
-               |        left join
-               |            hive_preferential_mchnt_inf pmi
-               |        on
-               |            (
-               |                str.third_party_ins_id = pmi.mchnt_cd)
-               |        left join
-               |            hive_mchnt_para mp
-               |        on
-               |            (
-               |                pmi.mchnt_first_para = mp.mchnt_para_id)
-               |        left join
-               |            hive_mchnt_para mp1
-               |        on
-               |            (
-               |                pmi.mchnt_second_para = mp1.mchnt_para_id)
-               |        left join
-               |            hive_ticket_bill_bas_inf bill
-               |        on
-               |            (
-               |                trans.bill_id=bill.bill_id)
-               |        where
-               |            trans.um_trans_id in ('AC02000065',
-               |                                  'AC02000063')
-               |        and bill.bill_sub_tp in ('01',
-               |                                 '03')
-               |        and trans.part_trans_dt = '$today_dt'
-               |        group by
-               |            trim(if(mp.mchnt_para_cn_nm is null,'其他',mp.mchnt_para_cn_nm)),
-               |            trim(if(mp1.mchnt_para_cn_nm is null,'其他',mp1.mchnt_para_cn_nm)),
-               |            to_date(trans_dt)) a
-               |left join
-               |    (
-               |        select
-               |            trim(if(mp.mchnt_para_cn_nm is null,'其他',mp.mchnt_para_cn_nm)) as first_para_nm,
-               |            trim(if(mp1.mchnt_para_cn_nm is null,'其他',mp1.mchnt_para_cn_nm)) as second_para_nm,
-               |            to_date(trans.trans_dt) as trans_dt,
-               |            count(1)                          as suctranscnt,
-               |            sum(trans.trans_at)               as transat,
-               |            sum(trans.discount_at)            as discountat,
-               |            count(distinct trans.cdhd_usr_id) as transusrcnt,
-               |            count(distinct trans.pri_acct_no) as transcardcnt
-               |        from
-               |            hive_acc_trans trans
-               |        inner join
-               |            hive_store_term_relation str
-               |        on
-               |            (
-               |                trans.card_accptr_cd = str.mchnt_cd
-               |            and trans.card_accptr_term_id = str.term_id)
-               |        left join
-               |            hive_preferential_mchnt_inf pmi
-               |        on
-               |            (
-               |                str.third_party_ins_id = pmi.mchnt_cd)
-               |        left join
-               |            hive_mchnt_para mp
-               |        on
-               |            (
-               |                pmi.mchnt_first_para = mp.mchnt_para_id)
-               |        left join
-               |            hive_mchnt_para mp1
-               |        on
-               |            (
-               |                pmi.mchnt_second_para = mp1.mchnt_para_id)
-               |        left join
-               |            hive_ticket_bill_bas_inf bill
-               |        on
-               |            (
-               |                trans.bill_id=bill.bill_id)
-               |        where
-               |            trans.sys_det_cd = 'S'
-               |        and trans.um_trans_id in ('AC02000065',
-               |                                  'AC02000063')
-               |        and bill.bill_sub_tp in ('01',
-               |                                 '03')
-               |        and trans.part_trans_dt = '$today_dt'
-               |        group by
-               |            trim(if(mp.mchnt_para_cn_nm is null,'其他',mp.mchnt_para_cn_nm)),
-               |            trim(if(mp1.mchnt_para_cn_nm is null,'其他',mp1.mchnt_para_cn_nm)),
-               |            to_date(trans_dt))b
-               |on
-               |    (
-               |        a.first_para_nm = b.first_para_nm
-               |    and a.second_para_nm = b.second_para_nm
-               |    and a.trans_dt = b.trans_dt )
-               |union all
-               |select
-               |    a.first_para_nm,
-               |    a.second_para_nm,
-               |    a.trans_dt,
-               |    a.transcnt,
-               |    b.suctranscnt,
-               |    b.transat,
-               |    b.discountat,
-               |    b.transusrcnt,
-               |    b.transcardcnt
-               |from
-               |    (
-               |        select
-               |            trim(if(mp.mchnt_para_cn_nm is null,'其他',mp.mchnt_para_cn_nm)) as first_para_nm,
-               |            trim(if(mp1.mchnt_para_cn_nm is null,'其他',mp1.mchnt_para_cn_nm)) as second_para_nm,
-               |            to_date(trans.trans_dt) as trans_dt,
-               |            count(1) as transcnt
-               |        from
-               |            hive_acc_trans trans
-               |        left join
-               |            hive_store_term_relation str
-               |        on
-               |            (
-               |                trans.card_accptr_cd = str.mchnt_cd
-               |            and trans.card_accptr_term_id = str.term_id)
+               |                select
+               |                    mp.mchnt_para_cn_nm     as first_para_nm,
+               |                    mp1.mchnt_para_cn_nm    as second_para_nm,
+               |                    to_date(trans.trans_dt) as trans_dt,
+               |                    count(1)                as transcnt
+               |                from
+               |                    hive_acc_trans trans
+               |                inner join
+               |                    hive_store_term_relation str
+               |                on
+               |                    (
+               |                        trans.card_accptr_cd = str.mchnt_cd
+               |                    and trans.card_accptr_term_id = str.term_id)
+               |                left join
+               |                    hive_preferential_mchnt_inf pmi
+               |                on
+               |                    (
+               |                        str.third_party_ins_id = pmi.mchnt_cd)
+               |                left join
+               |                    hive_mchnt_para mp
+               |                on
+               |                    (
+               |                        pmi.mchnt_first_para = mp.mchnt_para_id)
+               |                left join
+               |                    hive_mchnt_para mp1
+               |                on
+               |                    (
+               |                        pmi.mchnt_second_para = mp1.mchnt_para_id)
+               |                left join
+               |                    hive_ticket_bill_bas_inf bill
+               |                on
+               |                    (
+               |                        trans.bill_id=bill.bill_id)
+               |                where
+               |                    trans.um_trans_id in ('AC02000065',
+               |                                          'AC02000063')
+               |                and bill.bill_sub_tp in ('01',
+               |                                         '03')
+               |                and trans.part_trans_dt = '$today_dt'
+               |                group by
+               |                    mp.mchnt_para_cn_nm,
+               |                    mp1.mchnt_para_cn_nm,
+               |                    to_date(trans_dt)) a
                |        left join
                |            (
                |                select
-               |                    mchnt_cd,
-               |                    max(third_party_ins_id) over (partition by mchnt_cd) as third_party_ins_id
+               |                    mp.mchnt_para_cn_nm               as first_para_nm,
+               |                    mp1.mchnt_para_cn_nm              as second_para_nm,
+               |                    to_date(trans.trans_dt)           as trans_dt,
+               |                    count(1)                          as suctranscnt,
+               |                    sum(trans.trans_at)               as transat,
+               |                    sum(trans.discount_at)            as discountat,
+               |                    count(distinct trans.cdhd_usr_id) as transusrcnt,
+               |                    count(distinct trans.pri_acct_no) as transcardcnt
                |                from
-               |                    hive_store_term_relation) str1
+               |                    hive_acc_trans trans
+               |                inner join
+               |                    hive_store_term_relation str
+               |                on
+               |                    (
+               |                        trans.card_accptr_cd = str.mchnt_cd
+               |                    and trans.card_accptr_term_id = str.term_id)
+               |                left join
+               |                    hive_preferential_mchnt_inf pmi
+               |                on
+               |                    (
+               |                        str.third_party_ins_id = pmi.mchnt_cd)
+               |                left join
+               |                    hive_mchnt_para mp
+               |                on
+               |                    (
+               |                        pmi.mchnt_first_para = mp.mchnt_para_id)
+               |                left join
+               |                    hive_mchnt_para mp1
+               |                on
+               |                    (
+               |                        pmi.mchnt_second_para = mp1.mchnt_para_id)
+               |                left join
+               |                    hive_ticket_bill_bas_inf bill
+               |                on
+               |                    (
+               |                        trans.bill_id=bill.bill_id)
+               |                where
+               |                    trans.sys_det_cd = 's'
+               |                and trans.um_trans_id in ('AC02000065', 'AC02000063')
+               |                and bill.bill_sub_tp in ('01','03')
+               |                and trans.part_trans_dt = '$today_dt'
+               |                group by
+               |                    mp.mchnt_para_cn_nm,
+               |                    mp1.mchnt_para_cn_nm,
+               |                    to_date(trans_dt))b
                |        on
                |            (
-               |                trans.card_accptr_cd = str1.mchnt_cd)
-               |        left join
-               |            hive_preferential_mchnt_inf pmi
-               |        on
-               |            (
-               |                str1.third_party_ins_id = pmi.mchnt_cd)
-               |        left join
-               |            hive_mchnt_para mp
-               |        on
-               |            (
-               |                pmi.mchnt_first_para = mp.mchnt_para_id)
-               |        left join
-               |            hive_mchnt_para mp1
-               |        on
-               |            (
-               |                pmi.mchnt_second_para = mp1.mchnt_para_id)
-               |        left join
-               |            hive_ticket_bill_bas_inf bill
-               |        on
-               |            (
-               |                trans.bill_id=bill.bill_id)
-               |        where
-               |            trans.um_trans_id in ('AC02000065',
-               |                                  'AC02000063')
-               |        and bill.bill_sub_tp in ('01',
-               |                                 '03')
-               |
-               |        and trans.part_trans_dt = '$today_dt'
-               |        group by
-               |            trim(if(mp.mchnt_para_cn_nm is null,'其他',mp.mchnt_para_cn_nm)),
-               |            trim(if(mp1.mchnt_para_cn_nm is null,'其他',mp1.mchnt_para_cn_nm)),
-               |            to_date(trans_dt)) a
-               |left join
-               |    (
+               |                a.first_para_nm = b.first_para_nm
+               |            and a.second_para_nm = b.second_para_nm
+               |            and a.trans_dt = b.trans_dt )
+               |        union all
                |        select
-               |            trim(if(mp.mchnt_para_cn_nm is null,'其他',mp.mchnt_para_cn_nm)) as first_para_nm,
-               |            trim(if(mp1.mchnt_para_cn_nm is null,'其他',mp1.mchnt_para_cn_nm)) as second_para_nm,
-               |            to_date(trans.trans_dt) as trans_dt,
-               |            count(1)                          as suctranscnt,
-               |            sum(trans.trans_at)               as transat,
-               |            sum(trans.discount_at)            as discountat,
-               |            count(distinct trans.cdhd_usr_id) as transusrcnt,
-               |            count(distinct trans.pri_acct_no) as transcardcnt
+               |            a.first_para_nm,
+               |            a.second_para_nm,
+               |            a.trans_dt,
+               |            a.transcnt,
+               |            b.suctranscnt,
+               |            b.transat,
+               |            b.discountat,
+               |            b.transusrcnt,
+               |            b.transcardcnt
                |        from
-               |            hive_acc_trans trans
-               |        left join
-               |            hive_store_term_relation str
-               |        on
                |            (
-               |                trans.card_accptr_cd = str.mchnt_cd
-               |            and trans.card_accptr_term_id = str.term_id)
+               |                select
+               |                    mp.mchnt_para_cn_nm     as first_para_nm,
+               |                    mp1.mchnt_para_cn_nm    as second_para_nm,
+               |                    to_date(trans.trans_dt) as trans_dt,
+               |                    count(1)                as transcnt
+               |                from
+               |                    hive_acc_trans trans
+               |                left join
+               |                    hive_store_term_relation str
+               |                on
+               |                    (
+               |                        trans.card_accptr_cd = str.mchnt_cd
+               |                    and trans.card_accptr_term_id = str.term_id)
+               |                left join
+               |                    (
+               |                        select
+               |                            mchnt_cd,
+               |                            max(third_party_ins_id) over (partition by mchnt_cd) as
+               |                            third_party_ins_id
+               |                        from
+               |                            hive_store_term_relation) str1
+               |                on
+               |                    (
+               |                        trans.card_accptr_cd = str1.mchnt_cd)
+               |                left join
+               |                    hive_preferential_mchnt_inf pmi
+               |                on
+               |                    (
+               |                        str1.third_party_ins_id = pmi.mchnt_cd)
+               |                left join
+               |                    hive_mchnt_para mp
+               |                on
+               |                    (
+               |                        pmi.mchnt_first_para = mp.mchnt_para_id)
+               |                left join
+               |                    hive_mchnt_para mp1
+               |                on
+               |                    (
+               |                        pmi.mchnt_second_para = mp1.mchnt_para_id)
+               |                left join
+               |                    hive_ticket_bill_bas_inf bill
+               |                on
+               |                    (
+               |                        trans.bill_id=bill.bill_id)
+               |                where
+               |                    trans.um_trans_id in ('AC02000065',
+               |                                          'AC02000063')
+               |                and bill.bill_sub_tp in ('01',
+               |                                         '03')
+               |                and trans.part_trans_dt = '$today_dt'
+               |                group by
+               |                    mp.mchnt_para_cn_nm,
+               |                    mp1.mchnt_para_cn_nm,
+               |                    to_date(trans_dt)) a
                |        left join
                |            (
                |                select
-               |                    mchnt_cd,
-               |                    max(third_party_ins_id) over (partition by mchnt_cd) as third_party_ins_id
+               |                    mp.mchnt_para_cn_nm               as first_para_nm,
+               |                    mp1.mchnt_para_cn_nm              as second_para_nm,
+               |                    to_date(trans.trans_dt)           as trans_dt,
+               |                    count(1)                          as suctranscnt,
+               |                    sum(trans.trans_at)               as transat,
+               |                    sum(trans.discount_at)            as discountat,
+               |                    count(distinct trans.cdhd_usr_id) as transusrcnt,
+               |                    count(distinct trans.pri_acct_no) as transcardcnt
                |                from
-               |                    hive_store_term_relation) str1
+               |                    hive_acc_trans trans
+               |                left join
+               |                    hive_store_term_relation str
+               |                on
+               |                    (
+               |                        trans.card_accptr_cd = str.mchnt_cd
+               |                    and trans.card_accptr_term_id = str.term_id)
+               |                left join
+               |                    (
+               |                        select
+               |                            mchnt_cd,
+               |                            max(third_party_ins_id) over (partition by mchnt_cd) as
+               |                            third_party_ins_id
+               |                        from
+               |                            hive_store_term_relation) str1
+               |                on
+               |                    (
+               |                        trans.card_accptr_cd = str1.mchnt_cd)
+               |                left join
+               |                    hive_preferential_mchnt_inf pmi
+               |                on
+               |                    (
+               |                        str1.third_party_ins_id = pmi.mchnt_cd)
+               |                left join
+               |                    hive_mchnt_para mp
+               |                on
+               |                    (
+               |                        pmi.mchnt_first_para = mp.mchnt_para_id)
+               |                left join
+               |                    hive_mchnt_para mp1
+               |                on
+               |                    (
+               |                        pmi.mchnt_second_para = mp1.mchnt_para_id)
+               |                left join
+               |                    hive_ticket_bill_bas_inf bill
+               |                on
+               |                    (
+               |                        trans.bill_id=bill.bill_id)
+               |                where
+               |                    trans.sys_det_cd = 's'
+               |                and trans.um_trans_id in ('AC02000065',
+               |                                          'AC02000063')
+               |                and bill.bill_sub_tp in ('01',
+               |                                         '03')
+               |                and trans.part_trans_dt = '$today_dt'
+               |                group by
+               |                    mp.mchnt_para_cn_nm,
+               |                    mp1.mchnt_para_cn_nm,
+               |                    to_date(trans_dt))b
                |        on
                |            (
-               |                trans.card_accptr_cd = str1.mchnt_cd)
-               |        left join
-               |            hive_preferential_mchnt_inf pmi
-               |        on
-               |            (
-               |                str1.third_party_ins_id = pmi.mchnt_cd)
-               |        left join
-               |            hive_mchnt_para mp
-               |        on
-               |            (
-               |                pmi.mchnt_first_para = mp.mchnt_para_id)
-               |        left join
-               |            hive_mchnt_para mp1
-               |        on
-               |            (
-               |                pmi.mchnt_second_para = mp1.mchnt_para_id)
-               |        left join
-               |            hive_ticket_bill_bas_inf bill
-               |        on
-               |            (
-               |                trans.bill_id=bill.bill_id)
-               |        where
-               |            trans.sys_det_cd = 'S'
-               |        and trans.um_trans_id in ('AC02000065',
-               |                                  'AC02000063')
-               |        and bill.bill_sub_tp in ('01',
-               |                                 '03')
+               |                a.first_para_nm = b.first_para_nm
+               |            and a.second_para_nm = b.second_para_nm
+               |            and a.trans_dt = b.trans_dt )) t
+               |group by
+               |    if(t.first_ind_nm is null,'????',t.first_ind_nm),
+               |    if(t.second_ind_nm is null,'????',t.second_ind_nm),
+               |    t.report_dt
                |
-               |        and trans.part_trans_dt = '$today_dt'
-               |        group by
-               |            trim(if(mp.mchnt_para_cn_nm is null,'其他',mp.mchnt_para_cn_nm)),
-               |            trim(if(mp1.mchnt_para_cn_nm is null,'其他',mp1.mchnt_para_cn_nm)),
-               |             to_date(trans_dt))b
-               |on
-               |    (
-               |        a.first_para_nm = b.first_para_nm
-               |    and a.second_para_nm = b.second_para_nm
-               |    and a.trans_dt = b.trans_dt )
           """.stripMargin)
 
           println(s"#### JOB_DM_36 spark sql 清洗[$today_dt]数据完成时间为:" + DateUtils.getCurrentSystemTime())
