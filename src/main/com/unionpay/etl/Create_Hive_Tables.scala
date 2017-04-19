@@ -1259,7 +1259,7 @@ object Create_Hive_Tables {
     sqlContext.sql(s"use $hive_dbname")
     sqlContext.sql(
       s"""
-         |create table if not exists upw_hive.hive_pri_acct_inf(
+         |create table if not exists $hive_dbname.hive_pri_acct_inf(
          |cdhd_usr_id            string    ,
          |reg_dt                 timestamp      ,
          |usr_nm                 string    ,
