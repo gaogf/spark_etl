@@ -1347,7 +1347,7 @@ object Create_Hive_Tables {
          |)
          |row format delimited fields terminated by '!|'
          |stored as parquet
-         |location '/user/ch_hypas/upw_hive/participant/user/hive_passive_code_pay_trans'
+         |location '/user/ch_hypas/upw_hive/participant/user/hive_pri_acct_inf'
          | """.stripMargin)
 
     println("=======Create hive_pri_acct_inf successfully ! =======")
