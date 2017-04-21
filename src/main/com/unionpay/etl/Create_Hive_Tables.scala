@@ -72,8 +72,8 @@ object Create_Hive_Tables {
 //    hive_prize_bas
 //    hive_signer_log
 //    hive_ticket_bill_bas_inf
-    hive_undefine_store_inf
-    hive_undefine_store_inf_temp
+//    hive_undefine_store_inf
+//    hive_undefine_store_inf_temp
 //    hive_user_td_d
 //    hive_bill_order_trans
 //    hive_bill_sub_order_trans
@@ -113,14 +113,14 @@ object Create_Hive_Tables {
 //    hive_wlonl_acc_notes
 //    hive_ubp_order
 //    hive_mnsvc_business_instal_info
-    hive_mtdtrs_dtl_ach_bat_file
-    hive_mtdtrs_dtl_ach_bat_file_dtl
-    hive_rtdtrs_dtl_achis_bill
-
-    hive_rtdtrs_dtl_achis_note
-    hive_rtdtrs_dtl_achis_order
-    hive_rtdtrs_dtl_achis_order_error
-    hive_rtdtrs_dtl_sor_cmsp
+//    hive_mtdtrs_dtl_ach_bat_file
+//    hive_mtdtrs_dtl_ach_bat_file_dtl
+//    hive_rtdtrs_dtl_achis_bill
+//
+//    hive_rtdtrs_dtl_achis_note
+//    hive_rtdtrs_dtl_achis_order
+//    hive_rtdtrs_dtl_achis_order_error
+//    hive_rtdtrs_dtl_sor_cmsp
 
     println("=======Create all tables on the hive successfully=======")
 
@@ -4913,7 +4913,7 @@ object Create_Hive_Tables {
          |partitioned by (part_trans_dt string)
          |row format delimited fields terminated by '!|'
          |stored as parquet
-         |location '/user_hypas/upw_hive/incident/trans/hive_point_trans'
+         |location '/user/ch_hypas/upw_hive/incident/trans/hive_point_trans'
          | """.stripMargin)
 
     println("=======Create hive_point_trans successfully ! =======")
