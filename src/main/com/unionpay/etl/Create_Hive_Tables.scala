@@ -25,102 +25,102 @@ object Create_Hive_Tables {
 
     //    仅初始化使用，默认关闭
 
-//    hive_ct //参数表
-//    hive_life //参数表
-//    hive_city_card //参数表
-//    hive_province_card //参数表
-//    hive_acc_trans
-//    hive_achis_trans
-//    hive_active_card_acq_branch_mon
-//    hive_card_bind_inf
-//    hive_discount_bas_inf
-//    hive_download_trans
-//    hive_inf_source_class
-//    hive_ins_inf
-//    hive_mchnt_para
-//    hive_passive_code_pay_trans
-//    hive_cdhd_pri_acct_inf
-//    hive_pri_acct_inf
-//    hive_switch_point_trans
-//    hive_ucbiz_cdhd_bas_inf
-//    hive_access_bas_inf
-//    hive_active_code_pay_trans
-//    hive_branch_acpt_ins_inf
-//    hive_brand_inf
-//    hive_card_bin
-//    hive_cdhd_cashier_maktg_reward_dtl
-//    hive_cashier_point_acct_oper_dtl
-//    hive_chara_grp_def_bat
-//    hive_cups_trans
-//    hive_filter_app_det
-//    hive_filter_rule_det
-//    hive_inf_source_dtl
-//    hive_life_trans
-//    hive_mchnt_inf_wallet
-//    hive_mchnt_tp_grp
-//    hive_org_tdapp_activitynew
-//    hive_org_tdapp_device
-//    hive_org_tdapp_devicenew
-//    hive_org_tdapp_eventnew
-//    hive_org_tdapp_exceptionnew
-//    hive_org_tdapp_keyvalue
-//    hive_org_tdapp_tlaunchnew
-//    hive_org_tdapp_exception
-//    hive_org_tdapp_newuser
-//    hive_org_tdapp_tappevent
-//    hive_preferential_mchnt_inf
-//    hive_prize_bas
-//    hive_signer_log
-//    hive_ticket_bill_bas_inf
-//    hive_undefine_store_inf
-//    hive_undefine_store_inf_temp
-//    hive_user_td_d
-//    hive_bill_order_trans
-//    hive_bill_sub_order_trans
-//    hive_mchnt_tp
-//    hive_offline_point_trans
-//    hive_online_point_trans
-//    hive_prize_activity_bas_inf
-//    hive_prize_discount_result
-//    hive_prize_lvl_add_rule
-//    hive_prize_lvl
-//    hive_store_term_relation
-//    hive_term_inf
-//    hive_ach_order_inf
-//    hive_bill_order_aux_inf
-//    hive_bill_sub_order_detail_inf
-//    hive_ticket_bill_acct_adj_task
-//    hive_search_trans
-//    hive_buss_dist
-//    hive_cdhd_bill_acct_inf
-//    hive_cashier_bas_inf
-//    hive_access_static_inf
-//    hive_region_cd
-//    hive_aconl_ins_bas
-//    hive_org_tdapp_tactivity
-//    hive_org_tdapp_tlaunch
-//    hive_org_tdapp_terminate
-//    hive_trans_dtl
-//    hive_trans_log
-//    hive_swt_log
-//    hive_cdhd_trans_year
-//    hive_life_order_inf
-//    hive_rtdtrs_dtl_ach_bill
-//    hive_point_trans
-//    hive_mksvc_order
-//    hive_wlonl_transfer_order
-//    hive_wlonl_uplan_coupon
-//    hive_wlonl_acc_notes
-//    hive_ubp_order
-//    hive_mnsvc_business_instal_info
-//    hive_mtdtrs_dtl_ach_bat_file
-//    hive_mtdtrs_dtl_ach_bat_file_dtl
-//    hive_rtdtrs_dtl_achis_bill
-//
-//    hive_rtdtrs_dtl_achis_note
-//    hive_rtdtrs_dtl_achis_order
-//    hive_rtdtrs_dtl_achis_order_error
-//    hive_rtdtrs_dtl_sor_cmsp
+    hive_ct //参数表
+    hive_life //参数表
+    hive_city_card //参数表
+    hive_province_card //参数表
+    hive_acc_trans
+    hive_achis_trans
+    hive_active_card_acq_branch_mon
+    hive_card_bind_inf
+    hive_discount_bas_inf
+    hive_download_trans
+    hive_inf_source_class
+    hive_ins_inf
+    hive_mchnt_para
+    hive_passive_code_pay_trans
+    hive_cdhd_pri_acct_inf
+    hive_pri_acct_inf
+    hive_switch_point_trans
+    hive_ucbiz_cdhd_bas_inf
+    hive_access_bas_inf
+    hive_active_code_pay_trans
+    hive_branch_acpt_ins_inf
+    hive_brand_inf
+    hive_card_bin
+    hive_cdhd_cashier_maktg_reward_dtl
+    hive_cashier_point_acct_oper_dtl
+    hive_chara_grp_def_bat
+    hive_cups_trans
+    hive_filter_app_det
+    hive_filter_rule_det
+    hive_inf_source_dtl
+    hive_life_trans
+    hive_mchnt_inf_wallet
+    hive_mchnt_tp_grp
+    hive_org_tdapp_activitynew
+    hive_org_tdapp_device
+    hive_org_tdapp_devicenew
+    hive_org_tdapp_eventnew
+    hive_org_tdapp_exceptionnew
+    hive_org_tdapp_keyvalue
+    hive_org_tdapp_tlaunchnew
+    hive_org_tdapp_exception
+    hive_org_tdapp_newuser
+    hive_org_tdapp_tappevent
+    hive_preferential_mchnt_inf
+    hive_prize_bas
+    hive_signer_log
+    hive_ticket_bill_bas_inf
+    hive_undefine_store_inf
+    hive_undefine_store_inf_temp
+    hive_user_td_d
+    hive_bill_order_trans
+    hive_bill_sub_order_trans
+    hive_mchnt_tp
+    hive_offline_point_trans
+    hive_online_point_trans
+    hive_prize_activity_bas_inf
+    hive_prize_discount_result
+    hive_prize_lvl_add_rule
+    hive_prize_lvl
+    hive_store_term_relation
+    hive_term_inf
+    hive_ach_order_inf
+    hive_bill_order_aux_inf
+    hive_bill_sub_order_detail_inf
+    hive_ticket_bill_acct_adj_task
+    hive_search_trans
+    hive_buss_dist
+    hive_cdhd_bill_acct_inf
+    hive_cashier_bas_inf
+    hive_access_static_inf
+    hive_region_cd
+    hive_aconl_ins_bas
+    hive_org_tdapp_tactivity
+    hive_org_tdapp_tlaunch
+    hive_org_tdapp_terminate
+    hive_trans_dtl
+    hive_trans_log
+    hive_swt_log
+    hive_cdhd_trans_year
+    hive_life_order_inf
+    hive_rtdtrs_dtl_ach_bill
+    hive_point_trans
+    hive_mksvc_order
+    hive_wlonl_transfer_order
+    hive_wlonl_uplan_coupon
+    hive_wlonl_acc_notes
+    hive_ubp_order
+    hive_mnsvc_business_instal_info
+    hive_mtdtrs_dtl_ach_bat_file
+    hive_mtdtrs_dtl_ach_bat_file_dtl
+    hive_rtdtrs_dtl_achis_bill
+
+    hive_rtdtrs_dtl_achis_note
+    hive_rtdtrs_dtl_achis_order
+    hive_rtdtrs_dtl_achis_order_error
+    hive_rtdtrs_dtl_sor_cmsp
 
     println("=======Create all tables on the hive successfully=======")
 
@@ -2564,6 +2564,7 @@ object Create_Hive_Tables {
          |sync_st                 string ,
          |sync_bat_no             int    ,
          |sync_ts                 timestamp
+         |)
          |row format delimited fields terminated by '!|'
          |stored as parquet
          |location '/user/ch_hypas/upw_hive/parameter/hive_mchnt_tp_grp'
