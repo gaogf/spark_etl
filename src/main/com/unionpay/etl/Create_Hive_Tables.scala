@@ -122,6 +122,10 @@ object Create_Hive_Tables {
     hive_rtdtrs_dtl_achis_order_error
     hive_rtdtrs_dtl_sor_cmsp
 
+    hive_rtapam_dim_ins
+    hive_stmtrs_scl_usr_geo_loc_quota
+    hive_rtapam_dim_intnl_domin
+
     println("=======Create all tables on the hive successfully=======")
 
     sc.stop()
@@ -5396,10 +5400,10 @@ object Create_Hive_Tables {
   /**
     *  JOB_HV_92
     */
-  def hive_mtdtrs_dtl_ach_bat_file_dtl (implicit  sqlcontext :HiveContext)={
+  def hive_mtdtrs_dtl_ach_bat_file_dtl (implicit  sqlContext :HiveContext)={
     println("=======create hive_mtdtrs_dtl_ach_bat_file_dtl=======")
-    sqlcontext.sql(s"use $hive_dbname")
-    sqlcontext.sql(
+    sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql(
      s"""
         |create table if not exists $hive_dbname.hive_mtdtrs_dtl_ach_bat_file_dtl
         |(
@@ -5489,12 +5493,12 @@ object Create_Hive_Tables {
   /**
     *  JOB_HV_93
     */
-  def hive_rtdtrs_dtl_achis_bill (implicit  sqlcontext :HiveContext)={
+  def hive_rtdtrs_dtl_achis_bill (implicit  sqlContext :HiveContext)={
     println("=======create hive_rtdtrs_dtl_achis_bill=======")
-    sqlcontext.sql(s"use $hive_dbname")
-    sqlcontext.sql("drop table if exists hive_rtdtrs_dtl_achis_bill")
+    sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_rtdtrs_dtl_achis_bill")
 
-    sqlcontext.sql(
+    sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_rtdtrs_dtl_achis_bill
          |(
@@ -5601,12 +5605,12 @@ object Create_Hive_Tables {
   /**
     *  JOB_HV_94
     */
-  def hive_rtdtrs_dtl_achis_note (implicit  sqlcontext :HiveContext)={
+  def hive_rtdtrs_dtl_achis_note (implicit  sqlContext :HiveContext)={
     println("=======create hive_rtdtrs_dtl_achis_note=======")
-    sqlcontext.sql(s"use $hive_dbname")
-    sqlcontext.sql("drop table if exists hive_rtdtrs_dtl_achis_note")
+    sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_rtdtrs_dtl_achis_note")
 
-    sqlcontext.sql(
+    sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_rtdtrs_dtl_achis_note(
          |settle_dt       string   ,
@@ -5641,12 +5645,12 @@ object Create_Hive_Tables {
   /**
     *  JOB_HV_95
     */
-  def hive_rtdtrs_dtl_achis_order (implicit  sqlcontext :HiveContext)={
+  def hive_rtdtrs_dtl_achis_order (implicit  sqlContext :HiveContext)={
     println("=======create hive_rtdtrs_dtl_achis_order=======")
-    sqlcontext.sql(s"use $hive_dbname")
-    sqlcontext.sql("drop table if exists hive_rtdtrs_dtl_achis_order")
+    sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_rtdtrs_dtl_achis_order")
 
-    sqlcontext.sql(
+    sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_rtdtrs_dtl_achis_order(
          |settle_dt                  string     ,
@@ -5746,12 +5750,12 @@ object Create_Hive_Tables {
   /**
     *  JOB_HV_96
     */
-  def hive_rtdtrs_dtl_achis_order_error (implicit  sqlcontext :HiveContext)={
+  def hive_rtdtrs_dtl_achis_order_error (implicit  sqlContext :HiveContext)={
     println("=======create hive_rtdtrs_dtl_achis_order_error=======")
-    sqlcontext.sql(s"use $hive_dbname")
-    sqlcontext.sql("drop table if exists hive_rtdtrs_dtl_achis_order_error")
+    sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_rtdtrs_dtl_achis_order_error")
 
-    sqlcontext.sql(
+    sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_rtdtrs_dtl_achis_order_error(
          |settle_dt           string    ,
@@ -5788,12 +5792,12 @@ object Create_Hive_Tables {
   /**
     *  JOB_HV_97
     */
-  def hive_rtdtrs_dtl_sor_cmsp (implicit  sqlcontext :HiveContext)={
+  def hive_rtdtrs_dtl_sor_cmsp (implicit  sqlContext :HiveContext)={
     println("=======create hive_rtdtrs_dtl_sor_cmsp=======")
-    sqlcontext.sql(s"use $hive_dbname")
-    sqlcontext.sql("drop table if exists hive_rtdtrs_dtl_sor_cmsp")
+    sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_rtdtrs_dtl_sor_cmsp")
 
-    sqlcontext.sql(
+    sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_rtdtrs_dtl_sor_cmsp(
          |trans_seq                          string    ,
@@ -5859,5 +5863,118 @@ object Create_Hive_Tables {
     println("=======create hive_rtdtrs_dtl_sor_cmsp successfully ! =======")
   }
 
+  /**
+    *  JOB_HV_98
+    */
+  def hive_rtapam_dim_ins (implicit  sqlContext :HiveContext)={
+    println("=======create hive_rtapam_dim_ins=======")
+    sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_rtapam_dim_ins")
 
+    sqlContext.sql(
+      s"""
+         |create table if not exists $hive_dbname.hive_rtapam_dim_ins(
+         |ins_id                             int   ,
+         |ins_cn_nm                          string,
+         |ins_id_cd                          string,
+         |root_ins_nm                        string,
+         |root_ins_cd                        string,
+         |settle_root_ins_nm                 string,
+         |settle_root_ins_cd                 string,
+         |intnl_org_nm                       string,
+         |intnl_org_cd                       string,
+         |settle_intnl_org_nm                string,
+         |settle_intnl_org_cd                string,
+         |ins_cata_id1                       int   ,
+         |ins_cata_nm1                       string,
+         |ins_cata_id2                       int   ,
+         |ins_cata_nm2                       string,
+         |ins_cata_id3                       int   ,
+         |ins_cata_nm3                       string,
+         |ins_cata_id4                       int   ,
+         |ins_cata_nm4                       string,
+         |settle_ins_cata_id1                int   ,
+         |settle_ins_cata_nm1                string,
+         |settle_ins_cata_id2                int   ,
+         |settle_ins_cata_nm2                string,
+         |settle_ins_cata_id3                int   ,
+         |settle_ins_cata_nm3                string,
+         |settle_ins_cata_id4                int   ,
+         |settle_ins_cata_nm4                string,
+         |domin_id_1                         int   ,
+         |domin_nm_1                         string,
+         |domin_id_2                         int   ,
+         |domin_nm_2                         string,
+         |domin_tp_2                         string,
+         |domin_id_3                         int   ,
+         |domin_nm_3                         string,
+         |src_sys                            string,
+         |edw_rec_start_ts                   string,
+         |edw_rec_end_ts                     string
+         |)
+         |row format delimited fields terminated by '!|'
+         |stored as parquet
+         |location '/user/ch_hypas/upw_hive/participant/ins/hive_rtapam_dim_ins'
+        """.stripMargin)
+    println("=======create hive_rtapam_dim_ins successfully ! =======")
+  }
+
+  /**
+    *  JOB_HV_99  hive_stmtrs_scl_usr_geo_loc_quota
+    */
+  def hive_stmtrs_scl_usr_geo_loc_quota (implicit  sqlContext :HiveContext)={
+    println("=======create hive_stmtrs_scl_usr_geo_loc_quota=======")
+    sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_stmtrs_scl_usr_geo_loc_quota")
+
+    sqlContext.sql(
+      s"""
+         |create table if not exists $hive_dbname.hive_stmtrs_scl_usr_geo_loc_quota(
+         |settle_month        string ,
+         |cdhd_usr_id         string ,
+         |intnl_org_cd_list   string ,
+         |bind_card_no_list   string ,
+         |hp_settle_month     string
+         |
+         |)
+         |partitioned by (part_settle_month string)
+         |row format delimited fields terminated by '!|'
+         |stored as parquet
+         |location '/user/ch_hypas/upw_hive/product/card/hive_stmtrs_scl_usr_geo_loc_quota'
+        """.stripMargin)
+    println("=======create hive_stmtrs_scl_usr_geo_loc_quota successfully ! =======")
+  }
+
+  /**
+    *  JOB_HV_100
+    */
+  def hive_rtapam_dim_intnl_domin(implicit  sqlContext :HiveContext)={
+    println("=======create hive_rtapam_dim_intnl_domin=======")
+    sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_rtapam_dim_intnl_domin")
+
+    sqlContext.sql(
+      s"""
+         |create table if not exists $hive_dbname.hive_rtapam_dim_intnl_domin(
+         |domin_id           int      ,
+         |par_domin_id       int      ,
+         |domin_nm           string   ,
+         |domin_tp           string   ,
+         |intnl_org_id_cd    string   ,
+         |intnl_org_nm       string   ,
+         |prov_id            int      ,
+         |edw_rec_crt_usr    string   ,
+         |edw_rec_crt_ts     string   ,
+         |edw_rec_upd_usr    string   ,
+         |edw_rec_upd_ts     string   ,
+         |src_sys            string   ,
+         |src_busi_key       string
+         |
+         |)
+         |row format delimited fields terminated by '!|'
+         |stored as parquet
+         |location '/user/ch_hypas/upw_hive/region/hive_rtapam_dim_intnl_domin'
+        """.stripMargin)
+    println("=======create hive_rtapam_dim_intnl_domin successfully ! =======")
+  }
 }
