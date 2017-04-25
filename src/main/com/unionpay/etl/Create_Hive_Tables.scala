@@ -131,6 +131,8 @@ object Create_Hive_Tables {
   def hive_acc_trans(implicit sqlContext: HiveContext) = {
     println("=======Create hive_acc_trans=======")
     sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_acc_trans")
+
     sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_acc_trans(
@@ -606,6 +608,8 @@ object Create_Hive_Tables {
   def hive_achis_trans(implicit sqlContext: HiveContext) = {
     println("=======Create hive_achis_trans=======")
     sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_achis_trans")
+
     sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_achis_trans(
@@ -801,6 +805,8 @@ object Create_Hive_Tables {
   def hive_active_card_acq_branch_mon(implicit sqlContext: HiveContext) = {
     println("=======Create hive_active_card_acq_branch_mon=======")
     sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_active_card_acq_branch_mon")
+
     sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_active_card_acq_branch_mon(
@@ -828,6 +834,8 @@ object Create_Hive_Tables {
   def hive_card_bind_inf(implicit sqlContext: HiveContext) = {
     println("=======Create hive_card_bind_inf=======")
     sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_card_bind_inf")
+
     sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_card_bind_inf(
@@ -869,6 +877,8 @@ object Create_Hive_Tables {
   def hive_city_card(implicit sqlContext: HiveContext) = {
     println("=======Create hive_city_card=======")
     sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_city_card")
+
     sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_city_card(
@@ -887,6 +897,8 @@ object Create_Hive_Tables {
   def hive_ct(implicit sqlContext: HiveContext) = {
     println("=======Create hive_ct=======")
     sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_ct")
+
     sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_ct(
@@ -905,6 +917,8 @@ object Create_Hive_Tables {
   def hive_life(implicit sqlContext: HiveContext) = {
     println("=======Create hive_life=======")
     sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_life")
+
     sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_life(
@@ -924,6 +938,8 @@ object Create_Hive_Tables {
   def hive_discount_bas_inf(implicit sqlContext: HiveContext) = {
     println("=======Create hive_discount_bas_inf=======")
     sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_discount_bas_inf")
+
     sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_discount_bas_inf(
@@ -963,6 +979,8 @@ object Create_Hive_Tables {
   def hive_download_trans(implicit sqlContext: HiveContext) = {
     println("=======Create hive_download_trans=======")
     sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_download_trans")
+
     sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_download_trans(
@@ -1023,6 +1041,8 @@ object Create_Hive_Tables {
   def hive_inf_source_class(implicit sqlContext: HiveContext) = {
     println("=======Create hive_inf_source_class=======")
     sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_ins_inf")
+
     sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_inf_source_class(
@@ -1041,6 +1061,8 @@ object Create_Hive_Tables {
   def hive_ins_inf(implicit sqlContext: HiveContext) = {
     println("=======Create hive_ins_inf=======")
     sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_ins_inf")
+
     sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_ins_inf(
@@ -1089,6 +1111,8 @@ object Create_Hive_Tables {
   def hive_mchnt_para(implicit sqlContext: HiveContext) = {
     println("=======Create hive_mchnt_para=======")
     sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_mchnt_para")
+
     sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_mchnt_para(
@@ -1115,6 +1139,8 @@ object Create_Hive_Tables {
   def hive_passive_code_pay_trans(implicit sqlContext: HiveContext) = {
     println("=======Create hive_passive_code_pay_trans=======")
     sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_passive_code_pay_trans")
+
     sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_passive_code_pay_trans(
@@ -1163,6 +1189,7 @@ object Create_Hive_Tables {
   def hive_cdhd_pri_acct_inf(implicit sqlContext: HiveContext) = {
     println("=======Create hive_cdhd_pri_acct_inf=======")
     sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_cdhd_pri_acct_inf")
     sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_cdhd_pri_acct_inf(
@@ -1257,6 +1284,7 @@ object Create_Hive_Tables {
   def hive_pri_acct_inf(implicit sqlContext: HiveContext) = {
     println("=======Create hive_pri_acct_inf=======")
     sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_pri_acct_inf")
     sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_pri_acct_inf(
@@ -1357,6 +1385,8 @@ object Create_Hive_Tables {
   def hive_province_card(implicit sqlContext: HiveContext) = {
     println("=======Create hive_province_card=======")
     sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_province_card")
+
     sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_province_card(
@@ -1375,6 +1405,8 @@ object Create_Hive_Tables {
   def hive_switch_point_trans(implicit sqlContext: HiveContext) = {
     println("=======Create hive_switch_point_trans=======")
     sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_switch_point_trans")
+
     sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_switch_point_trans(
@@ -1465,6 +1497,8 @@ object Create_Hive_Tables {
   def hive_ucbiz_cdhd_bas_inf(implicit sqlContext: HiveContext) = {
     println("=======Create hive_ucbiz_cdhd_bas_inf=======")
     sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_ucbiz_cdhd_bas_inf")
+
     sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_ucbiz_cdhd_bas_inf(
@@ -1506,6 +1540,8 @@ object Create_Hive_Tables {
   def hive_access_bas_inf(implicit sqlContext: HiveContext) = {
     println("=======Create hive_access_bas_inf=======")
     sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_access_bas_inf")
+
     sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_access_bas_inf(
@@ -1577,6 +1613,8 @@ object Create_Hive_Tables {
   def hive_active_code_pay_trans(implicit sqlContext: HiveContext) = {
     println("=======Create hive_active_code_pay_trans=======")
     sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_active_code_pay_trans")
+
     sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_active_code_pay_trans(
@@ -1773,6 +1811,8 @@ object Create_Hive_Tables {
   def hive_branch_acpt_ins_inf(implicit sqlContext: HiveContext) = {
     println("=======Create hive_branch_acpt_ins_inf=======")
     sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_branch_acpt_ins_inf")
+
     sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_branch_acpt_ins_inf(
@@ -1792,6 +1832,8 @@ object Create_Hive_Tables {
   def hive_brand_inf(implicit sqlContext: HiveContext) = {
     println("=======Create hive_brand_inf=======")
     sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_brand_inf")
+
     sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_brand_inf(
@@ -1828,6 +1870,8 @@ object Create_Hive_Tables {
   def hive_card_bin(implicit sqlContext: HiveContext) = {
     println("=======Create hive_card_bin=======")
     sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_card_bin")
+
     sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_card_bin(
@@ -1874,6 +1918,8 @@ object Create_Hive_Tables {
   def hive_cdhd_cashier_maktg_reward_dtl(implicit sqlContext: HiveContext) = {
     println("=======Create hive_cdhd_cashier_maktg_reward_dtl=======")
     sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_cdhd_cashier_maktg_reward_dtl")
+
     sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_cdhd_cashier_maktg_reward_dtl(
@@ -1943,6 +1989,8 @@ object Create_Hive_Tables {
   def hive_cashier_point_acct_oper_dtl(implicit sqlContext: HiveContext) = {
     println("=======Create hive_cashier_point_acct_oper_dtl=======")
     sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_cashier_point_acct_oper_dtl")
+
     sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_cashier_point_acct_oper_dtl(
@@ -1966,6 +2014,8 @@ object Create_Hive_Tables {
   def hive_chara_grp_def_bat(implicit sqlContext: HiveContext) = {
     println("=======Create hive_chara_grp_def_bat=======")
     sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_chara_grp_def_bat")
+
     sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_chara_grp_def_bat(
@@ -2007,6 +2057,8 @@ object Create_Hive_Tables {
   def hive_cups_trans(implicit sqlContext: HiveContext) = {
     println("=======Create hive_cups_trans=======")
     sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_cups_trans")
+
     sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_cups_trans(
@@ -2221,6 +2273,8 @@ object Create_Hive_Tables {
   def hive_filter_app_det(implicit sqlContext: HiveContext) = {
     println("=======Create hive_filter_app_det=======")
     sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_filter_app_det")
+
     sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_filter_app_det(
@@ -2254,6 +2308,8 @@ object Create_Hive_Tables {
   def hive_filter_rule_det(implicit sqlContext: HiveContext) = {
     println("=======Create hive_filter_rule_det =======")
     sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_filter_rule_det")
+
     sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_filter_rule_det(
@@ -2286,6 +2342,8 @@ object Create_Hive_Tables {
   def hive_inf_source_dtl(implicit sqlContext: HiveContext) = {
     println("=======Create hive_inf_source_dtl=======")
     sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_inf_source_dtl")
+
     sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_inf_source_dtl(
@@ -2304,6 +2362,8 @@ object Create_Hive_Tables {
   def hive_life_trans(implicit sqlContext: HiveContext) = {
     println("=======Create hive_life_trans=======")
     sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_life_trans")
+
     sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_life_trans(
@@ -2501,6 +2561,8 @@ object Create_Hive_Tables {
   def hive_mchnt_inf_wallet(implicit sqlContext: HiveContext) = {
     println("=======Create hive_mchnt_inf_wallet=======")
     sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_mchnt_inf_wallet")
+
     sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_mchnt_inf_wallet(
@@ -2549,6 +2611,8 @@ object Create_Hive_Tables {
   def hive_mchnt_tp_grp(implicit sqlContext: HiveContext) = {
     println("=======Create hive_mchnt_tp_grp=======")
     sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_mchnt_tp_grp")
+
     sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_mchnt_tp_grp(
@@ -2577,6 +2641,8 @@ object Create_Hive_Tables {
   def hive_org_tdapp_activitynew(implicit sqlContext: HiveContext) = {
     println("=======Create hive_org_tdapp_activitynew=======")
     sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_org_tdapp_activitynew")
+
     sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_org_tdapp_activitynew
@@ -2617,6 +2683,8 @@ object Create_Hive_Tables {
   def hive_org_tdapp_device(implicit sqlContext: HiveContext) = {
     println("=======Create hive_org_tdapp_device=======")
     sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_org_tdapp_device")
+
     sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_org_tdapp_device
@@ -2649,6 +2717,8 @@ object Create_Hive_Tables {
   def hive_org_tdapp_devicenew(implicit sqlContext: HiveContext) = {
     println("=======Create hive_org_tdapp_devicenew=======")
     sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_org_tdapp_devicenew")
+
     sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_org_tdapp_devicenew
@@ -2690,6 +2760,8 @@ object Create_Hive_Tables {
   def hive_org_tdapp_eventnew(implicit sqlContext: HiveContext) = {
     println("=======Create hive_org_tdapp_eventnew=======")
     sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_org_tdapp_eventnew")
+
     sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_org_tdapp_eventnew
@@ -2731,6 +2803,8 @@ object Create_Hive_Tables {
   def hive_org_tdapp_exceptionnew(implicit sqlContext: HiveContext) = {
     println("=======Create hive_org_tdapp_exceptionnew=======")
     sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_org_tdapp_exceptionnew")
+
     sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_org_tdapp_exceptionnew
@@ -2772,6 +2846,8 @@ object Create_Hive_Tables {
   def hive_org_tdapp_keyvalue(implicit sqlContext: HiveContext) = {
     println("=======Create hive_org_tdapp_keyvalue=======")
     sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_org_tdapp_keyvalue")
+
     sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_org_tdapp_keyvalue
@@ -2810,6 +2886,8 @@ object Create_Hive_Tables {
   def hive_org_tdapp_tlaunchnew(implicit sqlContext: HiveContext) = {
     println("=======Create hive_org_tdapp_tlaunchnew=======")
     sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_org_tdapp_tlaunchnew")
+
     sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_org_tdapp_tlaunchnew
@@ -2850,6 +2928,8 @@ object Create_Hive_Tables {
   def hive_preferential_mchnt_inf(implicit sqlContext: HiveContext) = {
     println("=======Create hive_preferential_mchnt_inf=======")
     sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_preferential_mchnt_inf")
+
     sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_preferential_mchnt_inf(
@@ -2914,6 +2994,8 @@ object Create_Hive_Tables {
   def hive_prize_bas(implicit sqlContext: HiveContext) = {
     println("=======Create hive_prize_bas=======")
     sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_prize_bas")
+
     sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_prize_bas(
@@ -2951,6 +3033,8 @@ object Create_Hive_Tables {
   def hive_signer_log(implicit sqlContext: HiveContext) = {
     println("=======Create hive_signer_log=======")
     sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_signer_log")
+
     sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_signer_log(
@@ -2972,6 +3056,8 @@ object Create_Hive_Tables {
   def hive_ticket_bill_bas_inf(implicit sqlContext: HiveContext) = {
     println("=======Create hive_ticket_bill_bas_inf=======")
     sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_ticket_bill_bas_inf")
+
     sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_ticket_bill_bas_inf(
@@ -3061,6 +3147,8 @@ object Create_Hive_Tables {
   def hive_undefine_store_inf(implicit sqlContext: HiveContext) = {
     println("=======Create hive_undefine_store_inf=======")
     sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_undefine_store_inf")
+
     sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_undefine_store_inf(
@@ -3082,6 +3170,8 @@ object Create_Hive_Tables {
   def hive_undefine_store_inf_temp(implicit sqlContext: HiveContext) = {
     println("=======Create hive_undefine_store_inf_temp=======")
     sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_undefine_store_inf_temp")
+
     sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_undefine_store_inf_temp(
@@ -3102,6 +3192,8 @@ object Create_Hive_Tables {
   def hive_user_td_d(implicit sqlContext: HiveContext) = {
     println("=======Create hive_use_td_d=======")
     sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_user_td_d")
+
     sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_use_td_d(
@@ -3122,50 +3214,52 @@ object Create_Hive_Tables {
   }
 
   def hive_bill_order_trans(implicit sqlContext: HiveContext) = {
-    println("=======Create HIVE_BILL_ORDER_TRANS=======")
+    println("=======Create hive_bill_order_trans=======")
     sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_bill_order_trans")
+
     sqlContext.sql(
       s"""
          create table if not exists $hive_dbname.HIVE_BILL_ORDER_TRANS
          |(
-         |BILL_ORDER_ID          string,
-         |MCHNT_CD               string,
-         |MCHNT_NM               string,
-         |SUB_MCHNT_CD           string,
-         |CDHD_USR_ID            string,
-         |SUB_MCHNT_NM           string,
-         |RELATED_USR_ID         bigint,
-         |CUPS_TRACE_NUMBER      string,
-         |TRANS_TM               string,
-         |TRANS_DT               timestamp,
-         |ORIG_TRANS_SEQ         string,
-         |TRANS_SEQ              string,
-         |MOBILE_ORDER_ID        string,
-         |ACP_ORDER_ID           string,
-         |DELIVERY_PROV_CD       string,
-         |DELIVERY_CITY_CD       string,
-         |DELIVERY_DISTRICT_NM   string,
-         |DELIVERY_DISTRICT_CD   string,
-         |DELIVERY_ZIP_CD        string,
-         |DELIVERY_ADDRESS       string,
-         |RECEIVER_NM            string,
-         |RECEIVER_MOBILE        string,
-         |DELIVERY_TIME_DESC     string,
-         |INVOICE_DESC           string,
-         |TRANS_AT               bigint,
-         |REFUND_AT              bigint,
-         |ORDER_ST               string,
-         |ORDER_CRT_TS           timestamp,
-         |ORDER_TIMEOUT_TS       timestamp,
-         |CARD_NO                string,
-         |ORDER_CHNL             string,
-         |ORDER_IP               string,
-         |DEVICE_INF             string,
-         |REMARK                 string,
-         |REC_CRT_TS             timestamp,
-         |CRT_CDHD_USR_ID        string,
-         |REC_UPD_TS             timestamp,
-         |UPD_CDHD_USR_ID        string
+         |bill_order_id          string,
+         |mchnt_cd               string,
+         |mchnt_nm               string,
+         |sub_mchnt_cd           string,
+         |cdhd_usr_id            string,
+         |sub_mchnt_nm           string,
+         |related_usr_id         bigint,
+         |cups_trace_number      string,
+         |trans_tm               string,
+         |trans_dt               timestamp,
+         |orig_trans_seq         string,
+         |trans_seq              string,
+         |mobile_order_id        string,
+         |acp_order_id           string,
+         |delivery_prov_cd       string,
+         |delivery_city_cd       string,
+         |delivery_district_nm   string,
+         |delivery_district_cd   string,
+         |delivery_zip_cd        string,
+         |delivery_address       string,
+         |receiver_nm            string,
+         |receiver_mobile        string,
+         |delivery_time_desc     string,
+         |invoice_desc           string,
+         |trans_at               bigint,
+         |refund_at              bigint,
+         |order_st               string,
+         |order_crt_ts           timestamp,
+         |order_timeout_ts       timestamp,
+         |card_no                string,
+         |order_chnl             string,
+         |order_ip               string,
+         |device_inf             string,
+         |remark                 string,
+         |rec_crt_ts             timestamp,
+         |crt_cdhd_usr_id        string,
+         |rec_upd_ts             timestamp,
+         |upd_cdhd_usr_id        string
          |)
          |partitioned by(part_trans_dt string)
          |row format delimited fields terminated by '!|'
@@ -3180,30 +3274,32 @@ object Create_Hive_Tables {
   def hive_bill_sub_order_trans(implicit sqlContext: HiveContext) = {
     println("=======Create HIVE_BILL_SUB_ORDER_TRANS=======")
     sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_bill_sub_order_trans")
+
     sqlContext.sql(
       s"""
          create table if not exists $hive_dbname.HIVE_BILL_SUB_ORDER_TRANS(
-         |BILL_SUB_ORDER_ID    BIGINT          comment '票券子订单编号  ',
-         |BILL_ORDER_ID        STRING          comment '票券订单编号   ',
-         |MCHNT_CD             STRING          comment '商户代码     ',
-         |MCHNT_NM             STRING          comment '商户名称     ',
-         |SUB_MCHNT_CD         STRING          comment '二级商户号    ',
-         |SUB_MCHNT_NM         STRING          comment '二级商户名称   ',
-         |BILL_ID              STRING          comment '票券ID     ',
-         |BILL_PRICE           BIGINT          comment '票券销售价格   ',
-         |TRANS_SEQ            STRING          comment '交易流水号(um)',
-         |REFUND_REASON        STRING          comment '退货原因     ',
-         |ORDER_ST             STRING          comment '订单状态     ',
-         |REC_CRT_TS           TIMESTAMP       comment '记录创建时间   ',
-         |CRT_CDHD_USR_ID      STRING          comment '创建用户标识码  ',
-         |REC_UPD_TS           TIMESTAMP       comment '记录更新时间   ',
-         |UPD_CDHD_USR_ID      STRING          comment '修改用户标识码  ',
-         |ORDER_TIMEOUT_TS     TIMESTAMP       comment '订单超时时    ',
-         |TRANS_DT             TIMESTAMP       comment '交易日期     ',
-         |RELATED_USR_ID       BIGINT          comment '关联用户id   ',
-         |TRANS_PROCESS        STRING          comment '订单流水     ',
-         |RESPONSE_CODE        STRING          comment '交易应答码-1  ',
-         |RESPONSE_MSG         STRING          comment '交易报文     '
+         |bill_sub_order_id    bigint          comment '票券子订单编号  ',
+         |bill_order_id        string          comment '票券订单编号   ',
+         |mchnt_cd             string          comment '商户代码     ',
+         |mchnt_nm             string          comment '商户名称     ',
+         |sub_mchnt_cd         string          comment '二级商户号    ',
+         |sub_mchnt_nm         string          comment '二级商户名称   ',
+         |bill_id              string          comment '票券id     ',
+         |bill_price           bigint          comment '票券销售价格   ',
+         |trans_seq            string          comment '交易流水号(um)',
+         |refund_reason        string          comment '退货原因     ',
+         |order_st             string          comment '订单状态     ',
+         |rec_crt_ts           timestamp       comment '记录创建时间   ',
+         |crt_cdhd_usr_id      string          comment '创建用户标识码  ',
+         |rec_upd_ts           timestamp       comment '记录更新时间   ',
+         |upd_cdhd_usr_id      string          comment '修改用户标识码  ',
+         |order_timeout_ts     timestamp       comment '订单超时时    ',
+         |trans_dt             timestamp       comment '交易日期     ',
+         |related_usr_id       bigint          comment '关联用户id   ',
+         |trans_process        string          comment '订单流水     ',
+         |response_code        string          comment '交易应答码-1  ',
+         |response_msg         string          comment '交易报文     '
          |)
          |partitioned by(part_trans_dt string)
          |row format delimited fields terminated by '!|'
@@ -3218,23 +3314,25 @@ object Create_Hive_Tables {
   def hive_mchnt_tp(implicit sqlContext: HiveContext) = {
     println("=======Create HIVE_MCHNT_TP=======")
     sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_mchnt_tp")
+
     sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname.HIVE_MCHNT_TP(
-         |MCHNT_TP          string,
-         |MCHNT_TP_GRP      string,
-         |MCHNT_TP_DESC_CN  string,
-         |MCHNT_TP_DESC_EN  string,
-         |REC_ID            int,
-         |REC_ST            string,
-         |MCC_TYPE          string,
-         |LAST_OPER_IN      string,
-         |REC_UPD_USR_ID    string,
-         |REC_UPD_TS        timestamp,
-         |REC_CRT_TS        timestamp,
-         |SYNC_ST           string,
-         |SYNC_BAT_NO       int,
-         |SYNC_TS           timestamp
+         |mchnt_tp          string,
+         |mchnt_tp_grp      string,
+         |mchnt_tp_desc_cn  string,
+         |mchnt_tp_desc_en  string,
+         |rec_id            int,
+         |rec_st            string,
+         |mcc_type          string,
+         |last_oper_in      string,
+         |rec_upd_usr_id    string,
+         |rec_upd_ts        timestamp,
+         |rec_crt_ts        timestamp,
+         |sync_st           string,
+         |sync_bat_no       int,
+         |sync_ts           timestamp
          |)
          |row format delimited fields terminated by '!|'
          |stored as parquet
@@ -3248,77 +3346,78 @@ object Create_Hive_Tables {
   def hive_offline_point_trans(implicit sqlContext: HiveContext) = {
     println("=======Create HIVE_OFFLINE_POINT_TRANS=======")
     sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_offline_point_trans")
     sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname.HIVE_OFFLINE_POINT_TRANS(
-         |DTL_SEQ                      bigint,
-         |CDHD_USR_ID                  string,
-         |PRI_ACCT_NO                  string,
-         |ACPT_INS_ID_CD               string,
-         |FWD_INS_ID_CD                string,
-         |SYS_TRA_NO                   string,
-         |TFR_DT_TM                    string,
-         |CARD_CLASS                   string,
-         |CARD_ATTR                    string,
-         |CARD_STD                     string,
-         |CARD_MEDIA                   string,
-         |CUPS_CARD_IN                 string,
-         |CUPS_SIG_CARD_IN             string,
-         |TRANS_ID                     string,
-         |REGION_CD                    string,
-         |CARD_BIN                     string,
-         |MCHNT_TP                     string,
-         |MCHNT_CD                     string,
-         |TERM_ID                      string,
-         |TRANS_DT                     timestamp,
-         |TRANS_TM                     string,
-         |SETTLE_DT                    timestamp,
-         |SETTLE_AT                    int,
-         |TRANS_CHNL                   string,
-         |ACPT_TERM_TP                 string,
-         |POINT_PLAN_ID                int,
-         |PLAN_ID                      int,
-         |INS_ACCT_ID                  string,
-         |POINT_AT                     bigint,
-         |OPER_ST                      string,
-         |RULE_ID                      int,
-         |PRI_KEY                      string,
-         |VER_NO                       int,
-         |ACCT_ADDUP_BAT_DT            timestamp,
-         |ISS_INS_ID_CD                string,
-         |EXTRA_SP_INS_ACCT_ID         string,
-         |EXTRA_POINT_AT               bigint,
-         |EXTEND_INS_ID_CD             string,
-         |CUP_BRANCH_INS_ID_CD         string,
-         |CUP_BRANCH_INS_ID_NM         string,
-         |UM_TRANS_ID                  string,
-         |BUSS_TP                      string,
-         |BILL_ID                      string,
-         |BILL_NUM                     bigint,
-         |OPER_DT                      timestamp,
-         |TMP_FLAG                     string,
-         |BILL_NM                      string,
-         |CHARA_ACCT_TP                string,
-         |CHARA_ACCT_NM                string,
-         |ACCT_ADDUP_TP                string,
-         |REC_CRT_TS                   timestamp,
-         |REC_UPD_TS                   timestamp,
-         |ORIG_TRANS_SEQ               string,
-         |NOTICE_ON_ACCOUNT            string,
-         |ORIG_TFR_DT_TM               string,
-         |ORIG_SYS_TRA_NO              string,
-         |ORIG_ACPT_INS_ID_CD          string,
-         |ORIG_FWD_INS_ID_CD           string,
-         |INDIRECT_TRANS_IN            string,
-         |BOOKING_REC_ID               bigint,
-         |BOOKING_IN                   string,
-         |PLAN_NM                      string,
-         |PLAN_GIVE_TOTAL_NUM          bigint,
-         |PLAN_GIVE_LIMIT_TP           string,
-         |PLAN_GIVE_LIMIT              int,
-         |DAY_GIVE_LIMIT               int,
-         |GIVE_LIMIT_IN                string,
-         |RETRI_REF_NO                 string
+         |dtl_seq                      bigint,
+         |cdhd_usr_id                  string,
+         |pri_acct_no                  string,
+         |acpt_ins_id_cd               string,
+         |fwd_ins_id_cd                string,
+         |sys_tra_no                   string,
+         |tfr_dt_tm                    string,
+         |card_class                   string,
+         |card_attr                    string,
+         |card_std                     string,
+         |card_media                   string,
+         |cups_card_in                 string,
+         |cups_sig_card_in             string,
+         |trans_id                     string,
+         |region_cd                    string,
+         |card_bin                     string,
+         |mchnt_tp                     string,
+         |mchnt_cd                     string,
+         |term_id                      string,
+         |trans_dt                     timestamp,
+         |trans_tm                     string,
+         |settle_dt                    timestamp,
+         |settle_at                    int,
+         |trans_chnl                   string,
+         |acpt_term_tp                 string,
+         |point_plan_id                int,
+         |plan_id                      int,
+         |ins_acct_id                  string,
+         |point_at                     bigint,
+         |oper_st                      string,
+         |rule_id                      int,
+         |pri_key                      string,
+         |ver_no                       int,
+         |acct_addup_bat_dt            timestamp,
+         |iss_ins_id_cd                string,
+         |extra_sp_ins_acct_id         string,
+         |extra_point_at               bigint,
+         |extend_ins_id_cd             string,
+         |cup_branch_ins_id_cd         string,
+         |cup_branch_ins_id_nm         string,
+         |um_trans_id                  string,
+         |buss_tp                      string,
+         |bill_id                      string,
+         |bill_num                     bigint,
+         |oper_dt                      timestamp,
+         |tmp_flag                     string,
+         |bill_nm                      string,
+         |chara_acct_tp                string,
+         |chara_acct_nm                string,
+         |acct_addup_tp                string,
+         |rec_crt_ts                   timestamp,
+         |rec_upd_ts                   timestamp,
+         |orig_trans_seq               string,
+         |notice_on_account            string,
+         |orig_tfr_dt_tm               string,
+         |orig_sys_tra_no              string,
+         |orig_acpt_ins_id_cd          string,
+         |orig_fwd_ins_id_cd           string,
+         |indirect_trans_in            string,
+         |booking_rec_id               bigint,
+         |booking_in                   string,
+         |plan_nm                      string,
+         |plan_give_total_num          bigint,
+         |plan_give_limit_tp           string,
+         |plan_give_limit              int,
+         |day_give_limit               int,
+         |give_limit_in                string,
+         |retri_ref_no                 string
          |)
          |partitioned by(part_trans_dt string)
          |row format delimited fields terminated by '!|'
@@ -3331,11 +3430,13 @@ object Create_Hive_Tables {
   }
 
   def hive_online_point_trans(implicit sqlContext: HiveContext) = {
-    println("=======Create HIVE_ONLINE_POINT_TRANS=======")
+    println("=======Create hive_online_point_trans=======")
     sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_online_point_trans")
+
     sqlContext.sql(
       s"""
-         |create table if not exists $hive_dbname.HIVE_ONLINE_POINT_TRANS(
+         |create table if not exists $hive_dbname.hive_online_point_trans(
          |TRANS_ID                     bigint,
          |CDHD_USR_ID                  string,
          |TRANS_TP                     string,
@@ -3384,41 +3485,42 @@ object Create_Hive_Tables {
   def hive_prize_activity_bas_inf(implicit sqlContext: HiveContext) = {
     println("=======Create HIVE_PRIZE_ACTIVITY_BAS_INF=======")
     sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_prize_activity_bas_inf")
     sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname.HIVE_PRIZE_ACTIVITY_BAS_INF
          |(
-         |LOC_ACTIVITY_ID        int,
-         |ACTIVITY_PLAT          string,
-         |LOC_ACTIVITY_NM        string,
-         |LOC_ACTIVITY_DESC      string,
-         |ACTIVITY_BEGIN_DT      TIMESTAMP,
-         |ACTIVITY_END_DT        TIMESTAMP,
-         |WEEK_TM_BMP            string,
-         |CHECK_ST               string,
-         |SYNC_ST                string,
-         |SYNC_BAT_NO            int,
-         |RUN_ST                 string,
-         |OPER_IN                string,
-         |EVENT_ID               int,
-         |REC_ID                 int,
-         |REC_UPD_USR_ID         string,
-         |REC_UPD_TS             timestamp,
-         |REC_CRT_TS             timestamp,
-         |REC_CRT_USR_ID         string,
-         |DEL_IN                 string,
-         |AUD_USR_ID             string,
-         |AUD_TS                 timestamp,
-         |AUD_IDEA               string,
-         |ACTIVITY_ST            string,
-         |LOC_ACTIVITY_CRT_INS   string,
-         |CUP_BRANCH_INS_ID_NM   string,
-         |VER_NO                 int,
-         |ACTIVITY_TP            string,
-         |REPRIZE_LIMIT          string,
-         |SMS_FLAG               string,
-         |CASHIER_REWARD_IN      string,
-         |MCHNT_CD               string
+         |loc_activity_id        int,
+         |activity_plat          string,
+         |loc_activity_nm        string,
+         |loc_activity_desc      string,
+         |activity_begin_dt      timestamp,
+         |activity_end_dt        timestamp,
+         |week_tm_bmp            string,
+         |check_st               string,
+         |sync_st                string,
+         |sync_bat_no            int,
+         |run_st                 string,
+         |oper_in                string,
+         |event_id               int,
+         |rec_id                 int,
+         |rec_upd_usr_id         string,
+         |rec_upd_ts             timestamp,
+         |rec_crt_ts             timestamp,
+         |rec_crt_usr_id         string,
+         |del_in                 string,
+         |aud_usr_id             string,
+         |aud_ts                 timestamp,
+         |aud_idea               string,
+         |activity_st            string,
+         |loc_activity_crt_ins   string,
+         |cup_branch_ins_id_nm   string,
+         |ver_no                 int,
+         |activity_tp            string,
+         |reprize_limit          string,
+         |sms_flag               string,
+         |cashier_reward_in      string,
+         |mchnt_cd               string
          |)
          |row format delimited fields terminated by '!|'
          |stored as parquet
@@ -3430,52 +3532,54 @@ object Create_Hive_Tables {
   }
 
   def hive_prize_discount_result(implicit sqlContext: HiveContext) = {
-    println("=======Create HIVE_PRIZE_DISCOUNT_RESULT=======")
+    println("=======Create hive_prize_discount_result=======")
     sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_prize_discount_result")
+
     sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname.HIVE_PRIZE_DISCOUNT_RESULT
          |(
-         |PRIZE_RESULT_SEQ       INT,
-         |TRANS_ID               string,
-         |SYS_TRA_NO             string,
-         |SYS_TRA_NO_CONV        string,
-         |PRI_ACCT_NO            string,
-         |TRANS_AT               INT,
-         |TRANS_AT_CONV          INT,
-         |TRANS_POS_AT           INT,
-         |TRANS_DT_TM            string,
-         |LOC_TRANS_DT           string,
-         |LOC_TRANS_TM           string,
-         |SETTLE_DT              timestamp,
-         |MCHNT_TP               string,
-         |ACPT_INS_ID_CD         string,
-         |ISS_INS_ID_CD          string,
-         |ACQ_INS_ID_CD          string,
-         |CUP_BRANCH_INS_ID_CD   string,
-         |CUP_BRANCH_INS_ID_NM   string,
-         |MCHNT_CD               string,
-         |TERM_ID                string,
-         |TRANS_CURR_CD          string,
-         |TRANS_CHNL             string,
-         |PROD_IN                string,
-         |AGIO_APP_ID            string,
-         |AGIO_INF               string,
-         |PRIZE_APP_ID           string,
-         |PRIZE_ID               string,
-         |PRIZE_LVL              string,
-         |REC_CRT_DT             timestamp,
-         |IS_MATCH_IN            string,
-         |FWD_INS_ID_CD          string,
-         |ORIG_TRANS_TFR_TM      string,
-         |ORIG_SYS_TRA_NO        string,
-         |ORIG_ACPT_INS_ID_CD    string,
-         |ORIG_FWD_INS_ID_CD     string,
-         |SUB_CARD_NO            string,
-         |IS_PROCED              string,
-         |ENTITY_CARD_NO         string,
-         |CLOUD_PAY_IN           string,
-         |CARD_MEDIA             string
+         |prize_result_seq       int,
+         |trans_id               string,
+         |sys_tra_no             string,
+         |sys_tra_no_conv        string,
+         |pri_acct_no            string,
+         |trans_at               int,
+         |trans_at_conv          int,
+         |trans_pos_at           int,
+         |trans_dt_tm            string,
+         |loc_trans_dt           string,
+         |loc_trans_tm           string,
+         |settle_dt              timestamp,
+         |mchnt_tp               string,
+         |acpt_ins_id_cd         string,
+         |iss_ins_id_cd          string,
+         |acq_ins_id_cd          string,
+         |cup_branch_ins_id_cd   string,
+         |cup_branch_ins_id_nm   string,
+         |mchnt_cd               string,
+         |term_id                string,
+         |trans_curr_cd          string,
+         |trans_chnl             string,
+         |prod_in                string,
+         |agio_app_id            string,
+         |agio_inf               string,
+         |prize_app_id           string,
+         |prize_id               string,
+         |prize_lvl              string,
+         |rec_crt_dt             timestamp,
+         |is_match_in            string,
+         |fwd_ins_id_cd          string,
+         |orig_trans_tfr_tm      string,
+         |orig_sys_tra_no        string,
+         |orig_acpt_ins_id_cd    string,
+         |orig_fwd_ins_id_cd     string,
+         |sub_card_no            string,
+         |is_proced              string,
+         |entity_card_no         string,
+         |cloud_pay_in           string,
+         |card_media             string
          |)
          |partitioned by(part_settle_dt string)
          |row format delimited fields terminated by '!|'
@@ -3488,11 +3592,13 @@ object Create_Hive_Tables {
   }
 
   def hive_prize_lvl_add_rule(implicit sqlContext: HiveContext) = {
-    println("=======Create HIVE_PRIZE_LVL_ADD_RULE=======")
+    println("=======Create hive_prize_lvl_add_rule=======")
     sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_prize_lvl_add_rule")
+
     sqlContext.sql(
       s"""
-         |create table if not exists $hive_dbname.HIVE_PRIZE_LVL_ADD_RULE
+         |create table if not exists $hive_dbname.hive_prize_lvl_add_rule
          |(
          |LOC_ACTIVITY_ID    int,
          |ACTIVITY_PLAT      int,
@@ -3519,9 +3625,10 @@ object Create_Hive_Tables {
   def hive_prize_lvl(implicit sqlContext: HiveContext) = {
     println("=======Create HIVE_PRIZE_LVL=======")
     sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_prize_lvl")
     sqlContext.sql(
       s"""
-         |create table if not exists $hive_dbname.HIVE_PRIZE_LVL
+         |create table if not exists $hive_dbname.hive_prize_lvl
          |(
          |loc_activity_id      int,
          |prize_tp             string,
@@ -3562,8 +3669,9 @@ object Create_Hive_Tables {
   }
 
   def hive_store_term_relation(implicit sqlContext: HiveContext) = {
-    println("=======Create HIVE_STORE_TERM_RELATION=======")
+    println("=======Create hive_store_term_relation=======")
     sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_store_term_relation")
     sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_store_term_relation(
@@ -3590,6 +3698,7 @@ object Create_Hive_Tables {
   def hive_term_inf(implicit sqlContext: HiveContext) = {
     println("=======Create HIVE_TERM_INF=======")
     sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_term_inf")
     sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_term_inf(
@@ -3619,8 +3728,9 @@ object Create_Hive_Tables {
   }
 
   def hive_ach_order_inf(implicit sqlContext: HiveContext) = {
-    println("=======Create Table hive_ach_order_inf for JOB_HV_71 by TZQ =======")
+    println("=======Create Table hive_ach_order_inf  =======")
     sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_ach_order_inf")
     sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname .hive_ach_order_inf(
@@ -3691,8 +3801,9 @@ object Create_Hive_Tables {
   }
 
   def hive_bill_order_aux_inf(implicit sqlContext: HiveContext) = {
-    println("=======Create Table hive_bill_order_aux_inf for JOB_HV_72 by TZQ =======")
+    println("=======Create Table hive_bill_order_aux_inf  =======")
     sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_bill_order_aux_inf")
     sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_bill_order_aux_inf(
@@ -3747,6 +3858,7 @@ object Create_Hive_Tables {
   def hive_bill_sub_order_detail_inf(implicit sqlContext: HiveContext) = {
     println("=======Create Table hive_bill_sub_order_detail_inf for JOB_HV_73 by TZQ =======")
     sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_bill_sub_order_detail_inf")
     sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_bill_sub_order_detail_inf(
@@ -3782,8 +3894,9 @@ object Create_Hive_Tables {
   }
 
   def hive_ticket_bill_acct_adj_task(implicit sqlContext: HiveContext) = {
-    println("=======Create Table hive_ticket_bill_acct_adj_task for JOB_HV_74 by TZQ =======")
+    println("=======Create Table hive_ticket_bill_acct_adj_task =======")
     sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_ticket_bill_acct_adj_task")
     sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_ticket_bill_acct_adj_task(
@@ -3832,6 +3945,7 @@ object Create_Hive_Tables {
   def hive_search_trans (implicit sqlContext: HiveContext) = {
     println("=======Create Table hive_search_trans for JOB_HV_27 by XTP =======")
     sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_search_trans")
     sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_search_trans
@@ -3956,6 +4070,7 @@ object Create_Hive_Tables {
   def hive_buss_dist(implicit sqlContext: HiveContext) = {
     println("=======Create Table hive_buss_dist for JOB_HV_34 by XTP =======")
     sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_buss_dist")
     sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_buss_dist
@@ -4002,26 +4117,27 @@ object Create_Hive_Tables {
   def hive_cdhd_bill_acct_inf(implicit sqlContext: HiveContext) = {
     println("=======Create Table hive_cdhd_bill_acct_inf for JOB_HV_35 by XTP =======")
     sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_cdhd_bill_acct_inf")
     sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_cdhd_bill_acct_inf
          |(
-         |SEQ_ID                     BIGINT               comment '序列ID    ',
-         |CDHD_USR_ID                STRING               comment '持卡人用户标识码',
-         |CDHD_FK                    STRING               comment '持卡人外键   ',
-         |BILL_ID                    STRING               comment '票券ID    ',
-         |BILL_BAT_NO                STRING               comment '票券批次号   ',
-         |BILL_TP                    STRING               comment '票券类型    ',
-         |MEM_NM                     STRING               comment '会员姓名    ',
-         |BILL_NUM                   BIGINT               comment '票券数量    ',
-         |USAGE_NUM                  BIGINT               comment '使用次数    ',
-         |ACCT_ST                    STRING               comment '账户状态    ',
-         |REC_CRT_TS                 TIMESTAMP            comment '记录创建时间  ',
-         |REC_UPD_TS                 TIMESTAMP            comment '记录更新时间  ',
-         |VER_NO                     INT                  comment '版本编号    ',
-         |BILL_RELATED_CARD_NO       STRING               comment '票券关联卡号  ',
-         |SCENE_ID                   STRING               comment '场景标识    ',
-         |FREEZE_BILL_NUM            BIGINT               comment '冻结票券数量  '
+         |seq_id                     bigint               comment '序列ID    ',
+         |cdhd_usr_id                string               comment '持卡人用户标识码',
+         |cdhd_fk                    string               comment '持卡人外键   ',
+         |bill_id                    string               comment '票券ID    ',
+         |bill_bat_no                string               comment '票券批次号   ',
+         |bill_tp                    string               comment '票券类型    ',
+         |mem_nm                     string               comment '会员姓名    ',
+         |bill_num                   bigint               comment '票券数量    ',
+         |usage_num                  bigint               comment '使用次数    ',
+         |acct_st                    string               comment '账户状态    ',
+         |rec_crt_ts                 timestamp            comment '记录创建时间  ',
+         |rec_upd_ts                 timestamp            comment '记录更新时间  ',
+         |ver_no                     int                  comment '版本编号    ',
+         |bill_related_card_no       string               comment '票券关联卡号  ',
+         |scene_id                   string               comment '场景标识    ',
+         |freeze_bill_num            bigint               comment '冻结票券数量  '
          |)
          |comment '持卡人票券账户表'
          |row format delimited fields terminated by '!|'
@@ -4037,6 +4153,7 @@ object Create_Hive_Tables {
   def hive_cashier_bas_inf(implicit sqlContext: HiveContext) = {
     println("=======Create Table hive_cashier_bas_inf for JOB_HV_54 by XTP =======")
     sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_cashier_bas_inf")
     sqlContext.sql(
       s"""
          create table if not exists $hive_dbname.hive_cashier_bas_inf(
@@ -4093,6 +4210,7 @@ object Create_Hive_Tables {
   def hive_access_static_inf(implicit sqlContext: HiveContext) = {
     println("=======Create Table hive_access_static_inf for JOB_HV_75 by XTP =======")
     sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_access_static_inf")
     sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_access_static_inf
@@ -4134,6 +4252,7 @@ object Create_Hive_Tables {
   def hive_region_cd(implicit sqlContext: HiveContext) = {
     println("=======Create Table hive_region_cd for JOB_HV_76 by XTP =======")
     sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_region_cd")
     sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_region_cd
@@ -4166,6 +4285,7 @@ object Create_Hive_Tables {
   def hive_aconl_ins_bas(implicit sqlContext: HiveContext) = {
     println("=======Create Table hive_region_cd for JOB_HV_79 by XTP =======")
     sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_aconl_ins_bas")
     sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_aconl_ins_bas
@@ -4203,7 +4323,7 @@ object Create_Hive_Tables {
   def hive_org_tdapp_tactivity(implicit sqlContext: HiveContext) = {
     println("=======Create hive_org_tdapp_tactivity=======")
     sqlContext.sql(s"use $hive_dbname")
-    sqlContext.sql("drop table hive_org_tdapp_tactivity")
+    sqlContext.sql("drop table if exists hive_org_tdapp_tactivity")
     sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_org_tdapp_tactivity
@@ -4240,7 +4360,7 @@ object Create_Hive_Tables {
   def hive_org_tdapp_tlaunch(implicit sqlContext: HiveContext) = {
     println("=======Create hive_org_tdapp_tlaunch=======")
     sqlContext.sql(s"use $hive_dbname")
-    sqlContext.sql("drop table hive_org_tdapp_tlaunch")
+    sqlContext.sql("drop table if exists hive_org_tdapp_tlaunch")
     sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_org_tdapp_tlaunch(
@@ -4400,6 +4520,8 @@ object Create_Hive_Tables {
     def hive_trans_dtl(implicit sqlContext: HiveContext) = {
       println("=======Create Table:  hive_trans_dtl=======")
       sqlContext.sql(s"use $hive_dbname")
+      sqlContext.sql("drop table if exists hive_trans_dtl")
+
       sqlContext.sql(
         s"""
            |create table if not exists $hive_dbname.hive_trans_dtl(
@@ -4460,6 +4582,8 @@ object Create_Hive_Tables {
     def hive_trans_log(implicit sqlContext: HiveContext) = {
       println("=======Create Table: hive_trans_log=======")
       sqlContext.sql(s"use $hive_dbname")
+      sqlContext.sql("drop table if exists hive_trans_log")
+
       sqlContext.sql(
         s"""
            |create table if not exists $hive_dbname.hive_trans_log(
@@ -4533,6 +4657,8 @@ object Create_Hive_Tables {
     def hive_swt_log(implicit sqlContext: HiveContext) = {
       println("=======Create Table: hive_swt_log=======")
       sqlContext.sql(s"use $hive_dbname")
+      sqlContext.sql("drop table if exists hive_swt_log")
+
       sqlContext.sql(
         s"""
            |create table if not exists $hive_dbname.hive_swt_log(
@@ -4624,6 +4750,8 @@ object Create_Hive_Tables {
     def hive_cdhd_trans_year(implicit sqlContext: HiveContext) = {
       println("=======Create Table : hive_cdhd_trans_year=======")
       sqlContext.sql(s"use $hive_dbname")
+      sqlContext.sql("drop table if exists hive_cdhd_trans_year")
+
       sqlContext.sql(
         s"""
            |create table if not exists $hive_dbname.hive_cdhd_trans_year(
@@ -4643,6 +4771,8 @@ object Create_Hive_Tables {
     def hive_life_order_inf(implicit sqlContext: HiveContext) = {
       println("=======Create Table : hive_life_order_inf=======")
       sqlContext.sql(s"use $hive_dbname")
+      sqlContext.sql("drop table if exists hive_life_order_inf")
+
       sqlContext.sql(
         s"""
            |create table if not exists $hive_dbname.hive_life_order_inf(
@@ -4720,6 +4850,8 @@ object Create_Hive_Tables {
   def hive_org_tdapp_tappevent(implicit sqlContext: HiveContext) = {
     println("=======Create hive_org_tdapp_tappevent=======")
     sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_org_tdapp_tappevent")
+
     sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_org_tdapp_tappevent
@@ -4754,6 +4886,8 @@ object Create_Hive_Tables {
   def hive_rtdtrs_dtl_ach_bill(implicit sqlContext: HiveContext) = {
     println("=======Create hive_rtdtrs_dtl_ach_bill=======")
     sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_rtdtrs_dtl_ach_bill")
+
     sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_rtdtrs_dtl_ach_bill
@@ -4882,6 +5016,8 @@ object Create_Hive_Tables {
   def hive_point_trans(implicit sqlContext: HiveContext) = {
     println("=======Create hive_point_trans=======")
     sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_point_trans")
+
     sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_point_trans
@@ -4928,6 +5064,8 @@ object Create_Hive_Tables {
   def hive_mksvc_order(implicit  sqlContext :HiveContext)={
     println("=======Create hive_mksvc_order=======")
     sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_mksvc_order")
+
     sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_mksvc_order
@@ -4978,6 +5116,8 @@ object Create_Hive_Tables {
   def hive_wlonl_transfer_order(implicit  sqlContext :HiveContext)={
     println("=======Create hive_wlonl_transfer_order=======")
     sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_wlonl_transfer_order")
+
     sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_wlonl_transfer_order
@@ -5010,6 +5150,8 @@ object Create_Hive_Tables {
   def hive_wlonl_uplan_coupon(implicit  sqlContext :HiveContext)={
     println("=======Create hive_wlonl_uplan_coupon=======")
     sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_wlonl_uplan_coupon")
+
     sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_wlonl_uplan_coupon
@@ -5038,6 +5180,8 @@ object Create_Hive_Tables {
   def hive_wlonl_acc_notes (implicit  sqlContext :HiveContext)={
     println("=======Create hive_wlonl_acc_notes=======")
     sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_wlonl_acc_notes")
+
     sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_wlonl_acc_notes
@@ -5084,6 +5228,8 @@ object Create_Hive_Tables {
   def hive_ubp_order (implicit  sqlContext :HiveContext)={
     println("=======Create hive_ubp_order=======")
     sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_ubp_order")
+
     sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_ubp_order
@@ -5145,6 +5291,8 @@ object Create_Hive_Tables {
   def hive_mnsvc_business_instal_info (implicit  sqlContext :HiveContext)={
     println("=======Create hive_mnsvc_business_instal_info=======")
     sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_mnsvc_business_instal_info")
+
     sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_mnsvc_business_instal_info
@@ -5186,6 +5334,8 @@ object Create_Hive_Tables {
   def hive_mtdtrs_dtl_ach_bat_file (implicit  sqlContext :HiveContext)={
     println("=======Create hive_mtdtrs_dtl_ach_bat_file=======")
     sqlContext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_mtdtrs_dtl_ach_bat_file")
+
     sqlContext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_mtdtrs_dtl_ach_bat_file
@@ -5342,6 +5492,8 @@ object Create_Hive_Tables {
   def hive_rtdtrs_dtl_achis_bill (implicit  sqlcontext :HiveContext)={
     println("=======create hive_rtdtrs_dtl_achis_bill=======")
     sqlcontext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_rtdtrs_dtl_achis_bill")
+
     sqlcontext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_rtdtrs_dtl_achis_bill
@@ -5452,6 +5604,8 @@ object Create_Hive_Tables {
   def hive_rtdtrs_dtl_achis_note (implicit  sqlcontext :HiveContext)={
     println("=======create hive_rtdtrs_dtl_achis_note=======")
     sqlcontext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_rtdtrs_dtl_achis_note")
+
     sqlcontext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_rtdtrs_dtl_achis_note(
@@ -5490,6 +5644,8 @@ object Create_Hive_Tables {
   def hive_rtdtrs_dtl_achis_order (implicit  sqlcontext :HiveContext)={
     println("=======create hive_rtdtrs_dtl_achis_order=======")
     sqlcontext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_rtdtrs_dtl_achis_order")
+
     sqlcontext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_rtdtrs_dtl_achis_order(
@@ -5593,6 +5749,8 @@ object Create_Hive_Tables {
   def hive_rtdtrs_dtl_achis_order_error (implicit  sqlcontext :HiveContext)={
     println("=======create hive_rtdtrs_dtl_achis_order_error=======")
     sqlcontext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_rtdtrs_dtl_achis_order_error")
+
     sqlcontext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_rtdtrs_dtl_achis_order_error(
@@ -5633,6 +5791,8 @@ object Create_Hive_Tables {
   def hive_rtdtrs_dtl_sor_cmsp (implicit  sqlcontext :HiveContext)={
     println("=======create hive_rtdtrs_dtl_sor_cmsp=======")
     sqlcontext.sql(s"use $hive_dbname")
+    sqlContext.sql("drop table if exists hive_rtdtrs_dtl_sor_cmsp")
+
     sqlcontext.sql(
       s"""
          |create table if not exists $hive_dbname.hive_rtdtrs_dtl_sor_cmsp(
