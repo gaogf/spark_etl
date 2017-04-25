@@ -7244,16 +7244,15 @@ object SparkHive2Mysql {
            |    a.ins_id_cd as ins_id_cd,
            |    a.term_upgrade_cd as term_upgrade_cd,
            |    a.trans_norm_cd as norm_ver_cd,
-           |    a.transcnt as trans_cnt,
-           |    b.suctranscnt as suc_trans_cnt,
-           |    b.transat as trans_at,
-           |    b.discountat as discount_at,
-           |    b.transusrcnt as trans_usr_cnt,
-           |    b.cardcnt as trans_card_cnt
+           |    sum(a.transcnt) as trans_cnt,
+           |    sum(b.suctranscnt) as suc_trans_cnt,
+           |    sum(b.transat) as trans_at,
+           |    sum(b.discountat) as discount_at,
+           |    sum(b.transusrcnt) as trans_usr_cnt,
+           |    sum(b.cardcnt) as trans_card_cnt
            |from
            |    (
            |        select
-           |            trans.acpt_ins_id_cd,
            |if(ins.ins_cn_nm is null,'其他',ins.ins_cn_nm) as ins_cn_nm,
            |            trans.sys_settle_dt,
            |            case
@@ -7323,7 +7322,6 @@ object SparkHive2Mysql {
            |        and trans.sys_settle_dt >= '$start_dt'
            |        and trans.sys_settle_dt <= '$end_dt'
            |        group by
-           |            trans.acpt_ins_id_cd ,
            |if(ins.ins_cn_nm is null,'其他',ins.ins_cn_nm),
            |            trans.sys_settle_dt,
            |            case
@@ -7382,7 +7380,6 @@ object SparkHive2Mysql {
            |left join
            |    (
            |        select
-           |            trans.acpt_ins_id_cd ,
            |if(ins.ins_cn_nm is null,'其他',ins.ins_cn_nm) as ins_cn_nm,
            |            trans.sys_settle_dt,
            |            case
@@ -7457,7 +7454,6 @@ object SparkHive2Mysql {
            |        and trans.sys_settle_dt >= '$start_dt'
            |        and trans.sys_settle_dt <= '$end_dt'
            |        group by
-           |            trans.acpt_ins_id_cd ,
            |if(ins.ins_cn_nm is null,'其他',ins.ins_cn_nm),
            |            trans.sys_settle_dt,
            |            case
@@ -7513,13 +7509,17 @@ object SparkHive2Mysql {
            |                then '2.0规范'
            |                else ''
            |            end ) b
-           |on
-           |    a.acpt_ins_id_cd=b.acpt_ins_id_cd
-           |and a.ins_cn_nm=b.ins_cn_nm
+           |on a.ins_cn_nm=b.ins_cn_nm
            |and a.sys_settle_dt = b.sys_settle_dt
            |and a.ins_id_cd = b.ins_id_cd
            |and a.term_upgrade_cd = b.term_upgrade_cd
            |and a.trans_norm_cd = b.trans_norm_cd
+           |group by
+           |    a.ins_cn_nm,
+           |    a.sys_settle_dt,
+           |    a.ins_id_cd ,
+           |    a.term_upgrade_cd ,
+           |    a.trans_norm_cd
            | """.stripMargin)
       println(s"#### JOB_DM_60 spark sql 清洗数据完成时间为:" + DateUtils.getCurrentSystemTime())
       if (!Option(results).isEmpty) {

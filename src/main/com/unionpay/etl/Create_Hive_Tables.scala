@@ -5492,7 +5492,7 @@ object Create_Hive_Tables {
   def hive_rtdtrs_dtl_achis_bill (implicit  sqlcontext :HiveContext)={
     println("=======create hive_rtdtrs_dtl_achis_bill=======")
     sqlcontext.sql(s"use $hive_dbname")
-    sqlContext.sql("drop table if exists hive_rtdtrs_dtl_achis_bill")
+    sqlcontext.sql("drop table if exists hive_rtdtrs_dtl_achis_bill")
 
     sqlcontext.sql(
       s"""
@@ -5604,7 +5604,7 @@ object Create_Hive_Tables {
   def hive_rtdtrs_dtl_achis_note (implicit  sqlcontext :HiveContext)={
     println("=======create hive_rtdtrs_dtl_achis_note=======")
     sqlcontext.sql(s"use $hive_dbname")
-    sqlContext.sql("drop table if exists hive_rtdtrs_dtl_achis_note")
+    sqlcontext.sql("drop table if exists hive_rtdtrs_dtl_achis_note")
 
     sqlcontext.sql(
       s"""
@@ -5644,7 +5644,7 @@ object Create_Hive_Tables {
   def hive_rtdtrs_dtl_achis_order (implicit  sqlcontext :HiveContext)={
     println("=======create hive_rtdtrs_dtl_achis_order=======")
     sqlcontext.sql(s"use $hive_dbname")
-    sqlContext.sql("drop table if exists hive_rtdtrs_dtl_achis_order")
+    sqlcontext.sql("drop table if exists hive_rtdtrs_dtl_achis_order")
 
     sqlcontext.sql(
       s"""
@@ -5749,7 +5749,7 @@ object Create_Hive_Tables {
   def hive_rtdtrs_dtl_achis_order_error (implicit  sqlcontext :HiveContext)={
     println("=======create hive_rtdtrs_dtl_achis_order_error=======")
     sqlcontext.sql(s"use $hive_dbname")
-    sqlContext.sql("drop table if exists hive_rtdtrs_dtl_achis_order_error")
+    sqlcontext.sql("drop table if exists hive_rtdtrs_dtl_achis_order_error")
 
     sqlcontext.sql(
       s"""
@@ -5791,7 +5791,7 @@ object Create_Hive_Tables {
   def hive_rtdtrs_dtl_sor_cmsp (implicit  sqlcontext :HiveContext)={
     println("=======create hive_rtdtrs_dtl_sor_cmsp=======")
     sqlcontext.sql(s"use $hive_dbname")
-    sqlContext.sql("drop table if exists hive_rtdtrs_dtl_sor_cmsp")
+    sqlcontext.sql("drop table if exists hive_rtdtrs_dtl_sor_cmsp")
 
     sqlcontext.sql(
       s"""
