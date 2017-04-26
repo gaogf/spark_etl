@@ -794,7 +794,7 @@ object SparkUPH2H {
                  |iss_root_ins_id_cd,
                  |active_card_num,
                  |hp_settle_month,
-                 |hp_settle_month
+                 |'$part_month' as p_settle_month
                  |from
                  |spark_active_card_acq_branch_mon
            """.stripMargin)
