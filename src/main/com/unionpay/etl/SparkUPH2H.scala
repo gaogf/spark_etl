@@ -108,6 +108,10 @@ object SparkUPH2H {
       case "JOB_HV_96"  =>  JOB_HV_96(sqlContext,start_dt,end_dt,interval) //CODE BY XTP
       case "JOB_HV_97"  =>  JOB_HV_97(sqlContext,start_dt,end_dt,interval) //CODE BY XTP
 
+      case "JOB_HV_98"  =>  JOB_HV_98   //CODE BY TZQ
+      case "JOB_HV_99"  =>  JOB_HV_99(sqlContext,start_month,end_month,months) //CODE BY TZQ
+      case "JOB_HV_100"  => JOB_HV_100  //CODE BY TZQ
+
       case _ => println("#### No Case Job,Please Input JobName")
 
     }
@@ -2542,5 +2546,174 @@ object SparkUPH2H {
     }
   }
 
+  /**
+    * JOB_HV_98 2017-4-26
+    * hbkdb.rtapam_dim_ins -> upw_hive.hive_rtapam_dim_ins
+    *
+    * @author TZQ
+    * @param sqlContext
+    */
+  def JOB_HV_98(implicit sqlContext: HiveContext) {
+    println("#### JOB_HV_98(hbkdb.rtapam_dim_ins -> upw_hive.hive_rtapam_dim_ins)")
+
+      println("#### JOB_HV_98 全量抽取数据，开始时间："+ DateUtils.getCurrentSystemTime())
+      DateUtils.timeCost("JOB_HV_98") {
+        val df = sqlContext.read.parquet(s"$up_namenode/$up_hivedataroot/participant/ins/hive_rtapam_dim_ins")
+        println(s"#### JOB_HV_98 read $up_namenode 数据完成时间为:" + DateUtils.getCurrentSystemTime())
+
+        df.registerTempTable("spark_hive_rtapam_dim_ins")
+        println("#### JOB_HV_98 registerTempTable--spark_hive_rtapam_dim_ins 完成的系统时间为:" + DateUtils.getCurrentSystemTime())
+
+        if (!Option(df).isEmpty) {
+          sqlContext.sql(s"use $hive_dbname")
+          sqlContext.sql("truncate table hive_rtdtrs_dtl_sor_cmsp")
+          sqlContext.sql(
+            s"""
+               |insert overwrite table hive_rtapam_dim_ins
+               |select
+               |ins_id                ,
+               |ins_cn_nm             ,
+               |ins_id_cd             ,
+               |root_ins_nm           ,
+               |root_ins_cd           ,
+               |settle_root_ins_nm    ,
+               |settle_root_ins_cd    ,
+               |intnl_org_nm          ,
+               |intnl_org_cd          ,
+               |settle_intnl_org_nm   ,
+               |settle_intnl_org_nm   ,
+               |ins_cata_id1          ,
+               |ins_cata_nm1          ,
+               |ins_cata_id2          ,
+               |ins_cata_nm2          ,
+               |ins_cata_id3          ,
+               |ins_cata_nm3          ,
+               |ins_cata_id4          ,
+               |ins_cata_nm4          ,
+               |settle_ins_cata_id1   ,
+               |settle_ins_cata_nm1   ,
+               |settle_ins_cata_id2   ,
+               |settle_ins_cata_nm2   ,
+               |settle_ins_cata_id3   ,
+               |settle_ins_cata_nm3   ,
+               |settle_ins_cata_id4   ,
+               |settle_ins_cata_nm4   ,
+               |domin_id_1            ,
+               |domin_nm_1            ,
+               |domin_id_2            ,
+               |domin_nm_2            ,
+               |domin_tp_2            ,
+               |domin_id_3            ,
+               |domin_nm_3            ,
+               |src_sys               ,
+               |edw_rec_start_ts      ,
+               |edw_rec_end_ts
+               |from
+               |spark_hive_rtapam_dim_ins
+           """.stripMargin)
+          println("#### JOB_HV_98 全量数据插入完成的时间为：" + DateUtils.getCurrentSystemTime())
+        } else {
+          println(s"#### JOB_HV_98 read $up_namenode  无数据！")
+        }
+      }
+  }
+
+
+  /**
+    * JOB_HV_99 2017-04-26
+    *  hbkdb.stmtrs_scl_usr_geo_loc_quota -> upw_hive.hive_stmtrs_scl_usr_geo_loc_quota
+    * @author tzq
+    * @param sqlContext
+    * @param start_month
+    * @param end_month
+    * @param months
+    */
+  def JOB_HV_99(implicit sqlContext: HiveContext, start_month: String, end_month: String, months: Int) {
+    println("#### JOB_HV_99(hbkdb.stmtrs_scl_usr_geo_loc_quota -> upw_hive.hive_stmtrs_scl_usr_geo_loc_quota)")
+
+    var cur_month = start_month
+    if (months >= 0) {
+      for(i <- 0 to months){
+        val part_month = cur_month.substring(0,7).replace("-","")
+        println("#### JOB_HV_99 增量抽取的时间范围为: "+start_month+ "-"+ end_month)
+        DateUtils.timeCost("JOB_HV_99") {
+          val df = sqlContext.read.parquet(s"$up_namenode/$up_hivedataroot/product/card/hive_stmtrs_scl_usr_geo_loc_quota/part_settle_month=$part_month")
+          println(s"#### JOB_HV_99 read $up_namenode/ 数据完成时间为:" + DateUtils.getCurrentSystemTime())
+
+          df.registerTempTable("spark_hive_stmtrs_scl_usr_geo_loc_quota")
+          println("#### JOB_HV_99 registerTempTable--spark_hive_stmtrs_scl_usr_geo_loc_quota 完成的系统时间为:" + DateUtils.getCurrentSystemTime())
+
+          if (!Option(df).isEmpty) {
+            sqlContext.sql(s"use $hive_dbname")
+            sqlContext.sql(
+              s"""
+                 |insert overwrite table hive_stmtrs_scl_usr_geo_loc_quota partition (part_settle_month)
+                 |select
+                 |settle_month       ,
+                 |cdhd_usr_id        ,
+                 |intnl_org_cd_list  ,
+                 |bind_card_no_list  ,
+                 |hp_settle_month    ,
+                 |'$part_month' as p_settle_month
+                 |from
+                 |spark_hive_stmtrs_scl_usr_geo_loc_quota
+           """.stripMargin)
+            println("#### JOB_HV_99 分区数据插入完成的时间为：" + DateUtils.getCurrentSystemTime())
+          } else {
+            println(s"#### JOB_HV_99 read $up_namenode/ 无数据！")
+          }
+          cur_month = DateUtils.addOneMonth(cur_month)
+        }
+      }
+      }
+  }
+
+  /**
+    * JOB_HV_100 2017-4-26
+    * hbkdb.rtapam_dim_intnl_domin-> upw_hive.hive_rtapam_dim_intnl_domin
+    *
+    * @author TZQ
+    * @param sqlContext
+    */
+  def JOB_HV_100(implicit sqlContext: HiveContext) {
+    println("#### JOB_HV_100(hbkdb.rtapam_dim_intnl_domin-> upw_hive.hive_rtapam_dim_intnl_domin )")
+
+    println("#### JOB_HV_100 全量抽取数据，开始时间："+ DateUtils.getCurrentSystemTime())
+    DateUtils.timeCost("JOB_HV_100") {
+      val df = sqlContext.read.parquet(s"$up_namenode/$up_hivedataroot/region/hive_rtapam_dim_intnl_domin")
+      println(s"#### JOB_HV_100 read $up_namenode 数据完成时间为:" + DateUtils.getCurrentSystemTime())
+
+      df.registerTempTable("spark_hive_rtapam_dim_intnl_domin")
+      println("#### JOB_HV_100 registerTempTable--spark_hive_rtapam_dim_intnl_domin 完成的系统时间为:" + DateUtils.getCurrentSystemTime())
+
+      if (!Option(df).isEmpty) {
+        sqlContext.sql(s"use $hive_dbname")
+        sqlContext.sql("truncate table hive_rtapam_dim_intnl_domin")
+        sqlContext.sql(
+          s"""
+             |insert overwrite table hive_rtapam_dim_intnl_domin
+             |select
+             |domin_id            ,
+             |par_domin_id        ,
+             |domin_nm            ,
+             |domin_tp            ,
+             |intnl_org_id_cd     ,
+             |intnl_org_nm        ,
+             |prov_id             ,
+             |edw_rec_crt_usr     ,
+             |edw_rec_crt_ts      ,
+             |edw_rec_upd_usr     ,
+             |edw_rec_upd_ts      ,
+             |src_sys             ,
+             |src_busi_key
+             |from
+             |spark_hive_rtapam_dim_intnl_domin
+           """.stripMargin)
+        println("#### JOB_HV_100 全量数据插入完成的时间为：" + DateUtils.getCurrentSystemTime())
+      } else {
+        println(s"#### JOB_HV_100 read $up_namenode/ 无数据！")
+      }
+    }
+  }
 
 }

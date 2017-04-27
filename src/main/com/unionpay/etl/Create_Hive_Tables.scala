@@ -126,6 +126,7 @@ object Create_Hive_Tables {
     hive_stmtrs_scl_usr_geo_loc_quota
     hive_rtapam_dim_intnl_domin
 
+
     println("=======Create all tables on the hive successfully=======")
 
     sc.stop()
@@ -5935,7 +5936,6 @@ object Create_Hive_Tables {
          |intnl_org_cd_list   string ,
          |bind_card_no_list   string ,
          |hp_settle_month     string
-         |
          |)
          |partitioned by (part_settle_month string)
          |row format delimited fields terminated by '!|'
