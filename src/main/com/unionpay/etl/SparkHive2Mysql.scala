@@ -9812,17 +9812,17 @@ object SparkHive2Mysql {
                |select
                |case when a.card_attr is null then nvl(b.card_attr,nvl(c.card_attr,nvl(d.card_attr,'其它'))) else a.card_attr end as card_attr_nm,
                |'$today_dt' as report_dt,
-               |sum(c.swp_quick_cnt),
-               |sum(c.swp_quick_usrcnt),
-               |sum(d.swp_quick_succ_cnt),
-               |sum(d.swp_quick_succ_usrcnt),
-               |sum(d.swp_quick_succ_trans_at),
-               |sum(d.swp_quick_succ_points_at),
-               |sum(a.swp_verify_cnt),
-               |sum(a.swp_verify_usrcnt),
-               |sum(b.swp_succ_verify_cnt),
-               |sum(b.swp_succ_verify_usrcnt),
-               |sum(b.swp_succ_verify_trans_at)
+               |sum(c.swp_quick_cnt) as swp_quick_cnt,
+               |sum(c.swp_quick_usrcnt) as swp_quick_usrcnt,
+               |sum(d.swp_quick_succ_cnt) as swp_quick_succ_cnt,
+               |sum(d.swp_quick_succ_usrcnt) as swp_quick_succ_usrcnt,
+               |sum(d.swp_quick_succ_trans_at) as swp_quick_succ_trans_at,
+               |sum(d.swp_quick_succ_points_at) as swp_quick_succ_points_at,
+               |sum(a.swp_verify_cnt) as swp_verify_cnt,
+               |sum(a.swp_verify_usrcnt) as swp_verify_usrcnt,
+               |sum(b.swp_succ_verify_cnt) as swp_succ_verify_cnt,
+               |sum(b.swp_succ_verify_usrcnt) as swp_succ_verify_usrcnt,
+               |sum(b.swp_succ_verify_trans_at) as swp_succ_verify_trans_at
                |from
                |(
                |select
