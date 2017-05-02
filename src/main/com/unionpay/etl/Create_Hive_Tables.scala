@@ -5911,7 +5911,8 @@ object Create_Hive_Tables {
          |domin_nm_3                         string,
          |src_sys                            string,
          |edw_rec_start_ts                   string,
-         |edw_rec_end_ts                     string
+         |edw_rec_end_ts                     string,
+         |intnl_org_nm_short                 string
          |)
          |row format delimited fields terminated by '!|'
          |stored as parquet
@@ -5968,7 +5969,8 @@ object Create_Hive_Tables {
          |edw_rec_upd_usr    string   ,
          |edw_rec_upd_ts     string   ,
          |src_sys            string   ,
-         |src_busi_key       string
+         |src_busi_key       string   ,
+         |intnl_org_nm_short string
          |
          |)
          |row format delimited fields terminated by '!|'
