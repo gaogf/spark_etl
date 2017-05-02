@@ -2607,7 +2607,45 @@ object SparkUPH2H {
                |domin_nm_3            ,
                |src_sys               ,
                |edw_rec_start_ts      ,
-               |edw_rec_end_ts
+               |edw_rec_end_ts        ,
+               |case
+               |when trim(INTNL_ORG_NM)='厦门分公司' then '厦门'
+               |when trim(INTNL_ORG_NM)='吉林分公司' then '吉林'
+               |when trim(INTNL_ORG_NM)='天津分公司' then '天津'
+               |when trim(INTNL_ORG_NM)='宁波分公司' then '宁波'
+               |when trim(INTNL_ORG_NM)='山西分公司' then '山西'
+               |when trim(INTNL_ORG_NM)='广东分公司' then '广东'
+               |when trim(INTNL_ORG_NM)='河北分公司' then '河北'
+               |when trim(INTNL_ORG_NM)='湖北分公司' then '湖北'
+               |when trim(INTNL_ORG_NM)='辽宁分公司' then '辽宁'
+               |when trim(INTNL_ORG_NM)='陕西分公司' then '陕西'
+               |when trim(INTNL_ORG_NM)='云南分公司' then '云南'
+               |when trim(INTNL_ORG_NM)='宁夏分公司' then '宁夏'
+               |when trim(INTNL_ORG_NM)='安徽分公司' then '安徽'
+               |when trim(INTNL_ORG_NM)='江苏分公司' then '江苏'
+               |when trim(INTNL_ORG_NM)='河南分公司' then '河南'
+               |when trim(INTNL_ORG_NM)='深圳分公司' then '深圳'
+               |when trim(INTNL_ORG_NM)='湖南分公司' then '湖南'
+               |when trim(INTNL_ORG_NM)='福建分公司' then '福建'
+               |when trim(INTNL_ORG_NM)='青岛分公司' then '青岛'
+               |when trim(INTNL_ORG_NM)='内蒙分公司' then '内蒙'
+               |when trim(INTNL_ORG_NM)='大连分公司' then '大连'
+               |when trim(INTNL_ORG_NM)='山东分公司' then '山东'
+               |when trim(INTNL_ORG_NM)='广西分公司' then '广西'
+               |when trim(INTNL_ORG_NM)='新疆分公司' then '新疆'
+               |when trim(INTNL_ORG_NM)='海南分公司' then '海南'
+               |when trim(INTNL_ORG_NM)='贵州分公司' then '贵州'
+               |when trim(INTNL_ORG_NM)='上海分公司' then '上海'
+               |when trim(INTNL_ORG_NM)='北京分公司' then '北京'
+               |when trim(INTNL_ORG_NM)='四川分公司' then '四川'
+               |when trim(INTNL_ORG_NM)='江西分公司' then '江西'
+               |when trim(INTNL_ORG_NM)='浙江分公司' then '浙江'
+               |when trim(INTNL_ORG_NM)='甘肃分公司' then '甘肃'
+               |when trim(INTNL_ORG_NM)='西藏分公司' then '西藏'
+               |when trim(INTNL_ORG_NM)='重庆分公司' then '重庆'
+               |when trim(INTNL_ORG_NM)='青海分公司' then '青海'
+               |when trim(INTNL_ORG_NM)='黑龙江分公司' then '黑龙江'
+               |else '总公司' end
                |from
                |spark_hive_rtapam_dim_ins
            """.stripMargin)
@@ -2705,7 +2743,45 @@ object SparkUPH2H {
              |edw_rec_upd_usr     ,
              |edw_rec_upd_ts      ,
              |src_sys             ,
-             |src_busi_key
+             |src_busi_key        ,
+             |case
+             |when trim(INTNL_ORG_NM)='厦门分公司' then '厦门'
+             |when trim(INTNL_ORG_NM)='吉林分公司' then '吉林'
+             |when trim(INTNL_ORG_NM)='天津分公司' then '天津'
+             |when trim(INTNL_ORG_NM)='宁波分公司' then '宁波'
+             |when trim(INTNL_ORG_NM)='山西分公司' then '山西'
+             |when trim(INTNL_ORG_NM)='广东分公司' then '广东'
+             |when trim(INTNL_ORG_NM)='河北分公司' then '河北'
+             |when trim(INTNL_ORG_NM)='湖北分公司' then '湖北'
+             |when trim(INTNL_ORG_NM)='辽宁分公司' then '辽宁'
+             |when trim(INTNL_ORG_NM)='陕西分公司' then '陕西'
+             |when trim(INTNL_ORG_NM)='云南分公司' then '云南'
+             |when trim(INTNL_ORG_NM)='宁夏分公司' then '宁夏'
+             |when trim(INTNL_ORG_NM)='安徽分公司' then '安徽'
+             |when trim(INTNL_ORG_NM)='江苏分公司' then '江苏'
+             |when trim(INTNL_ORG_NM)='河南分公司' then '河南'
+             |when trim(INTNL_ORG_NM)='深圳分公司' then '深圳'
+             |when trim(INTNL_ORG_NM)='湖南分公司' then '湖南'
+             |when trim(INTNL_ORG_NM)='福建分公司' then '福建'
+             |when trim(INTNL_ORG_NM)='青岛分公司' then '青岛'
+             |when trim(INTNL_ORG_NM)='内蒙分公司' then '内蒙'
+             |when trim(INTNL_ORG_NM)='大连分公司' then '大连'
+             |when trim(INTNL_ORG_NM)='山东分公司' then '山东'
+             |when trim(INTNL_ORG_NM)='广西分公司' then '广西'
+             |when trim(INTNL_ORG_NM)='新疆分公司' then '新疆'
+             |when trim(INTNL_ORG_NM)='海南分公司' then '海南'
+             |when trim(INTNL_ORG_NM)='贵州分公司' then '贵州'
+             |when trim(INTNL_ORG_NM)='上海分公司' then '上海'
+             |when trim(INTNL_ORG_NM)='北京分公司' then '北京'
+             |when trim(INTNL_ORG_NM)='四川分公司' then '四川'
+             |when trim(INTNL_ORG_NM)='江西分公司' then '江西'
+             |when trim(INTNL_ORG_NM)='浙江分公司' then '浙江'
+             |when trim(INTNL_ORG_NM)='甘肃分公司' then '甘肃'
+             |when trim(INTNL_ORG_NM)='西藏分公司' then '西藏'
+             |when trim(INTNL_ORG_NM)='重庆分公司' then '重庆'
+             |when trim(INTNL_ORG_NM)='青海分公司' then '青海'
+             |when trim(INTNL_ORG_NM)='黑龙江分公司' then '黑龙江'
+             |else '总公司' end
              |from
              |spark_hive_rtapam_dim_intnl_domin
            """.stripMargin)
